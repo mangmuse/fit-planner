@@ -14,7 +14,16 @@
 - 운동 데이터 시각화를 통한 분석
 
 ---
+## Tech Stack
 
+- **Framework & Language:** Next.js, TypeScript
+- **Package Manager:** Yarn Berry
+- **Form Management:** React Hook Form
+- **Styling:** Vanilla Extract CSS
+- **State Management & Data Fetching:** Zustand, TanStack Query
+- **Testing:** Jest
+
+---
 ## 페이지별 기능
 
 <details>
