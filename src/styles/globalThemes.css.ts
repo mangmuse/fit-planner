@@ -20,10 +20,6 @@ export const vars = createGlobalTheme(":root", {
   },
 });
 
-globalStyle("ol, ul, li", {
-  listStyle: "none",
-});
-
 globalStyle("a", {
   textDecoration: "none",
 });
