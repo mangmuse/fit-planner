@@ -1,12 +1,20 @@
 import Providers from "@/providers/Providers";
 import { ReactNode } from "react";
-import { centerContainer, mobileContainer } from "./styles/layout.css";
+import {
+  centerContainer,
+  mainContent,
+  mobileContainer,
+} from "@/app/(main)/_styles/layout.css";
+import BottomNavBar from "@/components/BottomNavBar/BottomNavBar";
 
 const Layout = ({ children }: { children: ReactNode }) => {
   return (
     <Providers>
       <div className={centerContainer}>
-        <section className={mobileContainer}>{children}</section>
+        <section className={mobileContainer}>
+          <main className={mainContent}>{children}</main>
+          <BottomNavBar />
+        </section>
       </div>
     </Providers>
   );

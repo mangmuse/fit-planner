@@ -13,6 +13,7 @@
     "@tanstack/react-query": "^5.62.7",
     "@tanstack/react-query-devtools": "^5.62.7",
     "@vanilla-extract/css": "^1.16.1",
+    "@vanilla-extract/recipes": "^0.5.5",
     "next": "15.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
