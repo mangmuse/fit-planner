@@ -1,6 +1,5 @@
 "use client";
 
-import { bottomNavBarContainer } from "../styles/BottomNavBar.css";
 import { usePathname } from "next/navigation";
 import home from "public/bottom-navbar/home.svg";
 import routine from "public/bottom-navbar/routine.svg";
@@ -10,7 +9,7 @@ import activeRoutine from "public/bottom-navbar/active_routine.svg";
 import activeAnalytics from "public/bottom-navbar/active_analytics.svg";
 import { useEffect, useState } from "react";
 import BottomNavBarItem from "./BottomNavBarItem";
-
+import styles from "@/components/styles/BottomNavBar.module.css";
 type NavBarItem = "home" | "routines" | "analytics";
 
 const BottomNavBar = () => {
@@ -26,7 +25,7 @@ const BottomNavBar = () => {
   }
 
   return (
-    <nav className={bottomNavBarContainer}>
+    <nav className={styles.bottomNavBarContainer}>
       <BottomNavBarItem
         activeIcon={activeHome}
         path="/"

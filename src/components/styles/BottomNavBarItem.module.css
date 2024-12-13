@@ -1,0 +1,18 @@
+.navBarButton {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--color-text-muted);
+
+  &[data-active="true"] {
+    color: var(--color-primary);
+  }
+}
+
+.navBarButtonIcon {
+  margin-bottom: 4px;
+}

@@ -1,0 +1,12 @@
+:root {
+  --color-bg-base: #111111;
+  --color-bg-secondary: #222222;
+  --color-bg-surface: #292929;
+
+  --color-text-muted: #808080;
+  --color-text-black: #111111;
+  --color-text-white: #ffffff;
+
+  --color-primary: #b0eb5f;
+  --color-warning: #e05745;
+}
