@@ -1,17 +1,17 @@
 import nextJest from "next/jest";
+
 const createJestConfig = nextJest({
   dir: "./",
 });
+
 const customJestConfig = {
+  moduleFileExtensions: ["js", "jsx", "ts", "tsx"],
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
   testEnvironment: "jsdom",
   clearMocks: true,
-  transform: {
-    "\\.css\\.ts$": "@vanilla-extract/jest-transform",
-  },
   moduleNameMapper: {
-    "my-css-folder/.*\\.css$": "<rootDir>/styleMock.js",
-    "\\.legacy\\.css$": "<rootDir>/styleMock.js",
+    "^next/image$": "<rootDir>/src/__mocks__/next/Image.tsx",
+    "\\.(css|less)$": "identity-obj-proxy",
   },
 };
 

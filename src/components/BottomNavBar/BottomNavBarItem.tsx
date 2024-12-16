@@ -17,13 +17,16 @@ const BottomNavBarItem = ({
 }) => {
   return (
     <Link href={path}>
-      <li className={styles.navBarButton} data-active={isActive}>
+      <li
+        className={styles.navBarButton}
+        data-active={isActive}
+        style={{ color: "#b0eb5f" }}
+      >
         <Image
           className={styles.navBarButtonIcon}
           src={isActive ? activeIcon : icon}
           alt={label}
         />
-        <span></span>
         <span>{label}</span>
       </li>
     </Link>

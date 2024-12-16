@@ -9,7 +9,9 @@
   color: var(--color-text-muted);
 
   &[data-active="true"] {
-    color: var(--color-primary);
+    /* color: var(--color-primary);
+     */
+    color: #b0eb5f;
   }
 }
 
