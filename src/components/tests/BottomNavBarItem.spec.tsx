@@ -1,24 +1,12 @@
 import { act, render, RenderResult, screen } from "@testing-library/react";
 import BottomNavBarItem from "../BottomNavBar/BottomNavBarItem";
-import home from "public/bottom-navbar/home.svg";
-import activeHome from "public/bottom-navbar/active_home.svg";
+
 import mockRouter from "next-router-mock";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouterProvider } from "next-router-mock/MemoryRouterProvider";
 
-jest.mock("public/bottom-navbar/home.svg", () => ({
-  __esModule: true,
-  default: {
-    src: "/mock-home.jpg",
-  },
-}));
-
-jest.mock("public/bottom-navbar/active_home.svg", () => ({
-  __esModule: true,
-  default: {
-    src: "/mock-active-home.jpg",
-  },
-}));
+const home = "/mock-home.jpg";
+const activeHome = "/mock-active-home.jpg";
 
 const user = userEvent.setup();
 
@@ -53,15 +41,9 @@ describe("isActive", () => {
   it("props로 전달받은 isActive가 true인 경우 텍스트의 색상이 메인색상으로 변경된다", () => {
     renderBottomNavBarItem(true);
 
-    // const text = screen.getByText("홈") as HTMLSpanElement;
     const li = screen.getByRole("listitem");
-    // console.log(text.style);
-    // console.log(text.className, "asdasd");
 
-    // const styles = getComputedStyle(text);
-    console.log(li.style, li.className);
-    console.log(document.documentElement.innerHTML);
-    expect(li).toHaveStyle("color: #b0eb5f");
+    expect(li).toHaveClass("text-primary");
   });
 
   it("props로 전달받은 itActive가 true인 경우 icon 대신 activeIcon을 사용한다", () => {
@@ -72,9 +54,18 @@ describe("isActive", () => {
     expect(image.src).not.toContain("/mock-home.jpg");
   });
 
-  it("itActive가 false인 경우 텍스트의 색상이 회색이다", () => {});
+  it("isActive가 false인 경우 텍스트의 색상이 회색이다", () => {
+    renderBottomNavBarItem(false);
+    const li = screen.getByRole("listitem");
+    expect(li).toHaveClass("text-text-muted");
+  });
 
-  it("itActive가 false인 경우 icon을 이미지 src로 사용한다", () => {});
+  it("isActive가 false인 경우 icon을 이미지 src로 사용한다", () => {
+    renderBottomNavBarItem(false);
+    const image = screen.getByRole("img") as HTMLImageElement;
+    expect(image.src).toContain("/mock-home.jpg");
+    expect(image.src).not.toContain("/mock-active-home.jpg");
+  });
 });
 
 describe("label", () => {

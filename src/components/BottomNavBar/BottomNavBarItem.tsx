@@ -18,7 +18,7 @@ const BottomNavBarItem = ({
     <Link href={path}>
       <li
         className={`flex flex-col justify-center items-center text-center text-muted text-xs cursor-pointer ${
-          isActive ? "text-primary" : ""
+          isActive ? "text-primary" : "text-text-muted"
         }`}
       >
         <Image src={isActive ? activeIcon : icon} alt={label} />
