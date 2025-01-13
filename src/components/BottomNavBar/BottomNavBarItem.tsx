@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import styles from "@/components/styles/BottomNavBarItem.module.css";
 
 const BottomNavBarItem = ({
   path,
@@ -18,16 +17,12 @@ const BottomNavBarItem = ({
   return (
     <Link href={path}>
       <li
-        className={styles.navBarButton}
-        data-active={isActive}
-        style={{ color: "#b0eb5f" }}
+        className={`flex flex-col justify-center items-center text-center text-muted text-xs cursor-pointer ${
+          isActive ? "text-primary" : ""
+        }`}
       >
-        <Image
-          className={styles.navBarButtonIcon}
-          src={isActive ? activeIcon : icon}
-          alt={label}
-        />
-        <span>{label}</span>
+        <Image src={isActive ? activeIcon : icon} alt={label} />
+        <span className="">{label}</span>
       </li>
     </Link>
   );

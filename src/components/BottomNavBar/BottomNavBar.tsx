@@ -9,7 +9,6 @@ import activeRoutine from "public/bottom-navbar/active_routine.svg";
 import activeAnalytics from "public/bottom-navbar/active_analytics.svg";
 import { useEffect, useState } from "react";
 import BottomNavBarItem from "./BottomNavBarItem";
-import styles from "@/components/styles/BottomNavBar.module.css";
 type NavBarItem = "home" | "routines" | "analytics";
 
 const BottomNavBar = () => {
@@ -25,7 +24,7 @@ const BottomNavBar = () => {
   }
 
   return (
-    <nav className={styles.bottomNavBarContainer}>
+    <nav className="sticky bottom-0 w-full h-[52px] text-text-muted flex justify-around items-center">
       <BottomNavBarItem
         activeIcon={activeHome}
         path="/"
