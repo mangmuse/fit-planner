@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { Exercise, Prisma } from "@prisma/client";
 
 interface Params {
   params: {
@@ -8,26 +9,37 @@ interface Params {
 }
 
 export async function GET(request: Request, { params }: Params) {
-  const postId = 1;
+  const { searchParams } = new URL(request.url);
+  const keyword = decodeURIComponent(searchParams.get("keyword") || "");
+  const type = decodeURIComponent(searchParams.get("type") || "");
+  const category = decodeURIComponent(searchParams.get("category") || "");
 
-  if (Number.isNaN(postId)) {
-    return NextResponse.json({ message: "Invalid post id" }, { status: 400 });
+  console.log(`[${keyword}, ${type}, ${category}]`);
+  const whereClause: Prisma.ExerciseWhereInput = {
+    name: {
+      contains: keyword,
+      mode: "insensitive",
+    },
+  };
+
+  if (type === "커스텀") {
+    whereClause.isCustom = true;
+  } else if (type === "즐겨찾기") {
+    whereClause.isBookMarked = true;
+  }
+
+  if (category !== "전체") {
+    whereClause.category = category;
   }
 
   try {
-    const post = await prisma.exercise.findMany();
-    console.log(post);
+    const exercises = await prisma.exercise.findMany({
+      where: whereClause,
+    });
 
-    if (!post) {
-      return NextResponse.json({ message: "Post not found" }, { status: 404 });
-    }
-
-    return NextResponse.json(post, { status: 200 });
+    return NextResponse.json(exercises, { status: 200 });
   } catch (error) {
-    console.error("[GET Post Error]", error);
-    return NextResponse.json(
-      { message: "Internal Server Error" },
-      { status: 500 }
-    );
+    console.error("[GET Exercises Error]", error);
+    return NextResponse.json({ message: "서버 문제 에러" }, { status: 500 });
   }
 }
