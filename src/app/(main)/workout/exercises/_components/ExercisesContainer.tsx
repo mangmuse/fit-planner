@@ -16,7 +16,8 @@ function ExercisesContainer() {
     useState<ExerciseType>("전체");
 
   const [selectedCategory, setSelectedCategory] = useState<Category>("전체");
-  const debouncedKeyword = useDebounce(searchKeyword, 300);
+  const debouncedKeyword = useDebounce(searchKeyword, 1000);
+
   const { data } = useExercisesQuery(
     debouncedKeyword,
     selectedExerciseType,

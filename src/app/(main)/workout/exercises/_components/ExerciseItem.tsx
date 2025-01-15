@@ -1,8 +1,8 @@
-import { Exercise } from "@prisma/client";
+import { ClientExerise, ExerciseModel } from "@/types/models";
 import Image from "next/image";
 import favoriteIcon from "public/favorite.svg";
 
-type ExerciseItem = { exercise: Exercise };
+type ExerciseItem = { exercise: ClientExerise };
 
 const ExerciseItem = ({ exercise }: ExerciseItem) => {
   return (
