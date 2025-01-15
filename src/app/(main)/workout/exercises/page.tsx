@@ -1,5 +1,11 @@
+import ExercisesContainer from "./_components/ExercisesContainer";
+
 const ExercisesPage = () => {
-  return <>ExercisesPage</>;
+  return (
+    <>
+      <ExercisesContainer />
+    </>
+  );
 };
 
 export default ExercisesPage;
