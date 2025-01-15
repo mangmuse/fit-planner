@@ -1,14 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { Exercise, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
-interface Params {
-  params: {
-    id: string;
-  };
-}
-
-export async function GET(request: Request, { params }: Params) {
+export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const keyword = decodeURIComponent(searchParams.get("keyword") || "");
   const type = decodeURIComponent(searchParams.get("type") || "");

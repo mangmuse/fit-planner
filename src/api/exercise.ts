@@ -1,16 +1,5 @@
-// Base URL from environment variable
-
 import { BASE_URL } from "@/constants";
 import { Category, ExerciseType } from "@/types/filters";
-
-// Interface for Exercise data
-interface Exercise {
-  id: number;
-  name: string;
-  description?: string;
-  targetMuscle?: string[];
-  // Add more properties as needed
-}
 
 export const getAllExercises = async (
   keyword: string,
