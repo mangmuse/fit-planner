@@ -1,18 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import ExerciseItem from "./ExerciseItem";
-import { ClientExerise, ExerciseModel } from "@/types/models";
+import { ClientExerise } from "@/types/models";
 
-/** TODO:
- * isBookMarked가 true인경우 active이미지
- * false인경우 기본이미지
- * 운동이미지 올바르게 렌더링*/
 describe("ExerciseItem", () => {
   const mockExercise: ClientExerise = {
     id: 1,
     name: "벤치프레스",
     category: "가슴",
     imageUrl: "/",
-    isBookMarked: false,
+    isBookmarked: false,
     isCustom: false,
     userId: null,
     createdAt: "2023-12-01T12:00:00.000Z",

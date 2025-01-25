@@ -23,7 +23,7 @@ describe("useDebounce", () => {
 
   it("컴포넌트가 언마운트 된 경우 debounce를 취소한다", () => {
     const clearTimeoutSpy = jest.spyOn(global, "clearTimeout");
-    const { result, unmount } = renderHook(() => useDebounce("test", 500));
+    const { unmount } = renderHook(() => useDebounce("test", 500));
 
     unmount();
 

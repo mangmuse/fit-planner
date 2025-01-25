@@ -2,7 +2,7 @@ import { BASE_URL } from "@/constants";
 import { ClientExerise } from "@/types/models";
 import { http } from "msw";
 
-const exercises: ClientExerise[] = [
+export const exercises: ClientExerise[] = [
   {
     id: 1,
     name: "벤치프레스",
@@ -47,7 +47,6 @@ const exercises: ClientExerise[] = [
 
 export const handlers = [
   http.get(`${BASE_URL}/api/exercises/all`, ({ request }) => {
-    console.log("helooooo");
     const url = new URL(request.url);
     const keyword = decodeURIComponent(url.searchParams.get("keyword") || "");
     const category = decodeURIComponent(

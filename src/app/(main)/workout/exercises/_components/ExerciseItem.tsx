@@ -1,4 +1,4 @@
-import { ClientExerise, ExerciseModel } from "@/types/models";
+import { ClientExerise } from "@/types/models";
 import Image from "next/image";
 import favoriteIcon from "public/favorite.svg";
 

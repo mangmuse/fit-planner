@@ -19,7 +19,7 @@ export async function GET(request: Request) {
   if (type === "커스텀") {
     whereClause.isCustom = true;
   } else if (type === "즐겨찾기") {
-    whereClause.isBookMarked = true;
+    whereClause.isBookmarked = true;
   }
 
   if (category !== "전체") {
