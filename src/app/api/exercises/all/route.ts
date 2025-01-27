@@ -5,8 +5,8 @@ import { Prisma } from "@prisma/client";
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const keyword = decodeURIComponent(searchParams.get("keyword") || "");
-  const type = decodeURIComponent(searchParams.get("type") || "");
-  const category = decodeURIComponent(searchParams.get("category") || "");
+  const type = decodeURIComponent(searchParams.get("type") || "전체");
+  const category = decodeURIComponent(searchParams.get("category") || "전체");
 
   console.log(`[${keyword}, ${type}, ${category}]`);
   const whereClause: Prisma.ExerciseWhereInput = {
@@ -19,7 +19,7 @@ export async function GET(request: Request) {
   if (type === "커스텀") {
     whereClause.isCustom = true;
   } else if (type === "즐겨찾기") {
-    whereClause.isBookMarked = true;
+    whereClause.isBookmarked = true;
   }
 
   if (category !== "전체") {

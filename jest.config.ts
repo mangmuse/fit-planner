@@ -7,8 +7,9 @@ const createJestConfig = nextJest({
 const customJestConfig = {
   moduleFileExtensions: ["js", "jsx", "ts", "tsx"],
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
-  testEnvironment: "jsdom",
   clearMocks: true,
+  testEnvironment: "jest-fixed-jsdom",
+
   moduleNameMapper: {
     "^next/image$": "<rootDir>/src/__mocks__/next/Image.tsx",
     "\\.(css|less)$": "identity-obj-proxy",
