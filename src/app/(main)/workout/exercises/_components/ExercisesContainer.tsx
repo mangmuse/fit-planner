@@ -9,6 +9,7 @@ import ExerciseFilter from "@/app/(main)/workout/exercises/_components/ExerciseF
 import SearchBar from "@/app/(main)/workout/exercises/_components/SearchBar";
 import { useExercisesQuery } from "@/hooks/api/query/useExercisesQuery";
 import { useDebounce } from "@/hooks/useDebounce";
+import { ClientExerise } from "@/types/models";
 
 function ExercisesContainer() {
   const [searchKeyword, setSearchKeyword] = useState<string>("");
@@ -17,6 +18,16 @@ function ExercisesContainer() {
 
   const [selectedCategory, setSelectedCategory] = useState<Category>("전체");
   const debouncedKeyword = useDebounce(searchKeyword, 1000);
+
+  const [selectedExercises, setSelectedExercises] = useState<
+    ClientExerise["id"][]
+  >([]);
+
+  const handleAddSelectedExercise = (newId: ClientExerise["id"]) =>
+    setSelectedExercises((prev) => [...prev, newId]);
+
+  const handleDeleteSelectedExercise = (toBeDeleted: ClientExerise["id"]) =>
+    setSelectedExercises((prev) => prev.filter((item) => item !== toBeDeleted));
 
   const { data } = useExercisesQuery(
     debouncedKeyword,
@@ -36,7 +47,7 @@ function ExercisesContainer() {
   console.log(`[${selectedExerciseType},${selectedCategory}]`);
   console.log(searchKeyword);
   return (
-    <>
+    <main className="">
       <div className="flex justify-end mt-[53px] mb-3">
         <Image src={addButton} alt="추가하기" />
       </div>
@@ -47,8 +58,20 @@ function ExercisesContainer() {
         selectedExerciseType={selectedExerciseType}
         selectedCategory={selectedCategory}
       />
-      {data && <ExerciseList exercises={data} />}
-    </>
+      {data && (
+        <ExerciseList
+          selectedExercises={selectedExercises}
+          onAdd={handleAddSelectedExercise}
+          onDelete={handleDeleteSelectedExercise}
+          exercises={data}
+        />
+      )}
+      {selectedExercises.length > 0 && (
+        <button className="fixed left-1/2 -translate-x-1/2 bottom-8 shadow-xl w-[330px] h-[47px] font-bold rounded-2xl bg-primary text-text-black">
+          {selectedExercises.length}개 선택 완료
+        </button>
+      )}
+    </main>
   );
 }
 
