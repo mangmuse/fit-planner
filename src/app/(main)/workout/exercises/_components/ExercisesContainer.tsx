@@ -29,11 +29,12 @@ function ExercisesContainer() {
   const handleDeleteSelectedExercise = (toBeDeleted: ClientExerise["id"]) =>
     setSelectedExercises((prev) => prev.filter((item) => item !== toBeDeleted));
 
-  const { data } = useExercisesQuery(
-    debouncedKeyword,
-    selectedExerciseType,
-    selectedCategory
-  );
+  const queryOptions = {
+    keyword: debouncedKeyword,
+    exerciseType: selectedExerciseType,
+    category: selectedCategory,
+  };
+  const { data } = useExercisesQuery(queryOptions);
   console.log(data);
 
   const handleSearchKeyword = (keyword: string) => setSearchKeyword(keyword);
@@ -61,6 +62,7 @@ function ExercisesContainer() {
       {data && (
         <ExerciseList
           selectedExercises={selectedExercises}
+          queryOptions={queryOptions}
           onAdd={handleAddSelectedExercise}
           onDelete={handleDeleteSelectedExercise}
           exercises={data}
