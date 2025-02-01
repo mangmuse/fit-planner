@@ -17,7 +17,6 @@ const ExerciseFilter = ({
   selectedExerciseType,
   selectedCategory,
 }: ExerciseFilterProps) => {
-  console.log();
   return (
     <div className="flex flex-col  mt-4">
       <TypeFilter
