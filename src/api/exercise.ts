@@ -7,7 +7,6 @@ export const getAllExercises = async (
   exerciseType: ExerciseType,
   category: Category
 ) => {
-  console.log("키워드", keyword);
   const queryParams = new URLSearchParams({
     keyword: encodeURIComponent(keyword),
     type: encodeURIComponent(exerciseType),
