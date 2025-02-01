@@ -13,7 +13,7 @@ type ExerciseItem = {
   isSelected: boolean;
   onAdd: (newId: ClientExerise["id"]) => void;
   onDelete: (toBeDeleted: ClientExerise["id"]) => void;
-  queryOptions: ExerciseQueryParams;
+  queryOptions?: ExerciseQueryParams;
 };
 // TODO: 즐겨찾기 업데이트 굉장히 느린문제 해결
 const ExerciseItem = ({
@@ -21,7 +21,7 @@ const ExerciseItem = ({
   isSelected,
   onAdd,
   onDelete,
-  queryOptions,
+  queryOptions = { keyword: "", category: "전체", exerciseType: "전체" },
 }: ExerciseItem) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const { name, id, isBookmarked } = exercise;
@@ -40,7 +40,7 @@ const ExerciseItem = ({
         type: "confirm",
         title: "즐겨찾기에서 제거하시겠습니까?",
         message: name,
-        onConfirm: () =>
+        onConfirm: () => {
           updateBookmark(
             {
               exerciseId: id,
@@ -48,9 +48,10 @@ const ExerciseItem = ({
               ...queryOptions,
             },
             { onSettled: () => setIsUpdating(false) }
-          ),
+          );
+        },
       });
-    } else
+    } else {
       updateBookmark(
         {
           exerciseId: id,
@@ -59,6 +60,7 @@ const ExerciseItem = ({
         },
         { onSettled: () => setIsUpdating(false) }
       );
+    }
   };
   return (
     <li
@@ -71,11 +73,12 @@ const ExerciseItem = ({
         </div>
         <span className={clsx({ "text-primary": isSelected })}>{name}</span>
       </div>
-      <Image
-        onClick={handleToggleBookmark}
-        src={isBookmarked ? filledFavoriteIcon : favoriteIcon}
-        alt="즐겨찾기"
-      />
+      <div className="self-center" onClick={handleToggleBookmark}>
+        <Image
+          src={isBookmarked ? filledFavoriteIcon : favoriteIcon}
+          alt="즐겨찾기"
+        />
+      </div>
     </li>
   );
 };

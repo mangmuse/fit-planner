@@ -35,7 +35,6 @@ function ExercisesContainer() {
     category: selectedCategory,
   };
   const { data } = useExercisesQuery(queryOptions);
-  console.log(data);
 
   const handleSearchKeyword = (keyword: string) => setSearchKeyword(keyword);
 
@@ -45,8 +44,6 @@ function ExercisesContainer() {
   const handleChangeSelectedCategory = (category: Category) =>
     setSelectedCategory(category);
 
-  console.log(`[${selectedExerciseType},${selectedCategory}]`);
-  console.log(searchKeyword);
   return (
     <main className="">
       <div className="flex justify-end mt-[53px] mb-3">

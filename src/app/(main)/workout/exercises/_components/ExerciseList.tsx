@@ -1,5 +1,4 @@
 import ExerciseItem from "@/app/(main)/workout/exercises/_components/ExerciseItem";
-import { useModal } from "@/providers/contexts/ModalContext";
 import { ExerciseQueryParams } from "@/types/dto/exercise.dto";
 import { ClientExerise } from "@/types/models";
 

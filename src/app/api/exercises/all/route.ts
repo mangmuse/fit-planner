@@ -9,7 +9,6 @@ export async function GET(request: Request) {
   const type = decodeURIComponent(searchParams.get("type") || "전체");
   const category = decodeURIComponent(searchParams.get("category") || "전체");
 
-  console.log(`[${keyword}, ${type}, ${category}]`);
   const whereClause: Prisma.ExerciseWhereInput = {
     name: {
       contains: keyword,
@@ -43,9 +42,7 @@ export async function GET(request: Request) {
 }
 
 export async function PATCH(req: NextRequest) {
-  console.log("hellooworld");
   const { exerciseId, isBookmarked }: PatchBookmarkInput = await req.json();
-  console.log(exerciseId, isBookmarked);
   try {
     const found = await prisma.exercise.findUnique({
       where: { id: exerciseId },

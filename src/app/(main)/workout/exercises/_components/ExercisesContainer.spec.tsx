@@ -1,20 +1,13 @@
-import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ExercisesContainer from "@/app/(main)/workout/exercises/_components/ExercisesContainer";
 import { act } from "react";
-
-const queryClient = new QueryClient();
+import { customRender, screen } from "@/test-utils/test-utils";
 
 describe("ExercisesContainer 통합 테스트", () => {
   const setup = () => {
-    render(
-      <QueryClientProvider client={queryClient}>
-        <ExercisesContainer />
-      </QueryClientProvider>
-    );
+    customRender(<ExercisesContainer />);
   };
 
   it("초기 로딩 시 전체 운동 목록을 렌더링한다.", async () => {
@@ -86,3 +79,4 @@ describe("ExercisesContainer 통합 테스트", () => {
     expect(screen.queryByText("스쿼트")).not.toBeInTheDocument();
   });
 });
+// TODO: 북마크 및 운동선택 테스트 추가
