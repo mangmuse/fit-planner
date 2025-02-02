@@ -9,4 +9,6 @@ export type ModelWithStringDates<T> = Omit<T, "createdAt" | "updatedAt"> & {
 };
 
 export type ClientUser = ModelWithStringDates<UserModel>;
-export type ClientExerise = ModelWithStringDates<ExerciseModel>;
+export type ClientExerise = ModelWithStringDates<ExerciseModel> & {
+  isBookmarked: boolean;
+};

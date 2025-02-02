@@ -1,13 +1,16 @@
 import { BASE_URL } from "@/constants";
 import { PatchBookmarkInput } from "@/types/dto/exercise.dto";
 import { Category, ExerciseType } from "@/types/filters";
+import { ClientUser } from "@/types/models";
 
 export const getAllExercises = async (
+  userId: ClientUser["id"] | undefined,
   keyword: string,
   exerciseType: ExerciseType,
   category: Category
 ) => {
   const queryParams = new URLSearchParams({
+    userId: userId?.toString() ?? "",
     keyword: encodeURIComponent(keyword),
     type: encodeURIComponent(exerciseType),
     category: encodeURIComponent(category),

@@ -10,9 +10,11 @@ import SearchBar from "@/app/(main)/workout/exercises/_components/SearchBar";
 import { useExercisesQuery } from "@/hooks/api/query/useExercisesQuery";
 import { useDebounce } from "@/hooks/useDebounce";
 import { ClientExerise } from "@/types/models";
-import { signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 function ExercisesContainer() {
+  const { data: session } = useSession();
+
   const [searchKeyword, setSearchKeyword] = useState<string>("");
   const [selectedExerciseType, setSelectedExerciseType] =
     useState<ExerciseType>("전체");
@@ -31,11 +33,14 @@ function ExercisesContainer() {
     setSelectedExercises((prev) => prev.filter((item) => item !== toBeDeleted));
 
   const queryOptions = {
+    userId: session?.user?.id,
     keyword: debouncedKeyword,
     exerciseType: selectedExerciseType,
     category: selectedCategory,
   };
-  const { data } = useExercisesQuery(queryOptions);
+  const { data } = useExercisesQuery({
+    ...queryOptions,
+  });
 
   const handleSearchKeyword = (keyword: string) => setSearchKeyword(keyword);
 
