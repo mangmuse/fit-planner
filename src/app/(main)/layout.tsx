@@ -2,7 +2,7 @@ import Providers from "@/providers/Providers";
 import { ReactNode } from "react";
 import BottomNavBar from "@/components/BottomNavBar/BottomNavBar";
 
-const Layout = ({ children }: { children: ReactNode }) => {
+const Layout = async ({ children }: { children: ReactNode }) => {
   return (
     <Providers>
       <div className="flex flex-col w-full min-h-screen items-center">

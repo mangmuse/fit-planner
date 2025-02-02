@@ -10,6 +10,7 @@ import SearchBar from "@/app/(main)/workout/exercises/_components/SearchBar";
 import { useExercisesQuery } from "@/hooks/api/query/useExercisesQuery";
 import { useDebounce } from "@/hooks/useDebounce";
 import { ClientExerise } from "@/types/models";
+import { signIn } from "next-auth/react";
 
 function ExercisesContainer() {
   const [searchKeyword, setSearchKeyword] = useState<string>("");
@@ -65,6 +66,7 @@ function ExercisesContainer() {
           exercises={data}
         />
       )}
+
       {selectedExercises.length > 0 && (
         <button className="fixed left-1/2 -translate-x-1/2 bottom-8 shadow-xl w-[330px] h-[47px] font-bold rounded-2xl bg-primary text-text-black">
           {selectedExercises.length}개 선택 완료
