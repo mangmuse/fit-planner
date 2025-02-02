@@ -1,7 +1,7 @@
 import useExerciseMutation from "@/hooks/api/mutation/useExerciseMutation";
 import { useModal } from "@/providers/contexts/ModalContext";
 import { ExerciseQueryParams } from "@/types/dto/exercise.dto";
-import { ClientExerise } from "@/types/models";
+import { ClientExerise, ClientUser } from "@/types/models";
 import clsx from "clsx";
 import Image from "next/image";
 import favoriteIcon from "public/favorite.svg";
@@ -13,7 +13,8 @@ type ExerciseItem = {
   isSelected: boolean;
   onAdd: (newId: ClientExerise["id"]) => void;
   onDelete: (toBeDeleted: ClientExerise["id"]) => void;
-  queryOptions?: ExerciseQueryParams;
+  userId: ClientUser["id"];
+  queryOptions?: Omit<ExerciseQueryParams, "userId">;
 };
 // TODO: 즐겨찾기 업데이트 굉장히 느린문제 해결
 const ExerciseItem = ({
@@ -21,7 +22,12 @@ const ExerciseItem = ({
   isSelected,
   onAdd,
   onDelete,
-  queryOptions = { keyword: "", category: "전체", exerciseType: "전체" },
+  userId,
+  queryOptions = {
+    keyword: "",
+    category: "전체",
+    exerciseType: "전체",
+  },
 }: ExerciseItem) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const { name, id, isBookmarked } = exercise;
@@ -45,6 +51,7 @@ const ExerciseItem = ({
             {
               exerciseId: id,
               isBookmarked: true,
+              userId,
               ...queryOptions,
             },
             { onSettled: () => setIsUpdating(false) }
@@ -55,6 +62,7 @@ const ExerciseItem = ({
       updateBookmark(
         {
           exerciseId: id,
+          userId,
           isBookmarked: false,
           ...queryOptions,
         },

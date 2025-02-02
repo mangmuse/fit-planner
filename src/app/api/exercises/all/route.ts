@@ -2,14 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { ExerciseModel } from "@/types/models";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/_utils/authOption";
 
 export async function GET(request: NextRequest) {
+  const session = await getServerSession(authOptions);
   const { searchParams } = new URL(request.url);
   const keyword = decodeURIComponent(searchParams.get("keyword") ?? "");
   const type = decodeURIComponent(searchParams.get("type") ?? "전체");
   const category = decodeURIComponent(searchParams.get("category") ?? "전체");
   const userId = searchParams.get("userId") ?? undefined;
-
+  console.log(userId);
+  console.log("qwdhqwoidhqiwohd");
   const whereClause: Prisma.ExerciseWhereInput = {
     name: { contains: keyword, mode: "insensitive" },
   };

@@ -24,7 +24,7 @@ export const getAllExercises = async (
 };
 
 export const patchBookmark = async (patchBookmarkInput: PatchBookmarkInput) => {
-  const response = await fetch(`${BASE_URL}/api/exercises/all?`, {
+  const response = await fetch(`${BASE_URL}/api/exercises/bookmark`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",

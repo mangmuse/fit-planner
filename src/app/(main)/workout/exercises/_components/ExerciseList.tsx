@@ -1,6 +1,6 @@
 import ExerciseItem from "@/app/(main)/workout/exercises/_components/ExerciseItem";
 import { ExerciseQueryParams } from "@/types/dto/exercise.dto";
-import { ClientExerise } from "@/types/models";
+import { ClientExerise, ClientUser } from "@/types/models";
 
 type ExerciseListProps = {
   exercises: ClientExerise[];
@@ -8,6 +8,7 @@ type ExerciseListProps = {
   onAdd: (newId: ClientExerise["id"]) => void;
   onDelete: (toBeDeleted: ClientExerise["id"]) => void;
   queryOptions: ExerciseQueryParams;
+  userId: ClientUser["id"];
 };
 const ExerciseList = ({
   exercises,
@@ -15,6 +16,7 @@ const ExerciseList = ({
   onDelete,
   selectedExercises,
   queryOptions,
+  userId,
 }: ExerciseListProps) => {
   console.log(exercises);
   return (
@@ -27,6 +29,7 @@ const ExerciseList = ({
           onAdd={onAdd}
           onDelete={onDelete}
           exercise={exercise}
+          userId={userId}
         />
       ))}
     </ul>

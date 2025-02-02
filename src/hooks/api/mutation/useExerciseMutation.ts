@@ -8,13 +8,23 @@ export default function useExerciseMutation() {
   const queryClient = useQueryClient();
 
   const { mutate: updateBookmark } = useMutation({
-    mutationFn: async ({ exerciseId, isBookmarked }: UpdateBookmarkInput) => {
-      return patchBookmark({ exerciseId, isBookmarked });
+    mutationFn: async ({
+      userId,
+      exerciseId,
+      isBookmarked,
+    }: UpdateBookmarkInput) => {
+      return patchBookmark({ userId, exerciseId, isBookmarked });
     },
 
     onMutate: async (variables) => {
-      const { exerciseId, isBookmarked, keyword, exerciseType, category } =
-        variables;
+      const {
+        exerciseId,
+        isBookmarked,
+        keyword,
+        exerciseType,
+        category,
+        userId,
+      } = variables;
 
       await queryClient.cancelQueries({
         queryKey: [QUERY_KEY.EXERCISES, keyword, exerciseType, category],
@@ -22,6 +32,7 @@ export default function useExerciseMutation() {
 
       const prevData = queryClient.getQueryData<ClientExerise[]>([
         QUERY_KEY.EXERCISES,
+        userId,
         keyword,
         exerciseType,
         category,
@@ -35,7 +46,7 @@ export default function useExerciseMutation() {
           return item;
         });
         queryClient.setQueryData(
-          [QUERY_KEY.EXERCISES, keyword, exerciseType, category],
+          [QUERY_KEY.EXERCISES, userId, keyword, exerciseType, category],
           newData
         );
       }
@@ -48,6 +59,7 @@ export default function useExerciseMutation() {
         queryClient.setQueryData(
           [
             QUERY_KEY.EXERCISES,
+            variables.userId,
             variables.keyword,
             variables.exerciseType,
             variables.category,
@@ -62,6 +74,7 @@ export default function useExerciseMutation() {
         queryClient.setQueryData<ClientExerise[]>(
           [
             QUERY_KEY.EXERCISES,
+            variables.userId,
             variables.keyword,
             variables.exerciseType,
             variables.category,

@@ -14,7 +14,7 @@ import { useSession } from "next-auth/react";
 
 function ExercisesContainer() {
   const { data: session } = useSession();
-
+  const userId = session?.user?.id;
   const [searchKeyword, setSearchKeyword] = useState<string>("");
   const [selectedExerciseType, setSelectedExerciseType] =
     useState<ExerciseType>("전체");
@@ -33,7 +33,7 @@ function ExercisesContainer() {
     setSelectedExercises((prev) => prev.filter((item) => item !== toBeDeleted));
 
   const queryOptions = {
-    userId: session?.user?.id,
+    userId,
     keyword: debouncedKeyword,
     exerciseType: selectedExerciseType,
     category: selectedCategory,
@@ -62,8 +62,9 @@ function ExercisesContainer() {
         selectedExerciseType={selectedExerciseType}
         selectedCategory={selectedCategory}
       />
-      {data && (
+      {data && userId && (
         <ExerciseList
+          userId={userId}
           selectedExercises={selectedExercises}
           queryOptions={queryOptions}
           onAdd={handleAddSelectedExercise}
