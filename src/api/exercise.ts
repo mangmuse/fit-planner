@@ -16,23 +16,23 @@ export const getAllExercises = async (
     category: encodeURIComponent(category),
   });
 
-  const response = await fetch(`${BASE_URL}/api/exercises/all?${queryParams}`);
-  if (!response.ok) {
+  const res = await fetch(`${BASE_URL}/api/exercises/all?${queryParams}`);
+  if (!res.ok) {
     throw new Error("Failed to fetch exercises");
   }
-  return response.json();
+  return res.json();
 };
 
 export const patchBookmark = async (patchBookmarkInput: PatchBookmarkInput) => {
-  const response = await fetch(`${BASE_URL}/api/exercises/bookmark`, {
+  const res = await fetch(`${BASE_URL}/api/exercises/bookmark`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(patchBookmarkInput),
   });
-  if (!response.ok) {
+  if (!res.ok) {
     throw new Error("Failed to fetch exercises");
   }
-  return response.json();
+  return res.json();
 };

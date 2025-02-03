@@ -11,6 +11,8 @@ import { useExercisesQuery } from "@/hooks/api/query/useExercisesQuery";
 import { useDebounce } from "@/hooks/useDebounce";
 import { ClientExerise } from "@/types/models";
 import { useSession } from "next-auth/react";
+import { PostWorkoutDetailInput } from "@/types/dto/workoutDetail.dto";
+import useWorkoutMutation from "@/hooks/api/mutation/useWorkoutMutation";
 
 function ExercisesContainer() {
   const { data: session } = useSession();
@@ -25,7 +27,6 @@ function ExercisesContainer() {
   const [selectedExercises, setSelectedExercises] = useState<
     ClientExerise["id"][]
   >([]);
-
   const handleAddSelectedExercise = (newId: ClientExerise["id"]) =>
     setSelectedExercises((prev) => [...prev, newId]);
 
@@ -42,6 +43,8 @@ function ExercisesContainer() {
     ...queryOptions,
   });
 
+  const { addWorkoutDetail } = useWorkoutMutation();
+
   const handleSearchKeyword = (keyword: string) => setSearchKeyword(keyword);
 
   const handleChangeSelectedExerciseType = (exerciseType: ExerciseType) =>
@@ -49,6 +52,18 @@ function ExercisesContainer() {
 
   const handleChangeSelectedCategory = (category: Category) =>
     setSelectedCategory(category);
+
+  const handleAddWorkoutDetail = async () => {
+    const today = new Date();
+    const date = today.toISOString();
+
+    const postWorkoutDetailInput: PostWorkoutDetailInput = {
+      selectedExercises,
+      userId,
+      date,
+    };
+    await addWorkoutDetail(postWorkoutDetailInput);
+  };
 
   return (
     <main className="">
@@ -74,7 +89,10 @@ function ExercisesContainer() {
       )}
 
       {selectedExercises.length > 0 && (
-        <button className="fixed left-1/2 -translate-x-1/2 bottom-8 shadow-xl w-[330px] h-[47px] font-bold rounded-2xl bg-primary text-text-black">
+        <button
+          onClick={handleAddWorkoutDetail}
+          className="fixed left-1/2 -translate-x-1/2 bottom-8 shadow-xl w-[330px] h-[47px] font-bold rounded-2xl bg-primary text-text-black"
+        >
           {selectedExercises.length}개 선택 완료
         </button>
       )}
