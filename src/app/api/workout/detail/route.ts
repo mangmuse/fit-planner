@@ -5,16 +5,10 @@ import dayjs from "dayjs";
 export async function POST(req: NextRequest) {
   const { userId, selectedExercises, date } = await req.json();
 
-  const startOfDay = dayjs(date).startOf("day").toDate();
-  const endOfDay = dayjs(date).endOf("day").toDate();
-
   let workout = await prisma.workout.findFirst({
     where: {
       userId,
-      date: {
-        gte: startOfDay,
-        lt: endOfDay,
-      },
+      date: new Date(date),
     },
   });
 
@@ -22,7 +16,7 @@ export async function POST(req: NextRequest) {
 
   if (!workout) {
     workout = await prisma.workout.create({
-      data: { userId, date },
+      data: { userId, date: new Date(date) },
     });
   } else {
     const lastDetail = await prisma.workoutDetail.findFirst({

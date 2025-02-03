@@ -9,3 +9,7 @@ export const getFormattedDate = (date?: string) => {
 export const getFormattedDateWithoutDay = (date?: string) => {
   return dayjs(date).format("M월 D일");
 };
+
+export const getFormattedDateYMD = (date?: Date) => {
+  return dayjs(date).format("YYYY-MM-DD");
+};

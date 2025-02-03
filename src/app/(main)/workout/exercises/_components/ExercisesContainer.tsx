@@ -13,6 +13,7 @@ import { ClientExerise } from "@/types/models";
 import { useSession } from "next-auth/react";
 import { PostWorkoutDetailInput } from "@/types/dto/workoutDetail.dto";
 import useWorkoutMutation from "@/hooks/api/mutation/useWorkoutMutation";
+import { getFormattedDateYMD } from "@/util/formatDate";
 
 function ExercisesContainer() {
   const { data: session } = useSession();
@@ -55,7 +56,8 @@ function ExercisesContainer() {
 
   const handleAddWorkoutDetail = async () => {
     const today = new Date();
-    const date = today.toISOString();
+    const date = getFormattedDateYMD(today);
+    console.log(date);
 
     const postWorkoutDetailInput: PostWorkoutDetailInput = {
       selectedExercises,
