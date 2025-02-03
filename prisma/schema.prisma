@@ -18,6 +18,7 @@ model User {
   image         String?
   accounts      Account[]
   Exercises     Exercise[]
+  routines      Routine[]
   UserExercises UserExercise[]
   workouts      Workout[]
 }
@@ -50,6 +51,7 @@ model Exercise {
   createdAt      DateTime        @default(now())
   updatedAt      DateTime?       @updatedAt
   user           User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  routineDetails RoutineDetail[]
   userExercises  UserExercise[]
   workoutDetails WorkoutDetail[]
 }
@@ -88,8 +90,35 @@ model WorkoutDetail {
   exerciseOrder Int
   reps          Int?
   setOrder      Int
+  isDone        Boolean  @default(false)
   exercise      Exercise @relation(fields: [exerciseId], references: [id])
   workout       Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
 
   @@unique([workoutId, exerciseOrder, setOrder])
+}
+
+model Routine {
+  id             String          @id @default(uuid())
+  name           String
+  description    String?
+  userId         String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime?       @updatedAt
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  routineDetails RoutineDetail[]
+}
+
+model RoutineDetail {
+  id            String   @id @default(uuid())
+  routineId     String
+  exerciseId    Int
+  weight        Float?
+  rpe           Float?
+  exerciseOrder Int
+  reps          Int?
+  setOrder      Int
+  exercise      Exercise @relation(fields: [exerciseId], references: [id])
+  routine       Routine  @relation(fields: [routineId], references: [id], onDelete: Cascade)
+
+  @@unique([routineId, exerciseOrder, setOrder])
 }
