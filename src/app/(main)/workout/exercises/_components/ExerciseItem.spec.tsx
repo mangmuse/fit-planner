@@ -17,6 +17,7 @@ import { render, screen } from "@testing-library/react";
 import ExerciseItem from "./ExerciseItem";
 import { ClientExerise } from "@/types/models";
 import userEvent from "@testing-library/user-event";
+import { mockUserId } from "@/__mocks__/api";
 
 beforeEach(() => {
   openModalMock.mockClear();
@@ -47,6 +48,7 @@ function renderExerciseItem({
 } = {}) {
   return render(
     <ExerciseItem
+      userId={mockUserId}
       exercise={exercise}
       isSelected={isSelected}
       onAdd={onAdd}
@@ -63,7 +65,7 @@ describe("최초 렌더링", () => {
 
   it("즐겨찾기 아이콘이 표시된다", () => {
     renderExerciseItem();
-    expect(screen.getByAltText("즐겨찾기")).toBeInTheDocument();
+    expect(screen.getByAltText("북마크")).toBeInTheDocument();
   });
 
   it("올바른 스타일링이 적용되어야한다", () => {
@@ -85,7 +87,7 @@ describe("bookmark", () => {
   it("북마크가 true일 때 즐겨찾기 아이콘을 클릭시 openModal이 호출된다", async () => {
     renderExerciseItem({ exercise: { ...mockExercise, isBookmarked: true } });
 
-    const bookmarkIcon = screen.getByAltText("즐겨찾기");
+    const bookmarkIcon = screen.getByAltText("북마크 해제");
     await userEvent.click(bookmarkIcon);
 
     expect(openModalMock).toHaveBeenCalledTimes(1);
@@ -97,7 +99,7 @@ describe("bookmark", () => {
 
   it("북마크가 false일 때 즐겨찾기 아이콘을 클릭시 updateBookmark가 호출된다", async () => {
     renderExerciseItem();
-    const bookmarkIcon = screen.getByAltText("즐겨찾기");
+    const bookmarkIcon = screen.getByAltText("북마크");
     await userEvent.click(bookmarkIcon);
     expect(updateBookmarkMock).toHaveBeenCalledTimes(1);
   });
@@ -132,9 +134,9 @@ describe("isSelected", () => {
     expect(onAddSpy).toHaveBeenCalledTimes(1);
   });
 
-  it("즐겨찾기 이미지를 클린한 경우에는 isSelected가 true이더라도 onDelete함수가 호출되지 않는다", async () => {
+  it("즐겨찾기 이미지를 클릭한 경우에는 isSelected가 true이더라도 onDelete함수가 호출되지 않는다", async () => {
     renderExerciseItem({ isSelected: true, onAdd: onAddSpy });
-    const bookmarkImage = screen.getByAltText("즐겨찾기");
+    const bookmarkImage = screen.getByAltText("북마크");
     await userEvent.click(bookmarkImage);
     expect(onDeleteSpy).toHaveBeenCalledTimes(0);
   });

@@ -5,7 +5,6 @@ export async function PATCH(req: NextRequest) {
   try {
     const body = await req.json();
     const { userId, exerciseId, isBookmarked } = body;
-    console.log(body);
 
     if (!exerciseId || !userId) {
       return NextResponse.json(
@@ -39,7 +38,6 @@ export async function PATCH(req: NextRequest) {
         isBookmarked: !existingBookmark?.isBookmarked,
       },
     });
-
     return NextResponse.json(updatedBookmark);
   } catch (error) {
     console.error("북마크 업데이트에 실패했습니다", error);

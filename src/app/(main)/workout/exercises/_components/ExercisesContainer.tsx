@@ -57,7 +57,6 @@ function ExercisesContainer() {
   const handleAddWorkoutDetail = async () => {
     const today = new Date();
     const date = getFormattedDateYMD(today);
-    console.log(date);
 
     const postWorkoutDetailInput: PostWorkoutDetailInput = {
       selectedExercises,

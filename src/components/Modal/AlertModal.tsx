@@ -2,7 +2,7 @@ import { AlertModalProps } from "@/types/modal.type";
 
 const AlertModal = ({ title, message, onClose }: AlertModalProps) => {
   return (
-    <>
+    <div role="dialog">
       <h2 className="font-bold mb-2">{title || "알림"}</h2>
       <p>{message}</p>
       <div className="mt-4 flex justify-end">
@@ -13,7 +13,7 @@ const AlertModal = ({ title, message, onClose }: AlertModalProps) => {
           확인
         </button>
       </div>
-    </>
+    </div>
   );
 };
 
