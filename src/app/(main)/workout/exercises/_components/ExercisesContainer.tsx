@@ -10,9 +10,14 @@ import SearchBar from "@/app/(main)/workout/exercises/_components/SearchBar";
 import { useExercisesQuery } from "@/hooks/api/query/useExercisesQuery";
 import { useDebounce } from "@/hooks/useDebounce";
 import { ClientExerise } from "@/types/models";
-import { signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { PostWorkoutDetailInput } from "@/types/dto/workoutDetail.dto";
+import useWorkoutMutation from "@/hooks/api/mutation/useWorkoutMutation";
+import { getFormattedDateYMD } from "@/util/formatDate";
 
 function ExercisesContainer() {
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
   const [searchKeyword, setSearchKeyword] = useState<string>("");
   const [selectedExerciseType, setSelectedExerciseType] =
     useState<ExerciseType>("전체");
@@ -23,7 +28,6 @@ function ExercisesContainer() {
   const [selectedExercises, setSelectedExercises] = useState<
     ClientExerise["id"][]
   >([]);
-
   const handleAddSelectedExercise = (newId: ClientExerise["id"]) =>
     setSelectedExercises((prev) => [...prev, newId]);
 
@@ -31,11 +35,16 @@ function ExercisesContainer() {
     setSelectedExercises((prev) => prev.filter((item) => item !== toBeDeleted));
 
   const queryOptions = {
+    userId,
     keyword: debouncedKeyword,
     exerciseType: selectedExerciseType,
     category: selectedCategory,
   };
-  const { data } = useExercisesQuery(queryOptions);
+  const { data } = useExercisesQuery({
+    ...queryOptions,
+  });
+
+  const { addWorkoutDetail } = useWorkoutMutation();
 
   const handleSearchKeyword = (keyword: string) => setSearchKeyword(keyword);
 
@@ -44,6 +53,18 @@ function ExercisesContainer() {
 
   const handleChangeSelectedCategory = (category: Category) =>
     setSelectedCategory(category);
+
+  const handleAddWorkoutDetail = async () => {
+    const today = new Date();
+    const date = getFormattedDateYMD(today);
+
+    const postWorkoutDetailInput: PostWorkoutDetailInput = {
+      selectedExercises,
+      userId,
+      date,
+    };
+    await addWorkoutDetail(postWorkoutDetailInput);
+  };
 
   return (
     <main className="">
@@ -57,8 +78,9 @@ function ExercisesContainer() {
         selectedExerciseType={selectedExerciseType}
         selectedCategory={selectedCategory}
       />
-      {data && (
+      {data && userId && (
         <ExerciseList
+          userId={userId}
           selectedExercises={selectedExercises}
           queryOptions={queryOptions}
           onAdd={handleAddSelectedExercise}
@@ -68,7 +90,10 @@ function ExercisesContainer() {
       )}
 
       {selectedExercises.length > 0 && (
-        <button className="fixed left-1/2 -translate-x-1/2 bottom-8 shadow-xl w-[330px] h-[47px] font-bold rounded-2xl bg-primary text-text-black">
+        <button
+          onClick={handleAddWorkoutDetail}
+          className="fixed left-1/2 -translate-x-1/2 bottom-8 shadow-xl w-[330px] h-[47px] font-bold rounded-2xl bg-primary text-text-black"
+        >
           {selectedExercises.length}개 선택 완료
         </button>
       )}

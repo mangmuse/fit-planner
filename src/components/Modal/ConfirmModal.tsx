@@ -7,7 +7,7 @@ const ConfirmModal = ({
   onCancel,
 }: ConfirmModalProps) => {
   return (
-    <>
+    <div role="dialog">
       <h2 className="font-bold mb-2">{title || "확인"}</h2>
       <p>{message}</p>
       <div className="mt-4 flex justify-end gap-2">
@@ -21,7 +21,7 @@ const ConfirmModal = ({
           확인
         </button>
       </div>
-    </>
+    </div>
   );
 };
 

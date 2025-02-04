@@ -6,7 +6,6 @@ const AuthTest = () => {
   const { status } = useSession();
   const handleSignIn = () => signIn("google");
   const handleSignOut = () => signOut();
-  console.log(status);
   return (
     <div className="flex gap2 mt-10">
       {status === "authenticated" ? (

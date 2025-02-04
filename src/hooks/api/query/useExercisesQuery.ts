@@ -4,13 +4,15 @@ import { getAllExercises } from "@/api/exercise";
 import { ExerciseQueryParams } from "@/types/dto/exercise.dto";
 
 export const useExercisesQuery = ({
+  userId,
   keyword,
   category,
   exerciseType,
 }: ExerciseQueryParams) => {
   return useQuery({
-    queryKey: [QUERY_KEY.EXERCISES, keyword, exerciseType, category],
-    queryFn: () => getAllExercises(keyword, exerciseType, category),
+    queryKey: [QUERY_KEY.EXERCISES, userId, keyword, exerciseType, category],
+    queryFn: () => getAllExercises(userId, keyword, exerciseType, category),
+    enabled: Boolean(userId),
     placeholderData: keepPreviousData,
   });
 };

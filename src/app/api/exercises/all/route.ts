@@ -1,25 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
-import { PatchBookmarkInput } from "@/types/dto/exercise.dto";
+import { ExerciseModel } from "@/types/models";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/_utils/authOption";
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
+  const session = await getServerSession(authOptions);
   const { searchParams } = new URL(request.url);
-  const keyword = decodeURIComponent(searchParams.get("keyword") || "");
-  const type = decodeURIComponent(searchParams.get("type") || "전체");
-  const category = decodeURIComponent(searchParams.get("category") || "전체");
-
+  const keyword = decodeURIComponent(searchParams.get("keyword") ?? "");
+  const type = decodeURIComponent(searchParams.get("type") ?? "전체");
+  const category = decodeURIComponent(searchParams.get("category") ?? "전체");
+  const userId = searchParams.get("userId") ?? undefined;
+  console.log(userId);
+  console.log("qwdhqwoidhqiwohd");
   const whereClause: Prisma.ExerciseWhereInput = {
-    name: {
-      contains: keyword,
-      mode: "insensitive",
-    },
+    name: { contains: keyword, mode: "insensitive" },
   };
 
   if (type === "커스텀") {
     whereClause.isCustom = true;
-  } else if (type === "즐겨찾기") {
-    whereClause.isBookmarked = true;
+  } else if (type === "즐겨찾기" && userId) {
+    whereClause.userExercises = {
+      some: {
+        userId: userId,
+        isBookmarked: true,
+      },
+    };
   }
 
   if (category !== "전체") {
@@ -29,45 +36,32 @@ export async function GET(request: Request) {
   try {
     const exercises = await prisma.exercise.findMany({
       where: whereClause,
-      orderBy: {
-        id: "asc",
-      },
+      orderBy: { id: "asc" },
+      include: userId
+        ? {
+            userExercises: {
+              where: { userId },
+              select: { isBookmarked: true },
+            },
+          }
+        : undefined,
     });
 
-    return NextResponse.json(exercises, { status: 200 });
+    const exercisesWithBookmark = exercises.map(
+      (
+        exercise: ExerciseModel & {
+          userExercises?: { isBookmarked: boolean }[];
+        }
+      ) => {
+        const isBookmarked = exercise.userExercises?.[0]?.isBookmarked ?? false;
+        const { userExercises, ...rest } = exercise;
+        return { ...rest, isBookmarked };
+      }
+    );
+
+    return NextResponse.json(exercisesWithBookmark, { status: 200 });
   } catch (error) {
     console.error("[GET Exercises Error]", error);
     return NextResponse.json({ message: "서버 문제 에러" }, { status: 500 });
-  }
-}
-
-export async function PATCH(req: NextRequest) {
-  const { exerciseId, isBookmarked }: PatchBookmarkInput = await req.json();
-  try {
-    const found = await prisma.exercise.findUnique({
-      where: { id: exerciseId },
-    });
-    if (!found) {
-      return NextResponse.json(
-        { success: false, message: "해당 운동을 찾을 수 없습니다." },
-        { status: 404 }
-      );
-    }
-
-    const updated = await prisma.exercise.update({
-      where: { id: exerciseId },
-      data: { isBookmarked: !isBookmarked },
-    });
-
-    return NextResponse.json(
-      { success: true, exercise: updated },
-      { status: 200 }
-    );
-  } catch (e) {
-    console.error("북마크 업데이트에 실패했습니다.", e);
-    return NextResponse.json(
-      { success: false, message: "서버 문제 에러" },
-      { status: 500 }
-    );
   }
 }
