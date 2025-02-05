@@ -1,5 +1,21 @@
 import { BASE_URL } from "@/constants";
 import { PostWorkoutDetailInput } from "@/types/dto/workoutDetail.dto";
+import { ClientUser, ClientWorkoutDetail } from "@/types/models";
+
+export const getWorkoutDetails = async (
+  userId: ClientUser["id"] | undefined,
+  date: string
+): Promise<ClientWorkoutDetail[]> => {
+  if (!userId) {
+    throw new Error("로그인을 먼저 진행해주세요");
+  }
+  const res = await fetch(`${BASE_URL}/api/workout/detail/${userId}/${date}`);
+  if (!res.ok) {
+    throw new Error("워크아웃을 불러오지 못했습니다");
+  }
+  const workoutDetails = await res.json();
+  return workoutDetails;
+};
 
 export const postWorkoutDetail = async (
   postWorkoutDetailInput: PostWorkoutDetailInput

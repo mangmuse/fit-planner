@@ -1,4 +1,4 @@
-import ExerciseItem from "@/app/(main)/workout/exercises/_components/ExerciseItem";
+import ExerciseItem from "@/app/(main)/workout/[date]/exercises/_components/ExerciseItem";
 import { ExerciseQueryParams } from "@/types/dto/exercise.dto";
 import { ClientExerise, ClientUser } from "@/types/models";
 

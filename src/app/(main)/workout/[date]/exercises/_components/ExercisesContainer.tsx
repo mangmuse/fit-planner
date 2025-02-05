@@ -4,9 +4,9 @@ import Image from "next/image";
 import addButton from "public/add.svg";
 import { Category, ExerciseType } from "@/types/filters";
 import { useState } from "react";
-import ExerciseList from "@/app/(main)/workout/exercises/_components/ExerciseList";
-import ExerciseFilter from "@/app/(main)/workout/exercises/_components/ExerciseFilter";
-import SearchBar from "@/app/(main)/workout/exercises/_components/SearchBar";
+import ExerciseList from "@/app/(main)/workout/[date]/exercises/_components/ExerciseList";
+import ExerciseFilter from "@/app/(main)/workout/[date]/exercises/_components/ExerciseFilter";
+import SearchBar from "@/app/(main)/workout/[date]/exercises/_components/SearchBar";
 import { useExercisesQuery } from "@/hooks/api/query/useExercisesQuery";
 import { useDebounce } from "@/hooks/useDebounce";
 import { ClientExerise } from "@/types/models";
@@ -14,9 +14,13 @@ import { useSession } from "next-auth/react";
 import { PostWorkoutDetailInput } from "@/types/dto/workoutDetail.dto";
 import useWorkoutMutation from "@/hooks/api/mutation/useWorkoutMutation";
 import { getFormattedDateYMD } from "@/util/formatDate";
-
+import { useParams } from "next/navigation";
+/**
+ 1. 쿼리로 날짜와 userId가 맞는 workout 가져오기
+ */
 function ExercisesContainer() {
   const { data: session } = useSession();
+  const { date } = useParams();
   const userId = session?.user?.id;
   const [searchKeyword, setSearchKeyword] = useState<string>("");
   const [selectedExerciseType, setSelectedExerciseType] =
