@@ -13,6 +13,7 @@ module.exports = {
         "bg-base": "#111111",
         "bg-secondary": "#222222",
         "bg-surface": "#292929",
+        "bg-surface-variant": "#333333",
 
         "text-muted": "#808080",
         "text-black": "#111111",

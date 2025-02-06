@@ -1,7 +1,7 @@
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 
-import ExercisesContainer from "@/app/(main)/workout/exercises/_components/ExercisesContainer";
+import ExercisesContainer from "@/app/(main)/workout/[date]/exercises/_components/ExercisesContainer";
 import {
   act,
   customRender,

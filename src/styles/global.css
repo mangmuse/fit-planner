@@ -14,3 +14,9 @@
   --color-primary: #b0eb5f;
   --color-warning: #e05745;
 }
+
+@layer base {
+  li {
+    list-style: none;
+  }
+}
