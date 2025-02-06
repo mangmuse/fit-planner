@@ -2,6 +2,8 @@
 
 import useWorkoutMutation from "@/hooks/api/mutation/useWorkoutMutation";
 import { PostWorkoutDetailInput } from "@/types/dto/workoutDetail.dto";
+import { useSession } from "next-auth/react";
+import { useParams } from "next/navigation";
 
 type SetActionsProps = {
   postWorkoutDetailInput: PostWorkoutDetailInput;
@@ -12,7 +14,12 @@ const SetActions = ({
   postWorkoutDetailInput,
   workoutDetailId,
 }: SetActionsProps) => {
-  const { addWorkoutDetail, removeWorkoutDetail } = useWorkoutMutation();
+  const userId = useSession()?.data?.user?.id;
+  const { date } = useParams();
+  const { addWorkoutDetail, removeWorkoutDetail } = useWorkoutMutation(
+    userId,
+    date as string | undefined
+  );
   const handleAddSet = async () =>
     await addWorkoutDetail(postWorkoutDetailInput);
   const handleDeleteSet = async () =>

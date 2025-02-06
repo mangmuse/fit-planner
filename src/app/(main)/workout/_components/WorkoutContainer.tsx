@@ -1,16 +1,27 @@
 "use client";
 
 import WorkoutExerciseGroup from "@/app/(main)/workout/_components/WorkoutExerciseGroup";
+import useWorkoutDetailsQuery from "@/hooks/api/query/useWorkoutDetailsQuery";
 import { ClientWorkoutDetail } from "@/types/models";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 
 type WorkoutContainerProps = {
-  workoutDetails: ClientWorkoutDetail[];
+  initialWorkoutDetails: ClientWorkoutDetail[];
   date: string;
 };
 
-const WorkoutContainer = ({ workoutDetails, date }: WorkoutContainerProps) => {
-  const groupedDetails = workoutDetails.reduce((acc, detail) => {
+const WorkoutContainer = ({
+  initialWorkoutDetails,
+  date,
+}: WorkoutContainerProps) => {
+  const userId = useSession().data?.user?.id;
+  const { data: workoutDetail } = useWorkoutDetailsQuery(
+    userId,
+    date,
+    initialWorkoutDetails
+  );
+  const groupedDetails = workoutDetail.reduce((acc, detail) => {
     if (!acc.has(detail.exerciseOrder)) {
       acc.set(detail.exerciseOrder, []);
     }

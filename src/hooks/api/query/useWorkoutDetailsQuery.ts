@@ -1,15 +1,17 @@
 import { getWorkoutDetails } from "@/api/workout";
+import { QUERY_KEY } from "@/hooks/api/constants";
 import { ClientWorkoutDetail } from "@/types/models";
 import { useQuery } from "@tanstack/react-query";
 
 const useWorkoutDetailsQuery = (
-  userId: string,
+  userId: string | undefined,
   date: string,
   initialData: ClientWorkoutDetail[]
 ) => {
-  return useQuery<ClientWorkoutDetail[], Error, ClientWorkoutDetail>({
-    queryKey: ["workoutDetails", { userId, date }],
+  return useQuery<ClientWorkoutDetail[], Error, ClientWorkoutDetail[]>({
+    queryKey: [QUERY_KEY.WORKOUT_DETAILS, { userId, date }],
     queryFn: () => getWorkoutDetails(userId, date),
+    enabled: !!userId,
     initialData,
   });
 };

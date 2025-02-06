@@ -50,7 +50,10 @@ function ExercisesContainer() {
     ...queryOptions,
   });
 
-  const { addWorkoutDetails } = useWorkoutMutation();
+  const { addWorkoutDetails } = useWorkoutMutation(
+    userId,
+    date as string | undefined
+  );
 
   const handleSearchKeyword = (keyword: string) => setSearchKeyword(keyword);
 

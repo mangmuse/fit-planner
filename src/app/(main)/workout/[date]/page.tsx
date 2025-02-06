@@ -24,7 +24,7 @@ const WorkoutPage = async ({ params }: WorkoutPageProps) => {
       {workoutDetails.length === 0 ? (
         <WorkoutPlaceholder date={date} />
       ) : (
-        <WorkoutContainer date={date} workoutDetails={workoutDetails} />
+        <WorkoutContainer date={date} initialWorkoutDetails={workoutDetails} />
       )}
     </main>
   );
