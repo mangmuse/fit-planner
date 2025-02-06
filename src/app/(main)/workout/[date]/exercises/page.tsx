@@ -1,20 +1,20 @@
-import ExercisesContainer from "./_components/ExercisesContainer";
+import { getAllExercises } from "@/api/exercise";
+import ExercisesContainer from "@/app/(main)/workout/[date]/exercises/_components/ExercisesContainer";
+import { authOptions } from "@/app/api/_utils/authOption";
+import { getServerSession } from "next-auth";
+import { DefaultSession } from "next-auth";
 
-type ExercisesPageProps = {
-  params: {
-    date: string;
-  };
-};
+export const revalidate = 86400;
 
-const ExercisesPage = async ({ params }: ExercisesPageProps) => {
-  const { date } = await Promise.resolve(params);
-  console.log(date);
-
+const ExercisesPage = async () => {
+  const session = await getServerSession(authOptions);
+  const userId = session?.user?.id;
+  const exercises = await getAllExercises(userId);
+  console.log(exercises);
   return (
     <>
-      <ExercisesContainer />
+      <ExercisesContainer exercises={exercises} />
     </>
   );
 };
-
 export default ExercisesPage;

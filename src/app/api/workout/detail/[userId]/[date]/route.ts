@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { userId: string; date: string } }
+  { params }: { params: Promise<{ userId: string; date: string }> }
 ) {
   const { userId, date } = await Promise.resolve(params);
   const parsedDate = new Date(date);

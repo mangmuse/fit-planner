@@ -18,6 +18,7 @@ const ExerciseList = ({
   queryOptions,
   userId,
 }: ExerciseListProps) => {
+  console.log(exercises);
   return (
     <ul className="h-full flex flex-col gap-1 mt-[14px]">
       {exercises.map((exercise: ClientExerise) => (

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import addButton from "public/add.svg";
 import { Category, ExerciseType } from "@/types/filters";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ExerciseList from "@/app/(main)/workout/[date]/exercises/_components/ExerciseList";
 import ExerciseFilter from "@/app/(main)/workout/[date]/exercises/_components/ExerciseFilter";
 import SearchBar from "@/app/(main)/workout/[date]/exercises/_components/SearchBar";
@@ -15,15 +15,17 @@ import { PostWorkoutDetailsInput } from "@/types/dto/workoutDetail.dto";
 import useWorkoutMutation from "@/hooks/api/mutation/useWorkoutMutation";
 import { getFormattedDateYMD } from "@/util/formatDate";
 import { useParams, useRouter } from "next/navigation";
+import { getFilteredExercises } from "@/app/(main)/workout/[date]/exercises/_components/_utils/getFilteredExercises";
 /**
  1. 쿼리로 날짜와 userId가 맞는 workout 가져오기
  */
-function ExercisesContainer() {
+function ExercisesContainer({ exercises }: { exercises: ClientExerise[] }) {
   const router = useRouter();
 
   const { data: session } = useSession();
   const { date } = useParams();
   const userId = session?.user?.id;
+  const [visibleExercises, setVisibleExercises] = useState<ClientExerise[]>([]);
   const [searchKeyword, setSearchKeyword] = useState<string>("");
   const [selectedExerciseType, setSelectedExerciseType] =
     useState<ExerciseType>("전체");
@@ -46,9 +48,9 @@ function ExercisesContainer() {
     exerciseType: selectedExerciseType,
     category: selectedCategory,
   };
-  const { data } = useExercisesQuery({
-    ...queryOptions,
-  });
+  // const { data } = useExercisesQuery({
+  //   ...queryOptions,
+  // });
 
   const { addWorkoutDetails } = useWorkoutMutation(
     userId,
@@ -77,6 +79,16 @@ function ExercisesContainer() {
     });
   };
 
+  useEffect(() => {
+    const filteredExercises = getFilteredExercises(
+      exercises,
+      searchKeyword,
+      selectedExerciseType,
+      selectedCategory
+    );
+    setVisibleExercises(filteredExercises);
+  }, [exercises, searchKeyword, selectedExerciseType, selectedCategory]);
+
   return (
     <main className="">
       <div className="flex justify-end mt-[53px] mb-3">
@@ -89,14 +101,14 @@ function ExercisesContainer() {
         selectedExerciseType={selectedExerciseType}
         selectedCategory={selectedCategory}
       />
-      {data && userId && (
+      {userId && (
         <ExerciseList
           userId={userId}
           selectedExercises={selectedExercises}
           queryOptions={queryOptions}
           onAdd={handleAddSelectedExercise}
           onDelete={handleDeleteSelectedExercise}
-          exercises={data}
+          exercises={visibleExercises}
         />
       )}
 

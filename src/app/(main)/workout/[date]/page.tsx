@@ -6,9 +6,9 @@ import { getFormattedDateWithoutDay } from "@/util/formatDate";
 import { getServerSession } from "next-auth";
 
 type WorkoutPageProps = {
-  params: {
+  params: Promise<{
     date: string;
-  };
+  }>;
 };
 
 const WorkoutPage = async ({ params }: WorkoutPageProps) => {
