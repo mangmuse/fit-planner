@@ -11,14 +11,16 @@ import { useExercisesQuery } from "@/hooks/api/query/useExercisesQuery";
 import { useDebounce } from "@/hooks/useDebounce";
 import { ClientExerise } from "@/types/models";
 import { useSession } from "next-auth/react";
-import { PostWorkoutDetailInput } from "@/types/dto/workoutDetail.dto";
+import { PostWorkoutDetailsInput } from "@/types/dto/workoutDetail.dto";
 import useWorkoutMutation from "@/hooks/api/mutation/useWorkoutMutation";
 import { getFormattedDateYMD } from "@/util/formatDate";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 /**
  1. 쿼리로 날짜와 userId가 맞는 workout 가져오기
  */
 function ExercisesContainer() {
+  const router = useRouter();
+
   const { data: session } = useSession();
   const { date } = useParams();
   const userId = session?.user?.id;
@@ -48,7 +50,7 @@ function ExercisesContainer() {
     ...queryOptions,
   });
 
-  const { addWorkoutDetail } = useWorkoutMutation();
+  const { addWorkoutDetails } = useWorkoutMutation();
 
   const handleSearchKeyword = (keyword: string) => setSearchKeyword(keyword);
 
@@ -62,12 +64,14 @@ function ExercisesContainer() {
     const today = new Date();
     const date = getFormattedDateYMD(today);
 
-    const postWorkoutDetailInput: PostWorkoutDetailInput = {
+    const postWorkoutDetailInput: PostWorkoutDetailsInput = {
       selectedExercises,
       userId,
       date,
     };
-    await addWorkoutDetail(postWorkoutDetailInput);
+    await addWorkoutDetails(postWorkoutDetailInput, {
+      onSuccess: () => router.push(`/workout/${date}`),
+    });
   };
 
   return (

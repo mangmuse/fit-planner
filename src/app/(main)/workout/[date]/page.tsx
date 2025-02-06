@@ -4,7 +4,6 @@ import WorkoutPlaceholder from "@/app/(main)/workout/_components/WorkoutPlacehol
 import { authOptions } from "@/app/api/_utils/authOption";
 import { getFormattedDateWithoutDay } from "@/util/formatDate";
 import { getServerSession } from "next-auth";
-import Link from "next/link";
 
 type WorkoutPageProps = {
   params: {
@@ -20,7 +19,7 @@ const WorkoutPage = async ({ params }: WorkoutPageProps) => {
   const formattedDate = getFormattedDateWithoutDay();
   console.log(workoutDetails);
   return (
-    <main className="pt-[70px]">
+    <main className="px-4 pt-[70px]">
       <time className="text-2xl font-semibold">{formattedDate}</time>
       {workoutDetails.length === 0 ? (
         <WorkoutPlaceholder date={date} />

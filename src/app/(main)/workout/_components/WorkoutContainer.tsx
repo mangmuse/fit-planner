@@ -1,7 +1,6 @@
 "use client";
 
 import WorkoutExerciseGroup from "@/app/(main)/workout/_components/WorkoutExerciseGroup";
-import WorkoutItem from "@/app/(main)/workout/_components/WorkoutItem";
 import { ClientWorkoutDetail } from "@/types/models";
 import Link from "next/link";
 
@@ -24,17 +23,19 @@ const WorkoutContainer = ({ workoutDetails, date }: WorkoutContainerProps) => {
   }));
   console.log(groups);
   return (
-    <>
-      {groups.map(({ exerciseOrder, details }) => (
-        <WorkoutExerciseGroup
-          key={exerciseOrder}
-          details={details}
-          exerciseOrder={exerciseOrder}
-        />
-      ))}
+    <div>
+      <ul className="flex flex-col gap-2.5">
+        {groups.map(({ exerciseOrder, details }) => (
+          <WorkoutExerciseGroup
+            key={exerciseOrder}
+            details={details}
+            exerciseOrder={exerciseOrder}
+          />
+        ))}
+      </ul>
 
       <Link href={`/workout/${date}/exercises`}>운동 추가</Link>
-    </>
+    </div>
   );
 };
 

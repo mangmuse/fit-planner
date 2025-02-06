@@ -1,5 +1,8 @@
 import { BASE_URL } from "@/constants";
-import { PostWorkoutDetailInput } from "@/types/dto/workoutDetail.dto";
+import {
+  PostWorkoutDetailInput,
+  PostWorkoutDetailsInput,
+} from "@/types/dto/workoutDetail.dto";
 import { ClientUser, ClientWorkoutDetail } from "@/types/models";
 
 export const getWorkoutDetails = async (
@@ -17,9 +20,9 @@ export const getWorkoutDetails = async (
   return workoutDetails;
 };
 
-export const postWorkoutDetail = async (
-  postWorkoutDetailInput: PostWorkoutDetailInput
-) => {
+export const postWorkoutDetails = async (
+  postWorkoutDetailInput: PostWorkoutDetailsInput
+): Promise<void> => {
   const res = await fetch(`${BASE_URL}/api/workout/detail`, {
     method: "POST",
     headers: {
@@ -27,6 +30,38 @@ export const postWorkoutDetail = async (
     },
     body: JSON.stringify(postWorkoutDetailInput),
   });
+  if (!res.ok) {
+    throw new Error("워크아웃 추가에 실패했습니다");
+  }
+};
+
+export const postWorkoutDetail = async (
+  postWorkoutDetailInput: PostWorkoutDetailInput
+): Promise<void> => {
+  const res = await fetch(`${BASE_URL}/api/workout/detail/set`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(postWorkoutDetailInput),
+  });
+  if (!res.ok) {
+    throw new Error("워크아웃 추가에 실패했습니다");
+  }
+};
+
+export const deleteWorkoutDetail = async (
+  workoutDetailId: ClientWorkoutDetail["id"]
+): Promise<void> => {
+  const res = await fetch(
+    `${BASE_URL}/api/workout/detail/set/${workoutDetailId}`,
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   if (!res.ok) {
     throw new Error("워크아웃 추가에 실패했습니다");
   }

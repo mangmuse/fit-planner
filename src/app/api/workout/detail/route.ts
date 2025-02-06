@@ -1,6 +1,5 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import dayjs from "dayjs";
 
 export async function POST(req: NextRequest) {
   const { userId, selectedExercises, date } = await req.json();
