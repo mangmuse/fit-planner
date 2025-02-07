@@ -1,10 +1,10 @@
 import { BASE_URL } from "@/constants";
-import { ClientExerise } from "@/types/models";
+import { ClientExercise } from "@/types/models";
 import { http } from "msw";
 import dayjs from "dayjs";
 import { PatchBookmarkInput } from "@/types/dto/exercise.dto";
 
-export const mockExercises: ClientExerise[] = [
+export const mockExercises: ClientExercise[] = [
   {
     id: 1,
     name: "벤치프레스",

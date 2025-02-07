@@ -1,7 +1,8 @@
 import useExerciseMutation from "@/hooks/api/mutation/useExerciseMutation";
+import { toggleLocalBookmark } from "@/lib/db";
 import { useModal } from "@/providers/contexts/ModalContext";
 import { ExerciseQueryParams } from "@/types/dto/exercise.dto";
-import { ClientExerise, ClientUser } from "@/types/models";
+import { ClientExercise, ClientUser, LocalExercise } from "@/types/models";
 import clsx from "clsx";
 import Image from "next/image";
 import favoriteIcon from "public/favorite.svg";
@@ -9,10 +10,11 @@ import filledFavoriteIcon from "public/favorite_filled.svg";
 import { useState } from "react";
 
 type ExerciseItem = {
-  exercise: ClientExerise;
+  exercise: LocalExercise;
   isSelected: boolean;
-  onAdd: (newId: ClientExerise["id"]) => void;
-  onDelete: (toBeDeleted: ClientExerise["id"]) => void;
+  onAdd: (newId: ClientExercise["id"]) => void;
+  onDelete: (toBeDeleted: ClientExercise["id"]) => void;
+  onReload: () => void;
   userId: ClientUser["id"];
   queryOptions?: Omit<ExerciseQueryParams, "userId">;
 };
@@ -22,6 +24,7 @@ const ExerciseItem = ({
   isSelected,
   onAdd,
   onDelete,
+  onReload,
   userId,
   queryOptions = {
     keyword: "",
@@ -36,7 +39,9 @@ const ExerciseItem = ({
   const handleClick = () =>
     isSelected ? onDelete(exercise.id) : onAdd(exercise.id);
 
-  const handleToggleBookmark = (e: React.MouseEvent<HTMLImageElement>) => {
+  const handleToggleBookmark = async (
+    e: React.MouseEvent<HTMLImageElement>
+  ) => {
     e.stopPropagation();
     if (isUpdating) return;
     setIsUpdating(true);
@@ -47,28 +52,16 @@ const ExerciseItem = ({
         title: "즐겨찾기에서 제거하시겠습니까?",
         message: name,
         onCancel: () => setIsUpdating(false),
-        onConfirm: () => {
-          updateBookmark(
-            {
-              exerciseId: id,
-              isBookmarked: true,
-              userId,
-              ...queryOptions,
-            },
-            { onSettled: () => setIsUpdating(false) }
-          );
+        onConfirm: async () => {
+          await toggleLocalBookmark(id, false);
+          onReload();
+          setIsUpdating(false);
         },
       });
     } else {
-      updateBookmark(
-        {
-          exerciseId: id,
-          userId,
-          isBookmarked: false,
-          ...queryOptions,
-        },
-        { onSettled: () => setIsUpdating(false) }
-      );
+      await toggleLocalBookmark(id, true);
+      onReload();
+      setIsUpdating(false);
     }
   };
   return (

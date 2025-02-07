@@ -15,7 +15,7 @@ jest.mock("@/hooks/api/mutation/useExerciseMutation", () => ({
 }));
 import { render, screen } from "@testing-library/react";
 import ExerciseItem from "./ExerciseItem";
-import { ClientExerise } from "@/types/models";
+import { ClientExercise } from "@/types/models";
 import userEvent from "@testing-library/user-event";
 import { mockUserId } from "@/__mocks__/api";
 
@@ -24,7 +24,7 @@ beforeEach(() => {
   updateBookmarkMock.mockClear();
 });
 
-const mockExercise: ClientExerise = {
+const mockExercise: ClientExercise = {
   id: 1,
   name: "벤치프레스",
   category: "가슴",
@@ -41,7 +41,7 @@ function renderExerciseItem({
   onAdd = jest.fn(),
   onDelete = jest.fn(),
 }: {
-  exercise?: ClientExerise;
+  exercise?: ClientExercise;
   isSelected?: boolean;
   onAdd?: jest.Mock;
   onDelete?: jest.Mock;

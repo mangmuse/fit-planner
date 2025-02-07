@@ -13,7 +13,7 @@ const ExercisesPage = async () => {
   console.log(exercises);
   return (
     <>
-      <ExercisesContainer exercises={exercises} />
+      <ExercisesContainer />
     </>
   );
 };

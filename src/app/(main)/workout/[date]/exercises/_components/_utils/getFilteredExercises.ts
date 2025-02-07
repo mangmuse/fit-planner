@@ -1,16 +1,16 @@
 import { Category, ExerciseType } from "@/types/filters";
-import { ClientExerise } from "@/types/models";
+import { ClientExercise, LocalExercise } from "@/types/models";
 
 export const getFilteredExercises = (
-  exercises: ClientExerise[],
+  exercises: LocalExercise[],
   keyword: string,
   exerciseType: ExerciseType,
   category: Category
-): ClientExerise[] => {
-  const filterByKeyword = (exercise: ClientExerise) =>
+): LocalExercise[] => {
+  const filterByKeyword = (exercise: LocalExercise) =>
     exercise.name.includes(keyword);
 
-  const filterByExerciseType = (exercise: ClientExerise) => {
+  const filterByExerciseType = (exercise: LocalExercise) => {
     if (exerciseType === "전체") return true;
     else if (exerciseType === "커스텀") {
       return exercise.isCustom;
@@ -19,7 +19,7 @@ export const getFilteredExercises = (
     }
   };
 
-  const filterByCategory = (exercise: ClientExerise) => {
+  const filterByCategory = (exercise: LocalExercise) => {
     return category === "전체" ? true : exercise.category === category;
   };
 

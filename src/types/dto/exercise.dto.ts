@@ -1,9 +1,9 @@
 import { Category, ExerciseType } from "@/types/filters";
-import { ClientExerise, ClientUser } from "@/types/models";
+import { ClientExercise, ClientUser } from "@/types/models";
 
 export type PatchBookmarkInput = {
   userId: ClientUser["id"];
-  exerciseId: ClientExerise["id"];
+  exerciseId: ClientExercise["id"];
   isBookmarked: boolean;
 };
 

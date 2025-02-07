@@ -1,7 +1,7 @@
 import { patchBookmark } from "@/api/exercise";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { UpdateBookmarkInput } from "@/types/dto/exercise.dto";
-import { ClientExerise } from "@/types/models";
+import { ClientExercise } from "@/types/models";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function useExerciseMutation() {
@@ -30,7 +30,7 @@ export default function useExerciseMutation() {
         queryKey: [QUERY_KEY.EXERCISES, keyword, exerciseType, category],
       });
 
-      const prevData = queryClient.getQueryData<ClientExerise[]>([
+      const prevData = queryClient.getQueryData<ClientExercise[]>([
         QUERY_KEY.EXERCISES,
         userId,
         keyword,
@@ -71,7 +71,7 @@ export default function useExerciseMutation() {
 
     onSuccess: (data, variables) => {
       if (data.success && data.exercise) {
-        queryClient.setQueryData<ClientExerise[]>(
+        queryClient.setQueryData<ClientExercise[]>(
           [
             QUERY_KEY.EXERCISES,
             variables.userId,

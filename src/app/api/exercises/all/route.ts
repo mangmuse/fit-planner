@@ -68,6 +68,7 @@ import { authOptions } from "@/app/api/_utils/authOption";
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get("userId") ?? undefined;
+  console.log(userId);
   try {
     const exercises = await prisma.exercise.findMany({
       include: {

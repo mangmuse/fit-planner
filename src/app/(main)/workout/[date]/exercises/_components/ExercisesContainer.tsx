@@ -1,97 +1,104 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
+
 import addButton from "public/add.svg";
 import { Category, ExerciseType } from "@/types/filters";
-import { useEffect, useState } from "react";
-import ExerciseList from "@/app/(main)/workout/[date]/exercises/_components/ExerciseList";
-import ExerciseFilter from "@/app/(main)/workout/[date]/exercises/_components/ExerciseFilter";
-import SearchBar from "@/app/(main)/workout/[date]/exercises/_components/SearchBar";
-import { useExercisesQuery } from "@/hooks/api/query/useExercisesQuery";
+
+import { loadExercisesFromServer, syncFromServer } from "@/api/exercise"; // 서버→로컬
+import { getFilteredExercises } from "./_utils/getFilteredExercises";
+
 import { useDebounce } from "@/hooks/useDebounce";
-import { ClientExerise } from "@/types/models";
-import { useSession } from "next-auth/react";
 import { PostWorkoutDetailsInput } from "@/types/dto/workoutDetail.dto";
 import useWorkoutMutation from "@/hooks/api/mutation/useWorkoutMutation";
 import { getFormattedDateYMD } from "@/util/formatDate";
-import { useParams, useRouter } from "next/navigation";
-import { getFilteredExercises } from "@/app/(main)/workout/[date]/exercises/_components/_utils/getFilteredExercises";
-/**
- 1. 쿼리로 날짜와 userId가 맞는 workout 가져오기
- */
-function ExercisesContainer({ exercises }: { exercises: ClientExerise[] }) {
-  const router = useRouter();
+import { getAllLocalExercises } from "@/lib/db";
+import { LocalExercise } from "@/types/models";
+import ExerciseFilter from "@/app/(main)/workout/[date]/exercises/_components/ExerciseFilter";
+import SearchBar from "@/app/(main)/workout/[date]/exercises/_components/SearchBar";
+import ExerciseList from "@/app/(main)/workout/[date]/exercises/_components/ExerciseList";
 
+export default function ExercisesContainer() {
   const { data: session } = useSession();
+  const router = useRouter();
   const { date } = useParams();
+
   const userId = session?.user?.id;
-  const [visibleExercises, setVisibleExercises] = useState<ClientExerise[]>([]);
-  const [searchKeyword, setSearchKeyword] = useState<string>("");
+
+  // 1) 로컬 DB
+  const [exercises, setExercises] = useState<LocalExercise[]>([]);
+  const [visibleExercises, setVisibleExercises] = useState<LocalExercise[]>([]);
+
+  const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedExerciseType, setSelectedExerciseType] =
     useState<ExerciseType>("전체");
-
   const [selectedCategory, setSelectedCategory] = useState<Category>("전체");
-  const debouncedKeyword = useDebounce(searchKeyword, 1000);
+  const debouncedKeyword = useDebounce(searchKeyword, 500);
 
   const [selectedExercises, setSelectedExercises] = useState<
-    ClientExerise["id"][]
+    LocalExercise["id"][]
   >([]);
-  const handleAddSelectedExercise = (newId: ClientExerise["id"]) =>
-    setSelectedExercises((prev) => [...prev, newId]);
 
-  const handleDeleteSelectedExercise = (toBeDeleted: ClientExerise["id"]) =>
-    setSelectedExercises((prev) => prev.filter((item) => item !== toBeDeleted));
+  async function loadLocalData() {
+    const all = await getAllLocalExercises();
+    setExercises(all);
+  }
 
-  const queryOptions = {
-    userId,
-    keyword: debouncedKeyword,
-    exerciseType: selectedExerciseType,
-    category: selectedCategory,
-  };
-  // const { data } = useExercisesQuery({
-  //   ...queryOptions,
-  // });
+  useEffect(() => {
+    if (!userId) return;
+    syncFromServer(userId).catch(console.error);
+
+    loadLocalData();
+  }, [userId]);
+
+  useEffect(() => {
+    const filtered = getFilteredExercises(
+      exercises,
+      debouncedKeyword,
+      selectedExerciseType,
+      selectedCategory
+    );
+    setVisibleExercises(filtered);
+  }, [exercises, debouncedKeyword, selectedExerciseType, selectedCategory]);
 
   const { addWorkoutDetails } = useWorkoutMutation(
     userId,
     date as string | undefined
   );
-
-  const handleSearchKeyword = (keyword: string) => setSearchKeyword(keyword);
-
-  const handleChangeSelectedExerciseType = (exerciseType: ExerciseType) =>
-    setSelectedExerciseType(exerciseType);
-
-  const handleChangeSelectedCategory = (category: Category) =>
-    setSelectedCategory(category);
-
   const handleAddWorkoutDetail = async () => {
     const today = new Date();
-    const date = getFormattedDateYMD(today);
-
+    const ymd = getFormattedDateYMD(today); // 2025-02-07 등
     const postWorkoutDetailInput: PostWorkoutDetailsInput = {
-      selectedExercises,
+      selectedExercises: selectedExercises.filter(
+        (id): id is number => id !== null
+      ),
       userId,
-      date,
+      date: ymd,
     };
     await addWorkoutDetails(postWorkoutDetailInput, {
-      onSuccess: () => router.push(`/workout/${date}`),
+      onSuccess: () => router.push(`/workout/${ymd}`),
     });
   };
 
-  useEffect(() => {
-    const filteredExercises = getFilteredExercises(
-      exercises,
-      searchKeyword,
-      selectedExerciseType,
-      selectedCategory
-    );
-    setVisibleExercises(filteredExercises);
-  }, [exercises, searchKeyword, selectedExerciseType, selectedCategory]);
+  // Handlers
+  const handleSearchKeyword = (kw: string) => setSearchKeyword(kw);
+  const handleChangeSelectedExerciseType = (t: ExerciseType) =>
+    setSelectedExerciseType(t);
+  const handleChangeSelectedCategory = (c: Category) => setSelectedCategory(c);
+
+  const handleAddSelectedExercise = (id: number) => {
+    setSelectedExercises((prev) => [...prev, id]);
+  };
+  const handleDeleteSelectedExercise = (id: number) => {
+    setSelectedExercises((prev) => prev.filter((item) => item !== id));
+  };
 
   return (
-    <main className="">
-      <div className="flex justify-end mt-[53px] mb-3">
+    <main>
+      <div className="flex justify-end mt-4 mb-3">
         <Image src={addButton} alt="추가하기" />
       </div>
       <SearchBar onChange={handleSearchKeyword} keyword={searchKeyword} />
@@ -101,21 +108,22 @@ function ExercisesContainer({ exercises }: { exercises: ClientExerise[] }) {
         selectedExerciseType={selectedExerciseType}
         selectedCategory={selectedCategory}
       />
+
       {userId && (
         <ExerciseList
           userId={userId}
+          exercises={visibleExercises}
           selectedExercises={selectedExercises}
-          queryOptions={queryOptions}
           onAdd={handleAddSelectedExercise}
           onDelete={handleDeleteSelectedExercise}
-          exercises={visibleExercises}
+          onReload={loadLocalData} // (북마크 토글 후 DB 다시 load)
         />
       )}
 
       {selectedExercises.length > 0 && (
         <button
           onClick={handleAddWorkoutDetail}
-          className="fixed left-1/2 -translate-x-1/2 bottom-8 shadow-xl w-[330px] h-[47px] font-bold rounded-2xl bg-primary text-text-black"
+          className="fixed left-1/2 -translate-x-1/2 bottom-8 w-[330px] h-[47px] bg-primary text-text-black font-bold rounded-2xl shadow-xl"
         >
           {selectedExercises.length}개 선택 완료
         </button>
@@ -123,5 +131,3 @@ function ExercisesContainer({ exercises }: { exercises: ClientExerise[] }) {
     </main>
   );
 }
-
-export default ExercisesContainer;
