@@ -1,3 +1,4 @@
+import RegisterSW from "@/components/RegisterSW";
 import "@/styles/global.css";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -24,8 +25,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#000000" />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         {children}
+        <RegisterSW />
       </body>
     </html>
   );
