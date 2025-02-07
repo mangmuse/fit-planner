@@ -19,7 +19,10 @@ export class MyLocalDB extends Dexie {
 export const db = new MyLocalDB();
 
 export async function toggleLocalBookmark(localId: number, nextValue: boolean) {
-  await db.exercises.update(localId, { isBookmarked: nextValue });
+  await db.exercises.update(localId, {
+    isBookmarked: nextValue,
+    isSynced: false,
+  });
 }
 
 export async function getAllLocalExercises(): Promise<LocalExercise[]> {
