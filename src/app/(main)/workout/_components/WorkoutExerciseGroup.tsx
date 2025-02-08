@@ -2,17 +2,18 @@ import SetActions from "@/app/(main)/workout/_components/SetActions";
 import WorkoutItem from "@/app/(main)/workout/_components/WorkoutItem";
 import WorkoutTableHeader from "@/app/(main)/workout/_components/WorkoutTableHeader";
 import { PostWorkoutDetailInput } from "@/types/dto/workoutDetail.dto";
-import { ClientWorkoutDetail } from "@/types/models";
+import { ClientWorkoutDetail, LocalWorkoutDetail } from "@/types/models";
 
 type WorkoutExerciseGroupProps = {
   exerciseOrder: number;
-  details: ClientWorkoutDetail[];
+  details: LocalWorkoutDetail[];
 };
 
 const WorkoutExerciseGroup = ({
   details,
   exerciseOrder,
 }: WorkoutExerciseGroupProps) => {
+  console.log(details);
   const lastValue = details[details.length - 1];
   const { exerciseId, workoutId, setOrder, id } = lastValue;
   const postWorkoutDetailInput: PostWorkoutDetailInput = {

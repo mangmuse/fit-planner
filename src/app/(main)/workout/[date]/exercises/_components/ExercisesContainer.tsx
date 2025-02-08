@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
@@ -15,11 +15,12 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { PostWorkoutDetailsInput } from "@/types/dto/workoutDetail.dto";
 import useWorkoutMutation from "@/hooks/api/mutation/useWorkoutMutation";
 import { getFormattedDateYMD } from "@/util/formatDate";
-import { getAllLocalExercises } from "@/lib/db";
 import { LocalExercise } from "@/types/models";
 import ExerciseFilter from "@/app/(main)/workout/[date]/exercises/_components/ExerciseFilter";
 import SearchBar from "@/app/(main)/workout/[date]/exercises/_components/SearchBar";
 import ExerciseList from "@/app/(main)/workout/[date]/exercises/_components/ExerciseList";
+import { addLocalWorkoutDetails } from "@/lib/localWorkoutDetailsService";
+import { getAllLocalExercises } from "@/lib/localExerciseService";
 
 export default function ExercisesContainer() {
   const { data: session } = useSession();
@@ -51,18 +52,17 @@ export default function ExercisesContainer() {
     date as string | undefined
   );
   const handleAddWorkoutDetail = async () => {
+    if (!userId) return;
     const today = new Date();
     const ymd = getFormattedDateYMD(today); // 2025-02-07 등
-    const postWorkoutDetailInput: PostWorkoutDetailsInput = {
-      selectedExercises: selectedExercises.filter(
-        (id): id is number => id !== null
-      ),
+
+    await addLocalWorkoutDetails(
       userId,
-      date: ymd,
-    };
-    await addWorkoutDetails(postWorkoutDetailInput, {
-      onSuccess: () => router.push(`/workout/${ymd}`),
-    });
+      ymd,
+      selectedExercises.filter((id): id is number => id !== null)
+    );
+
+    router.push(`/workout/${date}`);
   };
 
   const handleSearchKeyword = (kw: string) => setSearchKeyword(kw);
@@ -78,10 +78,14 @@ export default function ExercisesContainer() {
   };
 
   useEffect(() => {
-    if (!userId) return;
-    syncFromServer(userId).catch(console.error);
-
-    loadLocalExerciseData();
+    (async () => {
+      const localAll = await getAllLocalExercises();
+      if (localAll.length === 0) {
+        await syncFromServer(userId);
+      }
+      const updatedAll = await getAllLocalExercises();
+      setExercises(updatedAll);
+    })();
   }, [userId]);
 
   useEffect(() => {

@@ -1,5 +1,5 @@
 import useExerciseMutation from "@/hooks/api/mutation/useExerciseMutation";
-import { toggleLocalBookmark } from "@/lib/db";
+import { toggleLocalBookmark } from "@/lib/localExerciseService";
 import { useModal } from "@/providers/contexts/ModalContext";
 import { ExerciseQueryParams } from "@/types/dto/exercise.dto";
 import { ClientExercise, ClientUser, LocalExercise } from "@/types/models";
@@ -9,7 +9,7 @@ import favoriteIcon from "public/favorite.svg";
 import filledFavoriteIcon from "public/favorite_filled.svg";
 import { useState } from "react";
 
-type ExerciseItem = {
+type ExerciseItemProps = {
   exercise: LocalExercise;
   isSelected: boolean;
   onAdd: (newId: ClientExercise["id"]) => void;
@@ -24,19 +24,21 @@ const ExerciseItem = ({
   onDelete,
   onReload,
   userId,
-}: ExerciseItem) => {
+}: ExerciseItemProps) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const { name, id, isBookmarked } = exercise;
   const { openModal } = useModal();
   const { updateBookmark } = useExerciseMutation();
-  const handleClick = () =>
-    isSelected ? onDelete(exercise.id) : onAdd(exercise.id);
+  const handleClick = () => {
+    if (!exercise.id) return;
+    return isSelected ? onDelete(exercise.id) : onAdd(exercise.id);
+  };
 
   const handleToggleBookmark = async (
     e: React.MouseEvent<HTMLImageElement>
   ) => {
     e.stopPropagation();
-    if (isUpdating) return;
+    if (isUpdating || !id) return;
     setIsUpdating(true);
 
     if (isBookmarked) {

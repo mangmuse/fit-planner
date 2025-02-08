@@ -32,6 +32,6 @@ export async function GET(
     exerciseName: detail.exercise.name,
     exercise: undefined,
   }));
-  console.log(workoutDetails);
+  console.log(flattenedWorkoutDetails);
   return NextResponse.json(flattenedWorkoutDetails, { status: 200 });
 }

@@ -1,5 +1,11 @@
 import {
+  fetchExercisesFromServer,
+  mergeServerExerciseData,
+} from "@/api/exercise";
+import { addLocalWorkout } from "@/lib/localWorkoutService";
+import {
   AddLocalWorkoutDetailInput,
+  ClientExercise,
   LocalExercise,
   LocalWorkout,
   LocalWorkoutDetail,
@@ -8,7 +14,7 @@ import Dexie, { Table } from "dexie";
 
 export class MyLocalDB extends Dexie {
   exercises!: Table<LocalExercise, number>;
-  workout!: Table<LocalWorkout, number>;
+  workouts!: Table<LocalWorkout, number>;
   workoutDetails!: Table<LocalWorkoutDetail, number>;
   // ↑ Table<엔티티타입, PK의 타입>
 
@@ -20,52 +26,22 @@ export class MyLocalDB extends Dexie {
       */
       exercises: "++id,serverId,name,category",
 
-      workouts: "++id,serverId,exerciseId,date,userId",
-      workoutDetails: "++id,serverId,exerciseId",
+      workouts: "++id,[userId+date],serverId,exerciseId,date,userId",
+      workoutDetails: "++id,serverId,exerciseId,workoutId",
     });
   }
 }
 
 export const db = new MyLocalDB();
 
-export async function toggleLocalBookmark(localId: number, nextValue: boolean) {
-  await db.exercises.update(localId, {
-    isBookmarked: nextValue,
-    isSynced: false,
-  });
+export async function syncFromServer(userId: string) {
+  const serverData: ClientExercise[] = await fetchExercisesFromServer(userId);
+  await mergeServerExerciseData(serverData);
 }
 
 export async function getAllLocalExercises(): Promise<LocalExercise[]> {
   return db.exercises.toArray();
 }
-
-export const addLocalWorkout = async (
-  userId: string,
-  date: string
-): Promise<LocalWorkout> => {
-  const existing = await db.workout
-    .where(["userId", "date"])
-    .equals([userId, date])
-    .first();
-
-  if (existing) {
-    return existing;
-  }
-
-  const localId = await db.workout.add({
-    userId,
-    date,
-    createdAt: new Date().toISOString(),
-    isSynced: false,
-    serverId: null,
-  });
-
-  const workout = await db.workout.get(localId);
-  if (!workout) {
-    throw new Error("Workout을 불러오지 못했습니다");
-  }
-  return workout;
-};
 
 export const getstartExerciseOrder = async (
   workoutId: number
@@ -93,7 +69,6 @@ export async function addLocalWorkoutDetails(
     const ex = await db.exercises.get(exerciseId);
     if (!ex) throw new Error("일치하는 exercise 찾을 수 없습니다");
     const exerciseName = ex.name;
-
     const newDetail: LocalWorkoutDetail = {
       workoutId,
       exerciseId,
@@ -110,7 +85,7 @@ export async function addLocalWorkoutDetails(
     };
     newDetails.push(newDetail);
   });
-
+  console.log(newDetails);
   const workoutDetails = await db.workoutDetails.bulkAdd(newDetails);
   return workoutDetails;
 }

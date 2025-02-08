@@ -1,7 +1,9 @@
 import { db } from "@/lib/db";
 import { LocalExercise } from "@/types/models";
 
-export const addLocalExercise = async () => {};
+export async function getAllLocalExercises(): Promise<LocalExercise[]> {
+  return db.exercises.toArray();
+}
 
 export const toggleLocalBookmark = async (
   localId: number,
@@ -16,4 +18,10 @@ export const toggleLocalBookmark = async (
 
 export const getUnsyncedExercises = async (): Promise<LocalExercise[]> => {
   return db.exercises.where("isSynced").equals(0).toArray();
+};
+
+export const getExerciseName = async (exerciseId: number): Promise<string> => {
+  const exercise = await db.exercises.get(exerciseId);
+  if (!exercise) throw new Error("id와 일치하는 exercise를 찾을 수 없습니다");
+  return exercise.name;
 };

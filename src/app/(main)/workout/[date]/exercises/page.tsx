@@ -7,10 +7,6 @@ import { DefaultSession } from "next-auth";
 export const revalidate = 86400;
 
 const ExercisesPage = async () => {
-  const session = await getServerSession(authOptions);
-  const userId = session?.user?.id;
-  const exercises = await getAllExercises(userId);
-  console.log(exercises);
   return (
     <>
       <ExercisesContainer />

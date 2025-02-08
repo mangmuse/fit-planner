@@ -14,7 +14,7 @@ jest.mock("@/hooks/api/mutation/useExerciseMutation", () => ({
   }),
 }));
 import { render, screen } from "@testing-library/react";
-import ExerciseItem from "./ExerciseItem";
+import ExerciseItemProps from "./ExerciseItem";
 import { ClientExercise } from "@/types/models";
 import userEvent from "@testing-library/user-event";
 import { mockUserId } from "@/__mocks__/api";
