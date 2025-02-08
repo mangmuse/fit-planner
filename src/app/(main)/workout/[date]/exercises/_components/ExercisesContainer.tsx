@@ -28,7 +28,6 @@ export default function ExercisesContainer() {
 
   const userId = session?.user?.id;
 
-  // 1) 로컬 DB
   const [exercises, setExercises] = useState<LocalExercise[]>([]);
   const [visibleExercises, setVisibleExercises] = useState<LocalExercise[]>([]);
 
@@ -42,27 +41,10 @@ export default function ExercisesContainer() {
     LocalExercise["id"][]
   >([]);
 
-  async function loadLocalData() {
+  async function loadLocalExerciseData() {
     const all = await getAllLocalExercises();
     setExercises(all);
   }
-
-  useEffect(() => {
-    if (!userId) return;
-    syncFromServer(userId).catch(console.error);
-
-    loadLocalData();
-  }, [userId]);
-
-  useEffect(() => {
-    const filtered = getFilteredExercises(
-      exercises,
-      debouncedKeyword,
-      selectedExerciseType,
-      selectedCategory
-    );
-    setVisibleExercises(filtered);
-  }, [exercises, debouncedKeyword, selectedExerciseType, selectedCategory]);
 
   const { addWorkoutDetails } = useWorkoutMutation(
     userId,
@@ -83,7 +65,6 @@ export default function ExercisesContainer() {
     });
   };
 
-  // Handlers
   const handleSearchKeyword = (kw: string) => setSearchKeyword(kw);
   const handleChangeSelectedExerciseType = (t: ExerciseType) =>
     setSelectedExerciseType(t);
@@ -96,6 +77,23 @@ export default function ExercisesContainer() {
     setSelectedExercises((prev) => prev.filter((item) => item !== id));
   };
 
+  useEffect(() => {
+    if (!userId) return;
+    syncFromServer(userId).catch(console.error);
+
+    loadLocalExerciseData();
+  }, [userId]);
+
+  useEffect(() => {
+    const filtered = getFilteredExercises(
+      exercises,
+      debouncedKeyword,
+      selectedExerciseType,
+      selectedCategory
+    );
+    setVisibleExercises(filtered);
+  }, [exercises, debouncedKeyword, selectedExerciseType, selectedCategory]);
+  console.log(selectedExercises);
   return (
     <main>
       <div className="flex justify-end mt-4 mb-3">
@@ -116,7 +114,7 @@ export default function ExercisesContainer() {
           selectedExercises={selectedExercises}
           onAdd={handleAddSelectedExercise}
           onDelete={handleDeleteSelectedExercise}
-          onReload={loadLocalData} // (북마크 토글 후 DB 다시 load)
+          onReload={loadLocalExerciseData}
         />
       )}
 

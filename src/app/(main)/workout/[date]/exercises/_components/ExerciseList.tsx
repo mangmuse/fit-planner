@@ -8,7 +8,6 @@ type ExerciseListProps = {
   onAdd: (newId: LocalExercise["id"]) => void;
   onDelete: (toBeDeleted: ClientExercise["id"]) => void;
   onReload: () => void;
-  queryOptions: ExerciseQueryParams;
   userId: ClientUser["id"];
 };
 const ExerciseList = ({
@@ -17,7 +16,6 @@ const ExerciseList = ({
   onDelete,
   onReload,
   selectedExercises,
-  queryOptions,
   userId,
 }: ExerciseListProps) => {
   console.log(exercises);
@@ -26,7 +24,6 @@ const ExerciseList = ({
       {exercises.map((exercise: LocalExercise) => (
         <ExerciseItem
           key={exercise.id}
-          queryOptions={queryOptions}
           isSelected={selectedExercises.includes(exercise.id)}
           onAdd={onAdd}
           onDelete={onDelete}

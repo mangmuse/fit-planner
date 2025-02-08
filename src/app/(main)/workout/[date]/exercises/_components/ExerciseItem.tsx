@@ -16,9 +16,7 @@ type ExerciseItem = {
   onDelete: (toBeDeleted: ClientExercise["id"]) => void;
   onReload: () => void;
   userId: ClientUser["id"];
-  queryOptions?: Omit<ExerciseQueryParams, "userId">;
 };
-// TODO: 즐겨찾기 업데이트 굉장히 느린문제 해결
 const ExerciseItem = ({
   exercise,
   isSelected,
@@ -26,11 +24,6 @@ const ExerciseItem = ({
   onDelete,
   onReload,
   userId,
-  queryOptions = {
-    keyword: "",
-    category: "전체",
-    exerciseType: "전체",
-  },
 }: ExerciseItem) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const { name, id, isBookmarked } = exercise;

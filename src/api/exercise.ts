@@ -32,7 +32,6 @@ export async function mergeServerExerciseData(serverData: ClientExercise[]) {
   for (const localExercise of localAll) {
     if (!localExercise.serverId) {
       merged.push(localExercise);
-    } else {
     }
   }
 
