@@ -8,7 +8,11 @@ import Image from "next/image";
 import addButton from "public/add.svg";
 import { Category, ExerciseType } from "@/types/filters";
 
-import { loadExercisesFromServer, syncFromServer } from "@/api/exercise"; // 서버→로컬
+import {
+  loadExercisesFromServer,
+  overwriteWithServerExercises,
+  syncToServer,
+} from "@/api/exercise";
 import { getFilteredExercises } from "./_utils/getFilteredExercises";
 
 import { useDebounce } from "@/hooks/useDebounce";
@@ -21,6 +25,7 @@ import SearchBar from "@/app/(main)/workout/[date]/exercises/_components/SearchB
 import ExerciseList from "@/app/(main)/workout/[date]/exercises/_components/ExerciseList";
 import { addLocalWorkoutDetails } from "@/lib/localWorkoutDetailsService";
 import { getAllLocalExercises } from "@/lib/localExerciseService";
+import { syncFromServer } from "@/lib/db";
 
 export default function ExercisesContainer() {
   const { data: session } = useSession();
@@ -79,6 +84,7 @@ export default function ExercisesContainer() {
 
   useEffect(() => {
     (async () => {
+      if (!userId) return;
       const localAll = await getAllLocalExercises();
       if (localAll.length === 0) {
         await syncFromServer(userId);
@@ -121,7 +127,10 @@ export default function ExercisesContainer() {
           onReload={loadLocalExerciseData}
         />
       )}
-
+      <button onClick={() => overwriteWithServerExercises(userId ?? "")}>
+        SyncFromServer
+      </button>
+      <button onClick={() => syncToServer(userId ?? "")}>SynctoServer</button>
       {selectedExercises.length > 0 && (
         <button
           onClick={handleAddWorkoutDetail}

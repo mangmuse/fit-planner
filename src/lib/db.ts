@@ -24,7 +24,7 @@ export class MyLocalDB extends Dexie {
       /*
       
       */
-      exercises: "++id,serverId,name,category",
+      exercises: "++id,serverId,name,category,isSynced",
 
       workouts: "++id,[userId+date],serverId,exerciseId,date,userId",
       workoutDetails: "++id,serverId,exerciseId,workoutId",
@@ -37,10 +37,6 @@ export const db = new MyLocalDB();
 export async function syncFromServer(userId: string) {
   const serverData: ClientExercise[] = await fetchExercisesFromServer(userId);
   await mergeServerExerciseData(serverData);
-}
-
-export async function getAllLocalExercises(): Promise<LocalExercise[]> {
-  return db.exercises.toArray();
 }
 
 export const getstartExerciseOrder = async (

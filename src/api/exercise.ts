@@ -6,16 +6,11 @@ import { ClientExercise, ClientUser, LocalExercise } from "@/types/models";
 
 export interface SyncChange {
   type: "addExercise" | "updateBookmark";
-  payload: Partial<LocalExercise>;
+  payload: Partial<LocalExercise> & { userId: string };
 }
 
 export interface SyncResponse {
   success: boolean;
-  updated?: {
-    localId: number;
-    serverId: number;
-    isBookmarked: boolean;
-  }[];
 }
 
 export async function mergeServerExerciseData(serverData: ClientExercise[]) {
@@ -59,6 +54,17 @@ export async function mergeServerExerciseData(serverData: ClientExercise[]) {
   await db.exercises.clear();
   await db.exercises.bulkPut(merged);
 }
+export async function overwriteWithServerExercises(userId: string) {
+  const serverData: ClientExercise[] = await fetchExercisesFromServer(userId);
+  if (!serverData) throw new Error("데이터 받아오기를 실패했습니다");
+  await db.exercises.clear();
+  const toInsert = serverData.map((ex) => ({
+    ...ex,
+    serverId: ex.id,
+    isSynced: true,
+  }));
+  await db.exercises.bulkAdd(toInsert);
+}
 
 export async function fetchExercisesFromServer(userId: ClientUser["id"]) {
   const queryParams = new URLSearchParams({ userId: userId ?? "" });
@@ -70,43 +76,26 @@ export async function fetchExercisesFromServer(userId: ClientUser["id"]) {
   return serverData;
 }
 
-export async function syncFromServer(userId: string) {
-  const serverData: ClientExercise[] = await fetchExercisesFromServer(userId);
-  await mergeServerExerciseData(serverData);
-}
+export async function syncToServer(userId: string): Promise<SyncResponse> {
+  const all = await db.exercises.toArray();
+  const unsynced = all.filter((x) => !x.isSynced);
+  console.log(unsynced, "unsyncedunsyncedunsynced");
 
-export async function syncToServer(
-  unsynced: LocalExercise[]
-): Promise<SyncResponse> {
-  const changes: SyncChange[] = unsynced.map((ex) => {
-    if (ex.serverId === null) {
-      return {
-        type: "addExercise" as const,
-        payload: {
-          id: ex.id!,
-          name: ex.name,
-          category: ex.category,
-          isBookmarked: ex.isBookmarked,
-        },
-      };
-    } else {
-      return {
-        type: "updateBookmark" as const,
-        payload: {
-          id: ex.id!,
-          isBookmarked: ex.isBookmarked,
-        },
-      };
-    }
-  });
-  const res = await fetch("/api/exercises/sync", {
+  const res = await fetch(`${BASE_URL}/api/exercises/sync`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ changes }),
+    body: JSON.stringify({ unsynced, userId }),
   });
   if (!res.ok) {
     throw new Error(`Sync failed: HTTP ${res.status}`);
   }
+
+  for (const item of unsynced) {
+    await db.exercises.update(item.id!, {
+      isSynced: true,
+    });
+  }
+
   const data: SyncResponse = await res.json();
   return data;
 }
