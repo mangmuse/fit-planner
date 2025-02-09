@@ -1,5 +1,6 @@
 "use client";
 
+import { syncToServerWorkoutDetails } from "@/api/workoutDetail";
 import WorkoutExerciseGroup from "@/app/(main)/workout/_components/WorkoutExerciseGroup";
 import useWorkoutDetailsQuery from "@/hooks/api/query/useWorkoutDetailsQuery";
 import { db } from "@/lib/db";
@@ -66,6 +67,7 @@ const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
         ))}
       </ul>
       <Link href={`/workout/${date}/exercises`}>운동 추가</Link>
+      <button onClick={syncToServerWorkoutDetails}>asd</button>
     </div>
   );
 };

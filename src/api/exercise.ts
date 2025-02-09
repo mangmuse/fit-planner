@@ -1,3 +1,4 @@
+import { LocalWorkout } from "./../types/models";
 import { BASE_URL } from "@/constants";
 import { db } from "@/lib/db";
 import { PatchBookmarkInput } from "@/types/dto/exercise.dto";
@@ -11,6 +12,7 @@ export interface SyncChange {
 
 export interface SyncResponse {
   success: boolean;
+  updated: { localId: number; serverId: number }[];
 }
 
 export async function mergeServerExerciseData(serverData: ClientExercise[]) {
@@ -76,7 +78,9 @@ export async function fetchExercisesFromServer(userId: ClientUser["id"]) {
   return serverData;
 }
 
-export async function syncToServer(userId: string): Promise<SyncResponse> {
+export async function syncToServerExercises(
+  userId: string
+): Promise<SyncResponse> {
   const all = await db.exercises.toArray();
   const unsynced = all.filter((x) => !x.isSynced);
   console.log(unsynced, "unsyncedunsyncedunsynced");
@@ -90,13 +94,14 @@ export async function syncToServer(userId: string): Promise<SyncResponse> {
     throw new Error(`Sync failed: HTTP ${res.status}`);
   }
 
-  for (const item of unsynced) {
-    await db.exercises.update(item.id!, {
+  const data: SyncResponse = await res.json();
+  for (const updated of data.updated) {
+    await db.exercises.update(updated.localId, {
       isSynced: true,
+      serverId: updated.serverId,
     });
   }
 
-  const data: SyncResponse = await res.json();
   return data;
 }
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { SyncChange } from "@/api/exercise";
+import pMap from "p-map";
 
 export async function POST(req: NextRequest) {
   console.log("hellooo");
@@ -9,9 +10,11 @@ export async function POST(req: NextRequest) {
     const unsynced = body.unsynced as SyncChange["payload"][];
     const userId = body.userId;
     console.log(unsynced);
+    const updatedList: Array<{ localId: number; serverId: number }> = [];
 
-    await Promise.all(
-      unsynced.map(async (item) => {
+    await pMap(
+      unsynced,
+      async (item) => {
         const localId = item.id ?? 0;
         let serverExerciseId = item.serverId;
         const isBookmarked = item.isBookmarked ?? false;
@@ -24,6 +27,7 @@ export async function POST(req: NextRequest) {
           });
         }
         if (!exercise) {
+          console.log(item.name, "이게 없을수가있어??");
           exercise = await prisma.exercise.create({
             data: {
               name: item.name ?? "unknown",
@@ -34,6 +38,7 @@ export async function POST(req: NextRequest) {
             },
           });
           serverExerciseId = exercise.id;
+          updatedList.push({ localId, serverId: serverExerciseId });
         }
 
         if (userId && serverExerciseId) {
@@ -55,10 +60,11 @@ export async function POST(req: NextRequest) {
             },
           });
         }
-      })
+      },
+      { concurrency: 5 }
     );
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ updated: updatedList, success: true });
   } catch (err) {
     console.error("Sync error:", err);
     return NextResponse.json({ success: false }, { status: 500 });

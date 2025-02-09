@@ -11,7 +11,7 @@ import { Category, ExerciseType } from "@/types/filters";
 import {
   loadExercisesFromServer,
   overwriteWithServerExercises,
-  syncToServer,
+  syncToServerExercises,
 } from "@/api/exercise";
 import { getFilteredExercises } from "./_utils/getFilteredExercises";
 
@@ -130,7 +130,9 @@ export default function ExercisesContainer() {
       <button onClick={() => overwriteWithServerExercises(userId ?? "")}>
         SyncFromServer
       </button>
-      <button onClick={() => syncToServer(userId ?? "")}>SynctoServer</button>
+      <button onClick={() => syncToServerExercises(userId ?? "")}>
+        SynctoServer
+      </button>
       {selectedExercises.length > 0 && (
         <button
           onClick={handleAddWorkoutDetail}

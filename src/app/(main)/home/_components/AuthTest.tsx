@@ -1,9 +1,11 @@
 "use client";
 
+import { syncToServerWorkouts } from "@/api/workout";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 const AuthTest = () => {
-  const { status } = useSession();
+  const { data, status } = useSession();
+  const userId = data?.user?.id;
   const handleSignIn = () => signIn("google");
   const handleSignOut = () => signOut();
   return (
@@ -17,6 +19,9 @@ const AuthTest = () => {
           로그인
         </button>
       )}
+      <button onClick={() => syncToServerWorkouts(userId ?? "")}>
+        SyncToServerWorkouts
+      </button>
     </div>
   );
 };

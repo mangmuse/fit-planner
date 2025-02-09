@@ -28,7 +28,7 @@ export type LocalWorkoutDetail = Omit<
   ClientWorkoutDetail,
   "id" | "workoutId"
 > & {
-  serverId: ClientExercise["id"] | null;
+  serverId: ClientWorkoutDetail["id"] | null;
   id?: number;
   isSynced: boolean;
   workoutId: number;
