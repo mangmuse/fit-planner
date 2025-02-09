@@ -1,13 +1,5 @@
 "use client";
 
-import {
-  overwriteWithServerWorkouts,
-  syncToServerWorkouts,
-} from "@/api/workout";
-import {
-  fetchWorkoutDetailsFromServer,
-  overwriteWithServerWorkoutDetails,
-} from "@/api/workoutDetail";
 import { overWriteAllWithWerverData, syncToServer } from "@/lib/db";
 import { signIn, signOut, useSession } from "next-auth/react";
 

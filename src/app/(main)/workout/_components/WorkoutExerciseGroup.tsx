@@ -7,21 +7,15 @@ import { ClientWorkoutDetail, LocalWorkoutDetail } from "@/types/models";
 type WorkoutExerciseGroupProps = {
   exerciseOrder: number;
   details: LocalWorkoutDetail[];
+  loadLocalWorkoutDetails: () => Promise<void>;
 };
 
 const WorkoutExerciseGroup = ({
   details,
   exerciseOrder,
+  loadLocalWorkoutDetails,
 }: WorkoutExerciseGroupProps) => {
-  console.log(details);
   const lastValue = details[details.length - 1];
-  const { exerciseId, workoutId, setOrder, id } = lastValue;
-  const postWorkoutDetailInput: PostWorkoutDetailInput = {
-    exerciseId,
-    exerciseOrder,
-    setOrder: setOrder + 1,
-    workoutId,
-  };
 
   return (
     <div className="bg-bg-surface  font-semibold pb-2.5">
@@ -38,8 +32,8 @@ const WorkoutExerciseGroup = ({
         </tbody>
       </table>
       <SetActions
-        postWorkoutDetailInput={postWorkoutDetailInput}
-        workoutDetailId={id}
+        loadLocalWorkoutDetails={loadLocalWorkoutDetails}
+        lastValue={lastValue}
       />
     </div>
   );

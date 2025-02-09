@@ -1,8 +1,8 @@
 import WorkoutCheckbox from "@/app/(main)/workout/_components/WorkoutCheckbox";
-import { ClientWorkoutDetail } from "@/types/models";
+import { ClientWorkoutDetail, LocalWorkoutDetail } from "@/types/models";
 
 type WorkoutItemProps = {
-  workoutDetail: ClientWorkoutDetail;
+  workoutDetail: LocalWorkoutDetail;
 };
 
 const WorkoutItem = ({ workoutDetail }: WorkoutItemProps) => {

@@ -1,7 +1,7 @@
 import { db, getstartExerciseOrder } from "@/lib/db";
 import { getExerciseName } from "@/lib/localExerciseService";
 import { addLocalWorkout } from "@/lib/localWorkoutService";
-import { LocalWorkoutDetail } from "@/types/models";
+import { LocalWorkout, LocalWorkoutDetail } from "@/types/models";
 
 type NewWorkoutDetailInput = {
   workoutId: number;
@@ -57,3 +57,42 @@ export async function addLocalWorkoutDetails(
   const workoutDetails = await db.workoutDetails.bulkAdd(newDetails);
   return workoutDetails;
 }
+
+const getAddSetInputByLastSet = (lastSet: LocalWorkoutDetail) => {
+  const { id, setOrder, isSynced, isDone, updatedAt, ...rest } = lastSet;
+  const addSetInput = {
+    ...rest,
+    isSynced: false,
+    isDone: false,
+    setOrder: setOrder + 1,
+    createdAt: new Date().toISOString(),
+  };
+  return addSetInput;
+};
+
+export const getLocalWorkoutDetails = async (
+  userId: string,
+  date: string
+): Promise<LocalWorkoutDetail[]> => {
+  const { id } = await addLocalWorkout(userId, date);
+  if (!id) throw new Error("workoutId를 가져오지 못했습니다");
+  const details = await db.workoutDetails
+    .where("workoutId")
+    .equals(id)
+    .toArray();
+
+  return details;
+};
+
+export const addSet = async (lastSet: LocalWorkoutDetail) => {
+  const addSetInput = getAddSetInputByLastSet(lastSet);
+  const newSet = await db.workoutDetails.add(addSetInput);
+  return newSet;
+};
+
+export const deleteSet = async (
+  lastSetId: LocalWorkoutDetail["id"]
+): Promise<void> => {
+  if (!lastSetId) throw new Error("삭제할 id가 제공되지않았습니다");
+  db.workoutDetails.delete(lastSetId);
+};
