@@ -1,10 +1,17 @@
 import {
   fetchExercisesFromServer,
   mergeServerExerciseData,
+  overwriteWithServerExercises,
   syncToServerExercises,
 } from "@/api/exercise";
-import { syncToServerWorkouts } from "@/api/workout";
-import { syncToServerWorkoutDetails } from "@/api/workoutDetail";
+import {
+  overwriteWithServerWorkouts,
+  syncToServerWorkouts,
+} from "@/api/workout";
+import {
+  overwriteWithServerWorkoutDetails,
+  syncToServerWorkoutDetails,
+} from "@/api/workoutDetail";
 import { addLocalWorkout } from "@/lib/localWorkoutService";
 import {
   AddLocalWorkoutDetailInput,
@@ -36,6 +43,13 @@ export class MyLocalDB extends Dexie {
 }
 
 export const db = new MyLocalDB();
+
+export const overWriteAllWithWerverData = async (userId: string) => {
+  console.log("good");
+  await overwriteWithServerExercises(userId);
+  await overwriteWithServerWorkouts(userId);
+  await overwriteWithServerWorkoutDetails(userId);
+};
 
 export const syncToServer = async (userId: string) => {
   await syncToServerExercises(userId);

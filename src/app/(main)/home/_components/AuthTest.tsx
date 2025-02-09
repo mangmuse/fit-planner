@@ -1,7 +1,14 @@
 "use client";
 
-import { syncToServerWorkouts } from "@/api/workout";
-import { syncToServer } from "@/lib/db";
+import {
+  overwriteWithServerWorkouts,
+  syncToServerWorkouts,
+} from "@/api/workout";
+import {
+  fetchWorkoutDetailsFromServer,
+  overwriteWithServerWorkoutDetails,
+} from "@/api/workoutDetail";
+import { overWriteAllWithWerverData, syncToServer } from "@/lib/db";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 const AuthTest = () => {
@@ -20,7 +27,11 @@ const AuthTest = () => {
           로그인
         </button>
       )}
-      <button onClick={() => syncToServer(userId ?? "")}>
+      <button
+        onClick={() => {
+          overWriteAllWithWerverData(userId ?? "");
+        }}
+      >
         SyncToServerWorkouts
       </button>
     </div>

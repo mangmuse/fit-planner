@@ -1,11 +1,56 @@
 import { BASE_URL } from "@/constants";
 import { db } from "@/lib/db";
-import { LocalWorkoutDetail } from "@/types/models";
+import { ClientWorkoutDetail, LocalWorkoutDetail } from "@/types/models";
 
 export type SyncWorkoutDetailsPayload = {
   mappedUnsynced: (Omit<LocalWorkoutDetail, "workoutId"> & {
     workoutId: string;
   })[];
+};
+
+export const fetchWorkoutDetailsFromServer = async (userId: string) => {
+  const res = await fetch(`${BASE_URL}/api/workout/detail/${userId}`);
+  if (!res.ok) {
+    throw new Error("서버로부터 workoutDetail fetching 을 실패했습니다");
+  }
+  const data = await res.json();
+
+  const serverData: ClientWorkoutDetail[] = data.workoutDetails;
+  console.log(serverData);
+  return serverData;
+};
+
+export const overwriteWithServerWorkoutDetails = async (userId: string) => {
+  const serverData: ClientWorkoutDetail[] = await fetchWorkoutDetailsFromServer(
+    userId
+  );
+  console.log(serverData);
+  const toInsert = await Promise.all(
+    serverData.map(async (data) => {
+      const exercise = await db.exercises
+        .where("serverId")
+        .equals(data.exerciseId)
+        .first();
+      const workout = await db.workouts
+        .where("serverId")
+        .equals(data.workoutId)
+        .first();
+
+      if (!exercise?.id || !workout?.id)
+        throw new Error("exerciseId 또는 workoutId가 없습니다");
+      return {
+        ...data,
+        id: undefined,
+        serverId: data.id,
+        isSynced: true,
+        exerciseId: exercise?.id,
+        workoutId: workout?.id,
+      };
+    })
+  );
+  console.log(toInsert);
+  await db.workoutDetails.clear();
+  await db.workoutDetails.bulkAdd(toInsert);
 };
 
 export const syncToServerWorkoutDetails = async () => {

@@ -4,11 +4,53 @@ import {
   PostWorkoutDetailInput,
   PostWorkoutDetailsInput,
 } from "@/types/dto/workoutDetail.dto";
-import { ClientUser, ClientWorkoutDetail, LocalWorkout } from "@/types/models";
+import {
+  ClientUser,
+  ClientWorkout,
+  ClientWorkoutDetail,
+  LocalWorkout,
+} from "@/types/models";
+import { getFormattedDateYMD } from "@/util/formatDate";
 
 export type SyncWorkoutsPayload = {
   unsynced: LocalWorkout[];
 };
+
+export const fetchWorkoutFromServer = async (
+  userId: string
+): Promise<ClientWorkout[]> => {
+  const res = await fetch(`${BASE_URL}/api/workout/${userId}`);
+  console.log(res);
+  if (!res.ok) throw new Error("Workout fetch에 실패했습니다");
+  const data = await res.json();
+  const serverWorkouts = data.workouts;
+  return serverWorkouts;
+};
+
+export async function overwriteWithServerWorkouts(
+  userId: string
+): Promise<string[]> {
+  console.log("hello");
+  const serverData: ClientWorkout[] = await fetchWorkoutFromServer(userId);
+  if (!serverData) throw new Error("데이터 받아오기를 실패했습니다");
+  await db.workouts.clear();
+  console.log(serverData);
+  const workoutServerIds: string[] = [];
+  const toInsert = serverData.map((workout) => {
+    workoutServerIds.push(workout.id);
+    return {
+      id: undefined,
+      userId: workout.userId,
+      serverId: workout.id,
+      date: getFormattedDateYMD(workout.date),
+      isSynced: true,
+      createdAt: workout.createdAt,
+      updatedAt: workout.updatedAt,
+    };
+  });
+  await db.workouts.bulkAdd(toInsert);
+  return workoutServerIds;
+}
 
 export const syncToServerWorkouts = async () => {
   const all = await db.workouts.toArray();
