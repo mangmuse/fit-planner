@@ -1,7 +1,10 @@
 import {
   fetchExercisesFromServer,
   mergeServerExerciseData,
+  syncToServerExercises,
 } from "@/api/exercise";
+import { syncToServerWorkouts } from "@/api/workout";
+import { syncToServerWorkoutDetails } from "@/api/workoutDetail";
 import { addLocalWorkout } from "@/lib/localWorkoutService";
 import {
   AddLocalWorkoutDetailInput,
@@ -33,6 +36,12 @@ export class MyLocalDB extends Dexie {
 }
 
 export const db = new MyLocalDB();
+
+export const syncToServer = async (userId: string) => {
+  await syncToServerExercises(userId);
+  await syncToServerWorkouts();
+  await syncToServerWorkoutDetails();
+};
 
 export async function syncFromServer(userId: string) {
   const serverData: ClientExercise[] = await fetchExercisesFromServer(userId);

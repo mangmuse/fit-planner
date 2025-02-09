@@ -1,6 +1,7 @@
 "use client";
 
 import { syncToServerWorkouts } from "@/api/workout";
+import { syncToServer } from "@/lib/db";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 const AuthTest = () => {
@@ -19,7 +20,7 @@ const AuthTest = () => {
           로그인
         </button>
       )}
-      <button onClick={() => syncToServerWorkouts(userId ?? "")}>
+      <button onClick={() => syncToServer(userId ?? "")}>
         SyncToServerWorkouts
       </button>
     </div>
