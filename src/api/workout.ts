@@ -1,5 +1,5 @@
+import { SyncExercisesToServerResponse } from "@/api/exercise";
 import { BASE_URL } from "@/constants";
-import { db } from "@/lib/db";
 import {
   PostWorkoutDetailInput,
   PostWorkoutDetailsInput,
@@ -10,11 +10,15 @@ import {
   ClientWorkoutDetail,
   LocalWorkout,
 } from "@/types/models";
-import { getFormattedDateYMD } from "@/util/formatDate";
 
 export type SyncWorkoutsPayload = {
   unsynced: LocalWorkout[];
 };
+
+export interface SyncWorkoutsToServerResponse {
+  success: boolean;
+  updated: { localId: number; serverId: string }[];
+}
 
 export const fetchWorkoutFromServer = async (
   userId: string
@@ -27,42 +31,9 @@ export const fetchWorkoutFromServer = async (
   return serverWorkouts;
 };
 
-export async function overwriteWithServerWorkouts(
-  userId: string
-): Promise<string[]> {
-  console.log("hello");
-  const serverData: ClientWorkout[] = await fetchWorkoutFromServer(userId);
-  if (!serverData) throw new Error("데이터 받아오기를 실패했습니다");
-  console.log(serverData);
-  const workoutServerIds: string[] = [];
-  const toInsert = serverData.map((workout) => {
-    workoutServerIds.push(workout.id);
-    return {
-      id: undefined,
-      userId: workout.userId,
-      serverId: workout.id,
-      date: getFormattedDateYMD(workout.date),
-      isSynced: true,
-      createdAt: workout.createdAt,
-      updatedAt: workout.updatedAt,
-    };
-  });
-  await db.workouts.clear();
-
-  await db.workouts.bulkAdd(toInsert);
-  return workoutServerIds;
-}
-
-export const syncToServerWorkouts = async () => {
-  const all = await db.workouts.toArray();
-  console.log(all, "all");
-  const unsynced = all.filter((workout) => !workout.isSynced);
-  console.log(unsynced, "uns");
-
-  // for (const workout of all) {
-  //   await db.workouts.update(workout.id!, { isSynced: false });
-  // }
-
+export async function postWorkoutsToServer(
+  unsynced: LocalWorkout[]
+): Promise<SyncWorkoutsToServerResponse> {
   const res = await fetch(`${BASE_URL}/api/workout/sync`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -72,15 +43,8 @@ export const syncToServerWorkouts = async () => {
   if (!res.ok) throw new Error("Workouts 동기화에 실패했습니다");
 
   const data = await res.json();
-  if (data.updated) {
-    for (const updated of data.updated) {
-      await db.workouts.update(updated.localId, {
-        serverId: updated.serverId,
-        isSynced: true,
-      });
-    }
-  }
-};
+  return data;
+}
 
 export const getWorkoutDetails = async (
   userId: ClientUser["id"] | undefined,

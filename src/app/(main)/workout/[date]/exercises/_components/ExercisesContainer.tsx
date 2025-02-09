@@ -8,11 +8,11 @@ import Image from "next/image";
 import addButton from "public/add.svg";
 import { Category, ExerciseType } from "@/types/filters";
 
+import { loadExercisesFromServer } from "@/api/exercise";
 import {
-  loadExercisesFromServer,
   overwriteWithServerExercises,
   syncToServerExercises,
-} from "@/api/exercise";
+} from "@/lib/localExerciseService";
 import { getFilteredExercises } from "./_utils/getFilteredExercises";
 
 import { useDebounce } from "@/hooks/useDebounce";
@@ -52,10 +52,6 @@ export default function ExercisesContainer() {
     setExercises(all);
   }
 
-  const { addWorkoutDetails } = useWorkoutMutation(
-    userId,
-    date as string | undefined
-  );
   const handleAddWorkoutDetail = async () => {
     if (!userId) return;
     const today = new Date();

@@ -41,7 +41,7 @@ const WorkoutItem = ({
           onBlur={() =>
             weight !== editedWeight && handleUpdate({ weight: editedWeight })
           }
-          value={editedWeight || ""}
+          value={editedWeight ?? 0}
           className="w-[30px] rounded-sm h-3 resize-none bg-transparent outline outline-text-muted text-center"
         />
       </td>
@@ -51,7 +51,7 @@ const WorkoutItem = ({
           onBlur={() =>
             reps !== editedReps && handleUpdate({ reps: editedReps })
           }
-          value={editedReps || ""}
+          value={editedReps ?? 0}
           className="w-[30px] rounded-sm h-3 resize-none bg-transparent outline outline- outline-text-muted text-center"
         />
       </td>

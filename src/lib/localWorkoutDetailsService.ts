@@ -1,11 +1,49 @@
+import { fetchWorkoutDetailsFromServer } from "@/api/workoutDetail";
 import { db, getstartExerciseOrder } from "@/lib/db";
 import { getExerciseName } from "@/lib/localExerciseService";
 import { addLocalWorkout } from "@/lib/localWorkoutService";
-import { LocalWorkout, LocalWorkoutDetail } from "@/types/models";
+import {
+  ClientWorkoutDetail,
+  LocalWorkout,
+  LocalWorkoutDetail,
+} from "@/types/models";
 
 type NewWorkoutDetailInput = {
   workoutId: number;
   startOrder: number;
+};
+
+export const overwriteWithServerWorkoutDetails = async (userId: string) => {
+  const serverData: ClientWorkoutDetail[] = await fetchWorkoutDetailsFromServer(
+    userId
+  );
+  console.log(serverData);
+  const toInsert = await Promise.all(
+    serverData.map(async (data) => {
+      const exercise = await db.exercises
+        .where("serverId")
+        .equals(data.exerciseId)
+        .first();
+      const workout = await db.workouts
+        .where("serverId")
+        .equals(data.workoutId)
+        .first();
+
+      if (!exercise?.id || !workout?.id)
+        throw new Error("exerciseId 또는 workoutId가 없습니다");
+      return {
+        ...data,
+        id: undefined,
+        serverId: data.id,
+        isSynced: true,
+        exerciseId: exercise?.id,
+        workoutId: workout?.id,
+      };
+    })
+  );
+  console.log(toInsert);
+  await db.workoutDetails.clear();
+  await db.workoutDetails.bulkAdd(toInsert);
 };
 
 const getNewDetails = async (
@@ -24,9 +62,9 @@ const getNewDetails = async (
     const defaultValue = {
       setOrder: 1,
       serverId: null,
-      weight: null,
+      weight: 0,
       rpe: null,
-      reps: null,
+      reps: 0,
       isDone: false,
       isSynced: false,
       createdAt: new Date().toISOString(),

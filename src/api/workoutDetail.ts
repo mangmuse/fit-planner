@@ -2,6 +2,16 @@ import { BASE_URL } from "@/constants";
 import { db } from "@/lib/db";
 import { ClientWorkoutDetail, LocalWorkoutDetail } from "@/types/models";
 
+export interface SyncWorkoutDetailsToServerResponse {
+  success: boolean;
+  updated: {
+    localId: number;
+    serverId: string;
+    exerciseId: number;
+    workoutId: string;
+  }[];
+}
+
 export type SyncWorkoutDetailsPayload = {
   mappedUnsynced: (Omit<LocalWorkoutDetail, "workoutId"> & {
     workoutId: string;
@@ -20,38 +30,22 @@ export const fetchWorkoutDetailsFromServer = async (userId: string) => {
   return serverData;
 };
 
-export const overwriteWithServerWorkoutDetails = async (userId: string) => {
-  const serverData: ClientWorkoutDetail[] = await fetchWorkoutDetailsFromServer(
-    userId
-  );
-  console.log(serverData);
-  const toInsert = await Promise.all(
-    serverData.map(async (data) => {
-      const exercise = await db.exercises
-        .where("serverId")
-        .equals(data.exerciseId)
-        .first();
-      const workout = await db.workouts
-        .where("serverId")
-        .equals(data.workoutId)
-        .first();
+async function postWorkoutDetailsToServer(
+  mappedUnsynced: (Omit<LocalWorkoutDetail, "workoutId"> & {
+    workoutId: string;
+  })[]
+): Promise<SyncWorkoutDetailsToServerResponse> {
+  const res = await fetch(`${BASE_URL}/api/workout/detail/sync`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ mappedUnsynced }),
+  });
 
-      if (!exercise?.id || !workout?.id)
-        throw new Error("exerciseId 또는 workoutId가 없습니다");
-      return {
-        ...data,
-        id: undefined,
-        serverId: data.id,
-        isSynced: true,
-        exerciseId: exercise?.id,
-        workoutId: workout?.id,
-      };
-    })
-  );
-  console.log(toInsert);
-  await db.workoutDetails.clear();
-  await db.workoutDetails.bulkAdd(toInsert);
-};
+  if (!res.ok) throw new Error("WorkoutDetails 동기화에 실패했습니다");
+
+  const data: SyncWorkoutDetailsToServerResponse = await res.json();
+  return data;
+}
 
 export const syncToServerWorkoutDetails = async () => {
   // 1. 디테일 다가져와
@@ -78,19 +72,9 @@ export const syncToServerWorkoutDetails = async () => {
     })
   );
 
-  console.log(mappedUnsynced);
   // 5. route로 보내서 detail에 serverId가 있으면 업데이트 없으면 create
 
-  const res = await fetch(`${BASE_URL}/api/workout/detail/sync`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ mappedUnsynced }),
-  });
-
-  if (!res.ok) throw new Error("WorkoutDetails 동기화에 실패했습니다");
-
-  const data = await res.json();
-  console.log(data);
+  const data = await postWorkoutDetailsToServer(mappedUnsynced);
 
   if (data.updated) {
     for (const updated of data.updated) {

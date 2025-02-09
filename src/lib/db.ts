@@ -1,17 +1,13 @@
 import {
   fetchExercisesFromServer,
   mergeServerExerciseData,
-  overwriteWithServerExercises,
-  syncToServerExercises,
 } from "@/api/exercise";
-import {
-  overwriteWithServerWorkouts,
-  syncToServerWorkouts,
-} from "@/api/workout";
-import {
-  overwriteWithServerWorkoutDetails,
-  syncToServerWorkoutDetails,
-} from "@/api/workoutDetail";
+import { syncToServerExercises } from "./localExerciseService";
+import { syncToServerWorkouts } from "./localWorkoutService";
+import { overwriteWithServerWorkouts } from "./localWorkoutService";
+import { syncToServerWorkoutDetails } from "@/api/workoutDetail";
+import { overwriteWithServerWorkoutDetails } from "./localWorkoutDetailsService";
+import { overwriteWithServerExercises } from "@/lib/localExerciseService";
 import { addLocalWorkout } from "@/lib/localWorkoutService";
 import {
   AddLocalWorkoutDetailInput,
