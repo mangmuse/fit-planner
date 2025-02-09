@@ -21,10 +21,17 @@ const AuthTest = () => {
       )}
       <button
         onClick={() => {
+          syncToServer(userId ?? "");
+        }}
+      >
+        To Server
+      </button>
+      <button
+        onClick={() => {
           overWriteAllWithWerverData(userId ?? "");
         }}
       >
-        SyncToServerWorkouts
+        From Server
       </button>
     </div>
   );

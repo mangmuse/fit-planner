@@ -23,9 +23,9 @@ export const POST = async (req: NextRequest) => {
     await pMap(
       unsynced,
       async (detail) => {
-        console.log(detail);
         const localId = detail.id;
-        console.log(localId);
+        console.log(detail.exerciseName);
+
         if (!localId) throw new Error("localId가 없습니다");
 
         const {
@@ -50,11 +50,19 @@ export const POST = async (req: NextRequest) => {
           });
           serverDetailId = updated.id;
         } else {
-          console.log(
-            workoutId,
-            exerciseId,
-            "workoutId,exerciseIdworkoutId,exerciseIdworkoutId,exerciseId"
-          );
+          if (!workoutId || !exerciseId) {
+            throw new Error(
+              `Required IDs missing: workoutId=${workoutId}, exerciseId=${exerciseId}`
+            );
+          }
+
+          // Verify workout exists
+          const workout = await prisma.workout.findUnique({
+            where: { id: workoutId },
+          });
+          if (!workout) {
+            throw new Error(`Workout with id ${workoutId} not found`);
+          }
 
           const created = await prisma.workoutDetail.create({
             data: {

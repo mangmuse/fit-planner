@@ -33,7 +33,6 @@ export async function overwriteWithServerWorkouts(
   console.log("hello");
   const serverData: ClientWorkout[] = await fetchWorkoutFromServer(userId);
   if (!serverData) throw new Error("데이터 받아오기를 실패했습니다");
-  await db.workouts.clear();
   console.log(serverData);
   const workoutServerIds: string[] = [];
   const toInsert = serverData.map((workout) => {
@@ -48,6 +47,8 @@ export async function overwriteWithServerWorkouts(
       updatedAt: workout.updatedAt,
     };
   });
+  await db.workouts.clear();
+
   await db.workouts.bulkAdd(toInsert);
   return workoutServerIds;
 }

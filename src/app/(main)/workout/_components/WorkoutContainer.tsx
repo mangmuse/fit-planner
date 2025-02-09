@@ -22,8 +22,10 @@ const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
   const [workoutGroups, setWorkoutGroups] = useState<
     { exerciseOrder: number; details: LocalWorkoutDetail[] }[]
   >([]);
+  console.log("이거는 몇번실행?");
 
   const loadLocalWorkoutDetails = async () => {
+    console.log("userId: ", userId, "date", date);
     if (!userId) return;
     const details = await getLocalWorkoutDetails(userId, date);
     const adjustedGroups = getGroupedDetails(details);

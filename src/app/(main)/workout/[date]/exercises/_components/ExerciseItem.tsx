@@ -1,7 +1,6 @@
 import useExerciseMutation from "@/hooks/api/mutation/useExerciseMutation";
 import { toggleLocalBookmark } from "@/lib/localExerciseService";
 import { useModal } from "@/providers/contexts/ModalContext";
-import { ExerciseQueryParams } from "@/types/dto/exercise.dto";
 import { ClientExercise, ClientUser, LocalExercise } from "@/types/models";
 import clsx from "clsx";
 import Image from "next/image";

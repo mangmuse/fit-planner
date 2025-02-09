@@ -74,14 +74,28 @@ export const getLocalWorkoutDetails = async (
   userId: string,
   date: string
 ): Promise<LocalWorkoutDetail[]> => {
-  const { id } = await addLocalWorkout(userId, date);
-  if (!id) throw new Error("workoutId를 가져오지 못했습니다");
+  let workout = await db.workouts.where({ userId, date }).first();
+
+  if (!workout) {
+    workout = await addLocalWorkout(userId, date);
+  }
+
+  if (!workout?.id) throw new Error("workoutId를 가져오지 못했습니다");
+
   const details = await db.workoutDetails
     .where("workoutId")
-    .equals(id)
+    .equals(workout.id)
     .toArray();
 
   return details;
+};
+
+export const updateLocalWorkoutDetail = async (
+  updateWorkoutInput: Partial<LocalWorkoutDetail>
+): Promise<void> => {
+  console.log("good");
+  if (!updateWorkoutInput.id) throw new Error("id가 없습니다");
+  await db.workoutDetails.update(updateWorkoutInput.id, updateWorkoutInput);
 };
 
 export const addSet = async (lastSet: LocalWorkoutDetail) => {

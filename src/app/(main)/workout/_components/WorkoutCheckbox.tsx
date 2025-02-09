@@ -1,11 +1,33 @@
+import { updateLocalWorkoutDetail } from "@/lib/localWorkoutDetailsService";
+import { useState } from "react";
+
 type WorkoutCheckboxProps = {
-  isDone: boolean;
+  prevIsDone: boolean;
+  id: number;
+  loadLocalWorkoutDetails: () => Promise<void>;
 };
 
-const WorkoutCheckbox = ({ isDone }: WorkoutCheckboxProps) => {
+const WorkoutCheckbox = ({
+  prevIsDone,
+  id,
+  loadLocalWorkoutDetails,
+}: WorkoutCheckboxProps) => {
+  const [isDone, setIsDone] = useState<boolean>(prevIsDone);
+
+  const handleChange = async () => {
+    const newValue = !isDone;
+    setIsDone(newValue);
+    await updateLocalWorkoutDetail({ isDone: newValue, id });
+    loadLocalWorkoutDetails();
+  };
   return (
     <label className="inline-flex items-center cursor-pointer">
-      <input type="checkbox" className="sr-only peer" defaultChecked={isDone} />
+      <input
+        onChange={handleChange}
+        type="checkbox"
+        checked={isDone}
+        className="sr-only peer"
+      />
       <div className="flex w-[14px] h-[14px] rounded-full border-[2px] border-text-muted peer-checked:bg-primary peer-checked:border-none" />
     </label>
   );

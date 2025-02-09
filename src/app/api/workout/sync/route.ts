@@ -33,6 +33,7 @@ export const POST = async (req: NextRequest) => {
 
     return NextResponse.json({ success: true, updated: updatedList });
   } catch (e) {
+    console.log(e);
     return NextResponse.json({ success: false }, { status: 500 });
   }
 };

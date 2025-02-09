@@ -5,13 +5,13 @@ export const addLocalWorkout = async (
   userId: string,
   date: string
 ): Promise<LocalWorkout> => {
-  console.log("dqwijhdqw");
+  console.log("hello");
 
   const existing = await db.workouts
     .where(["userId", "date"])
     .equals([userId, date])
     .first();
-
+  console.log(existing);
   if (existing) {
     return existing;
   }

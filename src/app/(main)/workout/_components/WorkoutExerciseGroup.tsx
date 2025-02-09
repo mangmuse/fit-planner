@@ -27,7 +27,11 @@ const WorkoutExerciseGroup = ({
         <WorkoutTableHeader />
         <tbody>
           {details.map((detail) => (
-            <WorkoutItem key={detail.id} workoutDetail={detail} />
+            <WorkoutItem
+              key={detail.id}
+              loadLocalWorkoutDetails={loadLocalWorkoutDetails}
+              workoutDetail={detail}
+            />
           ))}
         </tbody>
       </table>

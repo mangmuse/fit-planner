@@ -13,7 +13,7 @@ export const getGroupedDetails = (
 
   const groups = Array.from(groupedDetails, ([exerciseOrder, details]) => ({
     exerciseOrder,
-    details,
+    details: details.sort((a, b) => a.setOrder - b.setOrder),
   })).sort((a, b) => a.exerciseOrder - b.exerciseOrder);
 
   const adjustedGroups = groups.map((group, index) => ({
