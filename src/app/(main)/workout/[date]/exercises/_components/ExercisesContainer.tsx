@@ -11,6 +11,7 @@ import { Category, ExerciseType } from "@/types/filters";
 import { loadExercisesFromServer } from "@/api/exercise.api";
 import {
   overwriteWithServerExercises,
+  syncExercisesFromServerLocalFirst,
   syncToServerExercises,
 } from "@/services/exercise.service";
 import { getFilteredExercises } from "./_utils/getFilteredExercises";
@@ -25,7 +26,6 @@ import SearchBar from "@/app/(main)/workout/[date]/exercises/_components/SearchB
 import ExerciseList from "@/app/(main)/workout/[date]/exercises/_components/ExerciseList";
 import { addLocalWorkoutDetails } from "@/services/workoutDetail.service";
 import { getAllLocalExercises } from "@/services/exercise.service";
-import { syncExercisesFromServerLocalFirst } from "@/services/exercise.service";
 
 export default function ExercisesContainer() {
   const { data: session } = useSession();

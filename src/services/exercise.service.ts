@@ -1,12 +1,10 @@
+import { mergeServerExerciseData } from "@/adapter/exercise.adapter";
 import {
   fetchExercisesFromServer,
   postExercisesToServer,
 } from "@/api/exercise.api";
 import { db } from "@/lib/db";
-import { mergeServerExerciseData } from "@/adapter/exercise.repository";
 import { ClientExercise, LocalExercise } from "@/types/models";
-
-export const syncExercisesLocalFirst = async () => {};
 
 export const getExerciseWithServerId = async (
   serverId: number
@@ -38,7 +36,7 @@ export async function overwriteWithServerExercises(userId: string) {
   await db.exercises.bulkAdd(toInsert);
 }
 
-export async function syncExercisesFromServer(userId: string) {
+export async function syncExercisesFromServerLocalFirst(userId: string) {
   const serverData: ClientExercise[] = await fetchExercisesFromServer(userId);
   const merged = await mergeServerExerciseData(serverData);
 

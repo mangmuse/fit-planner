@@ -4,7 +4,7 @@ import "@testing-library/jest-dom";
 // jest.setup.js
 import { setupServer } from "msw/node";
 
-const server = setupServer(...handlers);
+export const server = setupServer(...handlers);
 
 beforeAll(() => {
   // Start the interception.
