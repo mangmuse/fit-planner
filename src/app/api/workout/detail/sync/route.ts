@@ -37,6 +37,7 @@ export const POST = async (req: NextRequest) => {
           serverId,
           workoutId,
           exerciseId,
+
           ...detailInput
         } = detail;
 
@@ -56,7 +57,6 @@ export const POST = async (req: NextRequest) => {
             );
           }
 
-          // Verify workout exists
           const workout = await prisma.workout.findUnique({
             where: { id: workoutId },
           });
@@ -64,8 +64,18 @@ export const POST = async (req: NextRequest) => {
             throw new Error(`Workout with id ${workoutId} not found`);
           }
 
-          const created = await prisma.workoutDetail.create({
-            data: {
+          const created = await prisma.workoutDetail.upsert({
+            where: {
+              workoutId_exerciseOrder_setOrder: {
+                workoutId: workout.id,
+                exerciseOrder: detail.exerciseOrder,
+                setOrder: detail.setOrder,
+              },
+            },
+            update: {
+              ...detailInput,
+            },
+            create: {
               ...detailInput,
               workout: { connect: { id: workoutId } },
               exercise: { connect: { id: exerciseId } },

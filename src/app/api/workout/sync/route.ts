@@ -12,19 +12,28 @@ export const POST = async (req: NextRequest) => {
       unsynced,
       async (workout) => {
         const id = workout.serverId;
-
         if (id && workout.id) {
           updatedList.push({ localId: workout.id, serverId: id });
         } else {
-          const newWorkout = await prisma.workout.create({
-            data: {
+          const workoutRecord = await prisma.workout.upsert({
+            where: {
+              userId_date: {
+                userId: workout.userId,
+                date: new Date(workout.date),
+              },
+            },
+            update: {},
+            create: {
               userId: workout.userId,
               createdAt: workout.createdAt,
               date: new Date(workout.date),
             },
           });
           if (workout.id) {
-            updatedList.push({ localId: workout.id, serverId: newWorkout.id });
+            updatedList.push({
+              localId: workout.id,
+              serverId: workoutRecord.id,
+            });
           }
         }
       },
@@ -33,7 +42,6 @@ export const POST = async (req: NextRequest) => {
 
     return NextResponse.json({ success: true, updated: updatedList });
   } catch (e) {
-    console.log(e);
     return NextResponse.json({ success: false }, { status: 500 });
   }
 };
