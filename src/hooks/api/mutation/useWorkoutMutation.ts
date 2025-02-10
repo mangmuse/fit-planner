@@ -2,7 +2,7 @@ import {
   deleteWorkoutDetail,
   postWorkoutDetail,
   postWorkoutDetails,
-} from "@/api/workout";
+} from "@/api/workout.api";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import {
   PostWorkoutDetailInput,

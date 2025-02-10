@@ -1,6 +1,6 @@
 import { mockUserId } from "@/__mocks__/api";
 import { mockExercises } from "@/__mocks__/api/handlers";
-import { getAllExercises } from "@/api/exercise";
+import { getAllExercises } from "@/api/exercise.api";
 
 function getExpectedExercises(
   keyword: string,

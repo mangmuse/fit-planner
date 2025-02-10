@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { SyncChange } from "@/api/exercise";
+import { SyncChange } from "@/api/exercise.api";
 import pMap from "p-map";
 
 export async function POST(req: NextRequest) {

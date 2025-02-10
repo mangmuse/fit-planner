@@ -1,4 +1,4 @@
-import { patchBookmark } from "@/api/exercise";
+import { patchBookmark } from "@/api/exercise.api";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { UpdateBookmarkInput } from "@/types/dto/exercise.dto";
 import { ClientExercise } from "@/types/models";

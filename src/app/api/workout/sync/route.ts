@@ -1,4 +1,4 @@
-import { SyncWorkoutsPayload } from "@/api/workout";
+import { SyncWorkoutsPayload } from "@/api/workout.api";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import pMap from "p-map";

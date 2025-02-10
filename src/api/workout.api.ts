@@ -1,4 +1,4 @@
-import { SyncExercisesToServerResponse } from "@/api/exercise";
+import { SyncExercisesToServerResponse } from "@/api/exercise.api";
 import { BASE_URL } from "@/constants";
 import {
   PostWorkoutDetailInput,

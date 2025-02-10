@@ -1,9 +1,28 @@
 import {
   fetchExercisesFromServer,
+  mergeServerExerciseData,
   postExercisesToServer,
-} from "@/api/exercise";
+} from "@/api/exercise.api";
 import { db } from "@/lib/db";
 import { ClientExercise, LocalExercise } from "@/types/models";
+
+export const getExerciseWithServerId = async (
+  serverId: number
+): Promise<LocalExercise> => {
+  const exercise = await db.exercises
+    .where("serverId")
+    .equals(serverId)
+    .first();
+  if (!exercise) throw new Error("일치하는 exercise가 없습니다");
+  return exercise;
+};
+export const getExerciseWithLocalId = async (
+  id: number
+): Promise<LocalExercise> => {
+  const exercise = await db.exercises.where("id").equals(id).first();
+  if (!exercise) throw new Error("일치하는 exercise가 없습니다");
+  return exercise;
+};
 
 export async function overwriteWithServerExercises(userId: string) {
   const serverData: ClientExercise[] = await fetchExercisesFromServer(userId);
@@ -15,6 +34,11 @@ export async function overwriteWithServerExercises(userId: string) {
     isSynced: true,
   }));
   await db.exercises.bulkAdd(toInsert);
+}
+
+export async function syncExercisesFromServer(userId: string) {
+  const serverData: ClientExercise[] = await fetchExercisesFromServer(userId);
+  await mergeServerExerciseData(serverData);
 }
 
 export async function getAllLocalExercises(): Promise<LocalExercise[]> {

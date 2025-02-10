@@ -1,5 +1,5 @@
 import WorkoutCheckbox from "@/app/(main)/workout/_components/WorkoutCheckbox";
-import { updateLocalWorkoutDetail } from "@/lib/localWorkoutDetailsService";
+import { updateLocalWorkoutDetail } from "@/services/workoutDetail.service";
 import { ClientWorkoutDetail, LocalWorkoutDetail } from "@/types/models";
 import { ChangeEventHandler, useRef, useState } from "react";
 

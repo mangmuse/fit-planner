@@ -1,7 +1,25 @@
-import { fetchWorkoutFromServer, postWorkoutsToServer } from "@/api/workout";
+import {
+  fetchWorkoutFromServer,
+  postWorkoutsToServer,
+} from "@/api/workout.api";
 import { db } from "@/lib/db";
 import { ClientWorkout, LocalWorkout } from "@/types/models";
 import { getFormattedDateYMD } from "@/util/formatDate";
+
+export const getWorkoutWithServerId = async (
+  serverId: string
+): Promise<LocalWorkout> => {
+  const workout = await db.workouts.where("serverId").equals(serverId).first();
+  if (!workout) throw new Error("일치하는 exercise가 없습니다");
+  return workout;
+};
+export const getWorkoutWithLocalId = async (
+  id: number
+): Promise<LocalWorkout> => {
+  const workout = await db.workouts.where("id").equals(id).first();
+  if (!workout) throw new Error("일치하는 exercise가 없습니다");
+  return workout;
+};
 
 export const syncToServerWorkouts = async (): Promise<void> => {
   const all = await db.workouts.toArray();

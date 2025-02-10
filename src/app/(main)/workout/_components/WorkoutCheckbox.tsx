@@ -1,4 +1,4 @@
-import { updateLocalWorkoutDetail } from "@/lib/localWorkoutDetailsService";
+import { updateLocalWorkoutDetail } from "@/services/workoutDetail.service";
 import { useState } from "react";
 
 type WorkoutCheckboxProps = {

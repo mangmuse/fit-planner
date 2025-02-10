@@ -1,5 +1,5 @@
-import { SyncWorkoutsPayload } from "@/api/workout";
-import { SyncWorkoutDetailsPayload } from "@/api/workoutDetail";
+import { SyncWorkoutsPayload } from "@/api/workout.api";
+import { SyncWorkoutDetailsPayload } from "@/api/workoutDetail.api";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import pMap from "p-map";

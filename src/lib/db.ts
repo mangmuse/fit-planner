@@ -1,17 +1,13 @@
-import {
-  fetchExercisesFromServer,
-  mergeServerExerciseData,
-} from "@/api/exercise";
-import { syncToServerExercises } from "./localExerciseService";
-import { syncToServerWorkouts } from "./localWorkoutService";
-import { overwriteWithServerWorkouts } from "./localWorkoutService";
-import { syncToServerWorkoutDetails } from "@/api/workoutDetail";
-import { overwriteWithServerWorkoutDetails } from "./localWorkoutDetailsService";
-import { overwriteWithServerExercises } from "@/lib/localExerciseService";
-import { addLocalWorkout } from "@/lib/localWorkoutService";
+import { syncToServerExercises } from "../services/exercise.service";
+import { getstartExerciseOrder } from "../services/workoutDetail.service";
+import { syncToServerWorkouts } from "../services/workout.service";
+import { overwriteWithServerWorkouts } from "../services/workout.service";
+import { syncToServerWorkoutDetails } from "../services/workoutDetail.service";
+import { overwriteWithServerWorkoutDetails } from "../services/workoutDetail.service";
+import { overwriteWithServerExercises } from "@/services/exercise.service";
+import { addLocalWorkout } from "@/services/workout.service";
 import {
   AddLocalWorkoutDetailInput,
-  ClientExercise,
   LocalExercise,
   LocalWorkout,
   LocalWorkoutDetail,
@@ -53,54 +49,37 @@ export const syncToServer = async (userId: string) => {
   await syncToServerWorkoutDetails();
 };
 
-export async function syncFromServer(userId: string) {
-  const serverData: ClientExercise[] = await fetchExercisesFromServer(userId);
-  await mergeServerExerciseData(serverData);
-}
+// export async function addLocalWorkoutDetails(
+//   userId: string,
+//   date: string,
+//   selectedExercises: number[]
+// ): Promise<number> {
+//   const workout = await addLocalWorkout(userId, date);
+//   const workoutId = workout.id!;
+//   const startOrder = await getstartExerciseOrder(workoutId);
 
-export const getstartExerciseOrder = async (
-  workoutId: number
-): Promise<number> => {
-  const allDetails = await db.workoutDetails
-    .where("workoutId")
-    .equals(workoutId)
-    .sortBy("exerciseOrder");
-  const lastDetail = allDetails[allDetails.length - 1];
-  const startOrder = lastDetail ? lastDetail.exerciseOrder + 1 : 1;
-  return startOrder;
-};
-
-export async function addLocalWorkoutDetails(
-  userId: string,
-  date: string,
-  selectedExercises: number[]
-): Promise<number> {
-  const workout = await addLocalWorkout(userId, date);
-  const workoutId = workout.id!;
-  const startOrder = await getstartExerciseOrder(workoutId);
-
-  const newDetails: LocalWorkoutDetail[] = [];
-  selectedExercises.forEach(async (exerciseId, idx) => {
-    const ex = await db.exercises.get(exerciseId);
-    if (!ex) throw new Error("일치하는 exercise 찾을 수 없습니다");
-    const exerciseName = ex.name;
-    const newDetail: LocalWorkoutDetail = {
-      workoutId,
-      exerciseId,
-      exerciseName,
-      exerciseOrder: startOrder + idx,
-      setOrder: 1,
-      serverId: null,
-      weight: null,
-      rpe: null,
-      reps: null,
-      isDone: false,
-      isSynced: false,
-      createdAt: new Date().toISOString(),
-    };
-    newDetails.push(newDetail);
-  });
-  console.log(newDetails);
-  const workoutDetails = await db.workoutDetails.bulkAdd(newDetails);
-  return workoutDetails;
-}
+//   const newDetails: LocalWorkoutDetail[] = [];
+//   selectedExercises.forEach(async (exerciseId, idx) => {
+//     const ex = await db.exercises.get(exerciseId);
+//     if (!ex) throw new Error("일치하는 exercise 찾을 수 없습니다");
+//     const exerciseName = ex.name;
+//     const newDetail: LocalWorkoutDetail = {
+//       workoutId,
+//       exerciseId,
+//       exerciseName,
+//       exerciseOrder: startOrder + idx,
+//       setOrder: 1,
+//       serverId: null,
+//       weight: null,
+//       rpe: null,
+//       reps: null,
+//       isDone: false,
+//       isSynced: false,
+//       createdAt: new Date().toISOString(),
+//     };
+//     newDetails.push(newDetail);
+//   });
+//   console.log(newDetails);
+//   const workoutDetails = await db.workoutDetails.bulkAdd(newDetails);
+//   return workoutDetails;
+// }

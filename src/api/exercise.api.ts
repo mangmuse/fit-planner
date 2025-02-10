@@ -1,4 +1,4 @@
-import { LocalWorkout } from "./../types/models";
+import { LocalWorkout } from "../types/models";
 import { BASE_URL } from "@/constants";
 import { db } from "@/lib/db";
 import { PatchBookmarkInput } from "@/types/dto/exercise.dto";

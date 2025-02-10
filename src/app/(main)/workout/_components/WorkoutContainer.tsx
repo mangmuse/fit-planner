@@ -1,12 +1,12 @@
 "use client";
 
-import { syncToServerWorkoutDetails } from "@/api/workoutDetail";
+import { syncToServerWorkoutDetails } from "@/services/workoutDetail.service";
 import WorkoutExerciseGroup from "@/app/(main)/workout/_components/WorkoutExerciseGroup";
 import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
 import useWorkoutDetailsQuery from "@/hooks/api/query/useWorkoutDetailsQuery";
 import { db } from "@/lib/db";
-import { getLocalWorkoutDetails } from "@/lib/localWorkoutDetailsService";
-import { addLocalWorkout } from "@/lib/localWorkoutService";
+import { getLocalWorkoutDetails } from "@/services/workoutDetail.service";
+import { addLocalWorkout } from "@/services/workout.service";
 import { ClientWorkoutDetail, LocalWorkoutDetail } from "@/types/models";
 import { useSession } from "next-auth/react";
 import Link from "next/link";

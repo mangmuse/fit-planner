@@ -1,5 +1,5 @@
 import useExerciseMutation from "@/hooks/api/mutation/useExerciseMutation";
-import { toggleLocalBookmark } from "@/lib/localExerciseService";
+import { toggleLocalBookmark } from "@/services/exercise.service";
 import { useModal } from "@/providers/contexts/ModalContext";
 import { ClientExercise, ClientUser, LocalExercise } from "@/types/models";
 import clsx from "clsx";

@@ -8,11 +8,11 @@ import Image from "next/image";
 import addButton from "public/add.svg";
 import { Category, ExerciseType } from "@/types/filters";
 
-import { loadExercisesFromServer } from "@/api/exercise";
+import { loadExercisesFromServer } from "@/api/exercise.api";
 import {
   overwriteWithServerExercises,
   syncToServerExercises,
-} from "@/lib/localExerciseService";
+} from "@/services/exercise.service";
 import { getFilteredExercises } from "./_utils/getFilteredExercises";
 
 import { useDebounce } from "@/hooks/useDebounce";
@@ -23,9 +23,9 @@ import { LocalExercise } from "@/types/models";
 import ExerciseFilter from "@/app/(main)/workout/[date]/exercises/_components/ExerciseFilter";
 import SearchBar from "@/app/(main)/workout/[date]/exercises/_components/SearchBar";
 import ExerciseList from "@/app/(main)/workout/[date]/exercises/_components/ExerciseList";
-import { addLocalWorkoutDetails } from "@/lib/localWorkoutDetailsService";
-import { getAllLocalExercises } from "@/lib/localExerciseService";
-import { syncFromServer } from "@/lib/db";
+import { addLocalWorkoutDetails } from "@/services/workoutDetail.service";
+import { getAllLocalExercises } from "@/services/exercise.service";
+import { syncExercisesFromServer } from "@/services/exercise.service";
 
 export default function ExercisesContainer() {
   const { data: session } = useSession();
@@ -83,7 +83,7 @@ export default function ExercisesContainer() {
       if (!userId) return;
       const localAll = await getAllLocalExercises();
       if (localAll.length === 0) {
-        await syncFromServer(userId);
+        await syncExercisesFromServer(userId);
       }
       const updatedAll = await getAllLocalExercises();
       setExercises(updatedAll);
