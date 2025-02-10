@@ -1,51 +1,8 @@
 import { BASE_URL } from "@/constants";
-import { ClientExercise } from "@/types/models";
 import { http } from "msw";
 import dayjs from "dayjs";
 import { PatchBookmarkInput } from "@/types/dto/exercise.dto";
-
-export const mockExercises: ClientExercise[] = [
-  {
-    id: 1,
-    name: "벤치프레스",
-    category: "가슴",
-    isCustom: false,
-    isBookmarked: true,
-    createdAt: "2023-01-01T00:00:00Z",
-    userId: null,
-    imageUrl: "/",
-  },
-  {
-    id: 2,
-    name: "스쿼트",
-    category: "하체",
-    isCustom: false,
-    isBookmarked: false,
-    createdAt: "2023-01-02T00:00:00Z",
-    userId: null,
-    imageUrl: "/",
-  },
-  {
-    id: 3,
-    name: "데드리프트",
-    category: "하체",
-    isCustom: false,
-    isBookmarked: true,
-    createdAt: "2023-01-03T00:00:00Z",
-    userId: null,
-    imageUrl: "/",
-  },
-  {
-    id: 4,
-    name: "랫풀다운",
-    category: "등",
-    isCustom: false,
-    isBookmarked: true,
-    createdAt: "2023-01-03T00:00:00Z",
-    userId: null,
-    imageUrl: "/",
-  },
-];
+import { mockServerResponseExercises } from "@/__mocks__/exercise.mock";
 
 const mockSession = {
   expires: dayjs().add(2, "day").toISOString(),
@@ -79,7 +36,7 @@ export const handlers = [
     );
     const type = decodeURIComponent(url.searchParams.get("type") || "전체");
 
-    const filtered = mockExercises.filter((exercise) => {
+    const filtered = mockServerResponseExercises.filter((exercise) => {
       const matchesKeyword = exercise.name
         .toLowerCase()
         .includes(keyword.toLowerCase());
@@ -107,7 +64,9 @@ export const handlers = [
 
     const { userId, exerciseId } = body as PatchBookmarkInput;
 
-    const exercise = mockExercises.find((e) => e.id === exerciseId);
+    const exercise = mockServerResponseExercises.find(
+      (e) => e.id === exerciseId
+    );
 
     if (exercise) {
       exercise.isBookmarked = !exercise.isBookmarked;

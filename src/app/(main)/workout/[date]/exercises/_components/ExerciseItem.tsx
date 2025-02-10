@@ -1,4 +1,3 @@
-import useExerciseMutation from "@/hooks/api/mutation/useExerciseMutation";
 import { toggleLocalBookmark } from "@/services/exercise.service";
 import { useModal } from "@/providers/contexts/ModalContext";
 import { ClientExercise, ClientUser, LocalExercise } from "@/types/models";
@@ -27,7 +26,6 @@ const ExerciseItem = ({
   const [isUpdating, setIsUpdating] = useState(false);
   const { name, id, isBookmarked } = exercise;
   const { openModal } = useModal();
-  const { updateBookmark } = useExerciseMutation();
   const handleClick = () => {
     if (!exercise.id) return;
     return isSelected ? onDelete(exercise.id) : onAdd(exercise.id);
