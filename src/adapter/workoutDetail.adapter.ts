@@ -1,3 +1,4 @@
+import { db } from "@/lib/db";
 import {
   getExerciseName,
   getExerciseWithLocalId,
@@ -65,4 +66,15 @@ export const convertLocalWorkoutDetailToServer = async (
       };
     })
   );
+};
+export const getStartExerciseOrder = async (
+  workoutId: number
+): Promise<number> => {
+  const allDetails = await db.workoutDetails
+    .where("workoutId")
+    .equals(workoutId)
+    .sortBy("exerciseOrder");
+  const lastDetail = allDetails[allDetails.length - 1];
+  const startOrder = lastDetail ? lastDetail.exerciseOrder + 1 : 1;
+  return startOrder;
 };

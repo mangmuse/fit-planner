@@ -1,10 +1,12 @@
 import {
   fetchExercisesFromServer,
-  mergeServerExerciseData,
   postExercisesToServer,
 } from "@/api/exercise.api";
 import { db } from "@/lib/db";
+import { mergeServerExerciseData } from "@/adapter/exercise.repository";
 import { ClientExercise, LocalExercise } from "@/types/models";
+
+export const syncExercisesLocalFirst = async () => {};
 
 export const getExerciseWithServerId = async (
   serverId: number
@@ -38,7 +40,10 @@ export async function overwriteWithServerExercises(userId: string) {
 
 export async function syncExercisesFromServer(userId: string) {
   const serverData: ClientExercise[] = await fetchExercisesFromServer(userId);
-  await mergeServerExerciseData(serverData);
+  const merged = await mergeServerExerciseData(serverData);
+
+  await db.exercises.clear();
+  await db.exercises.bulkPut(merged);
 }
 
 export async function getAllLocalExercises(): Promise<LocalExercise[]> {
@@ -65,6 +70,7 @@ export const getExerciseName = async (exerciseId: number): Promise<string> => {
   if (!exercise) throw new Error("id와 일치하는 exercise를 찾을 수 없습니다");
   return exercise.name;
 };
+
 export async function syncToServerExercises(userId: string): Promise<void> {
   const all = await db.exercises.toArray();
   const unsynced = all.filter((x) => !x.isSynced);

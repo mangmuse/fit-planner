@@ -25,7 +25,7 @@ import SearchBar from "@/app/(main)/workout/[date]/exercises/_components/SearchB
 import ExerciseList from "@/app/(main)/workout/[date]/exercises/_components/ExerciseList";
 import { addLocalWorkoutDetails } from "@/services/workoutDetail.service";
 import { getAllLocalExercises } from "@/services/exercise.service";
-import { syncExercisesFromServer } from "@/services/exercise.service";
+import { syncExercisesFromServerLocalFirst } from "@/services/exercise.service";
 
 export default function ExercisesContainer() {
   const { data: session } = useSession();
@@ -83,7 +83,7 @@ export default function ExercisesContainer() {
       if (!userId) return;
       const localAll = await getAllLocalExercises();
       if (localAll.length === 0) {
-        await syncExercisesFromServer(userId);
+        await syncExercisesFromServerLocalFirst(userId);
       }
       const updatedAll = await getAllLocalExercises();
       setExercises(updatedAll);

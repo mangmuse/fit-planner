@@ -91,7 +91,9 @@ export async function loadExercisesFromServer(userId: string) {
   }
 }
 
-export async function mergeServerExerciseData(serverData: ClientExercise[]) {
+export async function mergeServerExerciseData(
+  serverData: ClientExercise[]
+): Promise<LocalExercise[]> {
   const localAll = await db.exercises.toArray();
 
   const serverMapped = serverData.map((s) => ({
@@ -129,6 +131,5 @@ export async function mergeServerExerciseData(serverData: ClientExercise[]) {
     }
   }
 
-  await db.exercises.clear();
-  await db.exercises.bulkPut(merged);
+  return merged;
 }

@@ -7,7 +7,8 @@ import {
   convertLocalWorkoutDetailToServer,
   getAddSetInputByLastSet,
   getNewDetails,
-} from "@/repositories/workoutDetail.repository";
+  getStartExerciseOrder,
+} from "@/adapter/workoutDetail.adapter";
 import {
   getExerciseWithLocalId,
   getExerciseWithServerId,
@@ -34,14 +35,8 @@ export const overwriteWithServerWorkoutDetails = async (userId: string) => {
   );
   const toInsert = await Promise.all(
     serverData.map(async (data) => {
-      const exercise = await db.exercises
-        .where("serverId")
-        .equals(data.exerciseId)
-        .first();
-      const workout = await db.workouts
-        .where("serverId")
-        .equals(data.workoutId)
-        .first();
+      const exercise = await getExerciseWithServerId(data.exerciseId);
+      const workout = await getWorkoutWithServerId(data.workoutId);
 
       if (!exercise?.id || !workout?.id)
         throw new Error("exerciseId 또는 workoutId가 없습니다");
@@ -59,18 +54,6 @@ export const overwriteWithServerWorkoutDetails = async (userId: string) => {
   await db.workoutDetails.bulkAdd(toInsert);
 };
 
-export const getstartExerciseOrder = async (
-  workoutId: number
-): Promise<number> => {
-  const allDetails = await db.workoutDetails
-    .where("workoutId")
-    .equals(workoutId)
-    .sortBy("exerciseOrder");
-  const lastDetail = allDetails[allDetails.length - 1];
-  const startOrder = lastDetail ? lastDetail.exerciseOrder + 1 : 1;
-  return startOrder;
-};
-
 export async function addLocalWorkoutDetails(
   userId: string,
   date: string,
@@ -78,7 +61,7 @@ export async function addLocalWorkoutDetails(
 ): Promise<number> {
   const workout = await addLocalWorkout(userId, date);
   const workoutId = workout.id!;
-  const startOrder = await getstartExerciseOrder(workoutId);
+  const startOrder = await getStartExerciseOrder(workoutId);
   const newDetails = await getNewDetails(selectedExercises, {
     workoutId,
     startOrder,
