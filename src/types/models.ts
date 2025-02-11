@@ -1,21 +1,38 @@
+import { expectType } from "tsd";
 import { User, Exercise, WorkoutDetail, Workout } from "@prisma/client";
+import { z } from "zod";
+
+export const clientWorkoutSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  date: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string().nullable().optional(),
+});
+
+export const clientExerciseSchema = z.object({
+  id: z.number(),
+  category: z.string(),
+  createdAt: z.string(),
+  imageUrl: z.string(),
+  isBookmarked: z.boolean(),
+  isCustom: z.boolean(),
+  name: z.string(),
+  userId: z.string().nullable(),
+  updatedAt: z.string().optional().nullable(),
+});
 
 export type UserModel = User;
 export type ExerciseModel = Exercise;
-
 export type ModelWithStringDates<T> = Omit<T, "createdAt" | "updatedAt"> & {
   createdAt: string;
   updatedAt?: string | null;
 };
 
 export type ClientUser = ModelWithStringDates<UserModel>;
-export type ClientExercise = ModelWithStringDates<ExerciseModel> & {
-  isBookmarked: boolean;
-};
+export type ClientExercise = z.infer<typeof testSchema>;
+export type ClientWorkout = z.infer<typeof clientWorkoutSchema>;
 
-export type ClientWorkout = Omit<ModelWithStringDates<Workout>, "date"> & {
-  date: string;
-};
 export type ClientWorkoutDetail = ModelWithStringDates<WorkoutDetail> & {
   exerciseName: string;
 };

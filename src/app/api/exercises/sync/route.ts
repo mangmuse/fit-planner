@@ -1,15 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { SyncChange } from "@/api/exercise.api";
 import pMap from "p-map";
+import { Exercise } from "@prisma/client";
+import { validateData } from "@/util/validateData";
+import { z } from "zod";
+
+const requestBodySchema = z.object({
+  unsynced: z.array(
+    z.object({
+      imageUrl: z.string(),
+      createdAt: z.string(),
+      isCustom: z.boolean(),
+      isBookmarked: z.boolean(),
+      name: z.string(),
+      category: z.string(),
+      serverId: z.number().nullable(),
+      id: z.number().optional(),
+      isSynced: z.boolean(),
+      userId: z.string(),
+    })
+  ),
+  userId: z.string(),
+});
+
+type RequestBody = z.infer<typeof requestBodySchema>;
 
 export async function POST(req: NextRequest) {
-  console.log("hellooo");
   try {
     const body = await req.json();
-    const unsynced = body.unsynced as SyncChange["payload"][];
-    const userId = body.userId;
-    console.log(unsynced);
+
+    const parsedBody = validateData<RequestBody>(requestBodySchema, body);
+
+    const unsynced = parsedBody.unsynced;
+
+    const userId = parsedBody.userId;
     const updatedList: Array<{ localId: number; serverId: number }> = [];
 
     await pMap(
@@ -20,31 +44,29 @@ export async function POST(req: NextRequest) {
         const isBookmarked = item.isBookmarked ?? false;
         console.log(serverExerciseId);
 
-        let exercise = null;
+        let exercise: Exercise | null = null;
         if (serverExerciseId) {
           exercise = await prisma.exercise.findUnique({
             where: { id: serverExerciseId },
           });
         }
         if (!exercise) {
-          console.log(item.name, "이게 없을수가있어??");
           exercise = await prisma.exercise.create({
             data: {
-              name: item.name ?? "unknown",
-              category: item.category || "미지정",
+              name: item.name,
+              category: item.category,
               isCustom: true,
-              imageUrl: item.imageUrl || "/",
+              imageUrl: item.imageUrl,
               userId,
+              createdAt: new Date(item.createdAt),
             },
           });
+          if (!exercise) throw new Error("");
           serverExerciseId = exercise.id;
           updatedList.push({ localId, serverId: serverExerciseId });
         }
 
         if (userId && serverExerciseId) {
-          console.log("hello");
-          console.log("hellloooo");
-          console.log(userId, serverExerciseId);
           await prisma.userExercise.upsert({
             where: {
               userId_exerciseId: {
@@ -64,9 +86,12 @@ export async function POST(req: NextRequest) {
       { concurrency: 5 }
     );
 
-    return NextResponse.json({ updated: updatedList, success: true });
+    return NextResponse.json(
+      { success: true, updated: updatedList },
+      { status: 201 }
+    );
   } catch (err) {
     console.error("Sync error:", err);
-    return NextResponse.json({ success: false }, { status: 500 });
+    return NextResponse.json({ success: false, message: err }, { status: 500 });
   }
 }

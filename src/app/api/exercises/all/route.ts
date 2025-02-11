@@ -4,6 +4,8 @@ import { Prisma } from "@prisma/client";
 import { ExerciseModel } from "@/types/models";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/_utils/authOption";
+import { validateData } from "@/util/validateData";
+import { z } from "zod";
 
 // export async function GET(request: NextRequest) {
 //   const session = await getServerSession(authOptions);
@@ -65,29 +67,37 @@ import { authOptions } from "@/app/api/_utils/authOption";
 //     return NextResponse.json({ message: "서버 문제 에러" }, { status: 500 });
 //   }
 // }
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get("userId") ?? undefined;
-  console.log(userId);
+  const parsedUserId = validateData<string>(z.string(), userId);
+
   try {
     const exercises = await prisma.exercise.findMany({
       include: {
         userExercises: {
-          where: { userId },
+          where: { userId: parsedUserId },
           select: { isBookmarked: true },
         },
       },
     });
     const exercisesWithBookmark = exercises.map((exercise) => {
-      const isBookmarked = userId
+      const isBookmarked = parsedUserId
         ? exercise.userExercises?.[0]?.isBookmarked ?? false
         : false;
       const { userExercises, ...rest } = exercise;
       return { ...rest, isBookmarked };
     });
-    return NextResponse.json(exercisesWithBookmark, { status: 200 });
+    return NextResponse.json(
+      { success: true, exercises: exercisesWithBookmark },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("[GET Exercises Error]", error);
-    return NextResponse.json({ message: "서버 문제 에러" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "서버 문제 에러" },
+      { status: 500 }
+    );
   }
 }

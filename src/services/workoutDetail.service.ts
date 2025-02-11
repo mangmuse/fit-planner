@@ -30,9 +30,8 @@ export type NewWorkoutDetailInput = {
 };
 
 export const overwriteWithServerWorkoutDetails = async (userId: string) => {
-  const serverData: ClientWorkoutDetail[] = await fetchWorkoutDetailsFromServer(
-    userId
-  );
+  const serverData: ClientWorkoutDetail[] =
+    await fetchWorkoutDetailsFromServer(userId);
   const toInsert = await Promise.all(
     serverData.map(async (data) => {
       const exercise = await getExerciseWithServerId(data.exerciseId);

@@ -1,6 +1,7 @@
 import { getWorkouts } from "@/app/api/_utils/getWorkouts";
-import { prisma } from "@/lib/prisma";
+import { validateData } from "@/util/validateData";
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 export const GET = async (
   req: NextRequest,
@@ -8,12 +9,10 @@ export const GET = async (
 ) => {
   try {
     const { userId } = await Promise.resolve(params);
-    if (!userId) throw new Error("userId가 전달되지 않았습니다.");
-    const workouts = await getWorkouts(userId);
-    console.log(
-      workouts.map((w) => console.log(typeof w.date, "<<<<<<<<<<<,이거임 ㅋㅋ"))
-    );
-    return NextResponse.json({ success: true, workouts });
+    const parsedUserId = validateData<string>(z.string(), userId);
+    const workouts = await getWorkouts(parsedUserId);
+
+    return NextResponse.json({ success: true, workouts }, { status: 200 });
   } catch (e) {
     console.error(e);
     return NextResponse.json({ success: false }, { status: 500 });

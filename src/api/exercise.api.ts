@@ -4,17 +4,33 @@ import {
   POST_EXERCISES_ERROR,
 } from "@/constants/errorMessage";
 
-import { ClientExercise, ClientUser, LocalExercise } from "@/types/models";
+import {
+  clientExerciseSchema,
+  ClientUser,
+  LocalExercise,
+} from "@/types/models";
+import { validateData } from "@/util/validateData";
+import { z } from "zod";
 
-export interface SyncChange {
-  type: "addExercise" | "updateBookmark";
-  payload: Partial<LocalExercise> & { userId: string };
-}
+export const fetchExercisesSchema = z.object({
+  success: z.boolean(),
+  exercises: z.array(clientExerciseSchema),
+});
 
-export interface SyncExercisesToServerResponse {
-  success: boolean;
-  updated: { localId: number; serverId: number }[];
-}
+export const syncExercisesToServerResponseSchema = z.object({
+  success: z.boolean(),
+  updated: z.array(
+    z.object({
+      localId: z.number(),
+      serverId: z.number(),
+    })
+  ),
+});
+
+export type SyncExercisesToServerResponse = z.infer<
+  typeof syncExercisesToServerResponseSchema
+>;
+export type FetchExercisesResponse = z.infer<typeof fetchExercisesSchema>;
 
 export async function fetchExercisesFromServer(userId: ClientUser["id"]) {
   const queryParams = new URLSearchParams({ userId: userId ?? "" });
@@ -22,8 +38,15 @@ export async function fetchExercisesFromServer(userId: ClientUser["id"]) {
   if (!res.ok) {
     throw new Error(FETCH_EXERCISES_ERROR);
   }
-  const serverData: ClientExercise[] = await res.json();
-  return serverData;
+  const serverData = await res.json();
+
+  const parsedExercises = validateData<FetchExercisesResponse>(
+    fetchExercisesSchema,
+    serverData
+  );
+
+  const serverWorkouts = parsedExercises.exercises;
+  return serverWorkouts;
 }
 
 export async function postExercisesToServer(
@@ -39,6 +62,12 @@ export async function postExercisesToServer(
     throw new Error(POST_EXERCISES_ERROR);
   }
 
-  const data: SyncExercisesToServerResponse = await res.json();
-  return data;
+  const data = await res.json();
+
+  const parsedData = validateData<SyncExercisesToServerResponse>(
+    syncExercisesToServerResponseSchema,
+    data
+  );
+
+  return parsedData;
 }

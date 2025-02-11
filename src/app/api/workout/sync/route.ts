@@ -40,7 +40,10 @@ export const POST = async (req: NextRequest) => {
       { concurrency: 5 }
     );
 
-    return NextResponse.json({ success: true, updated: updatedList });
+    return NextResponse.json({
+      success: true,
+      updated: updatedList,
+    });
   } catch (e) {
     return NextResponse.json({ success: false }, { status: 500 });
   }
