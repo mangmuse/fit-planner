@@ -11,7 +11,7 @@ import {
   LocalWorkoutDetail,
 } from "@/types/models";
 import Dexie, { Table } from "dexie";
-
+Dexie.debug = true;
 export class MyLocalDB extends Dexie {
   exercises!: Table<LocalExercise, number>;
   workouts!: Table<LocalWorkout, number>;

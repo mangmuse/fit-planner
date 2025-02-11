@@ -1,4 +1,8 @@
 import { BASE_URL } from "@/constants";
+import {
+  FETCH_WORKOUT_DETAILS_ERROR,
+  POST_WORKOUT_DETAILS_ERROR,
+} from "@/constants/errorMessage";
 import { ClientWorkoutDetail, LocalWorkoutDetail } from "@/types/models";
 
 export interface SyncWorkoutDetailsToServerResponse {
@@ -17,15 +21,16 @@ export type SyncWorkoutDetailsPayload = {
   })[];
 };
 
-export const fetchWorkoutDetailsFromServer = async (userId: string) => {
+export const fetchWorkoutDetailsFromServer = async (
+  userId: string
+): Promise<ClientWorkoutDetail[]> => {
   const res = await fetch(`${BASE_URL}/api/workout/detail/${userId}`);
   if (!res.ok) {
-    throw new Error("서버로부터 workoutDetail fetching 을 실패했습니다");
+    throw new Error(FETCH_WORKOUT_DETAILS_ERROR);
   }
   const data = await res.json();
 
   const serverData: ClientWorkoutDetail[] = data.workoutDetails;
-  console.log(serverData);
   return serverData;
 };
 
@@ -40,7 +45,7 @@ export async function postWorkoutDetailsToServer(
     body: JSON.stringify({ mappedUnsynced }),
   });
 
-  if (!res.ok) throw new Error("WorkoutDetails 동기화에 실패했습니다");
+  if (!res.ok) throw new Error(POST_WORKOUT_DETAILS_ERROR);
 
   const data: SyncWorkoutDetailsToServerResponse = await res.json();
   return data;

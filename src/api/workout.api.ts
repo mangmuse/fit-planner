@@ -1,4 +1,8 @@
 import { BASE_URL } from "@/constants";
+import {
+  FETCH_WORKOUTS_ERROR,
+  POST_WORKOUTS_ERROR,
+} from "@/constants/errorMessage";
 import { ClientWorkout, LocalWorkout } from "@/types/models";
 
 export type SyncWorkoutsPayload = {
@@ -14,8 +18,7 @@ export const fetchWorkoutFromServer = async (
   userId: string
 ): Promise<ClientWorkout[]> => {
   const res = await fetch(`${BASE_URL}/api/workout/${userId}`);
-  console.log(res);
-  if (!res.ok) throw new Error("Workout fetch에 실패했습니다");
+  if (!res.ok) throw new Error(FETCH_WORKOUTS_ERROR);
   const data = await res.json();
   const serverWorkouts = data.workouts;
   return serverWorkouts;
@@ -30,7 +33,7 @@ export async function postWorkoutsToServer(
     body: JSON.stringify({ unsynced }),
   });
 
-  if (!res.ok) throw new Error("Workouts 동기화에 실패했습니다");
+  if (!res.ok) throw new Error(POST_WORKOUTS_ERROR);
 
   const data = await res.json();
   return data;

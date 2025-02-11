@@ -10,7 +10,9 @@ export const GET = async (
     const { userId } = await Promise.resolve(params);
     if (!userId) throw new Error("userId가 전달되지 않았습니다.");
     const workouts = await getWorkouts(userId);
-
+    console.log(
+      workouts.map((w) => console.log(typeof w.date, "<<<<<<<<<<<,이거임 ㅋㅋ"))
+    );
     return NextResponse.json({ success: true, workouts });
   } catch (e) {
     console.error(e);

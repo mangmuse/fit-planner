@@ -13,7 +13,9 @@ export type ClientExercise = ModelWithStringDates<ExerciseModel> & {
   isBookmarked: boolean;
 };
 
-export type ClientWorkout = ModelWithStringDates<Workout>;
+export type ClientWorkout = Omit<ModelWithStringDates<Workout>, "date"> & {
+  date: string;
+};
 export type ClientWorkoutDetail = ModelWithStringDates<WorkoutDetail> & {
   exerciseName: string;
 };

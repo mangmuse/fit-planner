@@ -27,7 +27,7 @@ const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
   const loadLocalWorkoutDetails = async () => {
     console.log("userId: ", userId, "date", date);
     if (!userId) return;
-    const details = await getLocalWorkoutDetails(userId, date);
+  const details = await getLocalWorkoutDetails(userId, date);
     const adjustedGroups = getGroupedDetails(details);
     setWorkoutGroups(adjustedGroups);
   };

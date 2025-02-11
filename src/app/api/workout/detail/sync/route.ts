@@ -10,7 +10,7 @@ export const POST = async (req: NextRequest) => {
     body,
     "asiokldfhjqwaiofhqwoifhiqwofhiwqofhiqwohoasiokldfhjqwaiofhqwoifhiqwofhiwqofhiqwohoasiokldfhjqwaiofhqwoifhiqwofhiwqofhiqwohoasiokldfhjqwaiofhqwoifhiqwofhiwqofhiqwohoasiokldfhjqwaiofhqwoifhiqwofhiwqofhiqwohoasiokldfhjqwaiofhqwoifhiqwofhiwqofhiqwohoasiokldfhjqwaiofhqwoifhiqwofhiwqofhiqwohoasiokldfhjqwaiofhqwoifhiqwofhiwqofhiqwoho"
   );
-
+  console.log(body, "bodybodybodybodybodybodybodybodybody");
   try {
     const unsynced = body.mappedUnsynced;
 

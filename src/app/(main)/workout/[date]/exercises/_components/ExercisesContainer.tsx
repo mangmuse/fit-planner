@@ -123,12 +123,7 @@ export default function ExercisesContainer() {
           onReload={loadLocalExerciseData}
         />
       )}
-      <button onClick={() => overwriteWithServerExercises(userId ?? "")}>
-        SyncFromServer
-      </button>
-      <button onClick={() => syncToServerExercises(userId ?? "")}>
-        SynctoServer
-      </button>
+
       {selectedExercises.length > 0 && (
         <button
           onClick={handleAddWorkoutDetail}

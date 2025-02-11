@@ -86,11 +86,12 @@ export const mockLocalExercises: LocalExercise[] = [
   },
 ];
 
-export const postExercisesToServerResponse: SyncExercisesToServerResponse = {
-  success: true,
-  updated: [
-    { localId: 1, serverId: 1 },
-    { localId: 2, serverId: 2 },
-    { localId: 3, serverId: 3 },
-  ],
-};
+export const mockPostExercisesToServerResponse: SyncExercisesToServerResponse =
+  {
+    success: true,
+    updated: [
+      { localId: 1, serverId: 1 },
+      { localId: 2, serverId: 2 },
+      { localId: 3, serverId: 3 },
+    ],
+  };
