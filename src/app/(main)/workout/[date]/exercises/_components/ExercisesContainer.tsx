@@ -8,17 +8,10 @@ import Image from "next/image";
 import addButton from "public/add.svg";
 import { Category, ExerciseType } from "@/types/filters";
 
-import { loadExercisesFromServer } from "@/api/exercise.api";
-import {
-  overwriteWithServerExercises,
-  syncExercisesFromServerLocalFirst,
-  syncToServerExercises,
-} from "@/services/exercise.service";
+import { syncExercisesFromServerLocalFirst } from "@/services/exercise.service";
 import { getFilteredExercises } from "./_utils/getFilteredExercises";
 
 import { useDebounce } from "@/hooks/useDebounce";
-import { PostWorkoutDetailsInput } from "@/types/dto/workoutDetail.dto";
-import useWorkoutMutation from "@/hooks/api/mutation/useWorkoutMutation";
 import { getFormattedDateYMD } from "@/util/formatDate";
 import { LocalExercise } from "@/types/models";
 import ExerciseFilter from "@/app/(main)/workout/[date]/exercises/_components/ExerciseFilter";

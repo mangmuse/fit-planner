@@ -50,7 +50,7 @@ export async function overwriteWithServerWorkouts(
       id: undefined,
       userId: workout.userId,
       serverId: workout.id,
-      date: getFormattedDateYMD(workout.date),
+      date: workout.date,
       isSynced: true,
       createdAt: workout.createdAt,
       updatedAt: workout.updatedAt,

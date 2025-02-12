@@ -2,9 +2,9 @@ import { updateLocalWorkoutDetail } from "@/services/workoutDetail.service";
 import { useState } from "react";
 
 type WorkoutCheckboxProps = {
-  prevIsDone: boolean;
-  id: number;
-  loadLocalWorkoutDetails: () => Promise<void>;
+  prevIsDone?: boolean;
+  id?: number;
+  loadLocalWorkoutDetails?: () => Promise<void>;
 };
 
 const WorkoutCheckbox = ({
@@ -12,13 +12,13 @@ const WorkoutCheckbox = ({
   id,
   loadLocalWorkoutDetails,
 }: WorkoutCheckboxProps) => {
-  const [isDone, setIsDone] = useState<boolean>(prevIsDone);
+  const [isDone, setIsDone] = useState<boolean>(prevIsDone ?? false);
 
   const handleChange = async () => {
     const newValue = !isDone;
     setIsDone(newValue);
     await updateLocalWorkoutDetail({ isDone: newValue, id });
-    loadLocalWorkoutDetails();
+    if (loadLocalWorkoutDetails) loadLocalWorkoutDetails();
   };
   return (
     <label className="inline-flex items-center cursor-pointer">

@@ -37,6 +37,6 @@ export const GET = async (
       workoutDetails: transformedDetails,
     });
   } catch (e) {
-    handleServerError(e);
+    return handleServerError(e);
   }
 };

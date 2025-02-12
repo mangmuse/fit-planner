@@ -56,6 +56,6 @@ export const POST = async (req: NextRequest) => {
       updated: updatedList,
     });
   } catch (e) {
-    handleServerError(e);
+    return handleServerError(e);
   }
 };

@@ -78,6 +78,6 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (e) {
-    handleServerError(e);
+    return handleServerError(e);
   }
 }

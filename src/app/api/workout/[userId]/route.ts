@@ -15,6 +15,6 @@ export const GET = async (
 
     return NextResponse.json({ success: true, workouts }, { status: 200 });
   } catch (e) {
-    handleServerError(e);
+    return handleServerError(e);
   }
 };

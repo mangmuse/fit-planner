@@ -1,8 +1,6 @@
 "use client";
 
-import useWorkoutMutation from "@/hooks/api/mutation/useWorkoutMutation";
 import { addSet, deleteSet } from "@/services/workoutDetail.service";
-import { PostWorkoutDetailInput } from "@/types/dto/workoutDetail.dto";
 import { LocalWorkoutDetail } from "@/types/models";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";

@@ -97,6 +97,6 @@ export const POST = async (req: NextRequest) => {
 
     return NextResponse.json({ success: true, updated: updatedList });
   } catch (e) {
-    handleServerError(e);
+    return handleServerError(e);
   }
 };

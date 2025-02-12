@@ -1,6 +1,4 @@
-import { getWorkoutDetails } from "@/api/workout.api";
 import WorkoutContainer from "@/app/(main)/workout/_components/WorkoutContainer";
-import WorkoutPlaceholder from "@/app/(main)/workout/_components/WorkoutPlaceholder";
 import { authOptions } from "@/app/api/_utils/authOption";
 import { getFormattedDateWithoutDay } from "@/util/formatDate";
 import { getServerSession } from "next-auth";

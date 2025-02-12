@@ -38,7 +38,7 @@ export const clientWorkoutDetailSchema = z.object({
 });
 
 export const localWorkoutSchema = z.object({
-  serverId: z.string(),
+  serverId: z.string().nullable(),
   updatedAt: z.string().optional().nullable(),
   id: z.number().optional(),
   userId: z.string(),

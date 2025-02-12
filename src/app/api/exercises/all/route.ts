@@ -31,6 +31,6 @@ export async function GET(request: NextRequest) {
       { status: 200 }
     );
   } catch (e) {
-    handleServerError(e);
+    return handleServerError(e);
   }
 }

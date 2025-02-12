@@ -59,6 +59,8 @@ export const convertLocalWorkoutDetailToServer = async (
     unsynced.map(async (detail) => {
       const exercise = await getExerciseWithLocalId(detail.exerciseId);
       const workout = await getWorkoutWithLocalId(detail.workoutId);
+      if (!exercise.serverId || !workout.serverId)
+        throw new Error("exerciseId 또는 workoutId가 없다는데요? 이게 왜없지");
       return {
         ...detail,
         exerciseId: exercise?.serverId,
