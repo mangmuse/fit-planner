@@ -4,22 +4,11 @@ import pMap from "p-map";
 import { Exercise } from "@prisma/client";
 import { validateData } from "@/util/validateData";
 import { z } from "zod";
+import { handleServerError } from "@/app/api/_utils/handleError";
+import { localExerciseSchema } from "@/types/models";
 
 const requestBodySchema = z.object({
-  unsynced: z.array(
-    z.object({
-      imageUrl: z.string(),
-      createdAt: z.string(),
-      isCustom: z.boolean(),
-      isBookmarked: z.boolean(),
-      name: z.string(),
-      category: z.string(),
-      serverId: z.number().nullable(),
-      id: z.number().optional(),
-      isSynced: z.boolean(),
-      userId: z.string(),
-    })
-  ),
+  unsynced: z.array(localExerciseSchema),
   userId: z.string(),
 });
 
@@ -42,7 +31,6 @@ export async function POST(req: NextRequest) {
         const localId = item.id ?? 0;
         let serverExerciseId = item.serverId;
         const isBookmarked = item.isBookmarked ?? false;
-        console.log(serverExerciseId);
 
         let exercise: Exercise | null = null;
         if (serverExerciseId) {
@@ -61,7 +49,6 @@ export async function POST(req: NextRequest) {
               createdAt: new Date(item.createdAt),
             },
           });
-          if (!exercise) throw new Error("");
           serverExerciseId = exercise.id;
           updatedList.push({ localId, serverId: serverExerciseId });
         }
@@ -90,8 +77,7 @@ export async function POST(req: NextRequest) {
       { success: true, updated: updatedList },
       { status: 201 }
     );
-  } catch (err) {
-    console.error("Sync error:", err);
-    return NextResponse.json({ success: false, message: err }, { status: 500 });
+  } catch (e) {
+    handleServerError(e);
   }
 }

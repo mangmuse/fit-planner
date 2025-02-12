@@ -1,12 +1,23 @@
 import { SyncWorkoutsPayload } from "@/api/workout.api";
+import { handleServerError } from "@/app/api/_utils/handleError";
 import { prisma } from "@/lib/prisma";
+import { LocalWorkout, localWorkoutSchema } from "@/types/models";
+import { validateData } from "@/util/validateData";
 import { NextRequest, NextResponse } from "next/server";
 import pMap from "p-map";
+import { z } from "zod";
+
+const requestBodySchema = z.object({
+  unsynced: z.array(localWorkoutSchema),
+});
+
+type RequestBody = z.infer<typeof requestBodySchema>;
 
 export const POST = async (req: NextRequest) => {
-  const body = (await req.json()) as SyncWorkoutsPayload;
   try {
-    const unsynced = body.unsynced;
+    const body = await req.json();
+    const parsedBody = validateData<RequestBody>(requestBodySchema, body);
+    const unsynced = parsedBody.unsynced;
     const updatedList: Array<{ localId: number; serverId: string }> = [];
     await pMap(
       unsynced,
@@ -45,6 +56,6 @@ export const POST = async (req: NextRequest) => {
       updated: updatedList,
     });
   } catch (e) {
-    return NextResponse.json({ success: false }, { status: 500 });
+    handleServerError(e);
   }
 };

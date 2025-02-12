@@ -1,8 +1,11 @@
+import { HttpError } from "@/app/api/_utils/handleError";
 import { ZodError, ZodSchema } from "zod";
 
 export type ZodSafeParseReturn<T> =
   | { success: true; data: T }
   | { success: false; error: ZodError };
+
+export const VALIDATION_FAILED = "Validation failed";
 
 export const validateData = <T>(schema: ZodSchema<T>, data: unknown): T => {
   const result = schema.safeParse(data);
@@ -12,6 +15,6 @@ export const validateData = <T>(schema: ZodSchema<T>, data: unknown): T => {
     const errorMessages = result.error.issues
       .map((issue) => issue.message)
       .join(", ");
-    throw new Error(`Response Validation failed: ${errorMessages}`);
+    throw new HttpError(`${VALIDATION_FAILED}: ${errorMessages}`, 422);
   }
 };

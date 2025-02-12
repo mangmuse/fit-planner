@@ -1,6 +1,10 @@
 import { getWorkoutIds, getWorkouts } from "@/app/api/_utils/getWorkouts";
+import { handleServerError } from "@/app/api/_utils/handleError";
 import { prisma } from "@/lib/prisma";
+import { validateData } from "@/util/validateData";
+import { WorkoutDetail } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 export const GET = async (
   req: NextRequest,
@@ -8,8 +12,8 @@ export const GET = async (
 ) => {
   try {
     const { userId } = await Promise.resolve(params);
-    if (!userId) throw new Error("userId가 존재하지않습니다");
-    const workoutIds = await getWorkoutIds(userId);
+    const parsedUserId = validateData<string>(z.string(), userId);
+    const workoutIds = await getWorkoutIds(parsedUserId);
     const workoutDetails = await prisma.workoutDetail.findMany({
       where: {
         workoutId: {
@@ -24,8 +28,7 @@ export const GET = async (
         },
       },
     });
-    console.log(workoutDetails);
-    const transformedDetails = workoutDetails.map((detail) => {
+    const transformedDetails: WorkoutDetail[] = workoutDetails.map((detail) => {
       const { exercise, ...rest } = detail;
       return { ...rest, exerciseName: exercise.name };
     });
@@ -34,7 +37,6 @@ export const GET = async (
       workoutDetails: transformedDetails,
     });
   } catch (e) {
-    console.error(e);
-    return NextResponse.json({ success: false }, { status: 500 });
+    handleServerError(e);
   }
 };

@@ -1,32 +1,37 @@
-import { SyncWorkoutsPayload } from "@/api/workout.api";
-import { SyncWorkoutDetailsPayload } from "@/api/workoutDetail.api";
+import { SyncWorkoutDetailsToServerResponse } from "@/api/workoutDetail.api";
+import { handleServerError, HttpError } from "@/app/api/_utils/handleError";
 import { prisma } from "@/lib/prisma";
+import { localWorkoutDetailSchema } from "@/types/models";
+import { validateData } from "@/util/validateData";
 import { NextRequest, NextResponse } from "next/server";
 import pMap from "p-map";
+import { z } from "zod";
+
+const requestBodySchema = z.object({
+  mappedUnsynced: z.array(
+    localWorkoutDetailSchema.extend({
+      workoutId: z.string(),
+    })
+  ),
+});
+
+type RequestBody = z.infer<typeof requestBodySchema>;
 
 export const POST = async (req: NextRequest) => {
-  const body = (await req.json()) as SyncWorkoutDetailsPayload;
-  console.log(
-    body,
-    "asiokldfhjqwaiofhqwoifhiqwofhiwqofhiqwohoasiokldfhjqwaiofhqwoifhiqwofhiwqofhiqwohoasiokldfhjqwaiofhqwoifhiqwofhiwqofhiqwohoasiokldfhjqwaiofhqwoifhiqwofhiwqofhiqwohoasiokldfhjqwaiofhqwoifhiqwofhiwqofhiqwohoasiokldfhjqwaiofhqwoifhiqwofhiwqofhiqwohoasiokldfhjqwaiofhqwoifhiqwofhiwqofhiqwohoasiokldfhjqwaiofhqwoifhiqwofhiwqofhiqwoho"
-  );
-  console.log(body, "bodybodybodybodybodybodybodybodybody");
   try {
-    const unsynced = body.mappedUnsynced;
+    const body = await req.json();
+    const parsedBody = validateData<RequestBody>(requestBodySchema, body);
 
-    const updatedList: Array<{
-      localId: number;
-      serverId: string;
-      exerciseId: number;
-      workoutId: string;
-    }> = [];
+    const unsynced = parsedBody.mappedUnsynced;
+
+    const updatedList: SyncWorkoutDetailsToServerResponse["updated"] = [];
     await pMap(
       unsynced,
       async (detail) => {
         const localId = detail.id;
         console.log(detail.exerciseName);
 
-        if (!localId) throw new Error("localId가 없습니다");
+        if (!localId) throw new HttpError("localId가 없습니다", 422);
 
         const {
           createdAt,
@@ -51,17 +56,14 @@ export const POST = async (req: NextRequest) => {
           });
           serverDetailId = updated.id;
         } else {
-          if (!workoutId || !exerciseId) {
-            throw new Error(
-              `Required IDs missing: workoutId=${workoutId}, exerciseId=${exerciseId}`
-            );
-          }
-
           const workout = await prisma.workout.findUnique({
             where: { id: workoutId },
           });
           if (!workout) {
-            throw new Error(`Workout with id ${workoutId} not found`);
+            throw new HttpError(
+              `workoutId가 일치하는 workout을 찾지 못했습니다`,
+              404
+            );
           }
 
           const created = await prisma.workoutDetail.upsert({
@@ -95,7 +97,6 @@ export const POST = async (req: NextRequest) => {
 
     return NextResponse.json({ success: true, updated: updatedList });
   } catch (e) {
-    console.log(e);
-    return NextResponse.json({ success: false }, { status: 500 });
+    handleServerError(e);
   }
 };

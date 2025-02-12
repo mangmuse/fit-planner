@@ -1,4 +1,5 @@
 import { getWorkouts } from "@/app/api/_utils/getWorkouts";
+import { handleServerError } from "@/app/api/_utils/handleError";
 import { validateData } from "@/util/validateData";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -14,7 +15,6 @@ export const GET = async (
 
     return NextResponse.json({ success: true, workouts }, { status: 200 });
   } catch (e) {
-    console.error(e);
-    return NextResponse.json({ success: false }, { status: 500 });
+    handleServerError(e);
   }
 };
