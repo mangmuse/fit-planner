@@ -32,7 +32,7 @@ export const mockLocalWorkouts: LocalWorkout[] = [
   },
 ];
 
-export const mockServerWorkout: ClientWorkout[] = [
+export const mockServerWorkouts: ClientWorkout[] = [
   {
     id: mockWorkoutServerId,
     date: new Date("2025-02-11").toISOString(),
@@ -53,10 +53,28 @@ export const mockServerWorkout: ClientWorkout[] = [
   },
 ];
 
+export const mockFetchWorkoutsResponse = {
+  success: true,
+  workouts: mockServerWorkouts,
+};
+
+export const mockInvalidFetchWorkoutsResponse = {
+  success: "true",
+  workouts: mockServerWorkouts,
+};
+
 export const mockPostWorkoutsToServerResponse: SyncWorkoutsToServerResponse = {
   success: true,
   updated: [
     { localId: 1, serverId: mockWorkoutServerId },
+    { localId: 2, serverId: `${mockWorkoutServerId}2` },
+    { localId: 3, serverId: `${mockWorkoutServerId}3` },
+  ],
+};
+export const mockInvalidPostWorkoutsToServerResponse = {
+  success: true,
+  updated: [
+    { localId: 1, serverId: 1 },
     { localId: 2, serverId: `${mockWorkoutServerId}2` },
     { localId: 3, serverId: `${mockWorkoutServerId}3` },
   ],

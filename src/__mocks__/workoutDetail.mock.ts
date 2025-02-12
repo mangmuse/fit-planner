@@ -1,5 +1,8 @@
 import { mockWorkoutServerId } from "@/__mocks__/workout.mock";
-import { SyncWorkoutDetailsToServerResponse } from "@/api/workoutDetail.api";
+import {
+  FetchWorkoutDetailsResponse,
+  SyncWorkoutDetailsToServerResponse,
+} from "@/api/workoutDetail.api";
 import { ClientWorkoutDetail, LocalWorkoutDetail } from "@/types/models";
 
 export const mockWorkoutDetailId = "b6d6a28e-5709-4fe5-80f9-11bfb8bf0a64";
@@ -96,6 +99,16 @@ export const mockServerWorkoutDetails: ClientWorkoutDetail[] = [
   },
 ];
 
+export const mockfetchWorkoutDetailsResponse: FetchWorkoutDetailsResponse = {
+  success: true,
+  workoutDetails: mockServerWorkoutDetails,
+};
+
+export const mockInvalidFetchWorkoutDetailsResponse = {
+  success: "true",
+  workoutDetails: mockServerWorkoutDetails,
+};
+
 export const mockPostWorkoutDetailsToServerResponse: SyncWorkoutDetailsToServerResponse =
   {
     success: true,
@@ -120,3 +133,26 @@ export const mockPostWorkoutDetailsToServerResponse: SyncWorkoutDetailsToServerR
       },
     ],
   };
+export const mockInvalidPostWorkoutDetailsToServerResponse = {
+  success: true,
+  updated: [
+    {
+      localId: 1,
+      serverId: 1,
+      exerciseId: 3,
+      workoutId: mockWorkoutServerId,
+    },
+    {
+      localId: 2,
+      serverId: 2,
+      exerciseId: 1,
+      workoutId: mockWorkoutServerId,
+    },
+    {
+      localId: 3,
+      serverId: 3,
+      exerciseId: 2,
+      workoutId: mockWorkoutServerId,
+    },
+  ],
+};

@@ -86,6 +86,16 @@ export const mockLocalExercises: LocalExercise[] = [
   },
 ];
 
+export const mockFetchExercisesResponse = {
+  success: true,
+  exercises: mockServerResponseExercises,
+};
+
+export const mockInvalidFetchExercisesResponse = {
+  success: "true",
+  exercises: mockServerResponseExercises,
+};
+
 export const mockPostExercisesToServerResponse: SyncExercisesToServerResponse =
   {
     success: true,
@@ -95,3 +105,11 @@ export const mockPostExercisesToServerResponse: SyncExercisesToServerResponse =
       { localId: 3, serverId: 3 },
     ],
   };
+export const mockInvalidPostExercisesToServerResponse = {
+  success: true,
+  updated: [
+    { localId: 1, serverId: "1" },
+    { localId: 2, serverId: 2 },
+    { localId: 3, serverId: 3 },
+  ],
+};

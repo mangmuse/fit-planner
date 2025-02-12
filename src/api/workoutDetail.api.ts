@@ -3,23 +3,44 @@ import {
   FETCH_WORKOUT_DETAILS_ERROR,
   POST_WORKOUT_DETAILS_ERROR,
 } from "@/constants/errorMessage";
-import { ClientWorkoutDetail, LocalWorkoutDetail } from "@/types/models";
+import {
+  ClientWorkoutDetail,
+  clientWorkoutDetailSchema,
+  LocalWorkoutDetail,
+} from "@/types/models";
+import { validateData } from "@/util/validateData";
+import { z } from "zod";
 
-export interface SyncWorkoutDetailsToServerResponse {
-  success: boolean;
-  updated: {
-    localId: number;
-    serverId: string;
-    exerciseId: number;
-    workoutId: string;
-  }[];
-}
+export const syncWorkoutDetailsToServerResponseSchema = z.object({
+  success: z.boolean(),
+  updated: z.array(
+    z.object({
+      localId: z.number(),
+      serverId: z.string(),
+      exerciseId: z.number(),
+      workoutId: z.string(),
+    })
+  ),
+});
+
+export const fetchWorkoutDetailsSchema = z.object({
+  success: z.boolean(),
+  workoutDetails: z.array(clientWorkoutDetailSchema),
+});
+
+export type SyncWorkoutDetailsToServerResponse = z.infer<
+  typeof syncWorkoutDetailsToServerResponseSchema
+>;
 
 export type SyncWorkoutDetailsPayload = {
   mappedUnsynced: (Omit<LocalWorkoutDetail, "workoutId"> & {
     workoutId: string;
   })[];
 };
+
+export type FetchWorkoutDetailsResponse = z.infer<
+  typeof fetchWorkoutDetailsSchema
+>;
 
 export const fetchWorkoutDetailsFromServer = async (
   userId: string
@@ -30,8 +51,14 @@ export const fetchWorkoutDetailsFromServer = async (
   }
   const data = await res.json();
 
-  const serverData: ClientWorkoutDetail[] = data.workoutDetails;
-  return serverData;
+  const parsedData = validateData<FetchWorkoutDetailsResponse>(
+    fetchWorkoutDetailsSchema,
+    data
+  );
+
+  const serverWorkoutDetails = parsedData.workoutDetails;
+
+  return serverWorkoutDetails;
 };
 
 export async function postWorkoutDetailsToServer(
@@ -47,6 +74,11 @@ export async function postWorkoutDetailsToServer(
 
   if (!res.ok) throw new Error(POST_WORKOUT_DETAILS_ERROR);
 
-  const data: SyncWorkoutDetailsToServerResponse = await res.json();
-  return data;
+  const data = await res.json();
+  const parsedData = validateData<SyncWorkoutDetailsToServerResponse>(
+    syncWorkoutDetailsToServerResponseSchema,
+    data
+  );
+
+  return parsedData;
 }

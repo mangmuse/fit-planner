@@ -3,6 +3,9 @@ import {
   mockLocalExercises,
   mockServerResponseExercises,
   mockPostExercisesToServerResponse,
+  mockInvalidPostExercisesToServerResponse,
+  mockInvalidFetchExercisesResponse,
+  mockFetchExercisesResponse,
 } from "@/__mocks__/exercise.mock";
 import {
   fetchExercisesFromServer,
@@ -13,6 +16,7 @@ import {
   FETCH_EXERCISES_ERROR,
   POST_EXERCISES_ERROR,
 } from "@/constants/errorMessage";
+import { VALIDATION_FAILED } from "@/util/validateData";
 import { server } from "jest.setup";
 import { http } from "msw";
 
@@ -23,7 +27,13 @@ describe("fetchExercisesFromServer", () => {
     server.use(
       http.get(targetUrl, ({ request }) => {
         capturedUrl = request.url;
-        return new Response(JSON.stringify([]), { status: 200 });
+        return new Response(
+          JSON.stringify({
+            success: true,
+            exercises: mockServerResponseExercises,
+          }),
+          { status: 200 }
+        );
       })
     );
 
@@ -34,7 +44,7 @@ describe("fetchExercisesFromServer", () => {
   it("서버 응답이 성공할 경우 예상된 데이터를 반환한다", async () => {
     server.use(
       http.get(targetUrl, () => {
-        return new Response(JSON.stringify(mockServerResponseExercises), {
+        return new Response(JSON.stringify(mockFetchExercisesResponse), {
           status: 200,
         });
       })
@@ -42,12 +52,28 @@ describe("fetchExercisesFromServer", () => {
     const result = await fetchExercisesFromServer(mockUserId);
     expect(result).toEqual(mockServerResponseExercises);
   });
+
+  it("서버 응답이 기대한 값과 다를 경우 validation error를 던진다", async () => {
+    server.use(
+      http.get(targetUrl, () => {
+        return new Response(JSON.stringify(mockInvalidFetchExercisesResponse), {
+          status: 200,
+        });
+      })
+    );
+
+    await expect(fetchExercisesFromServer(mockUserId)).rejects.toThrow();
+  });
+
   it("서버 응답이 실패할 경우 에러를 던진다", async () => {
     server.use(
       http.get(targetUrl, () => {
-        return new Response(JSON.stringify({ success: false }), {
-          status: 500,
-        });
+        return new Response(
+          JSON.stringify({ success: false, message: ";ㅅ;" }),
+          {
+            status: 500,
+          }
+        );
       })
     );
 
@@ -64,7 +90,9 @@ describe("postExercisesToServer", () => {
     server.use(
       http.post(targetUrl, ({ request }) => {
         capturedUrl = request.url;
-        return new Response(JSON.stringify([]), { status: 200 });
+        return new Response(JSON.stringify(mockPostExercisesToServerResponse), {
+          status: 200,
+        });
       })
     );
 
@@ -83,12 +111,31 @@ describe("postExercisesToServer", () => {
     console.log(result);
     expect(result).toEqual(mockPostExercisesToServerResponse);
   });
+  it("서버 응답이 기대한 값과 다를 경우 validation error를 던진다", async () => {
+    server.use(
+      http.post(targetUrl, () => {
+        return new Response(
+          JSON.stringify(mockInvalidPostExercisesToServerResponse),
+          {
+            status: 200,
+          }
+        );
+      })
+    );
+
+    await expect(
+      postExercisesToServer(mockLocalExercises, mockUserId)
+    ).rejects.toThrow(VALIDATION_FAILED);
+  });
   it("서버 응답이 실패할 경우 에러를 던진다", async () => {
     server.use(
       http.post(targetUrl, () => {
-        return new Response(JSON.stringify({ success: false }), {
-          status: 500,
-        });
+        return new Response(
+          JSON.stringify({ success: false, message: ";ㅅ;" }),
+          {
+            status: 500,
+          }
+        );
       })
     );
 
