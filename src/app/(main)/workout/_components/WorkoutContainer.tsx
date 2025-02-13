@@ -1,50 +1,48 @@
 "use client";
 
 import WorkoutExerciseGroup from "@/app/(main)/workout/_components/WorkoutExerciseGroup";
-import useWorkoutDetailsQuery from "@/hooks/api/query/useWorkoutDetailsQuery";
-import { ClientWorkoutDetail } from "@/types/models";
+import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
+import { getLocalWorkoutDetails } from "@/services/workoutDetail.service";
+import { LocalWorkoutDetail } from "@/types/models";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 type WorkoutContainerProps = {
-  initialWorkoutDetails: ClientWorkoutDetail[];
   date: string;
 };
 
-const WorkoutContainer = ({
-  initialWorkoutDetails,
-  date,
-}: WorkoutContainerProps) => {
+const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
   const userId = useSession().data?.user?.id;
-  const { data: workoutDetail } = useWorkoutDetailsQuery(
-    userId,
-    date,
-    initialWorkoutDetails
-  );
-  const groupedDetails = workoutDetail.reduce((acc, detail) => {
-    if (!acc.has(detail.exerciseOrder)) {
-      acc.set(detail.exerciseOrder, []);
-    }
-    acc.get(detail.exerciseOrder)!.push(detail);
-    return acc;
-  }, new Map<number, ClientWorkoutDetail[]>());
-  const groups = Array.from(groupedDetails, ([exerciseOrder, details]) => ({
-    exerciseOrder,
-    details,
-  }));
-  console.log(groups);
+
+  const [workoutGroups, setWorkoutGroups] = useState<
+    { exerciseOrder: number; details: LocalWorkoutDetail[] }[]
+  >([]);
+  console.log("이거는 몇번실행?");
+
+  const loadLocalWorkoutDetails = async () => {
+    console.log("userId: ", userId, "date", date);
+    if (!userId) return;
+    const details = await getLocalWorkoutDetails(userId, date);
+    const adjustedGroups = getGroupedDetails(details);
+    setWorkoutGroups(adjustedGroups);
+  };
+  useEffect(() => {
+    loadLocalWorkoutDetails();
+  }, [userId, date]);
+
   return (
     <div>
       <ul className="flex flex-col gap-2.5">
-        {groups.map(({ exerciseOrder, details }) => (
+        {workoutGroups.map(({ exerciseOrder, details }) => (
           <WorkoutExerciseGroup
             key={exerciseOrder}
             details={details}
             exerciseOrder={exerciseOrder}
+            loadLocalWorkoutDetails={loadLocalWorkoutDetails}
           />
         ))}
       </ul>
-
       <Link href={`/workout/${date}/exercises`}>운동 추가</Link>
     </div>
   );

@@ -2,25 +2,20 @@ import SetActions from "@/app/(main)/workout/_components/SetActions";
 import WorkoutItem from "@/app/(main)/workout/_components/WorkoutItem";
 import WorkoutTableHeader from "@/app/(main)/workout/_components/WorkoutTableHeader";
 import { PostWorkoutDetailInput } from "@/types/dto/workoutDetail.dto";
-import { ClientWorkoutDetail } from "@/types/models";
+import { ClientWorkoutDetail, LocalWorkoutDetail } from "@/types/models";
 
 type WorkoutExerciseGroupProps = {
   exerciseOrder: number;
-  details: ClientWorkoutDetail[];
+  details: LocalWorkoutDetail[];
+  loadLocalWorkoutDetails: () => Promise<void>;
 };
 
 const WorkoutExerciseGroup = ({
   details,
   exerciseOrder,
+  loadLocalWorkoutDetails,
 }: WorkoutExerciseGroupProps) => {
   const lastValue = details[details.length - 1];
-  const { exerciseId, workoutId, setOrder, id } = lastValue;
-  const postWorkoutDetailInput: PostWorkoutDetailInput = {
-    exerciseId,
-    exerciseOrder,
-    setOrder: setOrder + 1,
-    workoutId,
-  };
 
   return (
     <div className="bg-bg-surface  font-semibold pb-2.5">
@@ -32,13 +27,17 @@ const WorkoutExerciseGroup = ({
         <WorkoutTableHeader />
         <tbody>
           {details.map((detail) => (
-            <WorkoutItem key={detail.id} workoutDetail={detail} />
+            <WorkoutItem
+              key={detail.id}
+              loadLocalWorkoutDetails={loadLocalWorkoutDetails}
+              workoutDetail={detail}
+            />
           ))}
         </tbody>
       </table>
       <SetActions
-        postWorkoutDetailInput={postWorkoutDetailInput}
-        workoutDetailId={id}
+        loadLocalWorkoutDetails={loadLocalWorkoutDetails}
+        lastValue={lastValue}
       />
     </div>
   );

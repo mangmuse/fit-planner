@@ -1,0 +1,93 @@
+import {
+  fetchWorkoutFromServer,
+  postWorkoutsToServer,
+} from "@/api/workout.api";
+import { db } from "@/lib/db";
+import { ClientWorkout, LocalWorkout } from "@/types/models";
+import { getFormattedDateYMD } from "@/util/formatDate";
+
+export const getWorkoutWithServerId = async (
+  serverId: string
+): Promise<LocalWorkout> => {
+  const workout = await db.workouts.where("serverId").equals(serverId).first();
+  if (!workout) throw new Error("일치하는 exercise가 없습니다");
+  return workout;
+};
+export const getWorkoutWithLocalId = async (
+  id: number
+): Promise<LocalWorkout> => {
+  const workout = await db.workouts.where("id").equals(id).first();
+  if (!workout) throw new Error("일치하는 exercise가 없습니다");
+  return workout;
+};
+
+export const syncToServerWorkouts = async (): Promise<void> => {
+  const all = await db.workouts.toArray();
+  const unsynced = all.filter((workout) => !workout.isSynced);
+
+  const data = await postWorkoutsToServer(unsynced);
+  if (data.updated) {
+    for (const updated of data.updated) {
+      await db.workouts.update(updated.localId, {
+        serverId: updated.serverId,
+        isSynced: true,
+      });
+    }
+  }
+};
+
+export async function overwriteWithServerWorkouts(
+  userId: string
+): Promise<string[]> {
+  console.log("hello");
+  const serverData: ClientWorkout[] = await fetchWorkoutFromServer(userId);
+  if (!serverData) throw new Error("데이터 받아오기를 실패했습니다");
+  console.log(serverData);
+  const workoutServerIds: string[] = [];
+  const toInsert = serverData.map((workout) => {
+    workoutServerIds.push(workout.id);
+    return {
+      id: undefined,
+      userId: workout.userId,
+      serverId: workout.id,
+      date: workout.date,
+      isSynced: true,
+      createdAt: workout.createdAt,
+      updatedAt: workout.updatedAt,
+    };
+  });
+  await db.workouts.clear();
+
+  await db.workouts.bulkAdd(toInsert);
+  return workoutServerIds;
+}
+
+export const addLocalWorkout = async (
+  userId: string,
+  date: string
+): Promise<LocalWorkout> => {
+  console.log("hello");
+
+  const existing = await db.workouts
+    .where(["userId", "date"])
+    .equals([userId, date])
+    .first();
+  console.log(existing);
+  if (existing) {
+    return existing;
+  }
+
+  const localId = await db.workouts.add({
+    userId,
+    date,
+    createdAt: new Date().toISOString(),
+    isSynced: false,
+    serverId: null,
+  });
+
+  const workout = await db.workouts.get(localId);
+  if (!workout) {
+    throw new Error("Workout을 불러오지 못했습니다");
+  }
+  return workout;
+};

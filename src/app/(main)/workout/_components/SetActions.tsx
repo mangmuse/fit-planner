@@ -1,29 +1,30 @@
 "use client";
 
-import useWorkoutMutation from "@/hooks/api/mutation/useWorkoutMutation";
-import { PostWorkoutDetailInput } from "@/types/dto/workoutDetail.dto";
+import { addSet, deleteSet } from "@/services/workoutDetail.service";
+import { LocalWorkoutDetail } from "@/types/models";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 
 type SetActionsProps = {
-  postWorkoutDetailInput: PostWorkoutDetailInput;
-  workoutDetailId: string;
+  lastValue: LocalWorkoutDetail;
+  loadLocalWorkoutDetails: () => Promise<void>;
 };
 
 const SetActions = ({
-  postWorkoutDetailInput,
-  workoutDetailId,
+  lastValue,
+  loadLocalWorkoutDetails,
 }: SetActionsProps) => {
   const userId = useSession()?.data?.user?.id;
   const { date } = useParams();
-  const { addWorkoutDetail, removeWorkoutDetail } = useWorkoutMutation(
-    userId,
-    date as string | undefined
-  );
-  const handleAddSet = async () =>
-    await addWorkoutDetail(postWorkoutDetailInput);
-  const handleDeleteSet = async () =>
-    await removeWorkoutDetail(workoutDetailId);
+
+  const handleAddSet = async () => {
+    await addSet(lastValue);
+    loadLocalWorkoutDetails();
+  };
+  const handleDeleteSet = async () => {
+    await deleteSet(lastValue.id);
+    loadLocalWorkoutDetails();
+  };
   return (
     <div className="flex justify-center gap-2.5 mt-2">
       <button

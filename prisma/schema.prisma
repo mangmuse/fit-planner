@@ -82,7 +82,7 @@ model Workout {
 }
 
 model WorkoutDetail {
-  id            String   @id @default(uuid())
+  id            String    @id @default(uuid())
   workoutId     String
   exerciseId    Int
   weight        Float?
@@ -90,9 +90,11 @@ model WorkoutDetail {
   exerciseOrder Int
   reps          Int?
   setOrder      Int
-  isDone        Boolean  @default(false)
-  exercise      Exercise @relation(fields: [exerciseId], references: [id])
-  workout       Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  isDone        Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime? @updatedAt
+  exercise      Exercise  @relation(fields: [exerciseId], references: [id])
+  workout       Workout   @relation(fields: [workoutId], references: [id], onDelete: Cascade)
 
   @@unique([workoutId, exerciseOrder, setOrder])
 }

@@ -10,7 +10,7 @@ const WorkoutTableHeader = () => {
         <th className="w-[17%]">Reps</th>
         <th className="w-[14%]">
           <div className="flex justify-center items-center">
-            <WorkoutCheckbox isDone={false} />
+            <WorkoutCheckbox />
           </div>
         </th>
       </tr>

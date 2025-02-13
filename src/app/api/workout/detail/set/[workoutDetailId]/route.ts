@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { workoutDetailId: string } }
+  { params }: { params: Promise<{ workoutDetailId: string }> }
 ) {
   const { workoutDetailId } = await Promise.resolve(params);
 

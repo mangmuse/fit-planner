@@ -1,20 +1,12 @@
-import ExercisesContainer from "./_components/ExercisesContainer";
+import ExercisesContainer from "@/app/(main)/workout/[date]/exercises/_components/ExercisesContainer";
 
-type ExercisesPageProps = {
-  params: {
-    date: string;
-  };
-};
+export const revalidate = 86400;
 
-const ExercisesPage = async ({ params }: ExercisesPageProps) => {
-  const { date } = await Promise.resolve(params);
-  console.log(date);
-
+const ExercisesPage = async () => {
   return (
     <>
       <ExercisesContainer />
     </>
   );
 };
-
 export default ExercisesPage;
