@@ -56,12 +56,12 @@ export const overwriteWithServerWorkoutDetails = async (userId: string) => {
 export async function addLocalWorkoutDetails(
   userId: string,
   date: string,
-  selectedExercises: number[]
+  selectedExercises: { id: number | undefined; name: string }[]
 ): Promise<number> {
   const workout = await addLocalWorkout(userId, date);
   const workoutId = workout.id!;
   const startOrder = await getStartExerciseOrder(workoutId);
-  const newDetails = await getNewDetails(selectedExercises, {
+  const newDetails = getNewDetails(selectedExercises, {
     workoutId,
     startOrder,
   });

@@ -1,11 +1,10 @@
 import { db } from "@/lib/db";
 import { ClientExercise, LocalExercise } from "@/types/models";
 
-export async function mergeServerExerciseData(
-  serverData: ClientExercise[]
-): Promise<LocalExercise[]> {
-  const localAll = await db.exercises.toArray();
-
+export function mergeServerExerciseData(
+  serverData: ClientExercise[],
+  localData: LocalExercise[]
+): LocalExercise[] {
   const serverMapped = serverData.map((s) => ({
     ...s,
     serverId: s.id,
@@ -14,14 +13,14 @@ export async function mergeServerExerciseData(
   }));
   const merged: LocalExercise[] = [];
 
-  for (const localExercise of localAll) {
+  for (const localExercise of localData) {
     if (!localExercise.serverId) {
       merged.push(localExercise);
     }
   }
 
   for (const serverExercise of serverMapped) {
-    const localMatch = localAll.find(
+    const localMatch = localData.find(
       (local) => local.serverId === serverExercise.serverId
     );
     if (!localMatch) {

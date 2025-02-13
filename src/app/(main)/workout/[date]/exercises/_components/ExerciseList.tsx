@@ -4,8 +4,8 @@ import { ClientExercise, ClientUser, LocalExercise } from "@/types/models";
 
 type ExerciseListProps = {
   exercises: LocalExercise[];
-  selectedExercises: LocalExercise["id"][];
-  onAdd: (newId: LocalExercise["id"]) => void;
+  selectedExercises: { id: number; name: string }[];
+  onAdd: (newExercise: LocalExercise) => void;
   onDelete: (toBeDeleted: ClientExercise["id"]) => void;
   onReload: () => void;
   userId: ClientUser["id"];
@@ -24,7 +24,9 @@ const ExerciseList = ({
       {exercises.map((exercise: LocalExercise) => (
         <ExerciseItem
           key={exercise.id}
-          isSelected={selectedExercises.includes(exercise.id)}
+          isSelected={selectedExercises.some(
+            (selected) => selected.id === exercise.id
+          )}
           onAdd={onAdd}
           onDelete={onDelete}
           exercise={exercise}

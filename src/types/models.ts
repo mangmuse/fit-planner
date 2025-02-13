@@ -92,6 +92,12 @@ export type ClientWorkoutDetail = z.infer<typeof clientWorkoutDetailSchema>;
 export type LocalExercise = z.infer<typeof localExerciseSchema>;
 export type LocalWorkout = z.infer<typeof localWorkoutSchema>;
 export type LocalWorkoutDetail = z.infer<typeof localWorkoutDetailSchema>;
+export type LocalWorkoutDetailWithServerWorkoutId = Omit<
+  LocalWorkoutDetail,
+  "workoutId"
+> & {
+  workoutId: string;
+};
 
 export type AddLocalWorkoutDetailInput = {
   exerciseId: number;

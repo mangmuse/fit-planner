@@ -13,6 +13,7 @@ export const getExerciseWithServerId = async (
     .where("serverId")
     .equals(serverId)
     .first();
+  console.log("helloooo");
   if (!exercise) throw new Error("일치하는 exercise가 없습니다");
   return exercise;
 };
@@ -38,7 +39,9 @@ export async function overwriteWithServerExercises(userId: string) {
 
 export async function syncExercisesFromServerLocalFirst(userId: string) {
   const serverData: ClientExercise[] = await fetchExercisesFromServer(userId);
-  const merged = await mergeServerExerciseData(serverData);
+  const localAll = await db.exercises.toArray();
+
+  const merged = await mergeServerExerciseData(serverData, localAll);
 
   await db.exercises.clear();
   await db.exercises.bulkPut(merged);
