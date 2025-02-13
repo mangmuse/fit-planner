@@ -92,7 +92,6 @@ export default function ExercisesContainer() {
     );
     setVisibleExercises(filtered);
   }, [exercises, debouncedKeyword, selectedExerciseType, selectedCategory]);
-  console.log(selectedExercises);
   return (
     <main>
       <div className="flex justify-end mt-4 mb-3">

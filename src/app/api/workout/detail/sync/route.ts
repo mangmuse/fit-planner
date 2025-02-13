@@ -29,7 +29,6 @@ export const POST = async (req: NextRequest) => {
       unsynced,
       async (detail) => {
         const localId = detail.id;
-        console.log(detail.exerciseName);
 
         if (!localId) throw new HttpError("localId가 없습니다", 422);
 

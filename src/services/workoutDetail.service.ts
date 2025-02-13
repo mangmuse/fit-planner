@@ -93,7 +93,6 @@ export const getLocalWorkoutDetails = async (
 export const updateLocalWorkoutDetail = async (
   updateWorkoutInput: Partial<LocalWorkoutDetail>
 ): Promise<void> => {
-  console.log("good");
   if (!updateWorkoutInput.id) throw new Error("id가 없습니다");
   await db.workoutDetails.update(updateWorkoutInput.id, updateWorkoutInput);
 };

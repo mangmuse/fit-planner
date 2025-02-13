@@ -1,8 +1,55 @@
+import { server } from "./../../jest.setup";
+jest.mock("@/services/exercise.service.ts", () => ({
+  getExerciseWithServerId: jest.fn().mockImplementation((serverId: number) => {
+    const exercise = mockServerResponseExercises.find(
+      (ex) => ex.id === serverId
+    );
+    return exercise ? { ...exercise, id: exercise.id - 100 } : undefined;
+  }),
+  getExerciseWithLocalId: jest.fn().mockImplementation((localId: number) => {
+    return mockLocalExercises
+      .map((ex) => ({ ...ex, serverId: ex.id ? +ex.id + 100 : null }))
+      .find((ex) => ex.id === localId);
+  }),
+}));
+
+jest.mock("@/services/workout.service.ts", () => ({
+  getWorkoutWithServerId: jest.fn().mockImplementation((serverId: string) => {
+    return mockLocalWorkouts.find((w) => w.serverId === serverId);
+  }),
+  getWorkoutWithLocalId: jest.fn().mockImplementation((localId: number) => {
+    return mockLocalWorkouts.find((w) => w.id === localId);
+  }),
+}));
+
+jest.mock("@/lib/db", () => ({
+  db: {
+    workoutDetails: {
+      where: jest.fn(),
+    },
+  },
+}));
+
 import {
+  mockLocalExercises,
+  mockServerResponseExercises,
+} from "@/__mocks__/exercise.mock";
+import {
+  mockLocalWorkouts,
+  mockServerWorkouts,
+} from "@/__mocks__/workout.mock";
+import { mockLocalWorkoutDetails } from "@/__mocks__/workoutDetail.mock";
+import {
+  convertLocalWorkoutDetailToServer,
+  convertServerWorkoutDetailToLocal,
   createDetail,
   getAddSetInputByLastSet,
   getNewDetails,
+  getStartExerciseOrder,
 } from "@/adapter/workoutDetail.adapter";
+import { db } from "@/lib/db";
+
+import { LocalWorkoutDetail } from "@/types/models";
 
 const lastSet = {
   id: 1,
@@ -205,5 +252,94 @@ describe("getNewDetails", () => {
     newDetails.map((detail, idx) => {
       expect(detail.exerciseOrder).toBe(startOrder + idx);
     });
+  });
+});
+
+describe("convertLocalWorkoutDetailToServer", () => {
+  it("should ", async () => {
+    const localDetails: LocalWorkoutDetail[] = mockLocalWorkoutDetails
+      .filter(
+        (detail): detail is typeof detail & { id: number } =>
+          detail.id !== undefined
+      )
+      .map((detail) => ({
+        ...detail,
+        workoutId: detail.id,
+        exerciseId: detail.exerciseId - 100,
+      }));
+
+    const serverDetails = await convertLocalWorkoutDetailToServer(localDetails);
+
+    serverDetails.forEach((converted, i) => {
+      const {
+        exerciseId: localExerciseId,
+        workoutId: localWorkoutId,
+        ...restLocalDetail
+      } = localDetails[i];
+      const {
+        exerciseId: convertedExerciseId,
+        workoutId: convertedworkoutId,
+        ...restConvertedDetail
+      } = converted;
+
+      expect(convertedExerciseId).not.toBe(localExerciseId);
+
+      expect(convertedworkoutId).not.toBe(localWorkoutId);
+
+      // 그 외의 데이터는 변동이 없다
+      expect({ ...restLocalDetail }).toMatchObject({ ...restConvertedDetail });
+    });
+  });
+});
+
+describe("convertServerWorkoutDetailToLocal", () => {
+  const serverDetails = mockLocalWorkoutDetails;
+  it("should ", async () => {
+    const localDetails = await convertServerWorkoutDetailToLocal(
+      mockLocalWorkoutDetails
+    );
+    serverDetails.forEach((converted, i) => {
+      const {
+        exerciseId: localExerciseId,
+        workoutId: localWorkoutId,
+        ...restLocalDetail
+      } = localDetails[i];
+      const {
+        exerciseId: convertedExerciseId,
+        workoutId: convertedworkoutId,
+        ...restConvertedDetail
+      } = converted;
+
+      expect(convertedExerciseId).not.toBe(localExerciseId);
+      expect(convertedworkoutId).not.toBe(localWorkoutId);
+      // 그 외의 데이터는 변동이 없다
+      expect({ ...restLocalDetail }).toMatchObject({ ...restConvertedDetail });
+    });
+  });
+});
+describe("getStartExerciseOrder", () => {
+  it("상세 내역이 없으면 1을 반환한다", async () => {
+    (db.workoutDetails.where as jest.Mock).mockReturnValue({
+      equals: jest.fn().mockReturnValue({
+        sortBy: jest.fn().mockResolvedValue([]),
+      }),
+    });
+    const result = await getStartExerciseOrder(123);
+    expect(result).toBe(1);
+  });
+  it("상세 내역이 있는경우 마지막 값(exerciseOrder) + 1 을 반환한다  ", async () => {
+    (db.workoutDetails.where as jest.Mock).mockReturnValue({
+      equals: jest.fn().mockReturnValue({
+        sortBy: jest
+          .fn()
+          .mockResolvedValue([
+            { exerciseOrder: 1 },
+            { exerciseOrder: 2 },
+            { exerciseOrder: 3 },
+          ]),
+      }),
+    });
+    const result = await getStartExerciseOrder(123);
+    expect(result).toBe(4);
   });
 });

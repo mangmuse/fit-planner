@@ -39,10 +39,8 @@ export const syncToServerWorkouts = async (): Promise<void> => {
 export async function overwriteWithServerWorkouts(
   userId: string
 ): Promise<string[]> {
-  console.log("hello");
   const serverData: ClientWorkout[] = await fetchWorkoutFromServer(userId);
   if (!serverData) throw new Error("데이터 받아오기를 실패했습니다");
-  console.log(serverData);
   const workoutServerIds: string[] = [];
   const toInsert = serverData.map((workout) => {
     workoutServerIds.push(workout.id);
@@ -66,13 +64,10 @@ export const addLocalWorkout = async (
   userId: string,
   date: string
 ): Promise<LocalWorkout> => {
-  console.log("hello");
-
   const existing = await db.workouts
     .where(["userId", "date"])
     .equals([userId, date])
     .first();
-  console.log(existing);
   if (existing) {
     return existing;
   }

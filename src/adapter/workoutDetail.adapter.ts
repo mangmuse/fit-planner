@@ -78,7 +78,6 @@ export const getNewDetails = (
         setOrder: 1,
         exerciseName: name,
       };
-      console.log(newValue);
       return createDetail(newValue);
     }
   );
@@ -93,8 +92,10 @@ export const convertLocalWorkoutDetailToServer = async (
     workoutDetails.map(async (detail) => {
       const exercise = await getExerciseWithLocalId(detail.exerciseId);
       const workout = await getWorkoutWithLocalId(detail.workoutId);
-      if (!exercise.serverId || !workout.serverId)
+
+      if (!exercise.serverId || !workout.serverId) {
         throw new Error("exerciseId 또는 workoutId가 없습니다");
+      }
       return {
         ...detail,
         exerciseId: exercise?.serverId,
@@ -108,13 +109,12 @@ export const convertServerWorkoutDetailToLocal = async (
 ): Promise<LocalWorkoutDetail[]> => {
   return await Promise.all(
     workoutDetails.map(async (detail) => {
-      console.log("여긴있어 ada86");
       const exercise = await getExerciseWithServerId(detail.exerciseId);
       const workout = await getWorkoutWithServerId(detail.workoutId);
-      console.log("없나? ada89");
 
-      if (!exercise.id || !workout.id)
+      if (!exercise.id || !workout.id) {
         throw new Error("exerciseId 또는 workoutId가 없다는데요? 이게 왜없지");
+      }
       return {
         ...detail,
         exerciseId: exercise?.id,

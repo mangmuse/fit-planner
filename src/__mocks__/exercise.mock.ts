@@ -3,7 +3,7 @@ import { ClientExercise, LocalExercise } from "@/types/models";
 
 export const mockServerResponseExercises: ClientExercise[] = [
   {
-    id: 1,
+    id: 101,
     name: "벤치프레스",
     category: "가슴",
     isCustom: false,
@@ -13,7 +13,7 @@ export const mockServerResponseExercises: ClientExercise[] = [
     imageUrl: "https://example.com/push-up.png",
   },
   {
-    id: 2,
+    id: 102,
     name: "스쿼트",
     category: "하체",
     isCustom: false,
@@ -23,7 +23,7 @@ export const mockServerResponseExercises: ClientExercise[] = [
     imageUrl: "https://example.com/push-up.png",
   },
   {
-    id: 3,
+    id: 103,
     name: "데드리프트",
     category: "하체",
     isCustom: false,
@@ -33,7 +33,7 @@ export const mockServerResponseExercises: ClientExercise[] = [
     imageUrl: "https://example.com/push-up.png",
   },
   {
-    id: 4,
+    id: 104,
     name: "랫풀다운",
     category: "등",
     isCustom: false,
@@ -43,7 +43,7 @@ export const mockServerResponseExercises: ClientExercise[] = [
     imageUrl: "https://example.com/push-up.png",
   },
   {
-    id: 5,
+    id: 105,
     name: "레그 익스텐션",
     category: "하체",
     isCustom: false,
@@ -77,7 +77,7 @@ export const mockLocalExercises: LocalExercise[] = [
     isCustom: false,
     isSynced: true,
     name: "스쿼트",
-    serverId: 2,
+    serverId: 102,
     updatedAt: null,
     userId: null,
   },
@@ -90,7 +90,7 @@ export const mockLocalExercises: LocalExercise[] = [
     isCustom: false,
     isSynced: false,
     name: "데드리프트",
-    serverId: 3,
+    serverId: 103,
     updatedAt: null,
     userId: null,
   },
@@ -103,7 +103,7 @@ export const mockLocalExercises: LocalExercise[] = [
     isCustom: false,
     isSynced: true,
     name: "랫풀다운",
-    serverId: 4,
+    serverId: null,
     updatedAt: null,
     userId: null,
   },
@@ -135,4 +135,10 @@ export const mockInvalidPostExercisesToServerResponse = {
     { localId: 2, serverId: 2 },
     { localId: 3, serverId: 3 },
   ],
+};
+
+export const createMockExercises = (
+  overrides?: Partial<LocalExercise>
+): LocalExercise[] => {
+  return mockLocalExercises.map((ex) => ({ ...ex, ...overrides }));
 };

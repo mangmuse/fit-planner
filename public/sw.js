@@ -24,10 +24,6 @@ self.addEventListener("notificationclick", function (event) {
   event.waitUntil(clients.openWindow("<https://your-website.com>"));
 });
 
-// public/sw.js
-
-// 오프라인 fallback 페이지를 만들고 싶다면, public/offline.html을 준비해두세요.
-
 // 설치 단계(서비스 워커가 처음 등록될 때)
 self.addEventListener("install", (event) => {
   console.log("Service Worker installing...");

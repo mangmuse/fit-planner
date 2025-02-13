@@ -108,7 +108,6 @@ describe("postExercisesToServer", () => {
       })
     );
     const result = await postExercisesToServer(mockLocalExercises, mockUserId);
-    console.log(result);
     expect(result).toEqual(mockPostExercisesToServerResponse);
   });
   it("서버 응답이 기대한 값과 다를 경우 validation error를 던진다", async () => {

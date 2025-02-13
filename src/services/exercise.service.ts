@@ -13,7 +13,6 @@ export const getExerciseWithServerId = async (
     .where("serverId")
     .equals(serverId)
     .first();
-  console.log("helloooo");
   if (!exercise) throw new Error("일치하는 exercise가 없습니다");
   return exercise;
 };

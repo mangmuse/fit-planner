@@ -6,7 +6,6 @@ export const getWorkouts = async (userId: string) => {
   return workouts;
 };
 export const getWorkoutIds = async (userId: string): Promise<string[]> => {
-  console.log("helloooooooooooo");
   const workouts = await prisma.workout.findMany({
     where: { userId },
     select: { id: true },

@@ -35,7 +35,6 @@ export class MyLocalDB extends Dexie {
 export const db = new MyLocalDB();
 
 export const overWriteAllWithWerverData = async (userId: string) => {
-  console.log("good");
   await overwriteWithServerExercises(userId);
   await overwriteWithServerWorkouts(userId);
   await overwriteWithServerWorkoutDetails(userId);
