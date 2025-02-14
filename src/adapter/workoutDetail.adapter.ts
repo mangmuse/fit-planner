@@ -1,6 +1,5 @@
 import { db } from "@/lib/db";
 import {
-  getExerciseName,
   getExerciseWithLocalId,
   getExerciseWithServerId,
 } from "@/services/exercise.service";
@@ -113,7 +112,7 @@ export const convertServerWorkoutDetailToLocal = async (
       const workout = await getWorkoutWithServerId(detail.workoutId);
 
       if (!exercise.id || !workout.id) {
-        throw new Error("exerciseId 또는 workoutId가 없다는데요? 이게 왜없지");
+        throw new Error("exerciseId 또는 workoutId가 없습니다.");
       }
       return {
         ...detail,

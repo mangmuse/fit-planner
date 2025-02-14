@@ -1,10 +1,9 @@
-import { db } from "@/lib/db";
 import { ClientExercise, LocalExercise } from "@/types/models";
 
-export function mergeServerExerciseData(
+export const mergeServerExerciseData = (
   serverData: ClientExercise[],
   localData: LocalExercise[]
-): LocalExercise[] {
+): LocalExercise[] => {
   const serverMapped = serverData.map((s) => ({
     ...s,
     serverId: s.id,
@@ -41,4 +40,4 @@ export function mergeServerExerciseData(
   }
 
   return merged;
-}
+};
