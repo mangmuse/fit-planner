@@ -1,5 +1,4 @@
-import { server } from "./../../jest.setup";
-jest.mock("@/services/exercise.service.ts", () => ({
+jest.mock("@/services/exercise.service", () => ({
   getExerciseWithServerId: jest.fn().mockImplementation((serverId: number) => {
     const exercise = mockServerResponseExercises.find(
       (ex) => ex.id === serverId
@@ -13,7 +12,7 @@ jest.mock("@/services/exercise.service.ts", () => ({
   }),
 }));
 
-jest.mock("@/services/workout.service.ts", () => ({
+jest.mock("@/services/workout.service", () => ({
   getWorkoutWithServerId: jest.fn().mockImplementation((serverId: string) => {
     return mockLocalWorkouts.find((w) => w.serverId === serverId);
   }),
@@ -34,10 +33,7 @@ import {
   mockLocalExercises,
   mockServerResponseExercises,
 } from "@/__mocks__/exercise.mock";
-import {
-  mockLocalWorkouts,
-  mockServerWorkouts,
-} from "@/__mocks__/workout.mock";
+import { mockLocalWorkouts } from "@/__mocks__/workout.mock";
 import { mockLocalWorkoutDetails } from "@/__mocks__/workoutDetail.mock";
 import {
   convertLocalWorkoutDetailToServer,
