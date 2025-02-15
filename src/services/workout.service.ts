@@ -42,7 +42,6 @@ export async function overwriteWithServerWorkouts(
   const serverData: ClientWorkout[] = await fetchWorkoutFromServer(userId);
   if (!serverData) throw new Error("데이터 받아오기를 실패했습니다");
   if (serverData.length === 0) return;
-  console.log(serverData, "serverData");
   const toInsert = serverData.map((workout) => ({
     id: undefined,
     userId: workout.userId,

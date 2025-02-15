@@ -18,11 +18,7 @@ import {
   getWorkoutWithLocalId,
   getWorkoutWithServerId,
 } from "@/services/workout.service";
-import {
-  ClientWorkoutDetail,
-  LocalWorkout,
-  LocalWorkoutDetail,
-} from "@/types/models";
+import { ClientWorkoutDetail, LocalWorkoutDetail } from "@/types/models";
 
 export type NewWorkoutDetailInput = {
   workoutId: number;
@@ -30,13 +26,17 @@ export type NewWorkoutDetailInput = {
 };
 
 export const overwriteWithServerWorkoutDetails = async (userId: string) => {
+  console.log("before fetch");
   const serverData: ClientWorkoutDetail[] =
     await fetchWorkoutDetailsFromServer(userId);
+  console.log("after fetch");
   const toInsert = await Promise.all(
     serverData.map(async (data) => {
+      console.log("beforeExWk");
       const exercise = await getExerciseWithServerId(data.exerciseId);
+      console.log(exercise, "afterEx");
       const workout = await getWorkoutWithServerId(data.workoutId);
-
+      console.log(workout, "afterWk");
       if (!exercise?.id || !workout?.id)
         throw new Error("exerciseId 또는 workoutId가 없습니다");
       return {
