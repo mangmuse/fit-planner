@@ -3,8 +3,8 @@ import {
   mockInvalidFetchWorkoutDetailsResponse,
   mockInvalidPostWorkoutDetailsToServerResponse,
   mockLocalWorkoutDetails,
-} from "./../__mocks__/workoutDetail.mock";
-import { mockUserId } from "@/__mocks__/api";
+} from "../__mocks__/workoutDetail.mock";
+import { mockUserId } from "@/__mocks__/src/api";
 import {
   mockPostWorkoutDetailsToServerResponse,
   mockServerWorkoutDetails,

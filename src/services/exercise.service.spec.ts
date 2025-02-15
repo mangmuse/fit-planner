@@ -1,24 +1,5 @@
-jest.mock("@/lib/db", () => ({
-  db: {
-    exercises: {
-      where: jest.fn(),
-      toArray: jest.fn(),
-      bulkAdd: jest.fn(),
-      bulkPut: jest.fn(),
-      clear: jest.fn(),
-      update: jest.fn(),
-      get: jest.fn(),
-    },
-  },
-}));
-jest.mock("@/api/exercise.api", () => ({
-  fetchExercisesFromServer: jest
-    .fn()
-    .mockImplementation(async (userId: string): Promise<ClientExercise[]> => {
-      return [...mockServerResponseExercises];
-    }),
-  postExercisesToServer: jest.fn(),
-}));
+jest.mock("@/lib/db");
+jest.mock("@/api/exercise.api");
 
 jest.mock("@/adapter/exercise.adapter", () => ({
   mergeServerExerciseData: jest
@@ -44,7 +25,10 @@ import {
 } from "@/services/exercise.service";
 import { db } from "@/lib/db";
 import { ClientExercise, LocalExercise } from "@/types/models";
-import { postExercisesToServer } from "@/api/exercise.api";
+import {
+  fetchExercisesFromServer,
+  postExercisesToServer,
+} from "@/api/exercise.api";
 
 describe("exercise.service", () => {
   const getUnsyncedMock = () => {
@@ -93,7 +77,7 @@ describe("exercise.service", () => {
     it("일치하는 exercise가 없으면 에러를 던진다", async () => {
       (db.exercises.where as jest.Mock).mockReturnValue({
         equals: jest.fn().mockReturnValue({
-          first: jest.fn().mockResolvedValue(undefined),
+          first: jest.fn().mockResolvedValueOnce(undefined),
         }),
       });
 
@@ -105,6 +89,9 @@ describe("exercise.service", () => {
 
   describe("overwriteWithServerExercises", () => {
     it("서버에서 받아온 데이터로 DB를 덮어씌운다", async () => {
+      (fetchExercisesFromServer as jest.Mock).mockResolvedValue(
+        mockServerResponseExercises
+      );
       await overwriteWithServerExercises("testUserId");
       const expectedInsert = mockServerResponseExercises.map((ex) => ({
         ...ex,

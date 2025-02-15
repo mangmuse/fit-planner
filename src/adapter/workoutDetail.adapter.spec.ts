@@ -21,13 +21,7 @@ jest.mock("@/services/workout.service", () => ({
   }),
 }));
 
-jest.mock("@/lib/db", () => ({
-  db: {
-    workoutDetails: {
-      where: jest.fn(),
-    },
-  },
-}));
+jest.mock("@/lib/db");
 
 import {
   mockLocalExercises,
@@ -44,6 +38,10 @@ import {
   getStartExerciseOrder,
 } from "@/adapter/workoutDetail.adapter";
 import { db } from "@/lib/db";
+import {
+  getWorkoutWithLocalId,
+  getWorkoutWithServerId,
+} from "@/services/workout.service";
 
 import { LocalWorkoutDetail } from "@/types/models";
 

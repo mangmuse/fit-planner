@@ -1,4 +1,4 @@
-import { handlers } from "@/__mocks__/api/handlers";
+import { handlers } from "@/__mocks__/src/api/handlers";
 import "@testing-library/jest-dom";
 import { setupServer } from "msw/node";
 
@@ -14,6 +14,7 @@ beforeAll(() => {
 
 afterEach(() => {
   server.resetHandlers();
+  jest.clearAllMocks();
 });
 
 afterAll(() => {

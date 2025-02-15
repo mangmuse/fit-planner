@@ -5,6 +5,13 @@ import {
 import { db } from "@/lib/db";
 import { ClientWorkout, LocalWorkout } from "@/types/models";
 
+export const getWorkoutByUserIdAndDate = async (
+  userId: string,
+  date: string
+) => {
+  return db.workouts.where(["userId", "date"]).equals([userId, date]).first();
+};
+
 export const getWorkoutWithServerId = async (
   serverId: string
 ): Promise<LocalWorkout> => {
@@ -60,10 +67,7 @@ export const addLocalWorkout = async (
   userId: string,
   date: string
 ): Promise<LocalWorkout> => {
-  const existing = await db.workouts
-    .where(["userId", "date"])
-    .equals([userId, date])
-    .first();
+  const existing = await getWorkoutByUserIdAndDate(userId, date);
   if (existing) {
     return existing;
   }

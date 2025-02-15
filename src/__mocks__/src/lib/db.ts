@@ -1,0 +1,31 @@
+export const db = {
+  exercises: {
+    where: jest.fn(),
+    toArray: jest.fn(),
+    bulkAdd: jest.fn(),
+    bulkPut: jest.fn(),
+    clear: jest.fn(),
+    update: jest.fn(),
+    get: jest.fn(),
+  },
+  workouts: {
+    where: jest.fn(),
+    toArray: jest.fn(),
+    bulkAdd: jest.fn(),
+    bulkPut: jest.fn(),
+    clear: jest.fn(),
+    update: jest.fn(),
+    get: jest.fn(),
+    add: jest.fn(),
+  },
+  workoutDetails: {
+    where: jest.fn(),
+    toArray: jest.fn(),
+    bulkAdd: jest.fn(),
+    bulkPut: jest.fn(),
+    clear: jest.fn(),
+    update: jest.fn(),
+    get: jest.fn(),
+    add: jest.fn(),
+  },
+};

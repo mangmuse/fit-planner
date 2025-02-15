@@ -19,14 +19,14 @@ self.addEventListener("push", function (event) {
 });
 
 self.addEventListener("notificationclick", function (event) {
-  console.log("Notification click received.");
+  console.info("Notification click received.");
   event.notification.close();
   event.waitUntil(clients.openWindow("<https://your-website.com>"));
 });
 
 // 설치 단계(서비스 워커가 처음 등록될 때)
 self.addEventListener("install", (event) => {
-  console.log("Service Worker installing...");
+  console.info("Service Worker installing...");
 
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -38,7 +38,7 @@ self.addEventListener("install", (event) => {
 
 // 활성화 단계(오래된 캐시 정리)
 self.addEventListener("activate", (event) => {
-  console.log("Service Worker activated.");
+  console.info("Service Worker activated.");
   event.waitUntil(
     caches.keys().then((keyList) => {
       return Promise.all(

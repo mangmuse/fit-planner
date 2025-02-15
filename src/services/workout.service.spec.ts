@@ -1,17 +1,5 @@
-jest.mock("@/lib/db", () => ({
-  db: {
-    workouts: {
-      where: jest.fn(),
-      toArray: jest.fn(),
-      bulkAdd: jest.fn(),
-      bulkPut: jest.fn(),
-      clear: jest.fn(),
-      update: jest.fn(),
-      get: jest.fn(),
-      add: jest.fn(),
-    },
-  },
-}));
+import { getWorkoutByUserIdAndDate } from "./workout.service";
+jest.mock("@/lib/db");
 
 jest.mock("@/api/workout.api", () => ({
   postWorkoutsToServer: jest
@@ -35,12 +23,31 @@ import {
   overwriteWithServerWorkouts,
   syncToServerWorkouts,
 } from "@/services/workout.service";
+import { mockWhereEqualsFirst } from "@/util/dbMockUtils";
 
 describe("workout.service", () => {
   const userId = "testUserId";
   beforeEach(() => {
     jest.clearAllMocks();
   });
+
+  describe("getWorkoutByUserIdAndDate", () => {
+    it("userId와 date 가 일치하는 workout을 반환한다", async () => {
+      const mockWorkout = mockLocalWorkouts[0];
+      mockWhereEqualsFirst("workouts", mockWorkout);
+
+      const workout = await getWorkoutByUserIdAndDate(userId, "testDate");
+
+      expect(workout).toEqual(mockWorkout);
+    });
+
+    it("일치하는 workout이 없으면 undefined를 반환한다", async () => {
+      mockWhereEqualsFirst("workouts", undefined);
+      const result = await getWorkoutByUserIdAndDate(userId, "testDate");
+      expect(result).toBe(undefined);
+    });
+  });
+
   describe("getWorktoutWithServerId", () => {
     const localWorkout = mockLocalWorkouts[0];
     const serverId = "testServerId";
@@ -69,11 +76,7 @@ describe("workout.service", () => {
     const localWorkout = mockLocalWorkouts[0];
     const localId = "testServerId";
     it("해당되는 workout이 있을경우 해당 workout을 반환한다", async () => {
-      (db.workouts.where as jest.Mock).mockReturnValue({
-        equals: jest.fn().mockReturnValue({
-          first: jest.fn().mockResolvedValue(localWorkout),
-        }),
-      });
+      mockWhereEqualsFirst("workouts", localWorkout);
       const workout = await getWorkoutWithServerId(localId);
 
       expect(workout).toEqual(localWorkout);
@@ -187,7 +190,7 @@ describe("workout.service", () => {
       expect(db.workouts.add).toHaveBeenCalledWith({
         userId,
         date,
-        createdAt: new Date().toISOString(),
+        createdAt: expect.any(String),
         isSynced: false,
         serverId: null,
       });
