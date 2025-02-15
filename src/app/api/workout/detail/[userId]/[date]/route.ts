@@ -32,6 +32,6 @@ import { NextRequest, NextResponse } from "next/server";
 //     exerciseName: detail.exercise.name,
 //     exercise: undefined,
 //   }));
-//   console.log(flattenedWorkoutDetails);
+//
 //   return NextResponse.json(flattenedWorkoutDetails, { status: 200 });
 // }

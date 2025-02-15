@@ -16,6 +16,7 @@ export const getExerciseWithServerId = async (
   if (!exercise) throw new Error("일치하는 exercise가 없습니다");
   return exercise;
 };
+
 export const getExerciseWithLocalId = async (
   id: number
 ): Promise<LocalExercise> => {
@@ -23,10 +24,11 @@ export const getExerciseWithLocalId = async (
   if (!exercise) throw new Error("일치하는 exercise가 없습니다");
   return exercise;
 };
-
 export async function overwriteWithServerExercises(userId: string) {
   const serverData: ClientExercise[] = await fetchExercisesFromServer(userId);
-  if (!serverData) throw new Error("데이터 받아오기를 실패했습니다");
+  if (!serverData) {
+    throw new Error("데이터 받아오기를 실패했습니다");
+  }
   await db.exercises.clear();
   const toInsert = serverData.map((ex) => ({
     ...ex,
@@ -38,7 +40,9 @@ export async function overwriteWithServerExercises(userId: string) {
 
 export async function syncExercisesFromServerLocalFirst(userId: string) {
   const serverData: ClientExercise[] = await fetchExercisesFromServer(userId);
-  const merged = await mergeServerExerciseData(serverData);
+  const localAll = await db.exercises.toArray();
+
+  const merged = mergeServerExerciseData(serverData, localAll);
 
   await db.exercises.clear();
   await db.exercises.bulkPut(merged);
@@ -63,15 +67,14 @@ export const getUnsyncedExercises = async (): Promise<LocalExercise[]> => {
   return db.exercises.where("isSynced").equals(0).toArray();
 };
 
-export const getExerciseName = async (exerciseId: number): Promise<string> => {
-  const exercise = await db.exercises.get(exerciseId);
-  if (!exercise) throw new Error("id와 일치하는 exercise를 찾을 수 없습니다");
-  return exercise.name;
-};
+// export const getExerciseName = async (exerciseId: number): Promise<string> => {
+//   const exercise = await db.exercises.get(exerciseId);
+//   if (!exercise) throw new Error("id와 일치하는 exercise를 찾을 수 없습니다");
+//   return exercise.name;
+// }; 쓸거면 테스트 작성해라
 
 export async function syncToServerExercises(userId: string): Promise<void> {
-  const all = await db.exercises.toArray();
-  const unsynced = all.filter((x) => !x.isSynced);
+  const unsynced = await getUnsyncedExercises();
 
   const data = await postExercisesToServer(unsynced, userId);
 

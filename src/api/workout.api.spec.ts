@@ -1,4 +1,4 @@
-import { mockUserId } from "@/__mocks__/api";
+import { mockUserId } from "@/__mocks__/src/api";
 import {
   mockFetchWorkoutsResponse,
   mockInvalidFetchWorkoutsResponse,

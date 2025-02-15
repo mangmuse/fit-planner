@@ -4,28 +4,35 @@ import {
 } from "@/api/workout.api";
 import { db } from "@/lib/db";
 import { ClientWorkout, LocalWorkout } from "@/types/models";
-import { getFormattedDateYMD } from "@/util/formatDate";
+
+export const getWorkoutByUserIdAndDate = async (
+  userId: string,
+  date: string
+) => {
+  return db.workouts.where(["userId", "date"]).equals([userId, date]).first();
+};
 
 export const getWorkoutWithServerId = async (
   serverId: string
 ): Promise<LocalWorkout> => {
   const workout = await db.workouts.where("serverId").equals(serverId).first();
-  if (!workout) throw new Error("일치하는 exercise가 없습니다");
+  if (!workout) throw new Error("일치하는 workout이 없습니다");
   return workout;
 };
 export const getWorkoutWithLocalId = async (
   id: number
 ): Promise<LocalWorkout> => {
   const workout = await db.workouts.where("id").equals(id).first();
-  if (!workout) throw new Error("일치하는 exercise가 없습니다");
+  if (!workout) throw new Error("일치하는 workout이 없습니다");
   return workout;
 };
 
 export const syncToServerWorkouts = async (): Promise<void> => {
   const all = await db.workouts.toArray();
-  const unsynced = all.filter((workout) => !workout.isSynced);
 
+  const unsynced = all.filter((workout) => !workout.isSynced);
   const data = await postWorkoutsToServer(unsynced);
+
   if (data.updated) {
     for (const updated of data.updated) {
       await db.workouts.update(updated.localId, {
@@ -38,41 +45,29 @@ export const syncToServerWorkouts = async (): Promise<void> => {
 
 export async function overwriteWithServerWorkouts(
   userId: string
-): Promise<string[]> {
-  console.log("hello");
+): Promise<void> {
   const serverData: ClientWorkout[] = await fetchWorkoutFromServer(userId);
   if (!serverData) throw new Error("데이터 받아오기를 실패했습니다");
-  console.log(serverData);
-  const workoutServerIds: string[] = [];
-  const toInsert = serverData.map((workout) => {
-    workoutServerIds.push(workout.id);
-    return {
-      id: undefined,
-      userId: workout.userId,
-      serverId: workout.id,
-      date: workout.date,
-      isSynced: true,
-      createdAt: workout.createdAt,
-      updatedAt: workout.updatedAt,
-    };
-  });
+  if (serverData.length === 0) return;
+  const toInsert = serverData.map((workout) => ({
+    id: undefined,
+    userId: workout.userId,
+    serverId: workout.id,
+    date: workout.date,
+    isSynced: true,
+    createdAt: workout.createdAt,
+    updatedAt: workout.updatedAt,
+  }));
   await db.workouts.clear();
 
   await db.workouts.bulkAdd(toInsert);
-  return workoutServerIds;
 }
 
 export const addLocalWorkout = async (
   userId: string,
   date: string
 ): Promise<LocalWorkout> => {
-  console.log("hello");
-
-  const existing = await db.workouts
-    .where(["userId", "date"])
-    .equals([userId, date])
-    .first();
-  console.log(existing);
+  const existing = await getWorkoutByUserIdAndDate(userId, date);
   if (existing) {
     return existing;
   }
@@ -85,7 +80,7 @@ export const addLocalWorkout = async (
     serverId: null,
   });
 
-  const workout = await db.workouts.get(localId);
+  const workout = await getWorkoutWithLocalId(localId);
   if (!workout) {
     throw new Error("Workout을 불러오지 못했습니다");
   }

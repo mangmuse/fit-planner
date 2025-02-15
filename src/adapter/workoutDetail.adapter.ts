@@ -1,66 +1,100 @@
 import { db } from "@/lib/db";
 import {
-  getExerciseName,
   getExerciseWithLocalId,
+  getExerciseWithServerId,
 } from "@/services/exercise.service";
-import { getWorkoutWithLocalId } from "@/services/workout.service";
+import {
+  getWorkoutWithLocalId,
+  getWorkoutWithServerId,
+} from "@/services/workout.service";
 import { NewWorkoutDetailInput } from "@/services/workoutDetail.service";
-import { LocalWorkoutDetail } from "@/types/models";
+import {
+  LocalWorkoutDetail,
+  LocalWorkoutDetailWithServerWorkoutId,
+} from "@/types/models";
 
-export const getAddSetInputByLastSet = (lastSet: LocalWorkoutDetail) => {
-  const { id, setOrder, isSynced, isDone, updatedAt, ...rest } = lastSet;
+export function createDetail(
+  override: Partial<LocalWorkoutDetail>
+): LocalWorkoutDetail {
+  const { exerciseName, exerciseId, exerciseOrder, setOrder, workoutId } =
+    override;
+  if (!exerciseName || !exerciseId || !exerciseOrder || !setOrder || !workoutId)
+    throw new Error(
+      "exerciseName, exerciseId, exerciseOrder, setOrder, workoutId 는 필수 입력사항입니다."
+    );
+  const defaultValue: LocalWorkoutDetail = {
+    serverId: null,
+    weight: 0,
+    rpe: null,
+    reps: 0,
+    isDone: false,
+    isSynced: false,
+    setOrder: 1,
+    exerciseOrder: 1,
+    exerciseName: "",
+    exerciseId: 0,
+    workoutId: 0,
+    createdAt: new Date().toISOString(),
+  };
+
+  return {
+    ...defaultValue,
+    ...override,
+  };
+}
+
+export const getAddSetInputByLastSet = (
+  lastSet: LocalWorkoutDetail
+): LocalWorkoutDetail => {
+  const { id, rpe, setOrder, isSynced, isDone, updatedAt, ...rest } = lastSet;
   const addSetInput = {
     ...rest,
+    rpe: 0,
+    serverId: null,
     isSynced: false,
     isDone: false,
     setOrder: setOrder + 1,
     createdAt: new Date().toISOString(),
   };
-  return addSetInput;
+
+  return createDetail(addSetInput);
 };
 
-export const getNewDetails = async (
-  selectedExercises: number[],
+export const getNewDetails = (
+  selectedExercises: { id: number | undefined; name: string }[],
   { workoutId, startOrder }: NewWorkoutDetailInput
 ) => {
-  const detailPromises = selectedExercises.map(async (exerciseId, idx) => {
-    const exerciseName = await getExerciseName(exerciseId);
-    const newValue = {
-      exerciseId,
-      workoutId,
-      exerciseOrder: startOrder + idx,
-      exerciseName,
-    };
+  const newDetails: LocalWorkoutDetail[] = selectedExercises.map(
+    ({ id, name }, idx) => {
+      if (!id || !name)
+        throw new Error(
+          "getNewDetails: exerciseId 또는 exerciseName이 없습니다"
+        );
+      const newValue = {
+        exerciseId: id,
+        workoutId,
+        exerciseOrder: startOrder + idx,
+        setOrder: 1,
+        exerciseName: name,
+      };
+      return createDetail(newValue);
+    }
+  );
 
-    const defaultValue = {
-      setOrder: 1,
-      serverId: null,
-      weight: 0,
-      rpe: null,
-      reps: 0,
-      isDone: false,
-      isSynced: false,
-      createdAt: new Date().toISOString(),
-    };
-    const newDetail: LocalWorkoutDetail = {
-      ...defaultValue,
-      ...newValue,
-    };
-    return newDetail;
-  });
-  const newDetails: LocalWorkoutDetail[] = await Promise.all(detailPromises);
   return newDetails;
 };
 
 export const convertLocalWorkoutDetailToServer = async (
-  unsynced: LocalWorkoutDetail[]
-) => {
+  workoutDetails: LocalWorkoutDetail[]
+): Promise<LocalWorkoutDetailWithServerWorkoutId[]> => {
   return await Promise.all(
-    unsynced.map(async (detail) => {
+    workoutDetails.map(async (detail) => {
       const exercise = await getExerciseWithLocalId(detail.exerciseId);
       const workout = await getWorkoutWithLocalId(detail.workoutId);
-      if (!exercise.serverId || !workout.serverId)
-        throw new Error("exerciseId 또는 workoutId가 없다는데요? 이게 왜없지");
+
+      if (!exercise.serverId || !workout.serverId) {
+        throw new Error("exerciseId 또는 workoutId가 없습니다");
+      }
       return {
         ...detail,
         exerciseId: exercise?.serverId,
@@ -69,6 +103,26 @@ export const convertLocalWorkoutDetailToServer = async (
     })
   );
 };
+export const convertServerWorkoutDetailToLocal = async (
+  workoutDetails: LocalWorkoutDetailWithServerWorkoutId[]
+): Promise<LocalWorkoutDetail[]> => {
+  return await Promise.all(
+    workoutDetails.map(async (detail) => {
+      const exercise = await getExerciseWithServerId(detail.exerciseId);
+      const workout = await getWorkoutWithServerId(detail.workoutId);
+
+      if (!exercise.id || !workout.id) {
+        throw new Error("exerciseId 또는 workoutId가 없습니다.");
+      }
+      return {
+        ...detail,
+        exerciseId: exercise?.id,
+        workoutId: workout?.id,
+      };
+    })
+  );
+};
+
 export const getStartExerciseOrder = async (
   workoutId: number
 ): Promise<number> => {

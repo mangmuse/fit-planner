@@ -1,6 +1,9 @@
 "use client";
 
-import { overWriteAllWithWerverData, syncToServer } from "@/lib/db";
+import {
+  overWriteAllWithWerverData,
+  syncToServer,
+} from "@/services/syncAll.service";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 const AuthTest = () => {

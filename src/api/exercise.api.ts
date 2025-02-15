@@ -5,6 +5,7 @@ import {
 } from "@/constants/errorMessage";
 
 import {
+  ClientExercise,
   clientExerciseSchema,
   ClientUser,
   LocalExercise,
@@ -32,19 +33,19 @@ export type SyncExercisesToServerResponse = z.infer<
 >;
 export type FetchExercisesResponse = z.infer<typeof fetchExercisesSchema>;
 
-export async function fetchExercisesFromServer(userId: ClientUser["id"]) {
+export async function fetchExercisesFromServer(
+  userId: ClientUser["id"]
+): Promise<ClientExercise[]> {
   const queryParams = new URLSearchParams({ userId: userId ?? "" });
   const res = await fetch(`${BASE_URL}/api/exercises/all?${queryParams}`);
   if (!res.ok) {
     throw new Error(FETCH_EXERCISES_ERROR);
   }
   const serverData = await res.json();
-
   const parsedExercises = validateData<FetchExercisesResponse>(
     fetchExercisesSchema,
     serverData
   );
-
   const serverWorkouts = parsedExercises.exercises;
   return serverWorkouts;
 }

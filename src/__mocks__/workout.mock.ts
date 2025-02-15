@@ -1,6 +1,6 @@
-import { ClientWorkout } from "./../types/models";
+import { ClientWorkout } from "../types/models";
 import { SyncWorkoutsToServerResponse } from "@/api/workout.api";
-import { mockUserId } from "@/__mocks__/api";
+import { mockUserId } from "@/__mocks__/src/api";
 import { LocalWorkout } from "@/types/models";
 
 export const mockWorkoutServerId = "a11fe018-2dfc-456b-8dfb-4656c1d4be12";
@@ -11,7 +11,7 @@ export const mockLocalWorkouts: LocalWorkout[] = [
     userId: mockUserId,
     date: "2025-02-11",
     isSynced: false,
-    serverId: null,
+    serverId: mockWorkoutServerId,
     createdAt: "2025-02-11T02:50:05.917Z",
   },
   {
@@ -19,7 +19,7 @@ export const mockLocalWorkouts: LocalWorkout[] = [
     userId: mockUserId,
     date: "2025-02-10",
     isSynced: false,
-    serverId: null,
+    serverId: mockWorkoutServerId,
     createdAt: "2025-02-10T02:50:05.917Z",
   },
   {
@@ -27,7 +27,7 @@ export const mockLocalWorkouts: LocalWorkout[] = [
     userId: mockUserId,
     date: "2025-02-09",
     isSynced: false,
-    serverId: null,
+    serverId: mockWorkoutServerId,
     createdAt: "2025-02-09T02:50:05.917Z",
   },
 ];

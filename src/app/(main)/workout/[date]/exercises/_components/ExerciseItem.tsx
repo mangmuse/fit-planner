@@ -10,7 +10,7 @@ import { useState } from "react";
 type ExerciseItemProps = {
   exercise: LocalExercise;
   isSelected: boolean;
-  onAdd: (newId: ClientExercise["id"]) => void;
+  onAdd: (newExercise: LocalExercise) => void;
   onDelete: (toBeDeleted: ClientExercise["id"]) => void;
   onReload: () => void;
   userId: ClientUser["id"];
@@ -28,7 +28,7 @@ const ExerciseItem = ({
   const { openModal } = useModal();
   const handleClick = () => {
     if (!exercise.id) return;
-    return isSelected ? onDelete(exercise.id) : onAdd(exercise.id);
+    return isSelected ? onDelete(exercise.id) : onAdd(exercise);
   };
 
   const handleToggleBookmark = async (

@@ -9,20 +9,14 @@ import {
   getNewDetails,
   getStartExerciseOrder,
 } from "@/adapter/workoutDetail.adapter";
-import {
-  getExerciseWithLocalId,
-  getExerciseWithServerId,
-} from "@/services/exercise.service";
+import { getExerciseWithServerId } from "@/services/exercise.service";
 import {
   addLocalWorkout,
-  getWorkoutWithLocalId,
+  getWorkoutByUserIdAndDate,
   getWorkoutWithServerId,
 } from "@/services/workout.service";
-import {
-  ClientWorkoutDetail,
-  LocalWorkout,
-  LocalWorkoutDetail,
-} from "@/types/models";
+import { ClientWorkoutDetail, LocalWorkoutDetail } from "@/types/models";
+import { mockWhereEqualsFirst } from "@/util/dbMockUtils";
 
 export type NewWorkoutDetailInput = {
   workoutId: number;
@@ -32,9 +26,11 @@ export type NewWorkoutDetailInput = {
 export const overwriteWithServerWorkoutDetails = async (userId: string) => {
   const serverData: ClientWorkoutDetail[] =
     await fetchWorkoutDetailsFromServer(userId);
+
   const toInsert = await Promise.all(
     serverData.map(async (data) => {
       const exercise = await getExerciseWithServerId(data.exerciseId);
+
       const workout = await getWorkoutWithServerId(data.workoutId);
 
       if (!exercise?.id || !workout?.id)
@@ -52,16 +48,15 @@ export const overwriteWithServerWorkoutDetails = async (userId: string) => {
   await db.workoutDetails.clear();
   await db.workoutDetails.bulkAdd(toInsert);
 };
-
 export async function addLocalWorkoutDetails(
   userId: string,
   date: string,
-  selectedExercises: number[]
+  selectedExercises: { id: number | undefined; name: string }[]
 ): Promise<number> {
   const workout = await addLocalWorkout(userId, date);
   const workoutId = workout.id!;
   const startOrder = await getStartExerciseOrder(workoutId);
-  const newDetails = await getNewDetails(selectedExercises, {
+  const newDetails = getNewDetails(selectedExercises, {
     workoutId,
     startOrder,
   });
@@ -74,7 +69,7 @@ export const getLocalWorkoutDetails = async (
   userId: string,
   date: string
 ): Promise<LocalWorkoutDetail[]> => {
-  let workout = await db.workouts.where({ userId, date }).first();
+  let workout = await getWorkoutByUserIdAndDate(userId, date);
 
   if (!workout) {
     workout = await addLocalWorkout(userId, date);
@@ -93,21 +88,17 @@ export const getLocalWorkoutDetails = async (
 export const updateLocalWorkoutDetail = async (
   updateWorkoutInput: Partial<LocalWorkoutDetail>
 ): Promise<void> => {
-  console.log("good");
   if (!updateWorkoutInput.id) throw new Error("id가 없습니다");
   await db.workoutDetails.update(updateWorkoutInput.id, updateWorkoutInput);
 };
 
-export const addSet = async (lastSet: LocalWorkoutDetail) => {
+export const addSet = async (lastSet: LocalWorkoutDetail): Promise<number> => {
   const addSetInput = getAddSetInputByLastSet(lastSet);
   const newSet = await db.workoutDetails.add(addSetInput);
   return newSet;
 };
 
-export const deleteSet = async (
-  lastSetId: LocalWorkoutDetail["id"]
-): Promise<void> => {
-  if (!lastSetId) throw new Error("삭제할 id가 제공되지않았습니다");
+export const deleteSet = async (lastSetId: number): Promise<void> => {
   db.workoutDetails.delete(lastSetId);
 };
 
@@ -115,10 +106,10 @@ export const syncToServerWorkoutDetails = async () => {
   const all = await db.workoutDetails.toArray();
 
   const unsynced = all.filter((detail) => !detail.isSynced);
-
   const mappedUnsynced = await convertLocalWorkoutDetailToServer(unsynced);
-
   const data = await postWorkoutDetailsToServer(mappedUnsynced);
+
+  if (data.updated.length === 0) return;
 
   if (data.updated) {
     for (const updated of data.updated) {

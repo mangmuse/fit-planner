@@ -28,37 +28,6 @@ jest.mock("next-auth/react", () => {
 });
 
 export const handlers = [
-  http.get(`${BASE_URL}/api/exercises/all`, ({ request }) => {
-    const url = new URL(request.url);
-    const keyword = decodeURIComponent(url.searchParams.get("keyword") || "");
-    const category = decodeURIComponent(
-      url.searchParams.get("category") || "전체"
-    );
-    const type = decodeURIComponent(url.searchParams.get("type") || "전체");
-
-    const filtered = mockServerResponseExercises.filter((exercise) => {
-      const matchesKeyword = exercise.name
-        .toLowerCase()
-        .includes(keyword.toLowerCase());
-      const matchesCategory =
-        category === "전체" || exercise.category === category;
-      const matchesType =
-        type === "전체"
-          ? true
-          : type === "커스텀"
-          ? exercise.isCustom
-          : type === "즐겨찾기"
-          ? exercise.isBookmarked
-          : true;
-
-      return matchesKeyword && matchesCategory && matchesType;
-    });
-
-    return new Response(JSON.stringify(filtered), {
-      status: 200,
-    });
-  }),
-
   http.patch(`${BASE_URL}/api/exercises/bookmark`, async ({ request }) => {
     const body = await request.json();
 

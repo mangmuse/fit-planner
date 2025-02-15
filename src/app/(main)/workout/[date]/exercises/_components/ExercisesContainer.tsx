@@ -37,7 +37,7 @@ export default function ExercisesContainer() {
   const debouncedKeyword = useDebounce(searchKeyword, 500);
 
   const [selectedExercises, setSelectedExercises] = useState<
-    LocalExercise["id"][]
+    { id: number; name: string }[]
   >([]);
 
   async function loadLocalExerciseData() {
@@ -50,11 +50,7 @@ export default function ExercisesContainer() {
     const today = new Date();
     const ymd = getFormattedDateYMD(today); // 2025-02-07 등
 
-    await addLocalWorkoutDetails(
-      userId,
-      ymd,
-      selectedExercises.filter((id): id is number => id !== null)
-    );
+    await addLocalWorkoutDetails(userId, ymd, selectedExercises);
 
     router.push(`/workout/${date}`);
   };
@@ -64,11 +60,15 @@ export default function ExercisesContainer() {
     setSelectedExerciseType(t);
   const handleChangeSelectedCategory = (c: Category) => setSelectedCategory(c);
 
-  const handleAddSelectedExercise = (id: number) => {
-    setSelectedExercises((prev) => [...prev, id]);
+  const handleAddSelectedExercise = (exercise: LocalExercise) => {
+    if (!exercise.id || !exercise.name) return;
+    setSelectedExercises((prev) => [
+      ...prev,
+      { id: exercise.id!, name: exercise.name },
+    ]);
   };
   const handleDeleteSelectedExercise = (id: number) => {
-    setSelectedExercises((prev) => prev.filter((item) => item !== id));
+    setSelectedExercises((prev) => prev.filter((item) => item.id !== id));
   };
 
   useEffect(() => {
@@ -92,7 +92,6 @@ export default function ExercisesContainer() {
     );
     setVisibleExercises(filtered);
   }, [exercises, debouncedKeyword, selectedExerciseType, selectedCategory]);
-  console.log(selectedExercises);
   return (
     <main>
       <div className="flex justify-end mt-4 mb-3">
