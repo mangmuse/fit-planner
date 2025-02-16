@@ -29,7 +29,6 @@ const ExerciseList = ({
           onAdd={onAdd}
           onDelete={onDelete}
           exercise={exercise}
-          userId={userId}
           onReload={onReload}
         />
       ))}

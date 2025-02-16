@@ -24,7 +24,7 @@ import {
   toggleLocalBookmark,
 } from "@/services/exercise.service";
 import { db } from "@/lib/db";
-import { ClientExercise, LocalExercise } from "@/types/models";
+import { LocalExercise } from "@/types/models";
 import {
   fetchExercisesFromServer,
   postExercisesToServer,

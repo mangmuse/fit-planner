@@ -22,7 +22,7 @@ const SetActions = ({
     loadLocalWorkoutDetails();
   };
   const handleDeleteSet = async () => {
-    await deleteSet(lastValue.id);
+    await deleteSet(lastValue.id ?? 0);
     loadLocalWorkoutDetails();
   };
   return (

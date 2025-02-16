@@ -1,143 +1,101 @@
-// const openModalMock = jest.fn();
-// const updateBookmarkMock = jest.fn();
+const openModalMock = jest.fn();
 
-// jest.mock("@/providers/contexts/ModalContext", () => ({
-//   useModal: () => ({
-//     openModal: openModalMock,
-//   }),
-// }));
+jest.mock("@/providers/contexts/ModalContext", () => ({
+  useModal: () => ({
+    openModal: openModalMock,
+  }),
+}));
 
-// jest.mock("@/hooks/api/mutation/useExerciseMutation", () => ({
-//   __esModule: true,
-//   default: () => ({
-//     updateBookmark: updateBookmarkMock,
-//   }),
-// }));
-// import { render, screen } from "@testing-library/react";
-// import ExerciseItemProps from "./ExerciseItem";
-// import { ClientExercise } from "@/types/models";
-// import userEvent from "@testing-library/user-event";
-// import { mockUserId } from "@/__mocks__/api";
+jest.mock("@/services/exercise.service");
+import { mockLocalExercises } from "@/__mocks__/exercise.mock";
+import ExerciseItem from "@/app/(main)/workout/[date]/exercises/_components/ExerciseItem";
+import { toggleLocalBookmark } from "@/services/exercise.service";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
-// beforeEach(() => {
-//   openModalMock.mockClear();
-//   updateBookmarkMock.mockClear();
-// });
+describe("ExerciseItem", () => {
+  const mockExercise = mockLocalExercises[0];
+  const renderExerciseItem = (
+    isBookmarked: boolean = false,
+    isSelected: boolean = false
+  ) => {
+    const onAddMock = jest.fn();
+    const onDeleteMock = jest.fn();
+    const onReloadMock = jest.fn();
 
-// const mockExercise: ClientExercise = {
-//   id: 1,
-//   name: "벤치프레스",
-//   category: "가슴",
-//   imageUrl: "/",
-//   isBookmarked: false,
-//   isCustom: false,
-//   userId: null,
-//   createdAt: "2023-12-01T12:00:00.000Z",
-// };
+    const utils = render(
+      <ExerciseItem
+        exercise={{
+          ...mockExercise,
+          isBookmarked: isBookmarked,
+        }}
+        isSelected={isSelected}
+        onAdd={onAddMock}
+        onDelete={onDeleteMock}
+        onReload={onReloadMock}
+      />
+    );
+    return {
+      ...utils,
+      onAddMock,
+      onDeleteMock,
+      onReloadMock,
+    };
+  };
 
-// function renderExerciseItem({
-//   exercise = mockExercise,
-//   isSelected = false,
-//   onAdd = jest.fn(),
-//   onDelete = jest.fn(),
-// }: {
-//   exercise?: ClientExercise;
-//   isSelected?: boolean;
-//   onAdd?: jest.Mock;
-//   onDelete?: jest.Mock;
-// } = {}) {
-//   return render(
-//     <ExerciseItem
-//       userId={mockUserId}
-//       exercise={exercise}
-//       isSelected={isSelected}
-//       onAdd={onAdd}
-//       onDelete={onDelete}
-//     />
-//   );
-// }
+  it("exercise의 name이 올바르게 렌더링된다", async () => {
+    const { getByText } = renderExerciseItem();
 
-// describe("최초 렌더링", () => {
-//   it("운동 이름이 올바르게 표시된다", () => {
-//     renderExerciseItem({});
-//     expect(screen.getByText("벤치프레스")).toBeInTheDocument();
-//   });
+    expect(getByText(mockExercise.name)).toBeInTheDocument();
+  });
+  it("isSelected가 true인 경우 name의 색상이 변경된다(test-primary 클래스가 적용된다)", () => {
+    const { getByText } = renderExerciseItem(false, true);
+    expect(getByText(mockExercise.name)).toHaveClass("text-primary");
+  });
+  it("isSelected가 false인 경우 name에 test-primary 클래스가 적용되지 않는다", () => {
+    const { getByText } = renderExerciseItem();
+    expect(getByText(mockExercise.name)).not.toHaveClass("text-primary");
+  });
+  it("isSelected가 true인 경우 아이템 클릭시 onDelete가 호출된다", async () => {
+    const { getByRole, onDeleteMock } = renderExerciseItem(false, true);
+    const item = getByRole("listitem");
+    await userEvent.click(item);
+    expect(onDeleteMock).toHaveBeenCalledWith(mockExercise.id);
+  });
+  it("isSelected가 false인 경우 아이템 클릭시 onAdd가 호출된다", async () => {
+    const { getByRole, onAddMock } = renderExerciseItem();
+    const item = getByRole("listitem");
+    await userEvent.click(item);
+    expect(onAddMock).toHaveBeenCalledWith({
+      ...mockExercise,
+      isBookmarked: false,
+    });
+  });
+  it("isBookmarked가 true인 경우 북마크 해제 아이콘을 렌더링한다", () => {
+    const { getByAltText } = renderExerciseItem(true);
+    expect(getByAltText("북마크 해제")).toBeInTheDocument();
+  });
+  it("isBookmarked가 false인 경우 북마크 아이콘을 클릭하면 toggleLocalBookmark와 onReload가 호출된다", async () => {
+    const { getByAltText, onReloadMock } = renderExerciseItem();
+    const bookmarkIcon = getByAltText("북마크");
+    await userEvent.click(bookmarkIcon);
+    expect(toggleLocalBookmark).toHaveBeenCalledWith(mockExercise.id, true);
+    expect(onReloadMock).toHaveBeenCalledTimes(1);
+  });
+  it("isBookmarked가 true인 경우 북마크 해제 아이콘을 클릭하면 openModal이 호출된다", async () => {
+    const { getByAltText, onReloadMock } = renderExerciseItem(true);
+    const bookmarkIcon = getByAltText("북마크 해제");
+    await userEvent.click(bookmarkIcon);
+    expect(openModalMock).toHaveBeenCalledTimes(1);
+    const { onConfirm } = openModalMock.mock.calls[0][0];
+    await onConfirm();
 
-//   it("즐겨찾기 아이콘이 표시된다", () => {
-//     renderExerciseItem();
-//     expect(screen.getByAltText("북마크")).toBeInTheDocument();
-//   });
+    expect(toggleLocalBookmark).toHaveBeenCalledWith(mockExercise.id, false);
+    expect(onReloadMock).toHaveBeenCalledTimes(1);
+  });
 
-//   it("올바른 스타일링이 적용되어야한다", () => {
-//     const { container } = renderExerciseItem();
-//     const listItem = container.firstChild;
-//     expect(listItem).toHaveClass(
-//       "px-3",
-//       "flex",
-//       "justify-between",
-//       "w-full",
-//       "h-[51px]",
-//       "rounded-lg",
-//       "bg-bg-surface"
-//     );
-//   });
-// });
-
-// describe("bookmark", () => {
-//   it("북마크가 true일 때 즐겨찾기 아이콘을 클릭시 openModal이 호출된다", async () => {
-//     renderExerciseItem({ exercise: { ...mockExercise, isBookmarked: true } });
-
-//     const bookmarkIcon = screen.getByAltText("북마크 해제");
-//     await userEvent.click(bookmarkIcon);
-
-//     expect(openModalMock).toHaveBeenCalledTimes(1);
-//     const modalArg = openModalMock.mock.calls[0][0]; // TODO: [0][0] 이해
-//     modalArg.onConfirm();
-
-//     expect(updateBookmarkMock).toHaveBeenCalledTimes(1);
-//   });
-
-//   it("북마크가 false일 때 즐겨찾기 아이콘을 클릭시 updateBookmark가 호출된다", async () => {
-//     renderExerciseItem();
-//     const bookmarkIcon = screen.getByAltText("북마크");
-//     await userEvent.click(bookmarkIcon);
-//     expect(updateBookmarkMock).toHaveBeenCalledTimes(1);
-//   });
-// });
-
-// describe("isSelected", () => {
-//   const onDeleteSpy = jest.fn();
-//   const onAddSpy = jest.fn();
-
-//   it("isSelected가 true라면 텍스트 색상이 text-primary 이다", () => {
-//     const exerciseItem = renderExerciseItem({ isSelected: true });
-//     const text = exerciseItem.getByText("벤치프레스");
-//     expect(text).toHaveClass("text-primary");
-//   });
-
-//   it("isSelected가 false라면 텍스트 색상이 text-primary가 아니다", () => {
-//     const exerciseItem = renderExerciseItem({ isSelected: false });
-//     const text = exerciseItem.getByText("벤치프레스");
-//     expect(text).not.toHaveClass("text-primary");
-//   });
-
-//   it("isSelected가 true일때 아이템을 클릭하면 onDelete 함수가 호출된다", async () => {
-//     renderExerciseItem({ isSelected: true, onDelete: onDeleteSpy });
-//     const exerciseItem = screen.getByRole("listitem");
-//     await userEvent.click(exerciseItem);
-//     expect(onDeleteSpy).toHaveBeenCalledTimes(1);
-//   });
-//   it("isSelected가 false일때 아이템을 클릭하면 onAdd 함수가 호출된다", async () => {
-//     renderExerciseItem({ isSelected: false, onAdd: onAddSpy });
-//     const exerciseItem = screen.getByRole("listitem");
-//     await userEvent.click(exerciseItem);
-//     expect(onAddSpy).toHaveBeenCalledTimes(1);
-//   });
-
-//   it("즐겨찾기 이미지를 클릭한 경우에는 isSelected가 true이더라도 onDelete함수가 호출되지 않는다", async () => {
-//     renderExerciseItem({ isSelected: true, onAdd: onAddSpy });
-//     const bookmarkImage = screen.getByAltText("북마크");
-//     await userEvent.click(bookmarkImage);
-//     expect(onDeleteSpy).toHaveBeenCalledTimes(0);
-//   });
-// });
+  it("isBookmarked가 false인 경우 북마크 등록 아이콘을 렌더링한다", () => {
+    const { getByAltText } = renderExerciseItem();
+    expect(getByAltText("북마크")).toBeInTheDocument();
+  });
+});

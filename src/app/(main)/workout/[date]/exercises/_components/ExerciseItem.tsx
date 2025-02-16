@@ -13,7 +13,6 @@ type ExerciseItemProps = {
   onAdd: (newExercise: LocalExercise) => void;
   onDelete: (toBeDeleted: ClientExercise["id"]) => void;
   onReload: () => void;
-  userId: ClientUser["id"];
 };
 const ExerciseItem = ({
   exercise,
@@ -21,39 +20,32 @@ const ExerciseItem = ({
   onAdd,
   onDelete,
   onReload,
-  userId,
 }: ExerciseItemProps) => {
-  const [isUpdating, setIsUpdating] = useState(false);
   const { name, id, isBookmarked } = exercise;
   const { openModal } = useModal();
   const handleClick = () => {
     if (!exercise.id) return;
     return isSelected ? onDelete(exercise.id) : onAdd(exercise);
   };
-
   const handleToggleBookmark = async (
     e: React.MouseEvent<HTMLImageElement>
   ) => {
     e.stopPropagation();
-    if (isUpdating || !id) return;
-    setIsUpdating(true);
+    if (!id) return;
 
     if (isBookmarked) {
       openModal({
         type: "confirm",
         title: "즐겨찾기에서 제거하시겠습니까?",
         message: name,
-        onCancel: () => setIsUpdating(false),
         onConfirm: async () => {
           await toggleLocalBookmark(id, false);
           onReload();
-          setIsUpdating(false);
         },
       });
     } else {
       await toggleLocalBookmark(id, true);
       onReload();
-      setIsUpdating(false);
     }
   };
   return (
