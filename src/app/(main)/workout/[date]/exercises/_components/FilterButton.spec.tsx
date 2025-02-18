@@ -3,7 +3,7 @@ import FilterButton from "./FilterButton";
 const renderFilterButton = ({
   label = "test",
   isSelected,
-  onClick,
+  onClick = jest.fn(),
 }: {
   label?: string;
   isSelected?: boolean;

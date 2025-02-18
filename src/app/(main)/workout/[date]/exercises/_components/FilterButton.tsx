@@ -2,7 +2,7 @@ import { clsx } from "clsx";
 
 interface FilterButtonProps<T extends string> {
   label: T;
-  onClick?: (value: T) => void;
+  onClick: (value: T) => void;
   isSelected?: boolean;
 }
 
