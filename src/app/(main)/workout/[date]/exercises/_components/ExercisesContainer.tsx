@@ -107,7 +107,6 @@ export default function ExercisesContainer() {
 
       {userId && (
         <ExerciseList
-          userId={userId}
           exercises={visibleExercises}
           selectedExercises={selectedExercises}
           onAdd={handleAddSelectedExercise}

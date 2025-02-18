@@ -3,8 +3,8 @@ import {
   mockFetchWorkoutsResponse,
   mockInvalidFetchWorkoutsResponse,
   mockInvalidPostWorkoutsToServerResponse,
-  mockLocalWorkouts,
   mockPostWorkoutsToServerResponse,
+  mockLocalWorkouts,
   mockServerWorkouts,
 } from "@/__mocks__/workout.mock";
 import {
