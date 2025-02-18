@@ -1,7 +1,7 @@
 import { EXERCISETYPELIST } from "@/constants/filters";
 import FilterButton from "./FilterButton";
 import { ExerciseType } from "@/types/filters";
-
+// TODO: CategoryFilter 와의 통합 필요성
 type TypeFilter = {
   selectedExerciseType: ExerciseType;
   onClick: (exerciseType: ExerciseType) => void;

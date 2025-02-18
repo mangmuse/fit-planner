@@ -2,13 +2,13 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import FilterButton from "./FilterButton";
 const renderFilterButton = ({
   label = "test",
-  isSelected,
+  isSelected = false,
   onClick = jest.fn(),
 }: {
   label?: string;
   isSelected?: boolean;
   onClick?: () => void;
-} = {}) => {
+}) => {
   return render(
     <FilterButton label={label} isSelected={isSelected} onClick={onClick} />
   );
@@ -67,5 +67,16 @@ describe("FilterButton", () => {
       "h-[28px]",
       "px-1"
     );
+  });
+});
+
+describe("snapshot", () => {
+  it("isSelected가 true일 때 렌더링 결과가 스냅샷과 일치하는지 확인한다", () => {
+    const { asFragment } = renderFilterButton({ isSelected: true });
+    expect(asFragment()).toMatchSnapshot();
+  });
+  it("isSelected가 false일 때 렌더링 결과가 스냅샷과 일치하는지 확인한다", () => {
+    const { asFragment } = renderFilterButton({ isSelected: false });
+    expect(asFragment()).toMatchSnapshot();
   });
 });

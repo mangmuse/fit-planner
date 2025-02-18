@@ -1,6 +1,7 @@
 import { CATEGORYLIST } from "@/constants/filters";
 import FilterButton from "./FilterButton";
 import { Category } from "@/types/filters";
+// TODO: TypeFilter 와의 통합 필요성
 
 type CategoryFilterProps = {
   selectedCategory: Category;
