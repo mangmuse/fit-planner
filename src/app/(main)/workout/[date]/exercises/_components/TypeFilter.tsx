@@ -9,7 +9,7 @@ type TypeFilter = {
 
 const TypeFilter = ({ selectedExerciseType, onClick }: TypeFilter) => {
   return (
-    <nav className="flex mb-1 gap-1">
+    <nav data-testid="type-filter" className="flex mb-1 gap-1">
       {EXERCISETYPELIST.map((ex, idx) => (
         <FilterButton<ExerciseType>
           key={idx}
