@@ -13,7 +13,7 @@ const CategoryFilter = ({ selectedCategory, onClick }: CategoryFilterProps) => {
     <nav data-testid="category-filter" className="flex gap-1">
       {CATEGORYLIST.map((category, idx) => (
         <FilterButton<Category>
-          key={idx}
+          key={`category-${idx}`}
           onClick={onClick}
           isSelected={selectedCategory === category}
           label={category}

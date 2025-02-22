@@ -74,12 +74,12 @@ export default function ExercisesContainer() {
   useEffect(() => {
     (async () => {
       if (!userId) return;
+
       const localAll = await getAllLocalExercises();
       if (localAll.length === 0) {
         await syncExercisesFromServerLocalFirst(userId);
       }
-      const updatedAll = await getAllLocalExercises();
-      setExercises(updatedAll);
+      loadLocalExerciseData();
     })();
   }, [userId]);
 
@@ -105,7 +105,7 @@ export default function ExercisesContainer() {
         selectedCategory={selectedCategory}
       />
 
-      {userId && (
+      {userId && visibleExercises.length > 0 && (
         <ExerciseList
           exercises={visibleExercises}
           selectedExercises={selectedExercises}

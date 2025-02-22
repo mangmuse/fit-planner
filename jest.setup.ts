@@ -1,5 +1,6 @@
 import { handlers } from "@/__mocks__/src/api/handlers";
 import "@testing-library/jest-dom";
+import "fake-indexeddb/auto";
 import { setupServer } from "msw/node";
 
 export const server = setupServer(...handlers);
