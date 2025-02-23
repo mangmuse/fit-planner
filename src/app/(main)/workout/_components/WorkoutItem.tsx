@@ -32,7 +32,7 @@ const WorkoutItem = ({
     loadLocalWorkoutDetails();
   };
   return (
-    <tr className="h-[22px]">
+    <tr data-testid={`workout-detail-item-${id}`} className="h-[22px]">
       <td data-testid={"setOrder"} className="text-center">
         {setOrder}
       </td>
