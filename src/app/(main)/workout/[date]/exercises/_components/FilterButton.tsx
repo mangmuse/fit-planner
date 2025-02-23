@@ -2,8 +2,8 @@ import { clsx } from "clsx";
 
 interface FilterButtonProps<T extends string> {
   label: T;
-  onClick?: (value: T) => void;
-  isSelected?: boolean;
+  onClick: (value: T) => void;
+  isSelected: boolean;
 }
 
 function FilterButton<T extends string>({
@@ -13,6 +13,7 @@ function FilterButton<T extends string>({
 }: FilterButtonProps<T>) {
   return (
     <button
+      data-is-selected={isSelected}
       onClick={() => onClick?.(label)}
       className={clsx(
         "text-[10px] rounded-md w-12 min-w-12 max-w-12 h-[28px] px-1",

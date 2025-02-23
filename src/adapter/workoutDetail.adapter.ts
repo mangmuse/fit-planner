@@ -63,7 +63,7 @@ export const getAddSetInputByLastSet = (
 export const getNewDetails = (
   selectedExercises: { id: number | undefined; name: string }[],
   { workoutId, startOrder }: NewWorkoutDetailInput
-) => {
+): LocalWorkoutDetail[] => {
   const newDetails: LocalWorkoutDetail[] = selectedExercises.map(
     ({ id, name }, idx) => {
       if (!id || !name)

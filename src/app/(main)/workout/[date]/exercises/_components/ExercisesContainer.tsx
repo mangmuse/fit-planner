@@ -23,8 +23,7 @@ import { getAllLocalExercises } from "@/services/exercise.service";
 export default function ExercisesContainer() {
   const { data: session } = useSession();
   const router = useRouter();
-  const { date } = useParams();
-
+  const { date } = useParams<{ date?: string }>();
   const userId = session?.user?.id;
 
   const [exercises, setExercises] = useState<LocalExercise[]>([]);
@@ -46,11 +45,9 @@ export default function ExercisesContainer() {
   }
 
   const handleAddWorkoutDetail = async () => {
-    if (!userId) return;
-    const today = new Date();
-    const ymd = getFormattedDateYMD(today); // 2025-02-07 등
+    if (!userId || !date) return;
 
-    await addLocalWorkoutDetails(userId, ymd, selectedExercises);
+    await addLocalWorkoutDetails(userId, date, selectedExercises);
 
     router.push(`/workout/${date}`);
   };
@@ -74,12 +71,12 @@ export default function ExercisesContainer() {
   useEffect(() => {
     (async () => {
       if (!userId) return;
+
       const localAll = await getAllLocalExercises();
       if (localAll.length === 0) {
         await syncExercisesFromServerLocalFirst(userId);
       }
-      const updatedAll = await getAllLocalExercises();
-      setExercises(updatedAll);
+      loadLocalExerciseData();
     })();
   }, [userId]);
 
@@ -105,9 +102,8 @@ export default function ExercisesContainer() {
         selectedCategory={selectedCategory}
       />
 
-      {userId && (
+      {userId && visibleExercises.length > 0 && (
         <ExerciseList
-          userId={userId}
           exercises={visibleExercises}
           selectedExercises={selectedExercises}
           onAdd={handleAddSelectedExercise}

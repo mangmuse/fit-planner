@@ -8,7 +8,6 @@ type ExerciseListProps = {
   onAdd: (newExercise: LocalExercise) => void;
   onDelete: (toBeDeleted: ClientExercise["id"]) => void;
   onReload: () => void;
-  userId: ClientUser["id"];
 };
 const ExerciseList = ({
   exercises,
@@ -16,7 +15,6 @@ const ExerciseList = ({
   onDelete,
   onReload,
   selectedExercises,
-  userId,
 }: ExerciseListProps) => {
   return (
     <ul className="h-full flex flex-col gap-1 mt-[14px]">
@@ -29,7 +27,6 @@ const ExerciseList = ({
           onAdd={onAdd}
           onDelete={onDelete}
           exercise={exercise}
-          userId={userId}
           onReload={onReload}
         />
       ))}

@@ -55,7 +55,7 @@ export async function getAllLocalExercises(): Promise<LocalExercise[]> {
 export const toggleLocalBookmark = async (
   localId: number,
   nextValue: boolean
-) => {
+): Promise<void> => {
   await db.exercises.update(localId, {
     isBookmarked: nextValue,
     isSynced: false,
