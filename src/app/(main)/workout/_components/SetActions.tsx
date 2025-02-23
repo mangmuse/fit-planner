@@ -14,9 +14,6 @@ const SetActions = ({
   lastValue,
   loadLocalWorkoutDetails,
 }: SetActionsProps) => {
-  const userId = useSession()?.data?.user?.id;
-  const { date } = useParams();
-
   const handleAddSet = async () => {
     await addSet(lastValue);
     loadLocalWorkoutDetails();
