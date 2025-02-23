@@ -6,8 +6,6 @@ import userEvent from "@testing-library/user-event";
 jest.mock("@/services/workoutDetail.service");
 
 describe("SetActions", () => {
-  beforeEach(() => {});
-
   const renderSetActions = () => {
     const mockDetail = { ...mockLocalWorkoutDetails[0], workoutId: 1 };
     const loadDetailsMock = jest.fn();

@@ -13,6 +13,7 @@ const WorkoutItem = ({
   loadLocalWorkoutDetails,
 }: WorkoutItemProps) => {
   const { setOrder, weight, reps, isDone, id } = workoutDetail;
+  console.log(workoutDetail);
   const [editedWeight, setEditedWeight] = useState<number | null>(
     weight || null
   );
@@ -33,10 +34,13 @@ const WorkoutItem = ({
   };
   return (
     <tr className="h-[22px]">
-      <td className="text-center">{setOrder}</td>
+      <td data-testid={"setOrder"} className="text-center">
+        {setOrder}
+      </td>
       <td className="text-center">-</td>
       <td className="text-center">
         <input
+          data-testid="weight"
           onChange={handleChangeWeight}
           onBlur={() =>
             weight !== editedWeight && handleUpdate({ weight: editedWeight })
@@ -47,6 +51,7 @@ const WorkoutItem = ({
       </td>
       <td className="text-center">
         <input
+          data-testid="reps"
           onChange={handleChangeReps}
           onBlur={() =>
             reps !== editedReps && handleUpdate({ reps: editedReps })
@@ -63,7 +68,6 @@ const WorkoutItem = ({
             prevIsDone={isDone}
           />
         </div>
-        {setOrder}
       </td>
     </tr>
   );
