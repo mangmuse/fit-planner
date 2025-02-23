@@ -8,5 +8,5 @@ export const useRouter = jest.fn(() => ({
 }));
 
 export const useParams = jest.fn().mockReturnValue({
-  date: "2025-02-21",
+  date: "2025-01-01",
 });

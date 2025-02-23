@@ -14,23 +14,17 @@ jest.mock("@/services/exercise.service", () => {
 });
 
 import { mockLocalExercises } from "@/__mocks__/exercise.mock";
+import { mockLocalWorkouts } from "@/__mocks__/workout.mock";
 import ExercisesContainer from "@/app/(main)/workout/[date]/exercises/_components/ExercisesContainer";
 import { CATEGORYLIST, EXERCISETYPELIST } from "@/constants/filters";
 import { db } from "@/lib/db";
-import {
-  getAllLocalExercises,
-  toggleLocalBookmark,
-} from "@/services/exercise.service";
-import {
-  customRender,
-  getByRole,
-  screen,
-  waitFor,
-  within,
-} from "@/test-utils/test-utils";
+import { toggleLocalBookmark } from "@/services/exercise.service";
+import { customRender, screen, waitFor, within } from "@/test-utils/test-utils";
 import { Category, ExerciseType } from "@/types/filters";
 import userEvent from "@testing-library/user-event";
+import { sortBy } from "lodash";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 describe("ExercisesContainer", () => {
   const mockSession = {
@@ -417,5 +411,70 @@ describe("ExercisesContainer", () => {
         expect(bookmarkBtn).toBeInTheDocument();
       });
     });
+  });
+
+  describe("workoutDetail 추가", () => {
+    const fixedDate = "2025-01-01";
+    const mockPush = jest.fn();
+
+    beforeEach(() => {
+      jest.restoreAllMocks();
+      (useRouter as jest.Mock).mockReturnValue({
+        push: mockPush,
+      });
+      const mockWorkout = {
+        ...mockLocalWorkouts[0],
+        userId: mockSession.user.id,
+        date: fixedDate,
+      };
+
+      jest.spyOn(db.exercises, "toArray").mockResolvedValue(mockExercises);
+      // db.workouts.where에 대한 정확한 모킹
+      jest.spyOn(db.workouts, "where").mockImplementation(() => ({
+        equals: jest.fn().mockReturnValue({
+          first: jest.fn().mockResolvedValue(mockWorkout), // first 메서드가 mockResolvedValue로 비동기적으로 동작하도록 설정
+        }),
+      }));
+    });
+    afterEach(() => {
+      jest.restoreAllMocks();
+
+      jest.spyOn(db.exercises, "toArray").mockResolvedValueOnce(mockExercises);
+    });
+
+    it("날짜에 해당하는 workout이 없거나 workoutDetail이 없는 경우, 새로운 workout을 생성하고 선택된 순서대로 detail이 추가된다", async () => {
+      jest.spyOn(db.workoutDetails, "where").mockImplementation(() => ({
+        equals: jest.fn().mockReturnValue({
+          sortBy: jest.fn().mockResolvedValue([]),
+        }),
+      }));
+      jest.spyOn(db.workoutDetails, "bulkAdd").mockResolvedValue([1]);
+
+      const newDetail = {
+        serverId: null,
+        weight: 0,
+        rpe: null,
+        reps: 0,
+        isDone: false,
+        isSynced: false,
+        setOrder: 1,
+        exerciseOrder: 1,
+        exerciseName: "벤치프레스",
+        exerciseId: 1,
+        workoutId: 1,
+        createdAt: expect.any(String),
+      };
+      renderExercisesContainer();
+      const bench = await screen.findByText("벤치프레스");
+      await userEvent.click(bench);
+      const addBtn = await screen.findByText("1개 선택 완료");
+      await userEvent.click(addBtn);
+      expect(addBtn).toBeInTheDocument();
+
+      expect(db.workoutDetails.bulkAdd).toHaveBeenCalledWith([newDetail]);
+
+      expect(mockPush).toHaveBeenCalledWith(`/workout/${fixedDate}`);
+    });
+    // TODO: Workout 컴포넌트와 연결
   });
 });
