@@ -13,7 +13,6 @@ const WorkoutItem = ({
   loadLocalWorkoutDetails,
 }: WorkoutItemProps) => {
   const { setOrder, weight, reps, isDone, id } = workoutDetail;
-  console.log(workoutDetail);
   const [editedWeight, setEditedWeight] = useState<number | null>(
     weight || null
   );
