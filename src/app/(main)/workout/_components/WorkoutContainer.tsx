@@ -3,6 +3,10 @@
 import WorkoutExerciseGroup from "@/app/(main)/workout/_components/WorkoutExerciseGroup";
 import WorkoutPlaceholder from "@/app/(main)/workout/_components/WorkoutPlaceholder";
 import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
+import {
+  updateLocalWorkout,
+  getWorkoutByUserIdAndDate,
+} from "@/services/workout.service";
 import { getLocalWorkoutDetails } from "@/services/workoutDetail.service";
 import { LocalWorkoutDetail } from "@/types/models";
 import { useSession } from "next-auth/react";
@@ -24,13 +28,28 @@ const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
   const loadLocalWorkoutDetails = async () => {
     if (!userId) return;
     const details = await getLocalWorkoutDetails(userId, date);
+
     const adjustedGroups = getGroupedDetails(details);
     setWorkoutGroups(adjustedGroups);
     setIsLoading(false);
   };
+  const syncWorkoutStatus = async () => {
+    console.log(workoutGroups);
+    if (!userId) return;
+    const workout = await getWorkoutByUserIdAndDate(userId, date);
+
+    // if (!workout?.id || workout.status === "COMPLETED") return;
+    const newStatus = workoutGroups.length === 0 ? "EMPTY" : "COMPLETED";
+    await updateLocalWorkout({ ...workout, status: newStatus });
+  };
+
   useEffect(() => {
     loadLocalWorkoutDetails();
   }, [userId, date]);
+
+  useEffect(() => {
+    syncWorkoutStatus();
+  }, [workoutGroups]);
 
   if (isLoading) return <div>Loading...</div>;
 

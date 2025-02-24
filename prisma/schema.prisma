@@ -75,7 +75,7 @@ model Workout {
   userId         String
   createdAt      DateTime        @default(now())
   updatedAt      DateTime?       @updatedAt
-  status         WorkoutStatus   @default(PLANNED)
+  status         WorkoutStatus   @default(EMPTY)
   user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   workoutDetails WorkoutDetail[]
 
@@ -130,4 +130,5 @@ enum WorkoutStatus {
   PLANNED
   IN_PROGRESS
   COMPLETED
+  EMPTY
 }
