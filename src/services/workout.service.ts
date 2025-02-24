@@ -8,8 +8,13 @@ import { ClientWorkout, LocalWorkout } from "@/types/models";
 export const getWorkoutByUserIdAndDate = async (
   userId: string,
   date: string
-) => {
-  return db.workouts.where(["userId", "date"]).equals([userId, date]).first();
+): Promise<LocalWorkout | void> => {
+  const workout = await db.workouts
+    .where(["userId", "date"])
+    .equals([userId, date])
+    .first();
+
+  return workout;
 };
 
 export const getWorkoutWithServerId = async (
@@ -21,9 +26,9 @@ export const getWorkoutWithServerId = async (
 };
 export const getWorkoutWithLocalId = async (
   id: number
-): Promise<LocalWorkout> => {
+): Promise<LocalWorkout | void> => {
   const workout = await db.workouts.where("id").equals(id).first();
-  if (!workout) throw new Error("일치하는 workout이 없습니다");
+
   return workout;
 };
 
@@ -55,6 +60,7 @@ export async function overwriteWithServerWorkouts(
     serverId: workout.id,
     date: workout.date,
     isSynced: true,
+    status: "EMPTY" as const,
     createdAt: workout.createdAt,
     updatedAt: workout.updatedAt,
   }));
@@ -77,6 +83,7 @@ export const addLocalWorkout = async (
     date,
     createdAt: new Date().toISOString(),
     isSynced: false,
+    status: "EMPTY",
     serverId: null,
   });
 
@@ -85,4 +92,26 @@ export const addLocalWorkout = async (
     throw new Error("Workout을 불러오지 못했습니다");
   }
   return workout;
+};
+
+export const updateLocalWorkout = async (workout: Partial<LocalWorkout>) => {
+  try {
+    if (!workout.id) throw "workout id는 꼭 전달해주세요";
+    await db.workouts.update(workout.id, {
+      ...workout,
+    });
+  } catch (e) {
+    throw new Error("Workout 업데이트에 실패했습니다");
+  }
+};
+
+export const getThisMonthWorkouts = (
+  startDate: string,
+  endDate: string
+): Promise<LocalWorkout[]> => {
+  return db.workouts
+    .where("date")
+    .between(startDate, endDate, true, true)
+    .filter((workout) => workout.status !== "EMPTY")
+    .toArray();
 };

@@ -92,7 +92,7 @@ export const convertLocalWorkoutDetailToServer = async (
       const exercise = await getExerciseWithLocalId(detail.exerciseId);
       const workout = await getWorkoutWithLocalId(detail.workoutId);
 
-      if (!exercise.serverId || !workout.serverId) {
+      if (!exercise.serverId || !workout?.serverId) {
         throw new Error("exerciseId 또는 workoutId가 없습니다");
       }
       return {

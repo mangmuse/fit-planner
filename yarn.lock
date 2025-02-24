@@ -3981,6 +3981,7 @@ __metadata:
     jest-environment-jsdom: "npm:^29.7.0"
     jest-fixed-jsdom: "npm:^0.0.9"
     lodash: "npm:^4.17.21"
+    mockdate: "npm:^3.0.5"
     msw: "npm:^2.7.0"
     next: "npm:15.1.0"
     next-auth: "npm:^4.24.11"
@@ -8472,6 +8473,13 @@ __metadata:
     pkg-types: "npm:^1.2.1"
     ufo: "npm:^1.5.4"
   checksum: 10c0/b530887fe95a6e3458c1b24e9775dc61c167d402126f2f5f13a13845a3fb77c3db8d79cb32077c98679a392d8ecfdc4e5df3d6925bf650d807dc2dfe8cc35b53
+  languageName: node
+  linkType: hard
+
+"mockdate@npm:^3.0.5":
+  version: 3.0.5
+  resolution: "mockdate@npm:3.0.5"
+  checksum: 10c0/36ab00c4b94d3e3cc8b9ecec27730dcf396d47d2ba046ad96635e7f9bc4bba0fff6125dedaba7313b1cadc0cefc0eb3f3ac0d5c3655707afd3b82fa4550aae92
   languageName: node
   linkType: hard
 

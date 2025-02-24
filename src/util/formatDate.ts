@@ -10,12 +10,20 @@ export const getFormattedDateWithoutDay = (date?: string) => {
   return dayjs(date).format("M월 D일");
 };
 
-export const getFormattedDateYMD = (date?: Date) => {
+export const getFormattedDateYMD = (date?: Date | string) => {
   return dayjs(date).format("YYYY-MM-DD");
 };
 
-export const hmmtest = (firstDayOfMonthWeekday, week) => {
-  for (let i = 0; i < firstDayOfMonthWeekday; i++) {
-    week.push(null); // 빈 칸을 추가
-  }
+export const getMonthRange = (year: number, month: number) => {
+  const start = dayjs()
+    .year(year)
+    .month(month)
+    .startOf("month")
+    .format("YYYY-MM-DD");
+  const end = dayjs()
+    .year(year)
+    .month(month)
+    .endOf("month")
+    .format("YYYY-MM-DD");
+  return { start, end };
 };
