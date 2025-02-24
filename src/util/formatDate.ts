@@ -13,3 +13,9 @@ export const getFormattedDateWithoutDay = (date?: string) => {
 export const getFormattedDateYMD = (date?: Date) => {
   return dayjs(date).format("YYYY-MM-DD");
 };
+
+export const hmmtest = (firstDayOfMonthWeekday, week) => {
+  for (let i = 0; i < firstDayOfMonthWeekday; i++) {
+    week.push(null); // 빈 칸을 추가
+  }
+};

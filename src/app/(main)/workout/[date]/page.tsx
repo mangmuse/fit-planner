@@ -14,7 +14,7 @@ const WorkoutPage = async ({ params }: WorkoutPageProps) => {
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
   // const workoutDetails = await getWorkoutDetails(userId, date);
-  const formattedDate = getFormattedDateWithoutDay();
+  const formattedDate = getFormattedDateWithoutDay(date);
   return (
     <main className="px-4 pt-[70px]">
       <time className="text-2xl font-semibold">{formattedDate}</time>
