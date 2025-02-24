@@ -38,10 +38,6 @@ import {
   getStartExerciseOrder,
 } from "@/adapter/workoutDetail.adapter";
 import { db } from "@/lib/db";
-import {
-  getWorkoutWithLocalId,
-  getWorkoutWithServerId,
-} from "@/services/workout.service";
 
 import { LocalWorkoutDetail } from "@/types/models";
 

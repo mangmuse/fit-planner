@@ -2,7 +2,7 @@ import WorkoutCheckbox from "@/app/(main)/workout/_components/WorkoutCheckbox";
 
 const WorkoutTableHeader = () => {
   return (
-    <thead>
+    <thead data-testid="workout-table-header">
       <tr className="h-[22px] text-center text-text-muted">
         <th className="w-[14%] ">Set</th>
         <th className="w-[38%]">Previous</th>

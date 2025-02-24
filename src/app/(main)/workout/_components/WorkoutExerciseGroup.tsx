@@ -20,7 +20,7 @@ const WorkoutExerciseGroup = ({
   return (
     <div className="bg-bg-surface  font-semibold pb-2.5">
       <h6 className="flex gap-1 text-xs px-1 h-5 items-center">
-        <span>{exerciseOrder}</span>
+        <span data-testid="exercise-order">{exerciseOrder}</span>
         <span className="text-primary">{details[0].exerciseName}</span>
       </h6>
       <table className="w-full text-[10px]">

@@ -1,4 +1,7 @@
-import { getWorkoutByUserIdAndDate } from "./workout.service";
+import {
+  updateLocalWorkout,
+  getWorkoutByUserIdAndDate,
+} from "./workout.service";
 jest.mock("@/lib/db");
 
 jest.mock("@/api/workout.api", () => ({
@@ -138,6 +141,8 @@ describe("workout.service", () => {
         serverId: workout.id,
         date: workout.date,
         isSynced: true,
+        status: "EMPTY",
+
         createdAt: workout.createdAt,
         updatedAt: workout.updatedAt,
       }));
@@ -190,11 +195,30 @@ describe("workout.service", () => {
       expect(db.workouts.add).toHaveBeenCalledWith({
         userId,
         date,
+        status: "EMPTY" as const,
         createdAt: expect.any(String),
         isSynced: false,
         serverId: null,
       });
       expect(result).toEqual(mockWorkout);
+    });
+  });
+
+  describe("deleteLocalWorkout", () => {
+    it("id가 일치하는 workout을 업데이트한다", async () => {
+      await updateLocalWorkout({ id: 1, status: "PLANNED" });
+
+      expect(db.workouts.update).toHaveBeenCalledWith(1, {
+        id: 1,
+        status: "PLANNED",
+      });
+    });
+
+    it("업데이트에 실패할 경우 에러를 던진다", async () => {
+      (db.workouts.update as jest.Mock).mockRejectedValueOnce(new Error());
+      await expect(
+        updateLocalWorkout({ id: 1, status: "PLANNED" })
+      ).rejects.toThrow("Workout 업데이트에 실패했습니다");
     });
   });
 });

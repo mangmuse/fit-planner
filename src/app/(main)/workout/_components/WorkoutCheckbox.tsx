@@ -1,7 +1,7 @@
 import { updateLocalWorkoutDetail } from "@/services/workoutDetail.service";
 import { useState } from "react";
 
-type WorkoutCheckboxProps = {
+export type WorkoutCheckboxProps = {
   prevIsDone?: boolean;
   id?: number;
   loadLocalWorkoutDetails?: () => Promise<void>;
@@ -15,6 +15,7 @@ const WorkoutCheckbox = ({
   const [isDone, setIsDone] = useState<boolean>(prevIsDone ?? false);
 
   const handleChange = async () => {
+    if (!id) return;
     const newValue = !isDone;
     setIsDone(newValue);
     await updateLocalWorkoutDetail({ isDone: newValue, id });

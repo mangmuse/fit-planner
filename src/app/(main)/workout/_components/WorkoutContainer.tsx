@@ -1,7 +1,12 @@
 "use client";
 
 import WorkoutExerciseGroup from "@/app/(main)/workout/_components/WorkoutExerciseGroup";
+import WorkoutPlaceholder from "@/app/(main)/workout/_components/WorkoutPlaceholder";
 import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
+import {
+  updateLocalWorkout,
+  getWorkoutByUserIdAndDate,
+} from "@/services/workout.service";
 import { getLocalWorkoutDetails } from "@/services/workoutDetail.service";
 import { LocalWorkoutDetail } from "@/types/models";
 import { useSession } from "next-auth/react";
@@ -15,6 +20,7 @@ type WorkoutContainerProps = {
 const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
   const userId = useSession().data?.user?.id;
 
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [workoutGroups, setWorkoutGroups] = useState<
     { exerciseOrder: number; details: LocalWorkoutDetail[] }[]
   >([]);
@@ -22,26 +28,47 @@ const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
   const loadLocalWorkoutDetails = async () => {
     if (!userId) return;
     const details = await getLocalWorkoutDetails(userId, date);
+
     const adjustedGroups = getGroupedDetails(details);
     setWorkoutGroups(adjustedGroups);
+    setIsLoading(false);
   };
+  const syncWorkoutStatus = async () => {
+    if (!userId) return;
+    const workout = await getWorkoutByUserIdAndDate(userId, date);
+
+    if (!workout?.id || workout.status === "COMPLETED") return;
+    const newStatus = workoutGroups.length === 0 ? "EMPTY" : "PLANNED";
+    await updateLocalWorkout({ ...workout, status: newStatus });
+  };
+
   useEffect(() => {
     loadLocalWorkoutDetails();
   }, [userId, date]);
 
+  useEffect(() => {
+    syncWorkoutStatus();
+  }, [workoutGroups]);
+
+  if (isLoading) return <div>Loading...</div>;
+
   return (
     <div>
-      <ul className="flex flex-col gap-2.5">
-        {workoutGroups.map(({ exerciseOrder, details }) => (
-          <WorkoutExerciseGroup
-            key={exerciseOrder}
-            details={details}
-            exerciseOrder={exerciseOrder}
-            loadLocalWorkoutDetails={loadLocalWorkoutDetails}
-          />
-        ))}
-      </ul>
-      <Link href={`/workout/${date}/exercises`}>운동 추가</Link>
+      {workoutGroups.length !== 0 ? (
+        <ul className="flex flex-col gap-2.5">
+          {workoutGroups.map(({ exerciseOrder, details }) => (
+            <WorkoutExerciseGroup
+              key={exerciseOrder}
+              details={details}
+              exerciseOrder={exerciseOrder}
+              loadLocalWorkoutDetails={loadLocalWorkoutDetails}
+            />
+          ))}
+          <Link href={`/workout/${date}/exercises`}>운동 추가</Link>
+        </ul>
+      ) : (
+        <WorkoutPlaceholder date={date} />
+      )}
     </div>
   );
 };

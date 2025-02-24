@@ -32,11 +32,14 @@ const WorkoutItem = ({
     loadLocalWorkoutDetails();
   };
   return (
-    <tr className="h-[22px]">
-      <td className="text-center">{setOrder}</td>
+    <tr data-testid={`workout-detail-item-${id}`} className="h-[22px]">
+      <td data-testid={"setOrder"} className="text-center">
+        {setOrder}
+      </td>
       <td className="text-center">-</td>
       <td className="text-center">
         <input
+          data-testid="weight"
           onChange={handleChangeWeight}
           onBlur={() =>
             weight !== editedWeight && handleUpdate({ weight: editedWeight })
@@ -47,6 +50,7 @@ const WorkoutItem = ({
       </td>
       <td className="text-center">
         <input
+          data-testid="reps"
           onChange={handleChangeReps}
           onBlur={() =>
             reps !== editedReps && handleUpdate({ reps: editedReps })
@@ -63,7 +67,6 @@ const WorkoutItem = ({
             prevIsDone={isDone}
           />
         </div>
-        {setOrder}
       </td>
     </tr>
   );

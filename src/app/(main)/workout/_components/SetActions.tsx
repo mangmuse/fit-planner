@@ -14,9 +14,6 @@ const SetActions = ({
   lastValue,
   loadLocalWorkoutDetails,
 }: SetActionsProps) => {
-  const userId = useSession()?.data?.user?.id;
-  const { date } = useParams();
-
   const handleAddSet = async () => {
     await addSet(lastValue);
     loadLocalWorkoutDetails();
@@ -26,7 +23,7 @@ const SetActions = ({
     loadLocalWorkoutDetails();
   };
   return (
-    <div className="flex justify-center gap-2.5 mt-2">
+    <div data-testid="set-actions" className="flex justify-center gap-2.5 mt-2">
       <button
         onClick={handleAddSet}
         className="rounded-[4px] bg-primary text-text-black text-[10px] w-[46%] h-[28px]"
