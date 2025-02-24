@@ -16,13 +16,11 @@ const WorkoutCalendar = () => {
   const [daysStatus, setDaysStatus] = useState<{
     [date: string]: "PLANNED" | "IN_PROGRESS" | "COMPLETED";
   }>({});
-  console.log(currentDate, "currentDatecurrentDate");
   const year = dayjs(currentDate).year();
   const month = dayjs(currentDate).month();
 
   const { start: startDate, end: endDate } = getMonthRange(year, month);
 
-  console.log(startDate, endDate, "startDate,endDatestartDate,endDate");
   const firstDayOfMonth = dayjs(currentDate).startOf("month");
   const lastDayOfMonth = dayjs(currentDate).endOf("month");
   const firstDayOfMonthWeekday = firstDayOfMonth.day();
@@ -66,7 +64,6 @@ const WorkoutCalendar = () => {
           workout.status === "PLANNED" ||
           workout.status === "COMPLETED"
         ) {
-          console.log(workout.date, "workout.dateworkout.date");
           const dateKey = getFormattedDateYMD(workout.date);
           statusMap[dateKey] = workout.status;
         }
@@ -75,7 +72,6 @@ const WorkoutCalendar = () => {
     };
 
     loadWorkoutsThisMonth();
-    console.log(weeks, "weeksweeks");
   }, [startDate, endDate]);
 
   const handleGoPrevMonth = () => {

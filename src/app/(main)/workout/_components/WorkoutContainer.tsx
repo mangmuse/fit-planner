@@ -34,12 +34,11 @@ const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
     setIsLoading(false);
   };
   const syncWorkoutStatus = async () => {
-    console.log(workoutGroups);
     if (!userId) return;
     const workout = await getWorkoutByUserIdAndDate(userId, date);
 
-    // if (!workout?.id || workout.status === "COMPLETED") return;
-    const newStatus = workoutGroups.length === 0 ? "EMPTY" : "COMPLETED";
+    if (!workout?.id || workout.status === "COMPLETED") return;
+    const newStatus = workoutGroups.length === 0 ? "EMPTY" : "PLANNED";
     await updateLocalWorkout({ ...workout, status: newStatus });
   };
 
