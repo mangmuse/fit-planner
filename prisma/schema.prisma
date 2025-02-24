@@ -75,6 +75,7 @@ model Workout {
   userId         String
   createdAt      DateTime        @default(now())
   updatedAt      DateTime?       @updatedAt
+  status         WorkoutStatus   @default(PLANNED)
   user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   workoutDetails WorkoutDetail[]
 
@@ -123,4 +124,10 @@ model RoutineDetail {
   routine       Routine  @relation(fields: [routineId], references: [id], onDelete: Cascade)
 
   @@unique([routineId, exerciseOrder, setOrder])
+}
+
+enum WorkoutStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
 }

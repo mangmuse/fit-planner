@@ -6,6 +6,7 @@ export const clientWorkoutSchema = z.object({
   id: z.string(),
   userId: z.string(),
   date: z.string(),
+  status: z.enum(["PLANNED", "IN_PROGRESS", "COMPLETED"]),
   createdAt: z.string(),
   updatedAt: z.string().nullable().optional(),
 });
@@ -45,6 +46,7 @@ export const localWorkoutSchema = z.object({
   createdAt: z.string(),
   date: z.string(),
   isSynced: z.boolean(),
+  status: z.enum(["PLANNED", "IN_PROGRESS", "COMPLETED"]),
 });
 
 export const localExerciseSchema = z.object({
