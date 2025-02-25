@@ -459,6 +459,7 @@ describe("ExercisesContainer", () => {
         isSynced: false,
         setOrder: 1,
         exerciseOrder: 1,
+        setType: "NORMAL",
         exerciseName: "벤치프레스",
         exerciseId: 1,
         workoutId: 1,

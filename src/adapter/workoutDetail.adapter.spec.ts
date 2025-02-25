@@ -52,6 +52,7 @@ const lastSet = {
   weight: 0,
   rpe: 7,
   setOrder: 1,
+  setType: "NORMAL",
   serverId: "mock-id",
   workoutId: 1,
   createdAt: "2025-02-11T02:50:05.917Z",
