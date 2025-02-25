@@ -94,6 +94,7 @@ model WorkoutDetail {
   isDone        Boolean   @default(false)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime? @updatedAt
+  setType       SetType   @default(NORMAL)
   exercise      Exercise  @relation(fields: [exerciseId], references: [id])
   workout       Workout   @relation(fields: [workoutId], references: [id], onDelete: Cascade)
 
@@ -131,4 +132,12 @@ enum WorkoutStatus {
   IN_PROGRESS
   COMPLETED
   EMPTY
+}
+
+enum SetType {
+  NORMAL
+  WARMUP
+  DROPSET
+  FAILURE
+  AMRAP
 }

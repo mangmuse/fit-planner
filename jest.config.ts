@@ -6,6 +6,9 @@ const createJestConfig = nextJest({
 
 const customJestConfig = {
   moduleFileExtensions: ["js", "jsx", "ts", "tsx"],
+  collectCoverage: true,
+  collectCoverageFrom: ["src/**/*.{js,jsx,ts,tsx}"],
+  coverageDirectory: "coverage",
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
   clearMocks: true,
   testEnvironment: "jest-fixed-jsdom",

@@ -33,7 +33,10 @@ const WorkoutItem = ({
   };
   return (
     <tr data-testid={`workout-detail-item-${id}`} className="h-[22px]">
-      <td data-testid={"setOrder"} className="text-center">
+      <td
+        data-testid={"setOrder"}
+        className="text-center underline underline-offset-1"
+      >
         {setOrder}
       </td>
       <td className="text-center">-</td>
