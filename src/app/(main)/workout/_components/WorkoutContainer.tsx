@@ -3,6 +3,7 @@
 import WorkoutExerciseGroup from "@/app/(main)/workout/_components/WorkoutExerciseGroup";
 import WorkoutPlaceholder from "@/app/(main)/workout/_components/WorkoutPlaceholder";
 import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
+import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import {
   updateLocalWorkout,
   getWorkoutByUserIdAndDate,
@@ -19,6 +20,7 @@ type WorkoutContainerProps = {
 
 const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
   const userId = useSession().data?.user?.id;
+  const { openBottomSheet } = useBottomSheet();
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [workoutGroups, setWorkoutGroups] = useState<
@@ -69,6 +71,17 @@ const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
       ) : (
         <WorkoutPlaceholder date={date} />
       )}
+      <button
+        onClick={() => {
+          openBottomSheet({
+            height: 300,
+            children: <div>hello</div>,
+          });
+        }}
+        className="bg-blue-500"
+      >
+        바텀시트 테스트버튼
+      </button>
     </div>
   );
 };
