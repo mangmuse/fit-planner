@@ -3,7 +3,7 @@ import SetTypeSelector from "@/app/(main)/workout/_components/SetTypeList";
 
 const SetOptionSheet = () => {
   return (
-    <div className="flex flex-col overflow-hidden">
+    <div className="flex flex-col">
       <h3 className="font-semibold ">세트 타입</h3>
       <SetTypeSelector />
 

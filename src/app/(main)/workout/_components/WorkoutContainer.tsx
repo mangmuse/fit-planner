@@ -4,7 +4,9 @@ import SetOptionSheet from "@/app/(main)/workout/_components/SetOptionSheet";
 import WorkoutExerciseGroup from "@/app/(main)/workout/_components/WorkoutExerciseGroup";
 import WorkoutPlaceholder from "@/app/(main)/workout/_components/WorkoutPlaceholder";
 import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
+import TestModal from "@/components/Modal/testModal";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
+import { useModal } from "@/providers/contexts/ModalContext";
 import {
   updateLocalWorkout,
   getWorkoutByUserIdAndDate,
@@ -21,8 +23,7 @@ type WorkoutContainerProps = {
 
 const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
   const userId = useSession().data?.user?.id;
-  const { openBottomSheet } = useBottomSheet();
-
+  const { openModal } = useModal();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [workoutGroups, setWorkoutGroups] = useState<
     { exerciseOrder: number; details: LocalWorkoutDetail[] }[]
@@ -72,7 +73,17 @@ const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
       ) : (
         <WorkoutPlaceholder date={date} />
       )}
-      <button className="bg-blue-500">바텀시트 테스트버튼</button>
+      <button
+        onClick={() =>
+          openModal({
+            type: "generic",
+
+            children: <TestModal />,
+          })
+        }
+      >
+        제네릭 모달 여는 버튼
+      </button>
     </div>
   );
 };
