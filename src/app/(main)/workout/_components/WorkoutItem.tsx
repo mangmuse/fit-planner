@@ -1,4 +1,7 @@
+"use client";
+import SetOptionSheet from "@/app/(main)/workout/_components/SetOptionSheet";
 import WorkoutCheckbox from "@/app/(main)/workout/_components/WorkoutCheckbox";
+import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { updateLocalWorkoutDetail } from "@/services/workoutDetail.service";
 import { ClientWorkoutDetail, LocalWorkoutDetail } from "@/types/models";
 import { ChangeEventHandler, useRef, useState } from "react";
@@ -12,6 +15,7 @@ const WorkoutItem = ({
   workoutDetail,
   loadLocalWorkoutDetails,
 }: WorkoutItemProps) => {
+  const { openBottomSheet } = useBottomSheet();
   const { setOrder, weight, reps, isDone, id } = workoutDetail;
   const [editedWeight, setEditedWeight] = useState<number | null>(
     weight || null
@@ -34,8 +38,14 @@ const WorkoutItem = ({
   return (
     <tr data-testid={`workout-detail-item-${id}`} className="h-[22px]">
       <td
+        onClick={() => {
+          openBottomSheet({
+            height: 150,
+            children: <SetOptionSheet />,
+          });
+        }}
         data-testid={"setOrder"}
-        className="text-center underline underline-offset-1"
+        className="cursor-pointer text-center underline underline-offset-1"
       >
         {setOrder}
       </td>

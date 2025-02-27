@@ -7,6 +7,8 @@ import {
   useBottomSheet,
 } from "@/providers/contexts/BottomSheetContext";
 import { useEffect } from "react";
+import closeBtn from "public/closeBtn.svg";
+import Image from "next/image";
 
 const BottomSheet = ({
   children,
@@ -22,7 +24,6 @@ const BottomSheet = ({
     closeBottomSheet();
   };
 
-  // isOpen이 true로 변경되는 시점에 body 스크롤을 막아준다
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -31,7 +32,6 @@ const BottomSheet = ({
 
   const content = (
     <AnimatePresence
-      // exit 애니메이션이 완전히 끝난 시점에 스크롤을 풀어준다.
       onExitComplete={() => {
         document.body.style.overflow = "";
         onExitComplete?.();
@@ -50,14 +50,19 @@ const BottomSheet = ({
 
           <motion.div
             key="bottomsheet"
-            className="absolute py-5 bg-bg-surface-variant 
+            className="absolute px-3 py-5 bg-bg-surface-variant 
                        rounded-t-3xl bottom-0 left-0 w-full z-50"
-            style={{ height }}
+            style={{ minHeight: height }}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ duration: 0.1 }}
           >
+            <div className="flex justify-end px-2">
+              <button onClick={handleClose}>
+                <Image src={closeBtn} alt="바텀시트 닫기" />
+              </button>
+            </div>
             {children}
           </motion.div>
         </>

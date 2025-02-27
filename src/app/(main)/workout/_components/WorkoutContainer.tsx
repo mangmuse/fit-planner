@@ -1,5 +1,6 @@
 "use client";
 
+import SetOptionSheet from "@/app/(main)/workout/_components/SetOptionSheet";
 import WorkoutExerciseGroup from "@/app/(main)/workout/_components/WorkoutExerciseGroup";
 import WorkoutPlaceholder from "@/app/(main)/workout/_components/WorkoutPlaceholder";
 import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
@@ -71,17 +72,7 @@ const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
       ) : (
         <WorkoutPlaceholder date={date} />
       )}
-      <button
-        onClick={() => {
-          openBottomSheet({
-            height: 300,
-            children: <div>hello</div>,
-          });
-        }}
-        className="bg-blue-500"
-      >
-        바텀시트 테스트버튼
-      </button>
+      <button className="bg-blue-500">바텀시트 테스트버튼</button>
     </div>
   );
 };
