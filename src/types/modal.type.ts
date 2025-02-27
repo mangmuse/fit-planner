@@ -1,16 +1,27 @@
-export interface AlertModalProps {
-  type: "alert";
+import { ReactNode } from "react";
+
+export type GenericModalProps = {
+  type: "generic";
+  children: ReactNode;
+  onClose?: () => void;
+};
+
+export type AlertModalProps = {
+  type?: "alert";
   title?: string;
   message: string;
   onClose?: () => void;
-}
+};
 
-export interface ConfirmModalProps {
-  type: "confirm";
+export type ConfirmModalProps = {
+  type?: "confirm";
   title?: string;
   message: string;
   onConfirm?: () => void;
   onCancel?: () => void;
-}
+};
 
-export type ModalProps = AlertModalProps | ConfirmModalProps;
+export type ModalProps =
+  | AlertModalProps
+  | ConfirmModalProps
+  | GenericModalProps;

@@ -1,6 +1,7 @@
 "use client";
 import AlertModal from "@/components/Modal/AlertModal";
 import ConfirmModal from "@/components/Modal/ConfirmModal";
+import GenericModal from "@/components/Modal/GenericModal";
 import { useModal } from "@/providers/contexts/ModalContext";
 import {
   ModalProps,
@@ -11,7 +12,7 @@ import {
 function BackDrop({ children }: { children: React.ReactNode }) {
   return (
     <div className="fixed inset-0 bg-black/30 flex justify-center items-center">
-      <div className="bg-white p-6 rounded">{children}</div>
+      <div className="p-6 rounded">{children}</div>
     </div>
   );
 }
@@ -36,6 +37,10 @@ export default function Modal(props: ModalProps) {
 
   const renderModalContent = () => {
     switch (props.type) {
+      case "generic": {
+        const { children, onClose } = props;
+        return <GenericModal type="generic">{children}</GenericModal>;
+      }
       case "alert": {
         const { title, message } = props;
         return (
