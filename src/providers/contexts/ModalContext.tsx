@@ -22,6 +22,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
   const [modalOptions, setModalOptions] = useState<ModalProps | null>(null);
 
   const openModal = (options: ModalProps) => {
+    console.log("qdwijd");
     setModalOptions(options);
   };
 

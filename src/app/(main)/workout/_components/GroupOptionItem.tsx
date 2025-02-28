@@ -6,6 +6,7 @@ type GroupOptionItemProps = {
   label: string;
   className?: string;
   imgSrc: string;
+  onClick: () => void;
   showArrow?: boolean;
   showBottomBorder?: boolean;
 };
@@ -15,10 +16,12 @@ const GroupOptionItem = ({
   label,
   className: labelColor,
   showArrow = true,
+  onClick,
   showBottomBorder,
 }: GroupOptionItemProps) => {
   return (
     <li
+      onClick={onClick}
       className={clsx(
         "flex h-11 justify-between border-t-2 border-border-gray",
         {

@@ -8,9 +8,9 @@ function Providers({ children }: { children: ReactNode }) {
   return (
     <QueryProvider>
       <SessionProviderWrapper>
-        <BottomSheetProvider>
-          <ModalProvider>{children}</ModalProvider>
-        </BottomSheetProvider>
+        <ModalProvider>
+          <BottomSheetProvider>{children}</BottomSheetProvider>
+        </ModalProvider>
       </SessionProviderWrapper>
     </QueryProvider>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import ExerciseMemo from "@/app/(main)/workout/_components/ExerciseMemo";
 import SetOptionSheet from "@/app/(main)/workout/_components/SetOptionSheet";
 import WorkoutExerciseGroup from "@/app/(main)/workout/_components/WorkoutExerciseGroup";
 import WorkoutPlaceholder from "@/app/(main)/workout/_components/WorkoutPlaceholder";
@@ -23,7 +24,7 @@ type WorkoutContainerProps = {
 
 const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
   const userId = useSession().data?.user?.id;
-  const { openModal } = useModal();
+
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [workoutGroups, setWorkoutGroups] = useState<
     { exerciseOrder: number; details: LocalWorkoutDetail[] }[]
@@ -73,17 +74,6 @@ const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
       ) : (
         <WorkoutPlaceholder date={date} />
       )}
-      <button
-        onClick={() =>
-          openModal({
-            type: "generic",
-
-            children: <TestModal />,
-          })
-        }
-      >
-        제네릭 모달 여는 버튼
-      </button>
     </div>
   );
 };

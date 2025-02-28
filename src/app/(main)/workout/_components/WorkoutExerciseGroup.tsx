@@ -33,9 +33,7 @@ const WorkoutExerciseGroup = ({
             openBottomSheet({
               height: 300,
               children: (
-                <WorkoutDetailGroupOptions
-                  exerciseName={details[0].exerciseName}
-                />
+                <WorkoutDetailGroupOptions exerciseId={details[0].exerciseId} />
               ),
             });
           }}

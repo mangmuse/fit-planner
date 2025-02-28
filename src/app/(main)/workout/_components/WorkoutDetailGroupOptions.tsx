@@ -6,17 +6,22 @@ import Image from "next/image";
 import GroupOptionItem from "@/app/(main)/workout/_components/GroupOptionItem";
 import arrowIcon from "public/right-arrow.svg";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import clsx from "clsx";
+import { getExerciseWithLocalId } from "@/services/exercise.service";
+import { LocalExercise } from "@/types/models";
+import { useModal } from "@/providers/contexts/ModalContext";
+import ExerciseMemo from "@/app/(main)/workout/_components/ExerciseMemo";
+import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 
 type WorkoutDetailGroupOptions = {
-  exerciseName: string;
+  exerciseId: number;
 };
 
 const units = ["kg", "lbs"] as const;
 
 const WorkoutDetailGroupOptions = ({
-  exerciseName,
+  exerciseId,
 }: WorkoutDetailGroupOptions) => {
   // 단위변환: 서버DB UserExercise 및 로컬DB exercises 테이블에 unit 컬럼 추가,
   //  로컬 detail에 unit을 추가하지않고 exercise db에 접근해서 해당 exercise의 unit을 가져오는방식,
@@ -25,10 +30,32 @@ const WorkoutDetailGroupOptions = ({
   // 운동교체: 해당 운동그룹 삭제 -> 선택한 운동을 기존 exerciseOrder 로 추가
   // 메모 남기기: 메모 모달띄우기 (서버DB UserExercise 및 로컬DB exercises 테이블에 memo 컬럼 추가)
   // 삭제하기: 삭제 모달띄우기 -> 해당 workout의 exerciseOrder 일치 삭제
+  const [exercise, setExercise] = useState<LocalExercise | null>(null);
   const [unit, setUnit] = useState<(typeof units)[number]>("kg");
+  const { closeBottomSheet } = useBottomSheet();
+  const { openModal } = useModal();
+
+  const handleOpenMemo = () => {
+    closeBottomSheet();
+    openModal({
+      type: "generic",
+      children: <ExerciseMemo exercise={exercise!} />,
+    });
+  };
+
+  useEffect(() => {
+    const fetchAndSetExercise = async () => {
+      const exerciseData = await getExerciseWithLocalId(exerciseId);
+      if (!exerciseData) throw new Error("운동 데이터를 받아오지 못했습니다.");
+      setExercise(exerciseData);
+    };
+
+    fetchAndSetExercise();
+  }, [exerciseId]);
+
   return (
     <div className="flex flex-col ">
-      <h3 className="self-center">{exerciseName}</h3>
+      <h3 className="self-center">{exercise?.name}</h3>
       <nav className="relative mt-6 w-48 h-12 self-center bg-[#444444] rounded-2xl">
         <motion.div
           className="absolute top-1/2  w-20 h-9 bg-primary rounded-lg "
@@ -40,9 +67,10 @@ const WorkoutDetailGroupOptions = ({
           <button
             key={idx}
             className={clsx(
-              "relative w-1/2 h-full text-white transition-colors duration-300 ease-in-out",
+              "relative w-1/2 h-full  transition-colors duration-300 ease-in-out",
               {
-                "text-black font-semibold": unit === u,
+                "text-black  font-semibold": unit === u,
+                "text-white": unit !== u,
               }
             )}
             onClick={() => setUnit(u)}
@@ -52,9 +80,18 @@ const WorkoutDetailGroupOptions = ({
         ))}
       </nav>
       <ul className="mt-7">
-        <GroupOptionItem imgSrc={swapIcon} label="운동 교체" />
-        <GroupOptionItem imgSrc={memoIcon} label="메모 남기기" />
         <GroupOptionItem
+          onClick={() => {}}
+          imgSrc={swapIcon}
+          label="운동 교체"
+        />
+        <GroupOptionItem
+          onClick={handleOpenMemo}
+          imgSrc={memoIcon}
+          label="메모 남기기"
+        />
+        <GroupOptionItem
+          onClick={() => {}}
           imgSrc={deleteIcon}
           className="text-warning"
           label="삭제하기"
