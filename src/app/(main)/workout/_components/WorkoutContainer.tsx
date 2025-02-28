@@ -33,7 +33,7 @@ const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
   const loadLocalWorkoutDetails = async () => {
     if (!userId) return;
     const details = await getLocalWorkoutDetails(userId, date);
-
+    console.log(details);
     const adjustedGroups = getGroupedDetails(details);
     setWorkoutGroups(adjustedGroups);
     setIsLoading(false);

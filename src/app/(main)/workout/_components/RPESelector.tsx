@@ -1,19 +1,20 @@
 import RPEItem from "@/app/(main)/workout/_components/RPEItem";
 import { RPE_OPTIONS } from "@/app/(main)/workout/constants";
-import { useState } from "react";
+import { LocalWorkoutDetail } from "@/types/models";
 
-const RPESelector = () => {
-  const [selectedRPE, setSelectedRPE] = useState<number | null>(null);
+type RPESelectorProps = {
+  selectedRpe: number | null;
+  onChange: (newRpe: number | null) => void;
+};
 
-  const handleChangeRPE = (value: number) => setSelectedRPE(value);
-
+const RPESelector = ({ selectedRpe, onChange }: RPESelectorProps) => {
   return (
     <nav className="mt-1.5 flex self-center gap-1">
       {RPE_OPTIONS.map((rpe) => (
         <RPEItem
           key={rpe.value}
-          isSelected={selectedRPE === rpe.value}
-          onChange={handleChangeRPE}
+          isSelected={selectedRpe === rpe.value}
+          onChange={onChange}
           rpeOption={rpe}
         />
       ))}
