@@ -3,16 +3,16 @@ import clsx from "clsx";
 
 type SetTypeProps = {
   setType: WorkoutSetType;
-  onChange: (label: WorkoutSetType["label"]) => void;
+  onChange: (value: WorkoutSetType["value"]) => void;
   isSelected: boolean;
 };
 
 const SetType = ({ setType, isSelected, onChange }: SetTypeProps) => {
-  const { label, bgColor, textColor } = setType;
+  const { value, label, bgColor, textColor } = setType;
 
   return (
     <button
-      onClick={() => onChange(label)}
+      onClick={() => onChange(value)}
       className={clsx(
         " text-sm w-20 h-8 rounded-md",
         isSelected && [bgColor, textColor, "font-bold"],

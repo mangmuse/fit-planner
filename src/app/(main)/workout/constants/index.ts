@@ -1,4 +1,7 @@
+import { LocalWorkoutDetail } from "@/types/models";
+
 export type WorkoutSetType = {
+  value: LocalWorkoutDetail["setType"];
   label: "웜업세트" | "드롭세트" | "암랩세트" | "실패세트";
   bgColor: string;
   textColor: string;
@@ -26,17 +29,29 @@ const ERROR_TEXT_COLOR = "text-[#F44336]";
 
 export const SET_TYPES: WorkoutSetType[] = [
   {
+    value: "WARMUP",
     label: "웜업세트",
     bgColor: SUCCESS_BG_COLOR,
     textColor: SUCCESS_TEXT_COLOR,
   },
-  { label: "드롭세트", bgColor: DROP_BG_COLOR, textColor: DROP_TEXT_COLOR },
   {
+    value: "DROP",
+    label: "드롭세트",
+    bgColor: DROP_BG_COLOR,
+    textColor: DROP_TEXT_COLOR,
+  },
+  {
+    value: "AMRAP",
     label: "암랩세트",
     bgColor: WARNING_BG_COLOR,
     textColor: WARNING_TEXT_COLOR,
   },
-  { label: "실패세트", bgColor: ERROR_BG_COLOR, textColor: ERROR_TEXT_COLOR },
+  {
+    value: "FAILURE",
+    label: "실패세트",
+    bgColor: ERROR_BG_COLOR,
+    textColor: ERROR_TEXT_COLOR,
+  },
 ];
 
 export const RPE_OPTIONS: RPEOption[] = [

@@ -41,13 +41,20 @@ const WorkoutItem = ({
         onClick={() => {
           openBottomSheet({
             height: 150,
-            children: <SetOptionSheet />,
+            children: <SetOptionSheet workoutDetail={workoutDetail} />,
           });
         }}
         data-testid={"setOrder"}
-        className="cursor-pointer text-center underline underline-offset-1"
+        className=" cursor-pointer text-center underline underline-offset-1 "
       >
         {setOrder}
+        {/* <span className="text-[#1AD76D] underline underline-offset-1">D</span> */}
+        <span
+          className="text-[8px] relative -top-2 left-1 inline-block"
+          id="rpe"
+        >
+          5
+        </span>
       </td>
       <td className="text-center">-</td>
       <td className="text-center">

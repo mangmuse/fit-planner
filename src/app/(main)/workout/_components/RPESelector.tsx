@@ -3,7 +3,7 @@ import { RPE_OPTIONS } from "@/app/(main)/workout/constants";
 import { useState } from "react";
 
 const RPESelector = () => {
-  const [selectedRPE, setSelectedRPE] = useState<number>(5);
+  const [selectedRPE, setSelectedRPE] = useState<number | null>(null);
 
   const handleChangeRPE = (value: number) => setSelectedRPE(value);
 

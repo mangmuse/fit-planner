@@ -137,7 +137,7 @@ enum WorkoutStatus {
 enum SetType {
   NORMAL
   WARMUP
-  DROPSET
+  DROP
   FAILURE
   AMRAP
 }
