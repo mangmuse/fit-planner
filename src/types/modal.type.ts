@@ -17,7 +17,7 @@ export type ConfirmModalProps = {
   type?: "confirm";
   title?: string;
   message: string;
-  onConfirm?: () => void;
+  onConfirm?: () => void | Promise<void>;
   onCancel?: () => void;
 };
 

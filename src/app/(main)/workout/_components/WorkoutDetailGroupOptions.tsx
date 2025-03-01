@@ -18,6 +18,7 @@ import ExerciseMemo from "@/app/(main)/workout/_components/ExerciseMemo";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import {
   addLocalWorkoutDetailsByUserDate,
+  deleteWorkoutDetail,
   deleteWorkoutDetails,
 } from "@/services/workoutDetail.service";
 import ExercisesContainer from "@/app/(main)/workout/[date]/exercises/_components/ExercisesContainer";
@@ -59,7 +60,20 @@ const WorkoutDetailGroupOptions = ({
       ),
     });
   };
-  console.log(loadLocalWorkoutDetails, "여서찌거바라");
+  const deleteAndLoadDetails = async () => {
+    await deleteWorkoutDetails(details);
+    await loadLocalWorkoutDetails();
+  };
+  const handleOpenDeleteConfirmModal = () => {
+    console.log("hello");
+    closeBottomSheet();
+    openModal({
+      type: "confirm",
+      title: exercise.name,
+      message: "정말로 삭제하시겠습니까?",
+      onConfirm: deleteAndLoadDetails,
+    });
+  };
   const handleOpenExercisesBottomSheet = () => {
     closeBottomSheet();
     openBottomSheet({
@@ -133,7 +147,7 @@ const WorkoutDetailGroupOptions = ({
           label="메모 남기기"
         />
         <GroupOptionItem
-          onClick={() => {}}
+          onClick={handleOpenDeleteConfirmModal}
           exercise={exercise}
           imgSrc={deleteIcon}
           className="text-warning"
