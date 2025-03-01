@@ -42,6 +42,7 @@ export async function fetchExercisesFromServer(
     throw new Error(FETCH_EXERCISES_ERROR);
   }
   const serverData = await res.json();
+
   const parsedExercises = validateData<FetchExercisesResponse>(
     fetchExercisesSchema,
     serverData

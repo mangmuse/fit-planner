@@ -19,6 +19,7 @@ export const clientExerciseSchema = z.object({
   isBookmarked: z.boolean(),
   isCustom: z.boolean(),
   name: z.string(),
+  unit: z.enum(["kg", "lbs"]),
   userId: z.string().nullable(),
   updatedAt: z.string().optional().nullable(),
 });
@@ -58,6 +59,7 @@ export const localExerciseSchema = z.object({
   name: z.string(),
   category: z.string(),
   serverId: z.number().nullable(),
+  unit: z.enum(["kg", "lbs"]),
   id: z.number().optional(),
   updatedAt: z.string().nullable().optional(),
   isSynced: z.boolean(),

@@ -10,6 +10,7 @@ jest.mock("@/adapter/exercise.adapter", () => ({
 import {
   getUnsyncedExercises,
   syncToServerExercises,
+  updateExercise,
 } from "./exercise.service";
 import {
   mockLocalExercises,
@@ -201,6 +202,33 @@ describe("exercise.service", () => {
           serverId,
         });
       });
+    });
+  });
+
+  describe("updateExercise", () => {
+    const updateInput: Partial<LocalExercise> = {
+      id: 1,
+      unit: "lbs",
+      isBookmarked: true,
+    };
+    beforeEach(() => {});
+    it("제공받은 데이터로 올바르게 업데이트한다", async () => {
+      await updateExercise(updateInput);
+      expect(db.exercises.update).toHaveBeenCalledWith(updateInput.id, {
+        ...updateInput,
+        isSynced: false,
+      });
+    });
+    it("올바르게 id가 제공되지 않으면 에러를 던진다", async () => {
+      const { id, ...rest } = updateInput;
+      await expect(updateExercise({ ...rest })).rejects.toThrow(
+        "id가 없습니다"
+      );
+    });
+    it("해당하는 id의 데이터가 없으면 0을 반환한다", async () => {
+      (db.exercises.update as jest.Mock).mockReturnValueOnce(0);
+      const result = await updateExercise(updateInput);
+      expect(result).toBe(0);
     });
   });
 });

@@ -15,16 +15,18 @@ export async function GET(request: NextRequest) {
       include: {
         userExercises: {
           where: { userId: parsedUserId },
-          select: { isBookmarked: true },
+          select: { isBookmarked: true, unit: true },
         },
       },
     });
+
     const exercisesWithBookmark = exercises.map((exercise) => {
       const isBookmarked = parsedUserId
         ? exercise.userExercises?.[0]?.isBookmarked ?? false
         : false;
+      const unit = exercise.userExercises[0].unit;
       const { userExercises, ...rest } = exercise;
-      return { ...rest, isBookmarked };
+      return { ...rest, isBookmarked, unit };
     });
     return NextResponse.json(
       { success: true, exercises: exercisesWithBookmark },

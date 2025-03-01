@@ -1,14 +1,12 @@
 "use client";
-import SetOptionSheet from "@/app/(main)/workout/_components/SetOptionSheet";
 import SetOrderCell from "@/app/(main)/workout/_components/setOrderCell";
 import WorkoutCheckbox from "@/app/(main)/workout/_components/WorkoutCheckbox";
-import { SET_TYPES } from "@/app/(main)/workout/constants";
-import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { updateLocalWorkoutDetail } from "@/services/workoutDetail.service";
-import { ClientWorkoutDetail, LocalWorkoutDetail } from "@/types/models";
+import { LocalExercise, LocalWorkoutDetail } from "@/types/models";
 import { ChangeEventHandler, useRef, useState } from "react";
 
 type WorkoutItemProps = {
+  exercise: LocalExercise;
   workoutDetail: LocalWorkoutDetail;
   loadLocalWorkoutDetails: () => Promise<void>;
 };

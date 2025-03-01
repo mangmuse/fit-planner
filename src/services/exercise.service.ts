@@ -85,3 +85,13 @@ export async function syncToServerExercises(userId: string): Promise<void> {
     });
   }
 }
+
+export const updateExercise = async (
+  updateInput: Partial<LocalExercise>
+): Promise<number> => {
+  if (!updateInput.id) throw new Error("id가 없습니다");
+  return db.exercises.update(updateInput.id, {
+    ...updateInput,
+    isSynced: false,
+  });
+};

@@ -93,7 +93,6 @@ export const updateLocalWorkoutDetail = async (
 };
 
 export const addSet = async (lastSet: LocalWorkoutDetail): Promise<number> => {
-  console.log("heloooo");
   const addSetInput = getAddSetInputByLastSet(lastSet);
   const newSet = await db.workoutDetails.add(addSetInput);
   return newSet;

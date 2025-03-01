@@ -57,16 +57,27 @@ model Exercise {
 }
 
 model UserExercise {
-  id           String    @id @default(uuid())
+  id           String        @id @default(uuid())
   userId       String
   exerciseId   Int
-  isBookmarked Boolean   @default(false)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime? @updatedAt
-  exercise     Exercise  @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isBookmarked Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime?     @updatedAt
+  unit         Unit          @default(kg)
+  exerciseMemo ExerciseMemo? @relation("UserExerciseToExerciseMemo")
+  exercise     Exercise      @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, exerciseId])
+}
+
+model ExerciseMemo {
+  id             String       @id @default(uuid())
+  userExerciseId String       @unique
+  content        String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime?    @updatedAt
+  userExercise   UserExercise @relation("UserExerciseToExerciseMemo", fields: [userExerciseId], references: [id])
 }
 
 model Workout {
@@ -140,4 +151,9 @@ enum SetType {
   DROP
   FAILURE
   AMRAP
+}
+
+enum Unit {
+  kg
+  lbs
 }
