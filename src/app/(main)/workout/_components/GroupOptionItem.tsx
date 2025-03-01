@@ -1,3 +1,4 @@
+import { LocalExercise } from "@/types/models";
 import clsx from "clsx";
 import Image from "next/image";
 import arrowIcon from "public/right-arrow.svg";
@@ -6,6 +7,7 @@ type GroupOptionItemProps = {
   label: string;
   className?: string;
   imgSrc: string;
+  exercise: LocalExercise;
   onClick: () => void;
   showArrow?: boolean;
   showBottomBorder?: boolean;

@@ -1,6 +1,12 @@
 import { SyncExercisesToServerResponse } from "@/api/exercise.api";
 import { ClientExercise, LocalExercise } from "@/types/models";
 
+export const mockExerciseMemo = {
+  content: "zz",
+  createdAt: "2023-01-01T00:00:00Z",
+  updatedAt: "2023-01-01T00:00:00Z",
+};
+
 export const mockServerResponseExercises: ClientExercise[] = [
   {
     id: 101,
@@ -9,6 +15,7 @@ export const mockServerResponseExercises: ClientExercise[] = [
     isCustom: false,
     isBookmarked: true,
     unit: "kg",
+    exerciseMemo: mockExerciseMemo,
     createdAt: "2023-01-01T00:00:00Z",
     userId: null,
     imageUrl: "https://example.com/push-up.png",
@@ -20,7 +27,7 @@ export const mockServerResponseExercises: ClientExercise[] = [
     isCustom: false,
     isBookmarked: false,
     unit: "kg",
-
+    exerciseMemo: null,
     createdAt: "2023-01-02T00:00:00Z",
     userId: null,
     imageUrl: "https://example.com/push-up.png",
@@ -32,7 +39,7 @@ export const mockServerResponseExercises: ClientExercise[] = [
     isCustom: false,
     isBookmarked: true,
     unit: "kg",
-
+    exerciseMemo: mockExerciseMemo,
     createdAt: "2023-01-03T00:00:00Z",
     userId: null,
     imageUrl: "https://example.com/push-up.png",
@@ -44,7 +51,7 @@ export const mockServerResponseExercises: ClientExercise[] = [
     isCustom: false,
     isBookmarked: true,
     unit: "kg",
-
+    exerciseMemo: mockExerciseMemo,
     createdAt: "2023-01-03T00:00:00Z",
     userId: null,
     imageUrl: "https://example.com/push-up.png",
@@ -55,7 +62,7 @@ export const mockServerResponseExercises: ClientExercise[] = [
     category: "하체",
     isCustom: false,
     unit: "kg",
-
+    exerciseMemo: mockExerciseMemo,
     isBookmarked: false,
     createdAt: "2023-01-03T00:00:00Z",
     userId: null,
@@ -74,6 +81,7 @@ export const mockLocalExercises: LocalExercise[] = [
     isCustom: false,
     isSynced: false,
     name: "벤치프레스",
+    exerciseMemo: mockExerciseMemo,
     serverId: null,
     updatedAt: null,
     userId: null,
@@ -88,6 +96,7 @@ export const mockLocalExercises: LocalExercise[] = [
     isCustom: false,
     isSynced: true,
     name: "스쿼트",
+    exerciseMemo: mockExerciseMemo,
     serverId: 102,
     updatedAt: null,
     userId: null,
@@ -102,6 +111,7 @@ export const mockLocalExercises: LocalExercise[] = [
     isCustom: false,
     isSynced: false,
     name: "데드리프트",
+    exerciseMemo: mockExerciseMemo,
     serverId: 103,
     updatedAt: null,
     userId: null,
@@ -116,6 +126,7 @@ export const mockLocalExercises: LocalExercise[] = [
     isCustom: false,
     isSynced: true,
     name: "랫풀다운",
+    exerciseMemo: mockExerciseMemo,
     serverId: null,
     updatedAt: null,
     userId: null,

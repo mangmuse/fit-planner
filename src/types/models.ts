@@ -18,6 +18,13 @@ export const clientExerciseSchema = z.object({
   imageUrl: z.string(),
   isBookmarked: z.boolean(),
   isCustom: z.boolean(),
+  exerciseMemo: z
+    .object({
+      content: z.string(),
+      createdAt: z.string(),
+      updatedAt: z.string().nullable(),
+    })
+    .nullable(),
   name: z.string(),
   unit: z.enum(["kg", "lbs"]),
   userId: z.string().nullable(),
@@ -60,6 +67,13 @@ export const localExerciseSchema = z.object({
   category: z.string(),
   serverId: z.number().nullable(),
   unit: z.enum(["kg", "lbs"]),
+  exerciseMemo: z
+    .object({
+      content: z.string(),
+      createdAt: z.string(),
+      updatedAt: z.string().nullable(),
+    })
+    .nullable(),
   id: z.number().optional(),
   updatedAt: z.string().nullable().optional(),
   isSynced: z.boolean(),

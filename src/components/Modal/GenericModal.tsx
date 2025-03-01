@@ -12,10 +12,7 @@ export default function GenericModal({ children, onClose }: GenericModalProps) {
   };
 
   return (
-    <div
-      className="fixed inset-0 bg-black/30 flex justify-center items-center"
-      onClick={handleClose}
-    >
+    <div className="fixed inset-0 bg-black/30 flex justify-center items-center">
       <div className=" p-6 rounded" onClick={(e) => e.stopPropagation()}>
         {children}
       </div>

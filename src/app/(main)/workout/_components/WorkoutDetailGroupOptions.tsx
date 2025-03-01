@@ -44,7 +44,9 @@ const WorkoutDetailGroupOptions = ({
     closeBottomSheet();
     openModal({
       type: "generic",
-      children: <ExerciseMemo exercise={exercise!} />,
+      children: (
+        <ExerciseMemo loadExercises={loadExercises} exercise={exercise} />
+      ),
     });
   };
 
@@ -96,16 +98,19 @@ const WorkoutDetailGroupOptions = ({
       <ul className="mt-7">
         <GroupOptionItem
           onClick={() => {}}
+          exercise={exercise}
           imgSrc={swapIcon}
           label="운동 교체"
         />
         <GroupOptionItem
           onClick={handleOpenMemo}
+          exercise={exercise}
           imgSrc={memoIcon}
           label="메모 남기기"
         />
         <GroupOptionItem
           onClick={() => {}}
+          exercise={exercise}
           imgSrc={deleteIcon}
           className="text-warning"
           label="삭제하기"
