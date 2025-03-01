@@ -25,7 +25,7 @@ const SetOrderCell = ({
       onClick={() => {
         openBottomSheet({
           onClose: loadLocalWorkoutDetails,
-          height: 150,
+          minheight: 150,
           children: <SetOptionSheet workoutDetail={workoutDetail} />,
         });
       }}

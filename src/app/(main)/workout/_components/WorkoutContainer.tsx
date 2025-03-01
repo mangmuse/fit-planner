@@ -29,12 +29,16 @@ const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
   const [workoutGroups, setWorkoutGroups] = useState<
     { exerciseOrder: number; details: LocalWorkoutDetail[] }[]
   >([]);
-
+  console.log(workoutGroups);
   const loadLocalWorkoutDetails = async () => {
+    console.log("?????");
     if (!userId) return;
     const details = await getLocalWorkoutDetails(userId, date);
+
     const adjustedGroups = getGroupedDetails(details);
+    console.log(adjustedGroups);
     setWorkoutGroups(adjustedGroups);
+
     setIsLoading(false);
   };
   const syncWorkoutStatus = async () => {

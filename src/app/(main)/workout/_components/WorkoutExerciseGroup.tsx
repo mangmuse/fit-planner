@@ -31,10 +31,9 @@ const WorkoutExerciseGroup = ({
     const exerciseData = await getExerciseWithLocalId(details[0].exerciseId);
     setExercise(exerciseData);
   };
-
   useEffect(() => {
     fetchAndSetExerciseData();
-  }, []);
+  }, [details]);
 
   return (
     exercise && (
@@ -47,10 +46,12 @@ const WorkoutExerciseGroup = ({
           <button
             onClick={() => {
               openBottomSheet({
-                height: 300,
+                minheight: 300,
                 children: (
                   <WorkoutDetailGroupOptions
+                    loadLocalWorkoutDetails={loadLocalWorkoutDetails}
                     loadExercises={fetchAndSetExerciseData}
+                    details={details}
                     exercise={exercise}
                   />
                 ),

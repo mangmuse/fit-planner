@@ -63,7 +63,7 @@ describe("ExercisesContainer", () => {
   });
 
   const renderExercisesContainer = () => {
-    return customRender(<ExercisesContainer />);
+    return customRender(<ExercisesContainer allowMultipleSelection />);
   };
 
   describe("초기 렌더링", () => {

@@ -39,7 +39,7 @@ const ExerciseItem = ({
         title: "즐겨찾기에서 제거하시겠습니까?",
         message: name,
         onConfirm: async () => {
-          await toggleLocalBookmark(id, false); // 다음상태를 입력
+          await toggleLocalBookmark(id, false);
           onReload();
         },
       });

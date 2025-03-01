@@ -5,7 +5,7 @@ export const revalidate = 86400;
 const ExercisesPage = async () => {
   return (
     <>
-      <ExercisesContainer />
+      <ExercisesContainer allowMultipleSelection={false} />
     </>
   );
 };

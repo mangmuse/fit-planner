@@ -12,21 +12,31 @@ import {
   getExerciseWithLocalId,
   updateExercise,
 } from "@/services/exercise.service";
-import { LocalExercise } from "@/types/models";
+import { LocalExercise, LocalWorkoutDetail } from "@/types/models";
 import { useModal } from "@/providers/contexts/ModalContext";
 import ExerciseMemo from "@/app/(main)/workout/_components/ExerciseMemo";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
+import {
+  addLocalWorkoutDetailsByUserDate,
+  deleteWorkoutDetails,
+} from "@/services/workoutDetail.service";
+import ExercisesContainer from "@/app/(main)/workout/[date]/exercises/_components/ExercisesContainer";
 
 type WorkoutDetailGroupOptions = {
   exercise: LocalExercise;
+  details: LocalWorkoutDetail[];
+
   loadExercises: () => Promise<void>;
+  loadLocalWorkoutDetails: () => Promise<void>;
 };
 
 const units = ["kg", "lbs"] as const;
 
 const WorkoutDetailGroupOptions = ({
   exercise,
+  details,
   loadExercises,
+  loadLocalWorkoutDetails,
 }: WorkoutDetailGroupOptions) => {
   // 단위변환: 서버DB UserExercise 및 로컬DB exercises 테이블에 unit 컬럼 추가,
   //  로컬 detail에 unit을 추가하지않고 exercise db에 접근해서 해당 exercise의 unit을 가져오는방식,
@@ -38,7 +48,7 @@ const WorkoutDetailGroupOptions = ({
 
   // const [exercise, setExercise] = useState<LocalExercise | null>(null);
   const [unit, setUnit] = useState<(typeof units)[number]>("kg");
-  const { closeBottomSheet } = useBottomSheet();
+  const { closeBottomSheet, openBottomSheet } = useBottomSheet();
   const { openModal } = useModal();
   const handleOpenMemo = () => {
     closeBottomSheet();
@@ -46,6 +56,20 @@ const WorkoutDetailGroupOptions = ({
       type: "generic",
       children: (
         <ExerciseMemo loadExercises={loadExercises} exercise={exercise} />
+      ),
+    });
+  };
+  console.log(loadLocalWorkoutDetails, "여서찌거바라");
+  const handleOpenExercisesBottomSheet = () => {
+    closeBottomSheet();
+    openBottomSheet({
+      height: 800,
+      children: (
+        <ExercisesContainer
+          currentDetails={details}
+          allowMultipleSelection={false}
+          loadLocalWorkoutDetails={loadLocalWorkoutDetails}
+        />
       ),
     });
   };
@@ -97,7 +121,7 @@ const WorkoutDetailGroupOptions = ({
       </nav>
       <ul className="mt-7">
         <GroupOptionItem
-          onClick={() => {}}
+          onClick={handleOpenExercisesBottomSheet}
           exercise={exercise}
           imgSrc={swapIcon}
           label="운동 교체"

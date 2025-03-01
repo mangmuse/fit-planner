@@ -14,6 +14,7 @@ const BottomSheet = ({
   children,
   onClose,
   height,
+  minheight,
   isOpen,
   onExitComplete,
 }: BottomSheetProps) => {
@@ -50,9 +51,9 @@ const BottomSheet = ({
 
           <motion.div
             key="bottomsheet"
-            className="absolute px-3 py-5 bg-bg-surface-variant 
+            className="absolute overflow-auto px-3 py-5 bg-bg-surface-variant 
                        rounded-t-3xl bottom-0 left-0 w-full z-50"
-            style={{ minHeight: height }}
+            style={{ height: height, minHeight: minheight }}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
