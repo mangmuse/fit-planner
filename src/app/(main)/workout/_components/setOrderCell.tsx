@@ -29,17 +29,20 @@ const SetOrderCell = ({
           children: <SetOptionSheet workoutDetail={workoutDetail} />,
         });
       }}
-      data-testid={"setOrder"}
+      data-testid="setOrder"
       className={clsx(
-        "cursor-pointer text-center underline underline-offset-2",
+        "relative cursor-pointer text-center underline underline-offset-2",
         setTypeOption && setTypeOption.textColor
       )}
     >
       {setTypeOption ? setTypeOption.shortLabel : workoutDetail.setOrder}
       {RPEOption && (
         <span
-          className={`w-3 h-3 rounded-full relative inline-block -top-2 text-[8px] ${RPEOption.activeTextColor}`}
           id="rpe"
+          className={clsx(
+            "absolute top-[-1px] right-1 text-[8px] inline-flex items-center justify-center w-3 h-3 rounded-full",
+            RPEOption.activeTextColor
+          )}
         >
           {RPEOption.value}
         </span>
