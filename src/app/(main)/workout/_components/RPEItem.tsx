@@ -1,7 +1,7 @@
 import { RPEOption } from "@/app/(main)/workout/constants";
 import clsx from "clsx";
 
-type RPEItemProps = {
+export type RPEItemProps = {
   rpeOption: RPEOption;
   isSelected: boolean;
   onChange: (value: number) => void;
