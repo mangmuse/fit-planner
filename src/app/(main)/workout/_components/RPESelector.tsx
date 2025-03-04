@@ -2,7 +2,7 @@ import RPEItem from "@/app/(main)/workout/_components/RPEItem";
 import { RPE_OPTIONS } from "@/app/(main)/workout/constants";
 import { LocalWorkoutDetail } from "@/types/models";
 
-type RPESelectorProps = {
+export type RPESelectorProps = {
   selectedRpe: number | null;
   onChange: (newRpe: number | null) => void;
 };

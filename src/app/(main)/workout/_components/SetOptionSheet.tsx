@@ -1,5 +1,5 @@
 import RPESelector from "@/app/(main)/workout/_components/RPESelector";
-import SetTypeSelector from "@/app/(main)/workout/_components/SetTypeList";
+import SetTypeSelector from "@/app/(main)/workout/_components/SetTypeSelector";
 import { LocalWorkoutDetail } from "@/types/models";
 import { useState, useEffect } from "react";
 import { updateLocalWorkoutDetail } from "@/services/workoutDetail.service";

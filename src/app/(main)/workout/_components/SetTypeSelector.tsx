@@ -1,7 +1,7 @@
 import SetType from "@/app/(main)/workout/_components/SetType";
 import { SET_TYPES, WorkoutSetType } from "@/app/(main)/workout/constants";
 
-type SetTypeSelectorProps = {
+export type SetTypeSelectorProps = {
   selectedSetType: WorkoutSetType["value"] | null;
   onChange: (newSetType: WorkoutSetType["value"]) => void;
 };
