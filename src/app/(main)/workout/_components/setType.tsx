@@ -1,7 +1,7 @@
 import { WorkoutSetType } from "@/app/(main)/workout/constants";
 import clsx from "clsx";
 
-type SetTypeProps = {
+export type SetTypeProps = {
   setType: WorkoutSetType;
   onChange: (value: WorkoutSetType["value"]) => void;
   isSelected: boolean;
