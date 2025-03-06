@@ -1,5 +1,5 @@
 "use client";
-import SetOrderCell from "@/app/(main)/workout/_components/setOrderCell";
+import SetOrderCell from "@/app/(main)/workout/_components/SetOrderCell";
 import WorkoutCheckbox from "@/app/(main)/workout/_components/WorkoutCheckbox";
 import { updateLocalWorkoutDetail } from "@/services/workoutDetail.service";
 import { LocalExercise, LocalWorkoutDetail } from "@/types/models";

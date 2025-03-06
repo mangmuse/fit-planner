@@ -46,7 +46,7 @@ const WorkoutExerciseGroup = ({
           <button
             onClick={() => {
               openBottomSheet({
-                minheight: 300,
+                minHeight: 300,
                 children: (
                   <WorkoutDetailGroupOptions
                     loadLocalWorkoutDetails={loadLocalWorkoutDetails}

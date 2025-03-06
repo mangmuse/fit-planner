@@ -6,7 +6,7 @@ export type BottomSheetProps = {
   onClose?: () => void;
   children: ReactNode;
   isOpen?: boolean;
-  minheight?: number;
+  minHeight?: number;
   height?: number;
   onExitComplete?: () => void;
 };

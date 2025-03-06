@@ -14,7 +14,7 @@ const BottomSheet = ({
   children,
   onClose,
   height,
-  minheight,
+  minHeight: minheight,
   isOpen,
   onExitComplete,
 }: BottomSheetProps) => {
