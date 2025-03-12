@@ -38,7 +38,7 @@ const SetOrderCell = ({
       {setTypeOption ? setTypeOption.shortLabel : workoutDetail.setOrder}
       {RPEOption && (
         <span
-          id="rpe"
+          data-testid="rpe"
           className={clsx(
             "absolute top-[-1px] right-1 text-[8px] inline-flex items-center justify-center w-3 h-3 rounded-full",
             RPEOption.activeTextColor
