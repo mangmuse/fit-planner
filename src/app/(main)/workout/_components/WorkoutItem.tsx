@@ -1,9 +1,12 @@
+"use client";
+import SetOrderCell from "@/app/(main)/workout/_components/SetOrderCell";
 import WorkoutCheckbox from "@/app/(main)/workout/_components/WorkoutCheckbox";
 import { updateLocalWorkoutDetail } from "@/services/workoutDetail.service";
-import { ClientWorkoutDetail, LocalWorkoutDetail } from "@/types/models";
+import { LocalExercise, LocalWorkoutDetail } from "@/types/models";
 import { ChangeEventHandler, useRef, useState } from "react";
 
 type WorkoutItemProps = {
+  exercise: LocalExercise;
   workoutDetail: LocalWorkoutDetail;
   loadLocalWorkoutDetails: () => Promise<void>;
 };
@@ -12,7 +15,7 @@ const WorkoutItem = ({
   workoutDetail,
   loadLocalWorkoutDetails,
 }: WorkoutItemProps) => {
-  const { setOrder, weight, reps, isDone, id } = workoutDetail;
+  const { setOrder, weight, reps, isDone, id, setType } = workoutDetail;
   const [editedWeight, setEditedWeight] = useState<number | null>(
     weight || null
   );
@@ -31,11 +34,13 @@ const WorkoutItem = ({
     await updateLocalWorkoutDetail(updateWorkoutInput);
     loadLocalWorkoutDetails();
   };
+
   return (
     <tr data-testid={`workout-detail-item-${id}`} className="h-[22px]">
-      <td data-testid={"setOrder"} className="text-center">
-        {setOrder}
-      </td>
+      <SetOrderCell
+        loadLocalWorkoutDetails={loadLocalWorkoutDetails}
+        workoutDetail={workoutDetail}
+      />
       <td className="text-center">-</td>
       <td className="text-center">
         <input

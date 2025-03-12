@@ -1,8 +1,13 @@
 "use client";
 
+import ExerciseMemo from "@/app/(main)/workout/_components/ExerciseMemo";
+import SetOptionSheet from "@/app/(main)/workout/_components/SetOptionSheet";
 import WorkoutExerciseGroup from "@/app/(main)/workout/_components/WorkoutExerciseGroup";
 import WorkoutPlaceholder from "@/app/(main)/workout/_components/WorkoutPlaceholder";
 import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
+import TestModal from "@/components/Modal/testModal";
+import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
+import { useModal } from "@/providers/contexts/ModalContext";
 import {
   updateLocalWorkout,
   getWorkoutByUserIdAndDate,
@@ -24,13 +29,16 @@ const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
   const [workoutGroups, setWorkoutGroups] = useState<
     { exerciseOrder: number; details: LocalWorkoutDetail[] }[]
   >([]);
-
+  console.log(workoutGroups);
   const loadLocalWorkoutDetails = async () => {
+    console.log("?????");
     if (!userId) return;
     const details = await getLocalWorkoutDetails(userId, date);
 
     const adjustedGroups = getGroupedDetails(details);
+    console.log(adjustedGroups);
     setWorkoutGroups(adjustedGroups);
+
     setIsLoading(false);
   };
   const syncWorkoutStatus = async () => {

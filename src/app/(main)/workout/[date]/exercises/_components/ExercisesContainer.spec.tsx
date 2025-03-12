@@ -63,7 +63,7 @@ describe("ExercisesContainer", () => {
   });
 
   const renderExercisesContainer = () => {
-    return customRender(<ExercisesContainer />);
+    return customRender(<ExercisesContainer allowMultipleSelection />);
   };
 
   describe("초기 렌더링", () => {
@@ -459,6 +459,7 @@ describe("ExercisesContainer", () => {
         isSynced: false,
         setOrder: 1,
         exerciseOrder: 1,
+        setType: "NORMAL",
         exerciseName: "벤치프레스",
         exerciseId: 1,
         workoutId: 1,

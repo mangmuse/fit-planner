@@ -23,6 +23,11 @@ export type NewWorkoutDetailInput = {
   startOrder: number;
 };
 
+type AddWorkoutDetailsOptions = {
+  workoutId?: number;
+  startOrder?: number;
+};
+
 export const overwriteWithServerWorkoutDetails = async (userId: string) => {
   const serverData: ClientWorkoutDetail[] =
     await fetchWorkoutDetailsFromServer(userId);
@@ -48,20 +53,39 @@ export const overwriteWithServerWorkoutDetails = async (userId: string) => {
   await db.workoutDetails.clear();
   await db.workoutDetails.bulkAdd(toInsert);
 };
-export async function addLocalWorkoutDetails(
+export async function addLocalWorkoutDetailsByUserDate(
   userId: string,
   date: string,
   selectedExercises: { id: number | undefined; name: string }[]
 ): Promise<number> {
   const workout = await addLocalWorkout(userId, date);
   const workoutId = workout.id!;
+
   const startOrder = await getStartExerciseOrder(workoutId);
+
   const newDetails = getNewDetails(selectedExercises, {
     workoutId,
     startOrder,
   });
 
   const workoutDetails = await db.workoutDetails.bulkAdd(newDetails);
+  return workoutDetails;
+}
+
+export async function addLocalWorkoutDetailsByWorkoutId(
+  workoutId: number,
+  startOrder: number,
+  selectedExercises: { id: number; name: string }[]
+): Promise<number> {
+  if (startOrder == null) {
+    startOrder = await getStartExerciseOrder(workoutId);
+  }
+  const newDetails = getNewDetails(selectedExercises, {
+    workoutId,
+    startOrder,
+  });
+  const workoutDetails = await db.workoutDetails.bulkAdd(newDetails);
+
   return workoutDetails;
 }
 
@@ -93,14 +117,24 @@ export const updateLocalWorkoutDetail = async (
 };
 
 export const addSet = async (lastSet: LocalWorkoutDetail): Promise<number> => {
-  console.log("heloooo");
   const addSetInput = getAddSetInputByLastSet(lastSet);
   const newSet = await db.workoutDetails.add(addSetInput);
   return newSet;
 };
 
-export const deleteSet = async (lastSetId: number): Promise<void> => {
+export const deleteWorkoutDetail = async (lastSetId: number): Promise<void> => {
   db.workoutDetails.delete(lastSetId);
+};
+
+export const deleteWorkoutDetails = async (
+  details: LocalWorkoutDetail[]
+): Promise<void> => {
+  Promise.all(
+    details.map(async (detail) => {
+      if (!detail.id) throw new Error("id가 없습니다");
+      await db.workoutDetails.delete(detail.id);
+    })
+  );
 };
 
 export const syncToServerWorkoutDetails = async () => {

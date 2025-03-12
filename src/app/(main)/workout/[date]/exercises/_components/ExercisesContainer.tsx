@@ -13,15 +13,31 @@ import { getFilteredExercises } from "./_utils/getFilteredExercises";
 
 import { useDebounce } from "@/hooks/useDebounce";
 import { getFormattedDateYMD } from "@/util/formatDate";
-import { LocalExercise } from "@/types/models";
+import { LocalExercise, LocalWorkoutDetail } from "@/types/models";
 import ExerciseFilter from "@/app/(main)/workout/[date]/exercises/_components/ExerciseFilter";
 import SearchBar from "@/app/(main)/workout/[date]/exercises/_components/SearchBar";
 import ExerciseList from "@/app/(main)/workout/[date]/exercises/_components/ExerciseList";
-import { addLocalWorkoutDetails } from "@/services/workoutDetail.service";
+import {
+  addLocalWorkoutDetailsByUserDate,
+  addLocalWorkoutDetailsByWorkoutId,
+  deleteWorkoutDetails,
+} from "@/services/workoutDetail.service";
 import { getAllLocalExercises } from "@/services/exercise.service";
+import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 
-export default function ExercisesContainer() {
+type ExercisesContainerProps = {
+  allowMultipleSelection?: boolean;
+  currentDetails?: LocalWorkoutDetail[];
+  loadLocalWorkoutDetails?: () => Promise<void>;
+};
+
+export default function ExercisesContainer({
+  allowMultipleSelection,
+  currentDetails,
+  loadLocalWorkoutDetails,
+}: ExercisesContainerProps) {
   const { data: session } = useSession();
+  const { closeBottomSheet } = useBottomSheet();
   const router = useRouter();
   const { date } = useParams<{ date?: string }>();
   const userId = session?.user?.id;
@@ -47,7 +63,7 @@ export default function ExercisesContainer() {
   const handleAddWorkoutDetail = async () => {
     if (!userId || !date) return;
 
-    await addLocalWorkoutDetails(userId, date, selectedExercises);
+    await addLocalWorkoutDetailsByUserDate(userId, date, selectedExercises);
 
     router.push(`/workout/${date}`);
   };
@@ -59,6 +75,12 @@ export default function ExercisesContainer() {
 
   const handleAddSelectedExercise = (exercise: LocalExercise) => {
     if (!exercise.id || !exercise.name) return;
+
+    if (!allowMultipleSelection) {
+      setSelectedExercises([{ id: exercise.id, name: exercise.name }]);
+      return;
+    }
+
     setSelectedExercises((prev) => [
       ...prev,
       { id: exercise.id!, name: exercise.name },
@@ -66,6 +88,28 @@ export default function ExercisesContainer() {
   };
   const handleDeleteSelectedExercise = (id: number) => {
     setSelectedExercises((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  // 새로 선택한 운동들을 기존 운동의 exerciseOrder를 startOrder로 하여 생성
+  // 기존운동 삭제
+  const handleReplaceExercise = async () => {
+    console.log(loadLocalWorkoutDetails);
+    try {
+      if (!currentDetails || currentDetails.length === 0) return;
+      console.log("hello");
+      const { exerciseOrder: startOrder, workoutId } = currentDetails[0];
+      await addLocalWorkoutDetailsByWorkoutId(
+        workoutId,
+        startOrder,
+        selectedExercises
+      );
+
+      await deleteWorkoutDetails(currentDetails);
+      await loadLocalWorkoutDetails?.();
+      closeBottomSheet();
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   useEffect(() => {
@@ -89,6 +133,11 @@ export default function ExercisesContainer() {
     );
     setVisibleExercises(filtered);
   }, [exercises, debouncedKeyword, selectedExerciseType, selectedCategory]);
+
+  const buttonLabel = allowMultipleSelection
+    ? `${selectedExercises.length}개 선택 완료`
+    : "교체하기";
+
   return (
     <main>
       <div className="flex justify-end mt-4 mb-3">
@@ -114,10 +163,14 @@ export default function ExercisesContainer() {
 
       {selectedExercises.length > 0 && (
         <button
-          onClick={handleAddWorkoutDetail}
+          onClick={
+            allowMultipleSelection
+              ? handleAddWorkoutDetail
+              : handleReplaceExercise
+          }
           className="fixed left-1/2 -translate-x-1/2 bottom-8 w-[330px] h-[47px] bg-primary text-text-black font-bold rounded-2xl shadow-xl"
         >
-          {selectedExercises.length}개 선택 완료
+          {buttonLabel}
         </button>
       )}
     </main>

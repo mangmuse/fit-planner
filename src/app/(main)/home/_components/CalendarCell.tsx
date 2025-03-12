@@ -26,7 +26,8 @@ const CalendarCell = ({ day, month, year, daysStatus }: CalendarCellProps) => {
         dayStatus === "COMPLETED",
       "bg-gray-400 opacity-75 text-text-black":
         dayStatus === "PLANNED" || dayStatus === "IN_PROGRESS",
-      " opacity-100 font-semibold": isToday,
+      "opacity-100 font-semibold": isToday,
+      "text-primary": isToday,
     });
   };
 

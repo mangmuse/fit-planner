@@ -31,6 +31,7 @@ export function createDetail(
     isSynced: false,
     setOrder: 1,
     exerciseOrder: 1,
+    setType: "NORMAL",
     exerciseName: "",
     exerciseId: 0,
     workoutId: 0,

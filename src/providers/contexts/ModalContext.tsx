@@ -3,11 +3,11 @@ import { createContext, useContext, useState, ReactNode } from "react";
 import { ModalProps } from "@/types/modal.type";
 import Modal from "@/components/Modal/Modal";
 
-interface ModalContextValue {
+type ModalContextValue = {
   openModal: (options: ModalProps) => void;
   closeModal: () => void;
   isOpen: boolean;
-}
+};
 
 const ModalContext = createContext<ModalContextValue | null>(null);
 

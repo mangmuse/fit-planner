@@ -57,16 +57,27 @@ model Exercise {
 }
 
 model UserExercise {
-  id           String    @id @default(uuid())
+  id           String        @id @default(uuid())
   userId       String
   exerciseId   Int
-  isBookmarked Boolean   @default(false)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime? @updatedAt
-  exercise     Exercise  @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isBookmarked Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime?     @updatedAt
+  unit         Unit          @default(kg)
+  exerciseMemo ExerciseMemo? @relation("UserExerciseToExerciseMemo")
+  exercise     Exercise      @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, exerciseId])
+}
+
+model ExerciseMemo {
+  id             String       @id @default(uuid())
+  userExerciseId String       @unique
+  content        String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime?    @updatedAt
+  userExercise   UserExercise @relation("UserExerciseToExerciseMemo", fields: [userExerciseId], references: [id])
 }
 
 model Workout {
@@ -94,6 +105,7 @@ model WorkoutDetail {
   isDone        Boolean   @default(false)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime? @updatedAt
+  setType       SetType   @default(NORMAL)
   exercise      Exercise  @relation(fields: [exerciseId], references: [id])
   workout       Workout   @relation(fields: [workoutId], references: [id], onDelete: Cascade)
 
@@ -131,4 +143,17 @@ enum WorkoutStatus {
   IN_PROGRESS
   COMPLETED
   EMPTY
+}
+
+enum SetType {
+  NORMAL
+  WARMUP
+  DROP
+  FAILURE
+  AMRAP
+}
+
+enum Unit {
+  kg
+  lbs
 }

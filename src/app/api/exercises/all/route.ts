@@ -15,17 +15,40 @@ export async function GET(request: NextRequest) {
       include: {
         userExercises: {
           where: { userId: parsedUserId },
-          select: { isBookmarked: true },
+          select: {
+            isBookmarked: true,
+            unit: true,
+            exerciseMemo: {
+              select: {
+                content: true,
+                updatedAt: true,
+                createdAt: true,
+              },
+            },
+          },
         },
       },
     });
+    exercises.forEach((e) => console.log(e.userExercises[0]));
+
     const exercisesWithBookmark = exercises.map((exercise) => {
+      const userExercise = exercise.userExercises[0];
       const isBookmarked = parsedUserId
-        ? exercise.userExercises?.[0]?.isBookmarked ?? false
+        ? userExercise.isBookmarked ?? false
         : false;
+      const unit = userExercise.unit;
       const { userExercises, ...rest } = exercise;
-      return { ...rest, isBookmarked };
+      return {
+        ...rest,
+        isBookmarked,
+        unit,
+        exerciseMemo: userExercise.exerciseMemo,
+      };
     });
+    console.log(
+      exercisesWithBookmark,
+      "exercisesWithBookmarkexercisesWithBookmark"
+    );
     return NextResponse.json(
       { success: true, exercises: exercisesWithBookmark },
       { status: 200 }

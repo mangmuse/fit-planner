@@ -10,6 +10,7 @@ import Image from "next/image";
 import { getThisMonthWorkouts } from "@/services/workout.service";
 import { LocalWorkout } from "@/types/models";
 import CalendarCell from "@/app/(main)/home/_components/CalendarCell";
+import { useSession } from "next-auth/react";
 
 const WorkoutCalendar = () => {
   const [currentDate, setCurrentDate] = useState<string>(getFormattedDateYMD());
@@ -18,7 +19,8 @@ const WorkoutCalendar = () => {
   }>({});
   const year = dayjs(currentDate).year();
   const month = dayjs(currentDate).month();
-
+  const { data } = useSession();
+  console.log(data?.user?.id);
   const { start: startDate, end: endDate } = getMonthRange(year, month);
 
   const firstDayOfMonth = dayjs(currentDate).startOf("month");

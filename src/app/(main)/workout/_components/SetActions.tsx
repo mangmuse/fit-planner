@@ -1,6 +1,6 @@
 "use client";
 
-import { addSet, deleteSet } from "@/services/workoutDetail.service";
+import { addSet, deleteWorkoutDetail } from "@/services/workoutDetail.service";
 import { LocalWorkoutDetail } from "@/types/models";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
@@ -19,7 +19,7 @@ const SetActions = ({
     loadLocalWorkoutDetails();
   };
   const handleDeleteSet = async () => {
-    await deleteSet(lastValue.id ?? 0);
+    await deleteWorkoutDetail(lastValue.id ?? 0);
     loadLocalWorkoutDetails();
   };
   return (

@@ -29,9 +29,9 @@ import {
   getWorkoutWithServerId,
 } from "@/services/workout.service";
 import {
-  addLocalWorkoutDetails,
+  addLocalWorkoutDetailsByUserDate,
   addSet,
-  deleteSet,
+  deleteWorkoutDetail,
   getLocalWorkoutDetails,
   overwriteWithServerWorkoutDetails,
   syncToServerWorkoutDetails,
@@ -97,7 +97,7 @@ describe("workoutDetail.service", () => {
   describe("addLocalWorkoutDetails", () => {
     const selectedExercises = [{ id: 1, name: "벤치프레스" }];
     it("매핑된 newDetails과 함께 bulkAdd를 호출한다", async () => {
-      await addLocalWorkoutDetails(userId, date, selectedExercises);
+      await addLocalWorkoutDetailsByUserDate(userId, date, selectedExercises);
       expect(db.workoutDetails.bulkAdd).toHaveBeenCalledWith(localDetails);
     });
   });
@@ -183,7 +183,7 @@ describe("workoutDetail.service", () => {
 
   describe("deleteSet", () => {
     it("해당 detail을 삭제한다", async () => {
-      await deleteSet(123);
+      await deleteWorkoutDetail(123);
       expect(db.workoutDetails.delete).toHaveBeenCalledWith(123);
     });
   });

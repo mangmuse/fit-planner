@@ -18,7 +18,15 @@ export const clientExerciseSchema = z.object({
   imageUrl: z.string(),
   isBookmarked: z.boolean(),
   isCustom: z.boolean(),
+  exerciseMemo: z
+    .object({
+      content: z.string(),
+      createdAt: z.string(),
+      updatedAt: z.string().nullable(),
+    })
+    .nullable(),
   name: z.string(),
+  unit: z.enum(["kg", "lbs"]),
   userId: z.string().nullable(),
   updatedAt: z.string().optional().nullable(),
 });
@@ -32,6 +40,7 @@ export const clientWorkoutDetailSchema = z.object({
   setOrder: z.number(),
   workoutId: z.string(),
   weight: z.number().nullable(),
+  setType: z.enum(["NORMAL", "WARMUP", "DROP", "FAILURE", "AMRAP"]),
   rpe: z.number().nullable(),
   reps: z.number().nullable(),
   createdAt: z.string(),
@@ -57,6 +66,14 @@ export const localExerciseSchema = z.object({
   name: z.string(),
   category: z.string(),
   serverId: z.number().nullable(),
+  unit: z.enum(["kg", "lbs"]),
+  exerciseMemo: z
+    .object({
+      content: z.string(),
+      createdAt: z.string(),
+      updatedAt: z.string().nullable(),
+    })
+    .nullable(),
   id: z.number().optional(),
   updatedAt: z.string().nullable().optional(),
   isSynced: z.boolean(),
@@ -73,6 +90,7 @@ export const localWorkoutDetailSchema = z.object({
   isDone: z.boolean(),
   isSynced: z.boolean(),
   setOrder: z.number(),
+  setType: z.enum(["NORMAL", "WARMUP", "DROP", "FAILURE", "AMRAP"]),
   exerciseOrder: z.number(),
   exerciseName: z.string(),
   exerciseId: z.number(),
