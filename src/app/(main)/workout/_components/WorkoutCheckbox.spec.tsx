@@ -54,7 +54,6 @@ describe("WorkoutCheckbox", () => {
     });
 
     const checkbox = screen.getByRole("checkbox");
-    screen.debug();
     expect(checkbox).toBeChecked();
 
     await userEvent.click(checkbox);

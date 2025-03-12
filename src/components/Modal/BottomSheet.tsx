@@ -41,6 +41,7 @@ const BottomSheet = ({
       {isOpen && (
         <>
           <motion.div
+            role="presentation"
             className="absolute inset-0 bg-black/30 z-40"
             onClick={handleClose}
             initial={{ opacity: 0 }}
@@ -50,6 +51,7 @@ const BottomSheet = ({
           />
 
           <motion.div
+            role="dialog"
             key="bottomsheet"
             className="absolute overflow-auto px-3 py-5 bg-bg-surface-variant 
                        rounded-t-3xl bottom-0 left-0 w-full z-50"
@@ -60,7 +62,7 @@ const BottomSheet = ({
             transition={{ duration: 0.1 }}
           >
             <div className="flex justify-end px-2">
-              <button onClick={handleClose}>
+              <button onClick={handleClose} aria-label="바텀시트 닫기">
                 <Image src={closeBtn} alt="바텀시트 닫기" />
               </button>
             </div>
