@@ -2,7 +2,7 @@
 
 import ExerciseMemo from "@/app/(main)/workout/_components/ExerciseMemo";
 import SetOptionSheet from "@/app/(main)/workout/_components/SetOptionSheet";
-import SwapExerciseOrder from "@/app/(main)/workout/_components/WorkoutSequence";
+import WorkoutSequence from "@/app/(main)/workout/_components/WorkoutSequence";
 import WorkoutExerciseGroup from "@/app/(main)/workout/_components/WorkoutExerciseGroup";
 import WorkoutPlaceholder from "@/app/(main)/workout/_components/WorkoutPlaceholder";
 import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";

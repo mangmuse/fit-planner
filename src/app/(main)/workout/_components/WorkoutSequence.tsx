@@ -32,7 +32,7 @@ type WorkoutSequenceProps = {
   loadLocalWorkoutDetails: () => Promise<void>;
 };
 
-const SwapExerciseOrder = ({
+const WorkoutSequence = ({
   detailGroups: initialGroups,
   loadLocalWorkoutDetails,
 }: WorkoutSequenceProps) => {
@@ -115,4 +115,4 @@ const SwapExerciseOrder = ({
   );
 };
 
-export default SwapExerciseOrder;
+export default WorkoutSequence;
