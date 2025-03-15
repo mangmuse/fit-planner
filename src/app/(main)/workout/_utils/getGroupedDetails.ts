@@ -1,4 +1,6 @@
+import { DetailGroup } from "@/app/(main)/workout/_components/WorkoutSequence";
 import { LocalWorkoutDetail } from "@/types/models";
+import { arrayMove } from "@dnd-kit/sortable";
 
 export const getGroupedDetails = (
   details: LocalWorkoutDetail[]
@@ -22,4 +24,21 @@ export const getGroupedDetails = (
   }));
 
   return adjustedGroups;
+};
+
+export const reorderDetailGroups = (
+  groups: DetailGroup[],
+  sourceId: string,
+  destinationId: string
+): DetailGroup[] => {
+  const oldIndex = groups.findIndex(
+    (group) => group.exerciseOrder.toString() === sourceId
+  );
+  const newIndex = groups.findIndex(
+    (group) => group.exerciseOrder.toString() === destinationId
+  );
+  return arrayMove(groups, oldIndex, newIndex).map((group, index) => ({
+    ...group,
+    exerciseOrder: index + 1,
+  }));
 };

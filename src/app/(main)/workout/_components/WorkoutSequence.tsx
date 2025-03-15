@@ -20,8 +20,9 @@ import SortableItem from "@/app/(main)/workout/_components/SortableItem";
 import { LocalWorkoutDetail } from "@/types/models";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { updateLocalWorkoutDetail } from "@/services/workoutDetail.service";
+import { reorderDetailGroups } from "@/app/(main)/workout/_utils/getGroupedDetails";
 
-type DetailGroup = {
+export type DetailGroup = {
   exerciseOrder: number;
   details: LocalWorkoutDetail[];
 };
@@ -31,15 +32,14 @@ type WorkoutSequenceProps = {
   loadLocalWorkoutDetails: () => Promise<void>;
 };
 
-const WorkoutSequence = ({
+const SwapExerciseOrder = ({
   detailGroups: initialGroups,
   loadLocalWorkoutDetails,
 }: WorkoutSequenceProps) => {
   const { closeBottomSheet } = useBottomSheet();
   const [groups, setGroups] = useState<DetailGroup[]>(initialGroups);
   const [activeId, setActiveId] = useState<string | null>(null);
-  console.log(initialGroups, "이건 이니셜");
-  console.log(groups, "이건 실시간");
+
   const sensors = useSensors(useSensor(PointerSensor));
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -53,21 +53,13 @@ const WorkoutSequence = ({
       return;
     }
     if (active.id !== over.id) {
-      setGroups((prevGroups) => {
-        const oldIndex = prevGroups.findIndex(
-          (group) => group.exerciseOrder.toString() === active.id
-        );
-        const newIndex = prevGroups.findIndex(
-          (group) => group.exerciseOrder.toString() === over.id
-        );
-        const newGroups = arrayMove(prevGroups, oldIndex, newIndex).map(
-          (group, index) => ({
-            ...group,
-            exerciseOrder: index + 1,
-          })
-        );
-        return newGroups;
-      });
+      setGroups((prevGroups) =>
+        reorderDetailGroups(
+          prevGroups,
+          active.id.toString(),
+          over.id.toString()
+        )
+      );
     }
     setActiveId(null);
   };
@@ -123,4 +115,4 @@ const WorkoutSequence = ({
   );
 };
 
-export default WorkoutSequence;
+export default SwapExerciseOrder;
