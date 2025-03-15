@@ -18,7 +18,6 @@ import { LocalWorkoutDetail } from "@/types/models";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import WorkoutSequence from "@/app/(main)/workout/_components/WorkoutSequence";
 
 type WorkoutContainerProps = {
   date: string;
