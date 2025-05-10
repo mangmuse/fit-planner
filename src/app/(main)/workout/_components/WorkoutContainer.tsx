@@ -2,6 +2,7 @@
 
 import ExerciseMemo from "@/app/(main)/workout/_components/ExerciseMemo";
 import SetOptionSheet from "@/app/(main)/workout/_components/SetOptionSheet";
+import WorkoutSequence from "@/app/(main)/workout/_components/WorkoutSequence";
 import WorkoutExerciseGroup from "@/app/(main)/workout/_components/WorkoutExerciseGroup";
 import WorkoutPlaceholder from "@/app/(main)/workout/_components/WorkoutPlaceholder";
 import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
@@ -24,6 +25,7 @@ type WorkoutContainerProps = {
 
 const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
   const userId = useSession().data?.user?.id;
+  const { openBottomSheet } = useBottomSheet();
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [workoutGroups, setWorkoutGroups] = useState<
@@ -31,11 +33,13 @@ const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
   >([]);
   console.log(workoutGroups);
   const loadLocalWorkoutDetails = async () => {
-    console.log("?????");
+    console.log("실행됐지롱");
     if (!userId) return;
     const details = await getLocalWorkoutDetails(userId, date);
+    console.log("먼ㅇ라ㅣ머라ㅣㅁ언라ㅣㅁ");
 
     const adjustedGroups = getGroupedDetails(details);
+
     console.log(adjustedGroups);
     setWorkoutGroups(adjustedGroups);
 
@@ -59,7 +63,7 @@ const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
   }, [workoutGroups]);
 
   if (isLoading) return <div>Loading...</div>;
-
+  console.log(workoutGroups, "workoutGroupsworkoutGroups");
   return (
     <div>
       {workoutGroups.length !== 0 ? (
@@ -73,6 +77,21 @@ const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
             />
           ))}
           <Link href={`/workout/${date}/exercises`}>운동 추가</Link>
+          <button
+            onClick={() =>
+              openBottomSheet({
+                height: "100vh",
+                children: (
+                  <WorkoutSequence
+                    detailGroups={workoutGroups}
+                    loadLocalWorkoutDetails={loadLocalWorkoutDetails}
+                  />
+                ),
+              })
+            }
+          >
+            순서바꾸는 버튼
+          </button>
         </ul>
       ) : (
         <WorkoutPlaceholder date={date} />

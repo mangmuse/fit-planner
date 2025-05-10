@@ -7,7 +7,7 @@ import userEvent from "@testing-library/user-event";
 
 describe("SetType", () => {
   const setType = SET_TYPES[0];
-  const renderSetType = (props?: SetTypeProps) => {
+  const renderSetType = (props?: Partial<SetTypeProps>) => {
     const onChangeMock = jest.fn();
     customRender(
       <SetType
