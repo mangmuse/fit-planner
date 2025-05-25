@@ -82,7 +82,7 @@ const WorkoutDetailGroupOptions = ({
         <ExercisesContainer
           currentDetails={details}
           allowMultipleSelection={false}
-          loadLocalWorkoutDetails={loadLocalWorkoutDetails}
+          reloadDetails={loadLocalWorkoutDetails}
         />
       ),
     });

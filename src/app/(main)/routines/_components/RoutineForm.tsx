@@ -1,7 +1,7 @@
-import WorkoutExerciseGroup from "@/app/(main)/workout/_components/WorkoutExerciseGroup";
+import RoutineDetailContainer from "@/app/(main)/routines/_components/RoutineDetailContainer";
 
 const RoutineForm = () => {
-  return <WorkoutExerciseGroup />;
+  return <RoutineDetailContainer />;
 };
 
 export default RoutineForm;

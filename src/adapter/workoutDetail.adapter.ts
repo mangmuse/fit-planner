@@ -13,7 +13,7 @@ import {
   LocalWorkoutDetailWithServerWorkoutId,
 } from "@/types/models";
 
-export function createDetail(
+export function createWorkoutDetail(
   override: Partial<LocalWorkoutDetail>
 ): LocalWorkoutDetail {
   const { exerciseName, exerciseId, exerciseOrder, setOrder, workoutId } =
@@ -58,10 +58,10 @@ export const getAddSetInputByLastSet = (
     createdAt: new Date().toISOString(),
   };
 
-  return createDetail(addSetInput);
+  return createWorkoutDetail(addSetInput);
 };
 
-export const getNewDetails = (
+export const getNewWorkoutDetails = (
   selectedExercises: { id: number | undefined; name: string }[],
   { workoutId, startOrder }: NewWorkoutDetailInput
 ): LocalWorkoutDetail[] => {
@@ -78,7 +78,7 @@ export const getNewDetails = (
         setOrder: 1,
         exerciseName: name,
       };
-      return createDetail(newValue);
+      return createWorkoutDetail(newValue);
     }
   );
 

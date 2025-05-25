@@ -24,20 +24,31 @@ import {
 } from "@/services/workoutDetail.service";
 import { getAllLocalExercises } from "@/services/exercise.service";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
+import { useNavigationStore } from "@/__mocks__/src/store/useNavigationStore";
+import {
+  addLocalRoutineDetailsByWorkoutId,
+  getLocalRoutineDetails,
+} from "@/services/routineDetail.service";
 
 type ExercisesContainerProps = {
+  type: "ROUTINE" | "RECORD";
+  routineId?: number;
   allowMultipleSelection?: boolean;
   currentDetails?: LocalWorkoutDetail[];
-  loadLocalWorkoutDetails?: () => Promise<void>;
+  reloadDetails?: () => Promise<void>;
 };
 
 export default function ExercisesContainer({
+  type,
   allowMultipleSelection,
   currentDetails,
-  loadLocalWorkoutDetails,
+  reloadDetails,
 }: ExercisesContainerProps) {
   const { data: session } = useSession();
+  const { routineId, setRoutineId, prevRoute, reset } = useNavigationStore();
+  console.log(prevRoute, "route");
   const { closeBottomSheet } = useBottomSheet();
+
   const router = useRouter();
   const { date } = useParams<{ date?: string }>();
   const userId = session?.user?.id;
@@ -60,12 +71,27 @@ export default function ExercisesContainer({
     setExercises(all);
   }
 
-  const handleAddWorkoutDetail = async () => {
-    if (!userId || !date) return;
+  const handleAddDetail = async () => {
+    if (type === "RECORD" && userId && date) {
+      await addLocalWorkoutDetailsByUserDate(userId, date, selectedExercises);
+      router.push(`/workout/${date}`);
+    } else {
+      console.log("hello");
+      console.log(routineId);
+      if (!routineId || !prevRoute) return;
 
-    await addLocalWorkoutDetailsByUserDate(userId, date, selectedExercises);
+      console.log("routineId");
+      // routineId로 맞는 detail찾아서 몇개인지 확인해서 startOrder 가져오기
+      const details = await getLocalRoutineDetails(routineId);
+      const startOrder = details.length + 1;
 
-    router.push(`/workout/${date}`);
+      await addLocalRoutineDetailsByWorkoutId(
+        routineId,
+        startOrder,
+        selectedExercises
+      );
+      router.push(prevRoute);
+    }
   };
 
   const handleSearchKeyword = (kw: string) => setSearchKeyword(kw);
@@ -93,7 +119,7 @@ export default function ExercisesContainer({
   // 새로 선택한 운동들을 기존 운동의 exerciseOrder를 startOrder로 하여 생성
   // 기존운동 삭제
   const handleReplaceExercise = async () => {
-    console.log(loadLocalWorkoutDetails);
+    console.log(reloadDetails);
     try {
       if (!currentDetails || currentDetails.length === 0) return;
       console.log("hello");
@@ -105,7 +131,7 @@ export default function ExercisesContainer({
       );
 
       await deleteWorkoutDetails(currentDetails);
-      await loadLocalWorkoutDetails?.();
+      await reloadDetails?.();
       closeBottomSheet();
     } catch (e) {
       console.log(e);
@@ -122,6 +148,8 @@ export default function ExercisesContainer({
       }
       loadLocalExerciseData();
     })();
+
+    return () => reset();
   }, [userId]);
 
   useEffect(() => {
@@ -164,9 +192,7 @@ export default function ExercisesContainer({
       {selectedExercises.length > 0 && (
         <button
           onClick={
-            allowMultipleSelection
-              ? handleAddWorkoutDetail
-              : handleReplaceExercise
+            allowMultipleSelection ? handleAddDetail : handleReplaceExercise
           }
           className="fixed left-1/2 -translate-x-1/2 bottom-8 w-[330px] h-[47px] bg-primary text-text-black font-bold rounded-2xl shadow-xl"
         >

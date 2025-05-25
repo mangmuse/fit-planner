@@ -32,9 +32,9 @@ import { mockLocalWorkoutDetails } from "@/__mocks__/workoutDetail.mock";
 import {
   convertLocalWorkoutDetailToServer,
   convertServerWorkoutDetailToLocal,
-  createDetail,
+  createWorkoutDetail,
   getAddSetInputByLastSet,
-  getNewDetails,
+  getNewWorkoutDetails,
   getStartExerciseOrder,
 } from "@/adapter/workoutDetail.adapter";
 import { db } from "@/lib/db";
@@ -66,12 +66,12 @@ describe("createDetail", () => {
 
   describe("입력된 모든 필드가 반환 객체에 포함된다", () => {
     it("모든 필드를 입력한 경우", () => {
-      const newDetail = createDetail(lastSet);
+      const newDetail = createWorkoutDetail(lastSet);
       expect(newDetail).toEqual(lastSet);
     });
 
     it("필수 항목만 입력한 경우", () => {
-      const newDetail = createDetail({
+      const newDetail = createWorkoutDetail({
         exerciseName,
         exerciseId,
         exerciseOrder,
@@ -93,7 +93,7 @@ describe("createDetail", () => {
   it("exerciseName, exerciseId, exerciseOrder, setOrder, workoutId 를 입력하지 않으면 에러를 던진다", () => {
     // exerciseName X
     expect(() =>
-      createDetail({
+      createWorkoutDetail({
         exerciseName,
         exerciseId,
         exerciseOrder,
@@ -103,7 +103,7 @@ describe("createDetail", () => {
 
     // exerciseId X
     expect(() =>
-      createDetail({
+      createWorkoutDetail({
         exerciseName,
         exerciseId,
         setOrder,
@@ -113,7 +113,7 @@ describe("createDetail", () => {
 
     // exerciseOrder X
     expect(() =>
-      createDetail({
+      createWorkoutDetail({
         exerciseName,
         exerciseOrder,
         setOrder,
@@ -123,7 +123,7 @@ describe("createDetail", () => {
 
     // setOrder X
     expect(() =>
-      createDetail({
+      createWorkoutDetail({
         exerciseId,
         exerciseOrder,
         setOrder,
@@ -133,7 +133,7 @@ describe("createDetail", () => {
 
     // workoutId X
     expect(() =>
-      createDetail({
+      createWorkoutDetail({
         exerciseName,
         exerciseId,
         exerciseOrder,
@@ -143,7 +143,7 @@ describe("createDetail", () => {
   });
 
   describe("입력하지 않은 필드의 기본값", () => {
-    const detail = createDetail({
+    const detail = createWorkoutDetail({
       exerciseName,
       exerciseId,
       exerciseOrder,
@@ -236,7 +236,7 @@ describe("getNewDetails", () => {
 
   it("반환받는 배열 내부의 각 아이템의 exerciseOrder 는 startOrder + index 이다", () => {
     const startOrder = 1;
-    const newDetails = getNewDetails(selectedExercises, {
+    const newDetails = getNewWorkoutDetails(selectedExercises, {
       workoutId: 1,
       startOrder,
     });

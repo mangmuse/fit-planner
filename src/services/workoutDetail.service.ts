@@ -6,7 +6,7 @@ import { db } from "@/lib/db";
 import {
   convertLocalWorkoutDetailToServer,
   getAddSetInputByLastSet,
-  getNewDetails,
+  getNewWorkoutDetails,
   getStartExerciseOrder,
 } from "@/adapter/workoutDetail.adapter";
 import { getExerciseWithServerId } from "@/services/exercise.service";
@@ -63,7 +63,7 @@ export async function addLocalWorkoutDetailsByUserDate(
 
   const startOrder = await getStartExerciseOrder(workoutId);
 
-  const newDetails = getNewDetails(selectedExercises, {
+  const newDetails = getNewWorkoutDetails(selectedExercises, {
     workoutId,
     startOrder,
   });
@@ -80,7 +80,7 @@ export async function addLocalWorkoutDetailsByWorkoutId(
   if (startOrder == null) {
     startOrder = await getStartExerciseOrder(workoutId);
   }
-  const newDetails = getNewDetails(selectedExercises, {
+  const newDetails = getNewWorkoutDetails(selectedExercises, {
     workoutId,
     startOrder,
   });

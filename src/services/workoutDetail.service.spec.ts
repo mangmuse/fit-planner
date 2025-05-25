@@ -14,7 +14,7 @@ import {
 import {
   convertLocalWorkoutDetailToServer,
   getAddSetInputByLastSet,
-  getNewDetails,
+  getNewWorkoutDetails,
   getStartExerciseOrder,
 } from "@/adapter/workoutDetail.adapter";
 import {
@@ -59,7 +59,7 @@ describe("workoutDetail.service", () => {
     mockServerWorkoutDetails
   );
   (addLocalWorkout as jest.Mock).mockResolvedValue(localDetails[0]);
-  (getNewDetails as jest.Mock).mockReturnValue(localDetails);
+  (getNewWorkoutDetails as jest.Mock).mockReturnValue(localDetails);
   (getWorkoutByUserIdAndDate as jest.Mock).mockResolvedValue(localDetails[0]);
   (getStartExerciseOrder as jest.Mock).mockResolvedValue(1);
   (getExerciseWithServerId as jest.Mock).mockResolvedValue(exercise);

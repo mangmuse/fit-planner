@@ -1,5 +1,6 @@
 import {
   LocalExercise,
+  LocalRoutineDetail,
   LocalWorkout,
   LocalWorkoutDetail,
 } from "@/types/models";
@@ -9,6 +10,7 @@ export class MyLocalDB extends Dexie {
   exercises!: Table<LocalExercise, number>;
   workouts!: Table<LocalWorkout, number>;
   workoutDetails!: Table<LocalWorkoutDetail, number>;
+  routineDetails!: Table<LocalRoutineDetail, number>;
   // ↑ Table<엔티티타입, PK의 타입>
 
   constructor() {
@@ -21,6 +23,8 @@ export class MyLocalDB extends Dexie {
 
       workouts: "++id,[userId+date],serverId,exerciseId,date,userId",
       workoutDetails: "++id,serverId,exerciseId,workoutId",
+
+      routineDetails: "++id,serverId,routineId,exerciseId",
     });
   }
 }
