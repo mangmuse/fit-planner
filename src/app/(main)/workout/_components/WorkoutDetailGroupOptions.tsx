@@ -38,6 +38,7 @@ type WorkoutDetailGroupOptions = {
 
   loadExercises: () => Promise<void>;
   reload: () => Promise<void>;
+  reorderAfterDelete: (deletedExerciseOrder: number) => Promise<void>;
 };
 
 const units = ["kg", "lbs"] as const;
@@ -47,6 +48,7 @@ const WorkoutDetailGroupOptions = ({
   details,
   loadExercises,
   reload,
+  reorderAfterDelete,
 }: WorkoutDetailGroupOptions) => {
   // 단위변환: 서버DB UserExercise 및 로컬DB exercises 테이블에 unit 컬럼 추가,
   //  로컬 detail에 unit을 추가하지않고 exercise db에 접근해서 해당 exercise의 unit을 가져오는방식,
@@ -75,6 +77,7 @@ const WorkoutDetailGroupOptions = ({
     } else {
       await deleteRoutineDetails(details);
     }
+    await reorderAfterDelete(details[0].exerciseOrder);
     await reload();
   };
   const handleOpenDeleteConfirmModal = () => {

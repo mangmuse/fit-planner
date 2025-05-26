@@ -19,6 +19,7 @@ import { useNavigationStore } from "@/__mocks__/src/store/useNavigationStore";
 import { TEMP_ROUTINE_ID } from "@/app/(main)/routines/constants";
 import { usePathname } from "next/navigation";
 import { getFormattedDateWithoutDay } from "@/util/formatDate";
+import useLoadDetails from "@/hooks/useLoadDetails";
 
 type WorkoutContainerProps = {
   type: "ROUTINE" | "RECORD";
@@ -28,20 +29,27 @@ type WorkoutContainerProps = {
 
 const WorkoutContainer = ({ type, date, routineId }: WorkoutContainerProps) => {
   const pathname = usePathname();
-
   const setRoutineId = useNavigationStore((state) => state.setRoutineId);
   const setRoute = useNavigationStore((state) => state.setPrevRoute);
 
   const userId = useSession().data?.user?.id;
+  const { isLoading, workoutGroups, reload, reorderAfterDelete } =
+    useLoadDetails({
+      type,
+      userId: userId ?? "",
+      date,
+      routineId,
+    });
   const { openBottomSheet } = useBottomSheet();
+  console.log("workoutGroups =>", workoutGroups, "reload => ", reload);
 
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [workoutGroups, setWorkoutGroups] = useState<
-    {
-      exerciseOrder: number;
-      details: LocalWorkoutDetail[] | LocalRoutineDetail[];
-    }[]
-  >([]);
+  // const [isLoading, setIsLoading] = useState<boolean>(true);
+  // const [workoutGroups, setWorkoutGroups] = useState<
+  //   {
+  //     exerciseOrder: number;
+  //     details: LocalWorkoutDetail[] | LocalRoutineDetail[];
+  //   }[]
+  // >([]);
   const recordRoutineId = () => {
     if (type !== "ROUTINE") return;
     if (routineId !== undefined && routineId !== null) {
@@ -51,69 +59,71 @@ const WorkoutContainer = ({ type, date, routineId }: WorkoutContainerProps) => {
     }
   };
 
-  const loadLocalWorkoutDetails = async () => {
-    if (!date) throw new Error("날짜없어요");
-    console.log("실행됐지롱");
-    if (!userId) return;
-    const details = await getLocalWorkoutDetails(userId, date);
-    console.log("먼ㅇ라ㅣ머라ㅣㅁ언라ㅣㅁ");
+  // const loadLocalWorkoutDetails = async () => {
+  //   if (!date) throw new Error("날짜없어요");
+  //   console.log("실행됐지롱");
+  //   if (!userId) return;
+  //   const details = await getLocalWorkoutDetails(userId, date);
+  //   console.log("먼ㅇ라ㅣ머라ㅣㅁ언라ㅣㅁ");
 
-    const adjustedGroups = getGroupedDetails(details);
+  //   const adjustedGroups = getGroupedDetails(details);
 
-    console.log(adjustedGroups);
-    setWorkoutGroups(adjustedGroups);
+  //   console.log(adjustedGroups);
+  //   setWorkoutGroups(adjustedGroups);
 
-    setIsLoading(false);
-  };
+  //   setIsLoading(false);
+  // };
 
-  const loadLocalRoutineDetails = async () => {
-    if (!userId || !routineId) return;
-    const details = await getLocalRoutineDetails(routineId);
-    console.log(details);
-    console.log("먼ㅇ라ㅣ머라ㅣㅁ언라ㅣㅁ");
+  // const loadLocalRoutineDetails = async () => {
+  //   if (!userId || !routineId) return;
+  //   const details = await getLocalRoutineDetails(routineId);
+  //   console.log(details);
+  //   console.log("먼ㅇ라ㅣ머라ㅣㅁ언라ㅣㅁ");
 
-    const adjustedGroups = getGroupedDetails(details);
+  //   const adjustedGroups = getGroupedDetails(details);
 
-    console.log(adjustedGroups);
-    setWorkoutGroups(adjustedGroups);
+  //   console.log(adjustedGroups);
+  //   setWorkoutGroups(adjustedGroups);
 
-    setIsLoading(false);
-  };
+  //   setIsLoading(false);
+  // };
 
-  const syncWorkoutStatus = async () => {
-    if (!date) throw new Error("날짜없어요");
-    if (!userId) return;
-    const workout = await getWorkoutByUserIdAndDate(userId, date);
+  // const syncWorkoutStatus = async () => {
+  //   if (!date) throw new Error("날짜없어요");
+  //   if (!userId) return;
+  //   const workout = await getWorkoutByUserIdAndDate(userId, date);
 
-    if (!workout?.id || workout.status === "COMPLETED") return;
-    const newStatus = workoutGroups.length === 0 ? "EMPTY" : "PLANNED";
-    await updateLocalWorkout({ ...workout, status: newStatus });
-  };
+  //   if (!workout?.id || workout.status === "COMPLETED") return;
+  //   const newStatus = workoutGroups.length === 0 ? "EMPTY" : "PLANNED";
+  //   await updateLocalWorkout({ ...workout, status: newStatus });
+  // };
 
   const exercisePath =
-    type === "RECORD" ? `/workout/${date}/exercises` : "/routines/exercises";
+    type === "RECORD"
+      ? `/workout/${date}/exercises`
+      : `/routines/${routineId}/exercises`;
   useEffect(() => setRoute(pathname), [pathname]);
 
-  useEffect(() => {
-    if (type === "RECORD" && userId && date) {
-      console.log("이게 실행됐다고?");
-      loadLocalWorkoutDetails();
-    }
-  }, [userId, date, type]);
+  // useEffect(() => {
+  //   if (type === "RECORD" && userId && date) {
+  //     console.log("이게 실행됐다고?");
+  //     loadLocalWorkoutDetails();
+  //   }
+  // }, [userId, date, type]);
 
-  useEffect(() => {
-    console.log(routineId);
-    if (type === "ROUTINE" && routineId) {
-      console.log("이거");
-      loadLocalRoutineDetails();
-    }
-  }, [userId, type]);
+  // useEffect(() => {
+  //   console.log(routineId);
+  //   if (type === "ROUTINE" && routineId) {
+  //     console.log("이거");
+  //     loadLocalRoutineDetails();
+  //   }
+  // }, [userId, type]);
 
-  useEffect(() => {
-    if (date) {
-      syncWorkoutStatus();
-    }
-  }, [workoutGroups]);
+  // useEffect(() => {
+  //   if (date) {
+  //     syncWorkoutStatus();
+  //   }
+  // }, [workoutGroups]);
 
   const placeholderProps =
     type === "ROUTINE"
@@ -133,12 +143,9 @@ const WorkoutContainer = ({ type, date, routineId }: WorkoutContainerProps) => {
             <WorkoutExerciseGroup
               key={exerciseOrder}
               details={details}
+              reorderAfterDelete={reorderAfterDelete}
               exerciseOrder={exerciseOrder}
-              reload={
-                type === "RECORD"
-                  ? loadLocalWorkoutDetails
-                  : loadLocalRoutineDetails
-              }
+              reload={reload}
             />
           ))}
           <Link onClick={recordRoutineId} href={exercisePath}>
@@ -151,11 +158,7 @@ const WorkoutContainer = ({ type, date, routineId }: WorkoutContainerProps) => {
                 children: (
                   <WorkoutSequence
                     detailGroups={workoutGroups}
-                    reload={
-                      type === "RECORD"
-                        ? loadLocalWorkoutDetails
-                        : loadLocalRoutineDetails
-                    }
+                    reload={reload}
                   />
                 ),
               })

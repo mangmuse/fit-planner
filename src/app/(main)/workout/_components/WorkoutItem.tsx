@@ -20,10 +20,16 @@ import { c } from "node_modules/framer-motion/dist/types.d-6pKw1mTI";
 type WorkoutItemProps = {
   exercise: LocalExercise;
   workoutDetail: LocalWorkoutDetail | LocalRoutineDetail;
+  reorderAfterDelete: (deletedExerciseOrder: number) => Promise<void>;
+
   reload: () => Promise<void>;
 };
 
-const WorkoutItem = ({ workoutDetail, reload, reorder }: WorkoutItemProps) => {
+const WorkoutItem = ({
+  workoutDetail,
+  reload,
+  reorderAfterDelete,
+}: WorkoutItemProps) => {
   const { setOrder, weight, reps, id, setType } = workoutDetail;
   console.log(setOrder);
   const isDone = isWorkoutDetail(workoutDetail) ? workoutDetail.isDone : false;
@@ -59,6 +65,7 @@ const WorkoutItem = ({ workoutDetail, reload, reorder }: WorkoutItemProps) => {
     if (!isWorkoutDetail(workoutDetail) && workoutDetail.id) {
       console.log("zzz");
       await deleteRoutineDetail(workoutDetail.id);
+      await reorderAfterDelete(workoutDetail.exerciseOrder);
 
       await reload();
     }

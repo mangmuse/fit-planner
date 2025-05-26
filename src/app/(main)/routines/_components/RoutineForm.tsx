@@ -17,6 +17,7 @@ const RoutineForm = () => {
 
   const loadName = async () => {
     const routine = await getRoutineByLocalId(Number(routineId));
+    console.log("routineroutineroutineroutine", routine);
     setName(routine.name);
   };
 

@@ -35,6 +35,7 @@ import {
   getLocalRoutineDetails,
 } from "@/services/routineDetail.service";
 import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
+import useLoadDetails from "@/hooks/useLoadDetails";
 
 type ExercisesContainerProps = {
   type: "ROUTINE" | "RECORD";
@@ -52,13 +53,19 @@ export default function ExercisesContainer({
 }: ExercisesContainerProps) {
   console.log("type =>", type);
   const { data: session } = useSession();
-  const { routineId, setRoutineId, prevRoute, reset } = useNavigationStore();
-  console.log(prevRoute, "route");
+  // const { routineId, setRoutineId, prevRoute, reset } = useNavigationStore();
+  const { routineId } = useParams();
   const { closeBottomSheet } = useBottomSheet();
 
   const router = useRouter();
   const { date } = useParams<{ date?: string }>();
   const userId = session?.user?.id;
+  const { reload } = useLoadDetails({
+    type,
+    userId: userId ?? "",
+    date,
+    routineId: routineId ? Number(routineId) : undefined,
+  });
 
   const [exercises, setExercises] = useState<LocalExercise[]>([]);
   const [visibleExercises, setVisibleExercises] = useState<LocalExercise[]>([]);
@@ -79,24 +86,23 @@ export default function ExercisesContainer({
   }
 
   const handleAddDetail = async () => {
-    console.log("good");
-    console.log("type:", type);
+    console.log("이거맞지요?>");
     if (type === "RECORD" && userId && date) {
       await addLocalWorkoutDetailsByUserDate(userId, date, selectedExercises);
       router.push(`/workout/${date}`);
     } else {
-      if (!routineId || !prevRoute) return;
+      if (!routineId) return;
 
       // routineId로 맞는 detail찾아서 몇개인지 확인해서 startOrder 가져오기
-      const details = await getLocalRoutineDetails(routineId);
+      const details = await getLocalRoutineDetails(Number(routineId));
       const startOrder = details.length + 1;
 
       await addLocalRoutineDetailsByWorkoutId(
-        routineId,
+        Number(routineId),
         startOrder,
         selectedExercises
       );
-      router.push(prevRoute);
+      router.push(`/routines/${routineId}`);
     }
   };
 
@@ -166,7 +172,7 @@ export default function ExercisesContainer({
       loadLocalExerciseData();
     })();
 
-    return () => reset();
+    // return () => reset();
   }, [userId]);
 
   useEffect(() => {

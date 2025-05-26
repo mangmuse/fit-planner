@@ -6,7 +6,10 @@ import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetai
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { getExerciseWithLocalId } from "@/services/exercise.service";
 import { updateLocalRoutineDetail } from "@/services/routineDetail.service";
-import { updateLocalWorkoutDetail } from "@/services/workoutDetail.service";
+import {
+  getLocalWorkoutDetails,
+  updateLocalWorkoutDetail,
+} from "@/services/workoutDetail.service";
 import {
   ClientWorkoutDetail,
   LocalExercise,
@@ -21,12 +24,14 @@ type WorkoutExerciseGroupProps = {
   exerciseOrder: number;
   details: LocalWorkoutDetail[] | LocalRoutineDetail[];
   reload: () => Promise<void>;
+  reorderAfterDelete: (deletedExerciseOrder: number) => Promise<void>;
 };
 
 const WorkoutExerciseGroup = ({
   details,
   exerciseOrder,
   reload,
+  reorderAfterDelete,
 }: WorkoutExerciseGroupProps) => {
   console.log(details);
   const [exercise, setExercise] = useState<LocalExercise | null>(null);
@@ -56,6 +61,7 @@ const WorkoutExerciseGroup = ({
                 children: (
                   <WorkoutDetailGroupOptions
                     reload={reload}
+                    reorderAfterDelete={reorderAfterDelete}
                     loadExercises={fetchAndSetExerciseData}
                     details={details}
                     exercise={exercise}
@@ -74,6 +80,7 @@ const WorkoutExerciseGroup = ({
             {details.map((detail) => (
               <WorkoutItem
                 key={detail.id}
+                reorderAfterDelete={reorderAfterDelete}
                 exercise={exercise}
                 reload={reload}
                 workoutDetail={detail}
@@ -81,7 +88,11 @@ const WorkoutExerciseGroup = ({
             ))}
           </tbody>
         </table>
-        <SetActions reload={reload} lastValue={lastValue} />
+        <SetActions
+          reorderAfterDelete={reorderAfterDelete}
+          reload={reload}
+          lastValue={lastValue}
+        />
       </div>
     )
   );
