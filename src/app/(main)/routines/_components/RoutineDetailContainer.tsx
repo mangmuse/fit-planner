@@ -34,3 +34,5 @@ const RoutineDetailContainer = ({
 };
 
 export default RoutineDetailContainer;
+
+// 슬슬 UI 겹치기 시작하니까 WorkoutContainer와 합치기

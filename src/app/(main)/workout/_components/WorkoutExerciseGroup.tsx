@@ -7,6 +7,7 @@ import { getExerciseWithLocalId } from "@/services/exercise.service";
 import {
   ClientWorkoutDetail,
   LocalExercise,
+  LocalRoutineDetail,
   LocalWorkoutDetail,
 } from "@/types/models";
 import Image from "next/image";
@@ -15,14 +16,14 @@ import { useEffect, useState } from "react";
 
 type WorkoutExerciseGroupProps = {
   exerciseOrder: number;
-  details: LocalWorkoutDetail[];
-  loadLocalWorkoutDetails: () => Promise<void>;
+  details: LocalWorkoutDetail[] | LocalRoutineDetail[];
+  reload: () => Promise<void>;
 };
 
 const WorkoutExerciseGroup = ({
   details,
   exerciseOrder,
-  loadLocalWorkoutDetails,
+  reload,
 }: WorkoutExerciseGroupProps) => {
   const [exercise, setExercise] = useState<LocalExercise | null>(null);
   const { openBottomSheet } = useBottomSheet();
@@ -49,7 +50,7 @@ const WorkoutExerciseGroup = ({
                 minHeight: 300,
                 children: (
                   <WorkoutDetailGroupOptions
-                    loadLocalWorkoutDetails={loadLocalWorkoutDetails}
+                    reload={reload}
                     loadExercises={fetchAndSetExerciseData}
                     details={details}
                     exercise={exercise}
@@ -69,16 +70,13 @@ const WorkoutExerciseGroup = ({
               <WorkoutItem
                 key={detail.id}
                 exercise={exercise}
-                loadLocalWorkoutDetails={loadLocalWorkoutDetails}
+                reload={reload}
                 workoutDetail={detail}
               />
             ))}
           </tbody>
         </table>
-        <SetActions
-          loadLocalWorkoutDetails={loadLocalWorkoutDetails}
-          lastValue={lastValue}
-        />
+        <SetActions reload={reload} lastValue={lastValue} />
       </div>
     )
   );

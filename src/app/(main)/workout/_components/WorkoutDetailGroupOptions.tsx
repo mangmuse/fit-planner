@@ -12,7 +12,11 @@ import {
   getExerciseWithLocalId,
   updateExercise,
 } from "@/services/exercise.service";
-import { LocalExercise, LocalWorkoutDetail } from "@/types/models";
+import {
+  LocalExercise,
+  LocalRoutineDetail,
+  LocalWorkoutDetail,
+} from "@/types/models";
 import { useModal } from "@/providers/contexts/ModalContext";
 import ExerciseMemo from "@/app/(main)/workout/_components/ExerciseMemo";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
@@ -22,13 +26,18 @@ import {
   deleteWorkoutDetails,
 } from "@/services/workoutDetail.service";
 import ExercisesContainer from "@/app/(main)/workout/[date]/exercises/_components/ExercisesContainer";
+import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
+import {
+  deleteRoutineDetail,
+  deleteRoutineDetails,
+} from "@/services/routineDetail.service";
 
 type WorkoutDetailGroupOptions = {
   exercise: LocalExercise;
-  details: LocalWorkoutDetail[];
+  details: LocalWorkoutDetail[] | LocalRoutineDetail[];
 
   loadExercises: () => Promise<void>;
-  loadLocalWorkoutDetails: () => Promise<void>;
+  reload: () => Promise<void>;
 };
 
 const units = ["kg", "lbs"] as const;
@@ -37,7 +46,7 @@ const WorkoutDetailGroupOptions = ({
   exercise,
   details,
   loadExercises,
-  loadLocalWorkoutDetails,
+  reload,
 }: WorkoutDetailGroupOptions) => {
   // 단위변환: 서버DB UserExercise 및 로컬DB exercises 테이블에 unit 컬럼 추가,
   //  로컬 detail에 unit을 추가하지않고 exercise db에 접근해서 해당 exercise의 unit을 가져오는방식,
@@ -61,8 +70,12 @@ const WorkoutDetailGroupOptions = ({
     });
   };
   const deleteAndLoadDetails = async () => {
-    await deleteWorkoutDetails(details);
-    await loadLocalWorkoutDetails();
+    if (isWorkoutDetails(details)) {
+      await deleteWorkoutDetails(details);
+    } else {
+      await deleteRoutineDetails(details);
+    }
+    await reload();
   };
   const handleOpenDeleteConfirmModal = () => {
     console.log("hello");
@@ -80,9 +93,10 @@ const WorkoutDetailGroupOptions = ({
       height: 800,
       children: (
         <ExercisesContainer
+          type={isWorkoutDetails(details) ? "RECORD" : "ROUTINE"}
           currentDetails={details}
           allowMultipleSelection={false}
-          reloadDetails={loadLocalWorkoutDetails}
+          reloadDetails={reload}
         />
       ),
     });

@@ -44,7 +44,7 @@ export function createWorkoutDetail(
   };
 }
 
-export const getAddSetInputByLastSet = (
+export const getAddSetToWorkoutByLastSet = (
   lastSet: LocalWorkoutDetail
 ): LocalWorkoutDetail => {
   const { id, rpe, setOrder, isSynced, isDone, updatedAt, ...rest } = lastSet;

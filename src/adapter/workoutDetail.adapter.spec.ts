@@ -33,7 +33,7 @@ import {
   convertLocalWorkoutDetailToServer,
   convertServerWorkoutDetailToLocal,
   createWorkoutDetail,
-  getAddSetInputByLastSet,
+  getAddSetToWorkoutByLastSet,
   getNewWorkoutDetails,
   getStartExerciseOrder,
 } from "@/adapter/workoutDetail.adapter";
@@ -173,25 +173,25 @@ describe("createDetail", () => {
 
 describe("getAddSetInputByLastSet", () => {
   it("반환값의 isSynced는 false이다", () => {
-    const result = getAddSetInputByLastSet(lastSet);
+    const result = getAddSetToWorkoutByLastSet(lastSet);
 
     expect(lastSet.isSynced).toBe(true);
     expect(result.isSynced).toBe(false);
   });
   it("반환값의 isDone은 false이다", () => {
-    const result = getAddSetInputByLastSet(lastSet);
+    const result = getAddSetToWorkoutByLastSet(lastSet);
 
     expect(lastSet.isDone).toBe(true);
     expect(result.isDone).toBe(false);
   });
   it("반환값의 setOrder는 입력값의 setOrder + 1 이다", () => {
-    const result = getAddSetInputByLastSet(lastSet);
+    const result = getAddSetToWorkoutByLastSet(lastSet);
 
     expect(lastSet.setOrder).toBe(1);
     expect(result.setOrder).toBe(2);
   });
   it("반환값의 id는 undefined, serverId는 null이다", () => {
-    const result = getAddSetInputByLastSet(lastSet);
+    const result = getAddSetToWorkoutByLastSet(lastSet);
 
     // id
     expect(lastSet.id).toBe(1);
@@ -202,13 +202,13 @@ describe("getAddSetInputByLastSet", () => {
     expect(result.serverId).toBe(null);
   });
   it("반환값의 rpe는 0이다", () => {
-    const result = getAddSetInputByLastSet(lastSet);
+    const result = getAddSetToWorkoutByLastSet(lastSet);
 
     expect(lastSet.rpe).toBe(7);
     expect(result.rpe).toBe(0);
   });
   it("반환값의 weight, reps, exerciseOrder, exerciseName, exerciseId 프로퍼티는 입력값과 동일하다", () => {
-    const result = getAddSetInputByLastSet(lastSet);
+    const result = getAddSetToWorkoutByLastSet(lastSet);
 
     //weight
     expect(result.weight).toBe(lastSet.weight);

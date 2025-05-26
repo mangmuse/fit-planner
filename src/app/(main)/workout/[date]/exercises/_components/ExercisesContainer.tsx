@@ -13,7 +13,11 @@ import { getFilteredExercises } from "./_utils/getFilteredExercises";
 
 import { useDebounce } from "@/hooks/useDebounce";
 import { getFormattedDateYMD } from "@/util/formatDate";
-import { LocalExercise, LocalWorkoutDetail } from "@/types/models";
+import {
+  LocalExercise,
+  LocalRoutineDetail,
+  LocalWorkoutDetail,
+} from "@/types/models";
 import ExerciseFilter from "@/app/(main)/workout/[date]/exercises/_components/ExerciseFilter";
 import SearchBar from "@/app/(main)/workout/[date]/exercises/_components/SearchBar";
 import ExerciseList from "@/app/(main)/workout/[date]/exercises/_components/ExerciseList";
@@ -27,14 +31,16 @@ import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { useNavigationStore } from "@/__mocks__/src/store/useNavigationStore";
 import {
   addLocalRoutineDetailsByWorkoutId,
+  deleteRoutineDetails,
   getLocalRoutineDetails,
 } from "@/services/routineDetail.service";
+import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 
 type ExercisesContainerProps = {
   type: "ROUTINE" | "RECORD";
   routineId?: number;
   allowMultipleSelection?: boolean;
-  currentDetails?: LocalWorkoutDetail[];
+  currentDetails?: LocalWorkoutDetail[] | LocalRoutineDetail[];
   reloadDetails?: () => Promise<void>;
 };
 
@@ -44,6 +50,7 @@ export default function ExercisesContainer({
   currentDetails,
   reloadDetails,
 }: ExercisesContainerProps) {
+  console.log("type =>", type);
   const { data: session } = useSession();
   const { routineId, setRoutineId, prevRoute, reset } = useNavigationStore();
   console.log(prevRoute, "route");
@@ -72,15 +79,14 @@ export default function ExercisesContainer({
   }
 
   const handleAddDetail = async () => {
+    console.log("good");
+    console.log("type:", type);
     if (type === "RECORD" && userId && date) {
       await addLocalWorkoutDetailsByUserDate(userId, date, selectedExercises);
       router.push(`/workout/${date}`);
     } else {
-      console.log("hello");
-      console.log(routineId);
       if (!routineId || !prevRoute) return;
 
-      console.log("routineId");
       // routineId로 맞는 detail찾아서 몇개인지 확인해서 startOrder 가져오기
       const details = await getLocalRoutineDetails(routineId);
       const startOrder = details.length + 1;
@@ -123,14 +129,25 @@ export default function ExercisesContainer({
     try {
       if (!currentDetails || currentDetails.length === 0) return;
       console.log("hello");
-      const { exerciseOrder: startOrder, workoutId } = currentDetails[0];
-      await addLocalWorkoutDetailsByWorkoutId(
-        workoutId,
-        startOrder,
-        selectedExercises
-      );
+      if (isWorkoutDetails(currentDetails)) {
+        const { exerciseOrder: startOrder, workoutId } = currentDetails[0];
+        await addLocalWorkoutDetailsByWorkoutId(
+          workoutId,
+          startOrder,
+          selectedExercises
+        );
 
-      await deleteWorkoutDetails(currentDetails);
+        await deleteWorkoutDetails(currentDetails);
+      } else {
+        const { exerciseOrder: startOrder, routineId } = currentDetails[0];
+        await addLocalRoutineDetailsByWorkoutId(
+          routineId,
+          startOrder,
+          selectedExercises
+        );
+
+        await deleteRoutineDetails(currentDetails);
+      }
       await reloadDetails?.();
       closeBottomSheet();
     } catch (e) {

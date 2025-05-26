@@ -17,24 +17,24 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import SortableItem from "@/app/(main)/workout/_components/SortableItem";
-import { LocalWorkoutDetail } from "@/types/models";
+import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { updateLocalWorkoutDetail } from "@/services/workoutDetail.service";
 import { reorderDetailGroups } from "@/app/(main)/workout/_utils/getGroupedDetails";
 
 export type DetailGroup = {
   exerciseOrder: number;
-  details: LocalWorkoutDetail[];
+  details: LocalWorkoutDetail[] | LocalRoutineDetail[];
 };
 
 type WorkoutSequenceProps = {
   detailGroups: DetailGroup[];
-  loadLocalWorkoutDetails: () => Promise<void>;
+  reload: () => Promise<void>;
 };
 
 const WorkoutSequence = ({
   detailGroups: initialGroups,
-  loadLocalWorkoutDetails,
+  reload,
 }: WorkoutSequenceProps) => {
   const { closeBottomSheet } = useBottomSheet();
   const [groups, setGroups] = useState<DetailGroup[]>(initialGroups);
@@ -73,7 +73,7 @@ const WorkoutSequence = ({
       }
     }
 
-    await loadLocalWorkoutDetails?.();
+    await reload?.();
     closeBottomSheet();
   };
 

@@ -5,7 +5,7 @@ import {
 import { db } from "@/lib/db";
 import {
   convertLocalWorkoutDetailToServer,
-  getAddSetInputByLastSet,
+  getAddSetToWorkoutByLastSet,
   getNewWorkoutDetails,
   getStartExerciseOrder,
 } from "@/adapter/workoutDetail.adapter";
@@ -116,8 +116,10 @@ export const updateLocalWorkoutDetail = async (
   await db.workoutDetails.update(updateWorkoutInput.id, updateWorkoutInput);
 };
 
-export const addSet = async (lastSet: LocalWorkoutDetail): Promise<number> => {
-  const addSetInput = getAddSetInputByLastSet(lastSet);
+export const addSetToWorkout = async (
+  lastSet: LocalWorkoutDetail
+): Promise<number> => {
+  const addSetInput = getAddSetToWorkoutByLastSet(lastSet);
   const newSet = await db.workoutDetails.add(addSetInput);
   return newSet;
 };

@@ -55,3 +55,19 @@ export const getNewRoutineDetails = (
 
   return newDetails;
 };
+
+export const getAddSetToRoutineByLastSet = (
+  lastSet: LocalRoutineDetail
+): LocalRoutineDetail => {
+  const { id, rpe, setOrder, isSynced, updatedAt, ...rest } = lastSet;
+  const addSetInput = {
+    ...rest,
+    rpe: 0,
+    serverId: null,
+    isSynced: false,
+    setOrder: setOrder + 1,
+    createdAt: new Date().toISOString(),
+  };
+
+  return createRoutineDetail(addSetInput);
+};

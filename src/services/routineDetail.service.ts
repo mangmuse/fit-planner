@@ -1,4 +1,7 @@
-import { getNewRoutineDetails } from "@/adapter/routineDetail.adapter";
+import {
+  getAddSetToRoutineByLastSet,
+  getNewRoutineDetails,
+} from "@/adapter/routineDetail.adapter";
 import { db } from "@/lib/db";
 import { LocalRoutineDetail } from "@/types/models";
 
@@ -37,3 +40,33 @@ export const getLocalRoutineDetails = async (
   return details;
 };
 // routineDetails db만들고 세팅
+
+export const addSetToRoutine = async (
+  lastSet: LocalRoutineDetail
+): Promise<number> => {
+  const addSetInput = getAddSetToRoutineByLastSet(lastSet);
+  const newSet = await db.routineDetails.add(addSetInput);
+  return newSet;
+};
+
+export const deleteRoutineDetail = async (lastSetId: number): Promise<void> => {
+  db.routineDetails.delete(lastSetId);
+};
+
+export const deleteRoutineDetails = async (
+  details: LocalRoutineDetail[]
+): Promise<void> => {
+  Promise.all(
+    details.map(async (detail) => {
+      if (!detail.id) throw new Error("id가 없습니다");
+      await db.routineDetails.delete(detail.id);
+    })
+  );
+};
+
+export const updateLocalRoutineDetail = async (
+  updateWorkoutInput: Partial<LocalRoutineDetail>
+): Promise<void> => {
+  if (!updateWorkoutInput.id) throw new Error("id가 없습니다");
+  await db.routineDetails.update(updateWorkoutInput.id, updateWorkoutInput);
+};

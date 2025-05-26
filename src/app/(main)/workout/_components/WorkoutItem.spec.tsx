@@ -21,10 +21,7 @@ describe("WorkoutItem", () => {
     customRender(
       <table>
         <tbody>
-          <WorkoutItem
-            loadLocalWorkoutDetails={loadDetailsMock}
-            workoutDetail={detailMock}
-          />
+          <WorkoutItem reload={loadDetailsMock} workoutDetail={detailMock} />
         </tbody>
       </table>
     );

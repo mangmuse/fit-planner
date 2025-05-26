@@ -1,6 +1,9 @@
 import { mockLocalWorkoutDetails } from "@/__mocks__/workoutDetail.mock";
 import SetActions from "@/app/(main)/workout/_components/SetActions";
-import { addSet, deleteWorkoutDetail } from "@/services/workoutDetail.service";
+import {
+  addSetToWorkout,
+  deleteWorkoutDetail,
+} from "@/services/workoutDetail.service";
 import { customRender, screen } from "@/test-utils/test-utils";
 import userEvent from "@testing-library/user-event";
 jest.mock("@/services/workoutDetail.service");
@@ -29,7 +32,7 @@ describe("SetActions", () => {
     expect(addSetBtn).toBeInTheDocument();
     await userEvent.click(addSetBtn);
 
-    expect(addSet).toHaveBeenCalledWith(mockDetail);
+    expect(addSetToWorkout).toHaveBeenCalledWith(mockDetail);
 
     expect(loadDetailsMock).toHaveBeenCalledTimes(1);
   });

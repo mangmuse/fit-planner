@@ -1,11 +1,11 @@
 import SetOptionSheet from "@/app/(main)/workout/_components/SetOptionSheet";
 import { RPE_OPTIONS, SET_TYPES } from "@/app/(main)/workout/constants";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
-import { LocalWorkoutDetail } from "@/types/models";
+import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 import clsx from "clsx";
 
 type SetOrderCellProps = {
-  workoutDetail: LocalWorkoutDetail;
+  workoutDetail: LocalWorkoutDetail | LocalRoutineDetail;
   loadLocalWorkoutDetails: () => Promise<void>;
 };
 
