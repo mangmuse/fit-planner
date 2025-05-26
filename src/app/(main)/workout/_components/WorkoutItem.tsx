@@ -1,15 +1,21 @@
 "use client";
+import deletIcon from "public/delete.svg";
 import SetOrderCell from "@/app/(main)/workout/_components/SetOrderCell";
 import WorkoutCheckbox from "@/app/(main)/workout/_components/WorkoutCheckbox";
 import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
-import { updateLocalRoutineDetail } from "@/services/routineDetail.service";
+import {
+  deleteRoutineDetail,
+  updateLocalRoutineDetail,
+} from "@/services/routineDetail.service";
 import { updateLocalWorkoutDetail } from "@/services/workoutDetail.service";
 import {
   LocalExercise,
   LocalRoutineDetail,
   LocalWorkoutDetail,
 } from "@/types/models";
+import Image from "next/image";
 import { ChangeEventHandler, useRef, useState } from "react";
+import { c } from "node_modules/framer-motion/dist/types.d-6pKw1mTI";
 
 type WorkoutItemProps = {
   exercise: LocalExercise;
@@ -17,8 +23,9 @@ type WorkoutItemProps = {
   reload: () => Promise<void>;
 };
 
-const WorkoutItem = ({ workoutDetail, reload }: WorkoutItemProps) => {
+const WorkoutItem = ({ workoutDetail, reload, reorder }: WorkoutItemProps) => {
   const { setOrder, weight, reps, id, setType } = workoutDetail;
+  console.log(setOrder);
   const isDone = isWorkoutDetail(workoutDetail) ? workoutDetail.isDone : false;
   const [editedWeight, setEditedWeight] = useState<number | null>(
     weight || null
@@ -42,7 +49,19 @@ const WorkoutItem = ({ workoutDetail, reload }: WorkoutItemProps) => {
     } else {
       await updateLocalRoutineDetail(updateWorkoutInput);
     }
-    reload();
+    await reload();
+  };
+
+  const handleDelete = async () => {
+    console.log("hello");
+    console.log(!isWorkoutDetail(workoutDetail));
+    console.log(workoutDetail.id);
+    if (!isWorkoutDetail(workoutDetail) && workoutDetail.id) {
+      console.log("zzz");
+      await deleteRoutineDetail(workoutDetail.id);
+
+      await reload();
+    }
   };
 
   return (
@@ -79,7 +98,9 @@ const WorkoutItem = ({ workoutDetail, reload }: WorkoutItemProps) => {
           {isWorkoutDetail(workoutDetail) ? (
             <WorkoutCheckbox reload={reload} id={id!} prevIsDone={isDone} />
           ) : (
-            <div>hello</div>
+            <button onClick={handleDelete}>
+              <Image src={deletIcon} alt="delete" />
+            </button>
           )}
         </div>
       </td>

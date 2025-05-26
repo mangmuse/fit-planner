@@ -11,6 +11,7 @@ type WorkoutPlaceholderProps =
   | { type: "RECORD"; date: string };
 
 function WorkoutPlaceholder({ type, date }: WorkoutPlaceholderProps) {
+  console.log(type, "type");
   const pathname = usePathname();
   const setRoutineId = useNavigationStore((state) => state.setRoutineId);
   const setRoute = useNavigationStore((state) => state.setPrevRoute);

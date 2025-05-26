@@ -49,8 +49,8 @@ export const addSetToRoutine = async (
   return newSet;
 };
 
-export const deleteRoutineDetail = async (lastSetId: number): Promise<void> => {
-  db.routineDetails.delete(lastSetId);
+export const deleteRoutineDetail = async (detailId: number): Promise<void> => {
+  db.routineDetails.delete(detailId);
 };
 
 export const deleteRoutineDetails = async (

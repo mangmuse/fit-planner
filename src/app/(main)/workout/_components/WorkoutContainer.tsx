@@ -28,7 +28,6 @@ type WorkoutContainerProps = {
 
 const WorkoutContainer = ({ type, date, routineId }: WorkoutContainerProps) => {
   const pathname = usePathname();
-  console.log(type);
 
   const setRoutineId = useNavigationStore((state) => state.setRoutineId);
   const setRoute = useNavigationStore((state) => state.setPrevRoute);
@@ -117,6 +116,11 @@ const WorkoutContainer = ({ type, date, routineId }: WorkoutContainerProps) => {
     }
   }, [workoutGroups]);
 
+  const placeholderProps =
+    type === "ROUTINE"
+      ? { type: "ROUTINE" as const }
+      : { type: "RECORD" as const, date: date! };
+
   if (isLoading) return <div>Loading...</div>;
   console.log(workoutGroups, "workoutGroupsworkoutGroups");
   return (
@@ -155,7 +159,7 @@ const WorkoutContainer = ({ type, date, routineId }: WorkoutContainerProps) => {
           </button>
         </ul>
       ) : (
-        <WorkoutPlaceholder type="RECORD" date={date!} />
+        <WorkoutPlaceholder {...placeholderProps} />
       )}
     </div>
   );

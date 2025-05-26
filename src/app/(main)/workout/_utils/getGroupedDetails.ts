@@ -2,25 +2,34 @@ import { DetailGroup } from "@/app/(main)/workout/_components/WorkoutSequence";
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 import { arrayMove } from "@dnd-kit/sortable";
 
-export const getGroupedDetails = (
-  details: LocalWorkoutDetail[] | LocalRoutineDetail[]
+export const getGroupedDetails = <
+  T extends LocalWorkoutDetail | LocalRoutineDetail,
+>(
+  details: T[]
 ): {
   exerciseOrder: number;
-  details: LocalWorkoutDetail[] | LocalRoutineDetail[];
+  details: T[];
 }[] => {
-  console.log(details);
   const groupedDetails = details.reduce((acc, detail) => {
     if (!acc.has(detail.exerciseOrder)) {
       acc.set(detail.exerciseOrder, []);
     }
     acc.get(detail.exerciseOrder)!.push(detail);
     return acc;
-  }, new Map<number, (LocalWorkoutDetail | LocalRoutineDetail)[]>());
-  const groups = Array.from(groupedDetails, ([exerciseOrder, details]) => ({
-    exerciseOrder,
-    details: details.sort((a, b) => a.setOrder - b.setOrder),
-  })).sort((a, b) => a.exerciseOrder - b.exerciseOrder);
-  console.log(groups);
+  }, new Map<number, T[]>());
+
+  const groups = Array.from(groupedDetails, ([exerciseOrder, details]) => {
+    const sortedDetails = details.sort((a, b) => a.setOrder - b.setOrder);
+    sortedDetails.forEach((detail, index) => {
+      detail.setOrder = index + 1;
+    });
+
+    return {
+      exerciseOrder,
+      details: sortedDetails,
+    };
+  }).sort((a, b) => a.exerciseOrder - b.exerciseOrder);
+
   const adjustedGroups = groups.map((group, index) => ({
     exerciseOrder: index + 1,
     details: group.details,

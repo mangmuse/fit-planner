@@ -2,8 +2,11 @@ import SetActions from "@/app/(main)/workout/_components/SetActions";
 import WorkoutDetailGroupOptions from "@/app/(main)/workout/_components/WorkoutDetailGroupOptions";
 import WorkoutItem from "@/app/(main)/workout/_components/WorkoutItem";
 import WorkoutTableHeader from "@/app/(main)/workout/_components/WorkoutTableHeader";
+import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { getExerciseWithLocalId } from "@/services/exercise.service";
+import { updateLocalRoutineDetail } from "@/services/routineDetail.service";
+import { updateLocalWorkoutDetail } from "@/services/workoutDetail.service";
 import {
   ClientWorkoutDetail,
   LocalExercise,
@@ -25,6 +28,7 @@ const WorkoutExerciseGroup = ({
   exerciseOrder,
   reload,
 }: WorkoutExerciseGroupProps) => {
+  console.log(details);
   const [exercise, setExercise] = useState<LocalExercise | null>(null);
   const { openBottomSheet } = useBottomSheet();
   const lastValue = details[details.length - 1];
@@ -32,6 +36,7 @@ const WorkoutExerciseGroup = ({
     const exerciseData = await getExerciseWithLocalId(details[0].exerciseId);
     setExercise(exerciseData);
   };
+
   useEffect(() => {
     fetchAndSetExerciseData();
   }, [details]);
