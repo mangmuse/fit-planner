@@ -99,6 +99,8 @@ export const updateLocalWorkout = async (workout: Partial<LocalWorkout>) => {
     if (!workout.id) throw "workout id는 꼭 전달해주세요";
     await db.workouts.update(workout.id, {
       ...workout,
+      updatedAt: new Date().toISOString(),
+      isSynced: false,
     });
   } catch (e) {
     throw new Error("Workout 업데이트에 실패했습니다");

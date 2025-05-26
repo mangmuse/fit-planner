@@ -1,4 +1,3 @@
-import { routine } from "public/bottom-navbar/routine.svg";
 import { expectType } from "tsd";
 import { User, Exercise, WorkoutDetail, Workout } from "@prisma/client";
 import { boolean, nullable, z } from "zod";
@@ -9,6 +8,15 @@ export const clientWorkoutSchema = z.object({
   userId: z.string(),
   date: z.string(),
   status: z.enum(["EMPTY", "PLANNED", "IN_PROGRESS", "COMPLETED"]),
+  createdAt: z.string(),
+  updatedAt: z.string().nullable().optional(),
+});
+
+export const clientRoutineSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  description: z.string().nullable(),
+  name: z.string(),
   createdAt: z.string(),
   updatedAt: z.string().nullable().optional(),
 });
@@ -72,6 +80,17 @@ export const localWorkoutSchema = z.object({
   date: z.string(),
   isSynced: z.boolean(),
   status: z.enum(["EMPTY", "PLANNED", "IN_PROGRESS", "COMPLETED"]),
+});
+
+export const localRoutineSchema = z.object({
+  id: z.number().optional(),
+  serverId: z.string().nullable(),
+  isSynced: z.boolean(),
+  userId: z.string(),
+  description: z.string().nullable(),
+  name: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string().nullable().optional(),
 });
 
 export const localExerciseSchema = z.object({
@@ -140,11 +159,13 @@ export type ModelWithStringDates<T> = Omit<T, "createdAt" | "updatedAt"> & {
 export type ClientUser = ModelWithStringDates<User>;
 export type ClientExercise = z.infer<typeof clientExerciseSchema>;
 export type ClientWorkout = z.infer<typeof clientWorkoutSchema>;
+export type ClientRoutine = z.infer<typeof clientRoutineSchema>;
 export type ClientWorkoutDetail = z.infer<typeof clientWorkoutDetailSchema>;
 export type ClientRoutineDetail = z.infer<typeof clientRoutineDetailSchema>;
 
 export type LocalExercise = z.infer<typeof localExerciseSchema>;
 export type LocalWorkout = z.infer<typeof localWorkoutSchema>;
+export type LocalRoutine = z.infer<typeof localRoutineSchema>;
 export type LocalWorkoutDetail = z.infer<typeof localWorkoutDetailSchema>;
 export type LocalWorkoutDetailWithServerWorkoutId = Omit<
   LocalWorkoutDetail,

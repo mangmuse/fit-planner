@@ -1,0 +1,47 @@
+import { db } from "@/lib/db";
+import { LocalRoutine } from "@/types/models";
+
+type AddLocalRoutineInput = {
+  userId: string;
+  name: string;
+  description?: string;
+};
+
+export const addLocalRoutine = async (
+  addLocalRoutineInput: AddLocalRoutineInput
+): Promise<number> => {
+  const localId = await db.routines.add({
+    ...addLocalRoutineInput,
+    createdAt: new Date().toISOString(),
+    isSynced: false,
+    serverId: null,
+    description: addLocalRoutineInput.description || "",
+  });
+  return localId;
+};
+
+export const getRoutineByLocalId = async (localId: number) => {
+  const routine = await db.routines.where("id").equals(localId).first();
+  if (!routine) throw new Error("일치하는 routine이 없습니다");
+  return routine;
+};
+
+export const getAllLocalRoutines = async (userId: string) => {
+  const routines = await db.routines.where("userId").equals(userId).toArray();
+
+  return routines;
+};
+
+export const updateLocalRoutine = async (
+  routine: Partial<LocalRoutine>
+): Promise<void> => {
+  console.log(routine, "updateLocalRoutine");
+  if (!routine.id) throw new Error("routine id는 꼭 전달해주세요");
+  await db.routines.update(routine.id, {
+    ...routine,
+    updatedAt: new Date().toISOString(),
+    isSynced: false,
+  });
+};
+
+// userId, description, name

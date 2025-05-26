@@ -19,6 +19,7 @@ import { c } from "node_modules/framer-motion/dist/types.d-6pKw1mTI";
 import { useNavigationStore } from "@/__mocks__/src/store/useNavigationStore";
 import { TEMP_ROUTINE_ID } from "@/app/(main)/routines/constants";
 import { usePathname } from "next/navigation";
+import { getFormattedDateWithoutDay } from "@/util/formatDate";
 
 type WorkoutContainerProps = {
   type: "ROUTINE" | "RECORD";
@@ -42,7 +43,6 @@ const WorkoutContainer = ({ type, date, routineId }: WorkoutContainerProps) => {
       details: LocalWorkoutDetail[] | LocalRoutineDetail[];
     }[]
   >([]);
-
   const recordRoutineId = () => {
     if (type !== "ROUTINE") return;
     if (routineId !== undefined && routineId !== null) {
@@ -125,6 +125,9 @@ const WorkoutContainer = ({ type, date, routineId }: WorkoutContainerProps) => {
   console.log(workoutGroups, "workoutGroupsworkoutGroups");
   return (
     <div>
+      {/* {type === "ROUTINE" && (
+        <h1 className="text-2xl font-semibold">{"hello"}</h1>
+      )} */}
       {workoutGroups.length !== 0 ? (
         <ul className="flex flex-col gap-2.5">
           {workoutGroups.map(({ exerciseOrder, details }) => (
