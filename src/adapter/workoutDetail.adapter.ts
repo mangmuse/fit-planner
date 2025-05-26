@@ -90,10 +90,13 @@ export const convertLocalWorkoutDetailToServer = async (
 ): Promise<LocalWorkoutDetailWithServerWorkoutId[]> => {
   return await Promise.all(
     workoutDetails.map(async (detail) => {
+      console.log(detail, "detail");
       const exercise = await getExerciseWithLocalId(detail.exerciseId);
       const workout = await getWorkoutWithLocalId(detail.workoutId);
-
+      console.log(exercise, "exercise");
+      console.log(workout, "workout");
       if (!exercise.serverId || !workout?.serverId) {
+        console.log("heldsiofhdsoihfdsofhidosfhiosd");
         throw new Error("exerciseId 또는 workoutId가 없습니다");
       }
       return {

@@ -44,4 +44,23 @@ export const updateLocalRoutine = async (
   });
 };
 
+export const syncToServerRoutines = async (): Promise<void> => {
+  console.log("syncToServerRoutines called");
+
+  const all = await db.routines.toArray();
+  console.log("all routines to sync:", all);
+
+  const unsynced = all.filter((routine) => !routine.isSynced);
+  const data = await postRoutinesToServer(unsynced);
+
+  if (data.updated) {
+    for (const updated of data.updated) {
+      await db.workouts.update(updated.localId, {
+        serverId: updated.serverId,
+        isSynced: true,
+      });
+    }
+  }
+};
+
 // userId, description, name

@@ -22,30 +22,31 @@ export const POST = async (req: NextRequest) => {
     await pMap(
       unsynced,
       async (workout) => {
-        const id = workout.serverId;
-        if (id && workout.id) {
-          updatedList.push({ localId: workout.id, serverId: id });
-        } else {
-          const workoutRecord = await prisma.workout.upsert({
-            where: {
-              userId_date: {
-                userId: workout.userId,
-                date: new Date(workout.date),
-              },
-            },
-            update: {},
-            create: {
+        console.log(workout, "workoutworkout");
+
+        const workoutRecord = await prisma.workout.upsert({
+          where: {
+            userId_date: {
               userId: workout.userId,
-              createdAt: workout.createdAt,
               date: new Date(workout.date),
             },
+          },
+          update: {
+            status: workout.status,
+            updatedAt: workout.updatedAt,
+          },
+          create: {
+            userId: workout.userId,
+            createdAt: workout.createdAt,
+            status: workout.status,
+            date: new Date(workout.date),
+          },
+        });
+        if (workout.id) {
+          updatedList.push({
+            localId: workout.id,
+            serverId: workoutRecord.id,
           });
-          if (workout.id) {
-            updatedList.push({
-              localId: workout.id,
-              serverId: workoutRecord.id,
-            });
-          }
         }
       },
       { concurrency: 5 }

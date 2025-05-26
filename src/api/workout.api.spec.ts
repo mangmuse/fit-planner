@@ -8,7 +8,7 @@ import {
   mockServerWorkouts,
 } from "@/__mocks__/workout.mock";
 import {
-  fetchWorkoutFromServer,
+  fetchWorkoutsFromServer,
   postWorkoutsToServer,
 } from "@/api/workout.api";
 import { BASE_URL } from "@/constants";
@@ -33,7 +33,7 @@ describe("fetchWorkoutFromServer", () => {
         });
       })
     );
-    await fetchWorkoutFromServer(mockUserId);
+    await fetchWorkoutsFromServer(mockUserId);
     expect(capturedUrl).toBe(`${targetUrl}/${mockUserId}`);
   });
 
@@ -45,7 +45,7 @@ describe("fetchWorkoutFromServer", () => {
         });
       })
     );
-    const result = await fetchWorkoutFromServer(mockUserId);
+    const result = await fetchWorkoutsFromServer(mockUserId);
     expect(result).toEqual(mockServerWorkouts);
   });
 
@@ -58,7 +58,7 @@ describe("fetchWorkoutFromServer", () => {
       })
     );
 
-    await expect(fetchWorkoutFromServer(mockUserId)).rejects.toThrow(
+    await expect(fetchWorkoutsFromServer(mockUserId)).rejects.toThrow(
       VALIDATION_FAILED
     );
   });
@@ -75,7 +75,7 @@ describe("fetchWorkoutFromServer", () => {
       })
     );
 
-    await expect(fetchWorkoutFromServer(mockUserId)).rejects.toThrow(
+    await expect(fetchWorkoutsFromServer(mockUserId)).rejects.toThrow(
       FETCH_WORKOUTS_ERROR
     );
   });

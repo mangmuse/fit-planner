@@ -19,6 +19,8 @@ export const overWriteAllWithWerverData = async (userId: string) => {
 
 export const syncToServer = async (userId: string) => {
   await syncToServerExercises(userId);
+
   await syncToServerWorkouts();
+  console.log("hello");
   await syncToServerWorkoutDetails();
 };

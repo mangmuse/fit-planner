@@ -34,15 +34,15 @@ export type SyncWorkoutsToServerResponse = z.infer<
   typeof syncWorkoutsToServerResponseSchema
 >;
 
-export type FetchWorkoutResponse = z.infer<typeof fetchWorkoutSchema>;
+export type FetchWorkoutsResponse = z.infer<typeof fetchWorkoutSchema>;
 
-export const fetchWorkoutFromServer = async (
+export const fetchWorkoutsFromServer = async (
   userId: string
 ): Promise<ClientWorkout[]> => {
   const res = await fetch(`${BASE_URL}/api/workout/${userId}`);
   if (!res.ok) throw new Error(FETCH_WORKOUTS_ERROR);
   const data = await res.json();
-  const parsedData = validateData<FetchWorkoutResponse>(
+  const parsedData = validateData<FetchWorkoutsResponse>(
     fetchWorkoutSchema,
     data
   );

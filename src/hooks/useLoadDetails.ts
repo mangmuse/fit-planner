@@ -13,7 +13,6 @@ import {
   updateLocalWorkoutDetail,
 } from "@/services/workoutDetail.service";
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
-import { c } from "node_modules/framer-motion/dist/types.d-6pKw1mTI";
 import { use, useEffect, useState } from "react";
 
 type UseLoadDetailsProps = {
