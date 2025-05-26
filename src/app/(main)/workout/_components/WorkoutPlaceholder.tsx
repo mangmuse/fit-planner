@@ -26,7 +26,9 @@ function WorkoutPlaceholder({ type, date }: WorkoutPlaceholderProps) {
   };
 
   const addExercisePath =
-    type === "RECORD" ? `/workout/${date}/exercises` : "/routines/exercises";
+    type === "RECORD"
+      ? `/workout/${date}/exercises`
+      : `/routines/${routineId}/exercises`;
   useEffect(() => setRoute(pathname), [pathname]);
   return (
     <div className="flex flex-col mt-6 gap-3 ">

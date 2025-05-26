@@ -15,7 +15,6 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getLocalRoutineDetails } from "@/services/routineDetail.service";
-import { c } from "node_modules/framer-motion/dist/types.d-6pKw1mTI";
 import { useNavigationStore } from "@/__mocks__/src/store/useNavigationStore";
 import { TEMP_ROUTINE_ID } from "@/app/(main)/routines/constants";
 import { usePathname } from "next/navigation";
