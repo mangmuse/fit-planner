@@ -152,7 +152,11 @@ const WorkoutContainer = ({ type, date, routineId }: WorkoutContainerProps) => {
                 children: (
                   <WorkoutSequence
                     detailGroups={workoutGroups}
-                    reload={loadLocalWorkoutDetails}
+                    reload={
+                      type === "RECORD"
+                        ? loadLocalWorkoutDetails
+                        : loadLocalRoutineDetails
+                    }
                   />
                 ),
               })
