@@ -1,6 +1,13 @@
 import { BASE_URL } from "@/constants";
-import { POST_ROUTINES_ERROR } from "@/constants/errorMessage";
-import { clientRoutineSchema, LocalRoutine } from "@/types/models";
+import {
+  FETCH_ROUTINES_ERROR,
+  POST_ROUTINES_ERROR,
+} from "@/constants/errorMessage";
+import {
+  ClientRoutine,
+  clientRoutineSchema,
+  LocalRoutine,
+} from "@/types/models";
 import { validateData } from "@/util/validateData";
 import { z } from "zod";
 
@@ -25,6 +32,21 @@ export type SyncRoutinesToServerResponse = z.infer<
 
 export type FetchRoutinesResponse = z.infer<typeof fetchRoutineSchema>;
 
+export const fetchRoutinesFromServer = async (
+  userId: string
+): Promise<ClientRoutine[]> => {
+  const res = await fetch(`${BASE_URL}/api/routine/${userId}`);
+  if (!res.ok) throw new Error(FETCH_ROUTINES_ERROR);
+  const data = await res.json();
+  const parsedData = validateData<FetchRoutinesResponse>(
+    fetchRoutineSchema,
+    data
+  );
+  const serverRoutines = parsedData.routines;
+  console.log(serverRoutines, "서버에서 받아온 루틴들");
+  return serverRoutines;
+};
+
 export async function postRoutinesToServer(
   unsynced: LocalRoutine[]
 ): Promise<SyncRoutinesToServerResponse> {
@@ -33,6 +55,7 @@ export async function postRoutinesToServer(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ unsynced }),
   });
+  console.log(res, "res from postRoutinesToServer");
 
   if (!res.ok) throw new Error(POST_ROUTINES_ERROR);
 

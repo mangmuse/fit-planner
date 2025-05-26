@@ -22,8 +22,6 @@ export const POST = async (req: NextRequest) => {
     await pMap(
       unsynced,
       async (workout) => {
-        console.log(workout, "workoutworkout");
-
         const workoutRecord = await prisma.workout.upsert({
           where: {
             userId_date: {

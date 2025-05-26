@@ -1,5 +1,9 @@
+import {
+  fetchRoutinesFromServer,
+  postRoutinesToServer,
+} from "@/api/routine.api";
 import { db } from "@/lib/db";
-import { LocalRoutine } from "@/types/models";
+import { ClientRoutine, LocalRoutine } from "@/types/models";
 
 type AddLocalRoutineInput = {
   userId: string;
@@ -55,12 +59,32 @@ export const syncToServerRoutines = async (): Promise<void> => {
 
   if (data.updated) {
     for (const updated of data.updated) {
-      await db.workouts.update(updated.localId, {
+      await db.routines.update(updated.localId, {
         serverId: updated.serverId,
         isSynced: true,
       });
     }
   }
+};
+
+export const overwriteWithServerRoutines = async (
+  userId: string
+): Promise<void> => {
+  const serverData: ClientRoutine[] = await fetchRoutinesFromServer(userId);
+  if (!serverData) throw new Error("데이터 받아오기를 실패했습니다");
+  if (serverData.length === 0) return;
+  const toInsert = serverData.map((routine) => ({
+    id: undefined,
+    userId: routine.userId,
+    serverId: routine.id,
+    name: routine.name,
+    description: routine.description || "",
+    isSynced: true,
+    createdAt: routine.createdAt,
+    updatedAt: routine.updatedAt,
+  }));
+  await db.routines.clear();
+  await db.routines.bulkAdd(toInsert);
 };
 
 // userId, description, name

@@ -1,5 +1,10 @@
 "use client";
 
+import { fetchRoutinesFromServer } from "@/api/routine.api";
+import {
+  overwriteWithServerRoutines,
+  syncToServerRoutines,
+} from "@/services/routine.service";
 import {
   overWriteAllWithWerverData,
   syncToServer,
@@ -35,6 +40,13 @@ const AuthTest = () => {
         }}
       >
         From Server
+      </button>
+      <button
+        onClick={() => {
+          overwriteWithServerRoutines(userId ?? "");
+        }}
+      >
+        루틴만체크
       </button>
     </div>
   );
