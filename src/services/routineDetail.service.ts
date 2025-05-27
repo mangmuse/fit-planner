@@ -1,8 +1,12 @@
 import {
+  convertLocalRoutineDetailsToServer,
   getAddSetToRoutineByLastSet,
   getNewRoutineDetails,
 } from "@/adapter/routineDetail.adapter";
+import { postRoutineDetailsToServer } from "@/api/routineDetail.api";
 import { db } from "@/lib/db";
+import { getExerciseWithServerId } from "@/services/exercise.service";
+import { getRoutineByServerId } from "@/services/routine.service";
 import { LocalRoutineDetail } from "@/types/models";
 
 export type NewRoutineDetailInput = {
@@ -69,4 +73,31 @@ export const updateLocalRoutineDetail = async (
 ): Promise<void> => {
   if (!updateWorkoutInput.id) throw new Error("id가 없습니다");
   await db.routineDetails.update(updateWorkoutInput.id, updateWorkoutInput);
+};
+
+export const syncToServerRoutineDetails = async (): Promise<void> => {
+  // syncToServerRoutine 가 완료된 후에 호출되어야 함
+  console.log("hellooo?");
+  console.log("syncToServerRoutineDetails called");
+
+  const all = await db.routineDetails.toArray();
+  console.log("all routineDetails to sync:", all);
+
+  const unsynced = all.filter((detail) => !detail.isSynced);
+  const mappedUnsynced = await convertLocalRoutineDetailsToServer(unsynced);
+
+  const data = await postRoutineDetailsToServer(mappedUnsynced);
+
+  if (data.updated) {
+    for (const updated of data.updated) {
+      const exercise = await getExerciseWithServerId(updated.exerciseId);
+      const routine = await getRoutineByServerId(updated.routineId);
+      await db.routineDetails.update(updated.localId, {
+        serverId: updated.serverId,
+        isSynced: true,
+        exerciseId: exercise?.id,
+        routineId: routine?.id,
+      });
+    }
+  }
 };

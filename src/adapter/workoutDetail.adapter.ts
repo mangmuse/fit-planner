@@ -96,7 +96,6 @@ export const convertLocalWorkoutDetailToServer = async (
       console.log(exercise, "exercise");
       console.log(workout, "workout");
       if (!exercise.serverId || !workout?.serverId) {
-        console.log("heldsiofhdsoihfdsofhidosfhiosd");
         throw new Error("exerciseId 또는 workoutId가 없습니다");
       }
       return {

@@ -6,6 +6,7 @@ import {
   overwriteWithServerRoutines,
   syncToServerRoutines,
 } from "@/services/routine.service";
+import { syncToServerRoutineDetails } from "@/services/routineDetail.service";
 import {
   overwriteWithServerWorkouts,
   syncToServerWorkouts,
@@ -27,6 +28,7 @@ export const syncToServer = async (userId: string) => {
 
   await syncToServerWorkouts();
   await syncToServerRoutines();
-  console.log("hello");
+
   await syncToServerWorkoutDetails();
+  await syncToServerRoutineDetails();
 };

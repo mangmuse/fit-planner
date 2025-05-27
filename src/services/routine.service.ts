@@ -24,7 +24,16 @@ export const addLocalRoutine = async (
   return localId;
 };
 
+export const getRoutineByServerId = async (
+  serverId: string
+): Promise<LocalRoutine> => {
+  const routine = await db.routines.where("serverId").equals(serverId).first();
+  if (!routine) throw new Error("일치하는 routine이 없습니다");
+  return routine;
+};
+
 export const getRoutineByLocalId = async (localId: number) => {
+  console.log(localId, "getRoutineByLocalIdgetRoutineByLocalId");
   const routine = await db.routines.where("id").equals(localId).first();
   if (!routine) throw new Error("일치하는 routine이 없습니다");
   return routine;

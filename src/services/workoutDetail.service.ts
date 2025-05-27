@@ -139,7 +139,7 @@ export const deleteWorkoutDetails = async (
   );
 };
 
-export const syncToServerWorkoutDetails = async () => {
+export const syncToServerWorkoutDetails = async (): Promise<void> => {
   const all = await db.workoutDetails.toArray();
 
   const unsynced = all.filter((detail) => !detail.isSynced);

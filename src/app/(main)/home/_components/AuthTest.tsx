@@ -5,6 +5,7 @@ import {
   overwriteWithServerRoutines,
   syncToServerRoutines,
 } from "@/services/routine.service";
+import { syncToServerRoutineDetails } from "@/services/routineDetail.service";
 import {
   overWriteAllWithWerverData,
   syncToServer,
@@ -42,8 +43,9 @@ const AuthTest = () => {
         From Server
       </button>
       <button
-        onClick={() => {
-          overwriteWithServerRoutines(userId ?? "");
+        onClick={async () => {
+          await syncToServerRoutines();
+          await syncToServerRoutineDetails();
         }}
       >
         루틴만체크

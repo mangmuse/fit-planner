@@ -174,6 +174,12 @@ export type LocalWorkoutDetailWithServerWorkoutId = Omit<
   workoutId: string;
 };
 export type LocalRoutineDetail = z.infer<typeof localRoutineDetailSchema>;
+export type LocalRoutineDetailWithServerRoutineId = Omit<
+  LocalRoutineDetail,
+  "routineId"
+> & {
+  routineId: string;
+};
 
 export type AddLocalWorkoutDetailInput = {
   exerciseId: number;

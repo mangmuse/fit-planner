@@ -7,6 +7,7 @@ import {
   ClientWorkoutDetail,
   clientWorkoutDetailSchema,
   LocalWorkoutDetail,
+  LocalWorkoutDetailWithServerWorkoutId,
 } from "@/types/models";
 import { validateData } from "@/util/validateData";
 import { z } from "zod";
@@ -62,9 +63,7 @@ export const fetchWorkoutDetailsFromServer = async (
 };
 
 export async function postWorkoutDetailsToServer(
-  mappedUnsynced: (Omit<LocalWorkoutDetail, "workoutId"> & {
-    workoutId: string;
-  })[]
+  mappedUnsynced: LocalWorkoutDetailWithServerWorkoutId[]
 ): Promise<SyncWorkoutDetailsToServerResponse> {
   const res = await fetch(`${BASE_URL}/api/workout/detail/sync`, {
     method: "POST",

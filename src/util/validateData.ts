@@ -15,6 +15,7 @@ export const validateData = <T>(schema: ZodSchema<T>, data: unknown): T => {
     const errorMessages = result.error.issues
       .map((issue) => issue.message)
       .join(", ");
+    console.log(result.error.message, "Validation error details");
     throw new HttpError(`${VALIDATION_FAILED}: ${errorMessages}`, 422);
   }
 };
