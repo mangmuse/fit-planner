@@ -5,9 +5,12 @@ import {
   overwriteWithServerRoutines,
   syncToServerRoutines,
 } from "@/services/routine.service";
-import { syncToServerRoutineDetails } from "@/services/routineDetail.service";
 import {
-  overWriteAllWithWerverData,
+  overwriteWithServerRoutineDetails,
+  syncToServerRoutineDetails,
+} from "@/services/routineDetail.service";
+import {
+  overWriteAllWithServerData,
   syncToServer,
 } from "@/services/syncAll.service";
 import { signIn, signOut, useSession } from "next-auth/react";
@@ -37,15 +40,15 @@ const AuthTest = () => {
       </button>
       <button
         onClick={() => {
-          overWriteAllWithWerverData(userId ?? "");
+          overWriteAllWithServerData(userId ?? "");
         }}
       >
         From Server
       </button>
       <button
         onClick={async () => {
-          await syncToServerRoutines();
-          await syncToServerRoutineDetails();
+          await overwriteWithServerRoutines(userId ?? "");
+          await overwriteWithServerRoutineDetails(userId ?? "");
         }}
       >
         루틴만체크

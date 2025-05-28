@@ -28,7 +28,9 @@ type AddWorkoutDetailsOptions = {
   startOrder?: number;
 };
 
-export const overwriteWithServerWorkoutDetails = async (userId: string) => {
+export const overwriteWithServerWorkoutDetails = async (
+  userId: string
+): Promise<void> => {
   const serverData: ClientWorkoutDetail[] =
     await fetchWorkoutDetailsFromServer(userId);
 
@@ -45,8 +47,8 @@ export const overwriteWithServerWorkoutDetails = async (userId: string) => {
         id: undefined,
         serverId: data.id,
         isSynced: true,
-        exerciseId: exercise?.id,
-        workoutId: workout?.id,
+        exerciseId: exercise.id,
+        workoutId: workout.id,
       };
     })
   );

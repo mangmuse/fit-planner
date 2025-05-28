@@ -1,6 +1,8 @@
+import { FETCH_ROUTINE_DETAILS_ERROR } from "./../constants/errorMessage";
 import { BASE_URL } from "@/constants";
 import { POST_ROUTINE_DETAILS_ERROR } from "@/constants/errorMessage";
 import {
+  ClientRoutineDetail,
   clientRoutineDetailSchema,
   LocalRoutineDetailWithServerRoutineId,
 } from "@/types/models";
@@ -31,6 +33,23 @@ export type SyncRoutineDetailsToServerResponse = z.infer<
 export type FetchRoutineDetailsResponse = z.infer<
   typeof fetchRoutineDetailsSchema
 >;
+
+export const fetchRoutineDetailsFromServer = async (
+  userId: string
+): Promise<ClientRoutineDetail[]> => {
+  const res = await fetch(`${BASE_URL}/api/routine/detail/${userId}`);
+  if (!res.ok) {
+    throw new Error(FETCH_ROUTINE_DETAILS_ERROR);
+  }
+  const data = await res.json();
+
+  const parsedData = validateData<FetchRoutineDetailsResponse>(
+    fetchRoutineDetailsSchema,
+    data
+  );
+  const serverRoutineDetails = parsedData.routineDetails;
+  return serverRoutineDetails;
+};
 
 export const postRoutineDetailsToServer = async (
   mappedUnsynced: LocalRoutineDetailWithServerRoutineId[]

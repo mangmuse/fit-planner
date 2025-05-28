@@ -58,9 +58,10 @@ export const clientWorkoutDetailSchema = z.object({
 });
 
 export const clientRoutineDetailSchema = z.object({
-  id: z.number().optional(),
+  id: z.string(),
   routineId: z.string(),
   exerciseId: z.number(),
+  exerciseName: z.string(),
   weight: z.number().nullable(),
   reps: z.number().nullable(),
   rpe: z.number().nullable(),

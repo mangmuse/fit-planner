@@ -3,11 +3,14 @@ import {
   getAddSetToRoutineByLastSet,
   getNewRoutineDetails,
 } from "@/adapter/routineDetail.adapter";
-import { postRoutineDetailsToServer } from "@/api/routineDetail.api";
+import {
+  fetchRoutineDetailsFromServer,
+  postRoutineDetailsToServer,
+} from "@/api/routineDetail.api";
 import { db } from "@/lib/db";
 import { getExerciseWithServerId } from "@/services/exercise.service";
 import { getRoutineByServerId } from "@/services/routine.service";
-import { LocalRoutineDetail } from "@/types/models";
+import { ClientRoutineDetail, LocalRoutineDetail } from "@/types/models";
 
 export type NewRoutineDetailInput = {
   routineId: number;
@@ -100,4 +103,35 @@ export const syncToServerRoutineDetails = async (): Promise<void> => {
       });
     }
   }
+};
+
+export const overwriteWithServerRoutineDetails = async (
+  userId: string
+): Promise<void> => {
+  const serverData: ClientRoutineDetail[] =
+    await fetchRoutineDetailsFromServer(userId);
+
+  const toInsert = await Promise.all(
+    serverData.map(async (data) => {
+      const exercise = await getExerciseWithServerId(data.exerciseId);
+      const routine = await getRoutineByServerId(data.routineId);
+
+      if (!exercise?.id || !routine?.id) {
+        throw new Error(
+          "exerciseId 또는 routineId가 일치하는 데이터를 찾을 수 없습니다"
+        );
+      }
+
+      return {
+        ...data,
+        id: undefined,
+        serverId: data.id,
+        isSynced: true,
+        exerciseId: exercise.id,
+        routineId: routine.id,
+      };
+    })
+  );
+  await db.routineDetails.clear();
+  await db.routineDetails.bulkAdd(toInsert);
 };
