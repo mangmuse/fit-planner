@@ -28,7 +28,6 @@ import {
 } from "@/services/workoutDetail.service";
 import { getAllLocalExercises } from "@/services/exercise.service";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
-import { useNavigationStore } from "@/__mocks__/src/store/useNavigationStore";
 import {
   addLocalRoutineDetailsByWorkoutId,
   deleteRoutineDetails,
@@ -86,7 +85,6 @@ export default function ExercisesContainer({
   }
 
   const handleAddDetail = async () => {
-    console.log("이거맞지요?>");
     if (type === "RECORD" && userId && date) {
       await addLocalWorkoutDetailsByUserDate(userId, date, selectedExercises);
       router.push(`/workout/${date}`);

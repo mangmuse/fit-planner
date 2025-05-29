@@ -93,15 +93,7 @@ const useLoadDetails = ({
 
   useEffect(() => {
     (async () => {
-      //   if (type === "RECORD" && userId && date) {
-      console.log("WorkoutDetails 로딩중");
       await loadLocalDetails();
-      // Load local workout details logic here
-      //   } else if (type === "ROUTINE" && userId && routineId) {
-      //   console.log("RoutineDetails 로딩중");
-      //   await loadLocalDetails();
-      // Load local routine details logic here
-      //   }
     })();
   }, [type, userId, date, routineId]);
 

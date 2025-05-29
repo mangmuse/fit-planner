@@ -16,7 +16,6 @@ import {
   getWorkoutWithServerId,
 } from "@/services/workout.service";
 import { ClientWorkoutDetail, LocalWorkoutDetail } from "@/types/models";
-import { mockWhereEqualsFirst } from "@/util/dbMockUtils";
 
 export type NewWorkoutDetailInput = {
   workoutId: number;

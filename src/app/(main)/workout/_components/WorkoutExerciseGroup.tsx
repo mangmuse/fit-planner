@@ -36,7 +36,7 @@ const WorkoutExerciseGroup = ({
   console.log(details);
   const [exercise, setExercise] = useState<LocalExercise | null>(null);
   const { openBottomSheet } = useBottomSheet();
-  const lastValue = details[details.length - 1];
+  const lastDetail = details[details.length - 1];
   const fetchAndSetExerciseData = async () => {
     const exerciseData = await getExerciseWithLocalId(details[0].exerciseId);
     setExercise(exerciseData);
@@ -46,6 +46,7 @@ const WorkoutExerciseGroup = ({
     fetchAndSetExerciseData();
   }, [details]);
 
+  if (details.length === 0) return null;
   return (
     exercise && (
       <div className="bg-bg-surface font-semibold pb-2.5">
@@ -91,7 +92,7 @@ const WorkoutExerciseGroup = ({
         <SetActions
           reorderAfterDelete={reorderAfterDelete}
           reload={reload}
-          lastValue={lastValue}
+          lastValue={lastDetail}
         />
       </div>
     )
