@@ -7,7 +7,7 @@ import { useParams, usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 type WorkoutPlaceholderProps =
-  | { type: "ROUTINE"; date?: undefined } // ROUTINE은 date 없어도 됨
+  | { type: "ROUTINE"; date?: undefined }
   | { type: "RECORD"; date: string };
 
 function WorkoutPlaceholder({ type, date }: WorkoutPlaceholderProps) {

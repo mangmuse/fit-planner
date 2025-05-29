@@ -59,11 +59,7 @@ const WorkoutItem = ({
   };
 
   const handleDelete = async () => {
-    console.log("hello");
-    console.log(!isWorkoutDetail(workoutDetail));
-    console.log(workoutDetail.id);
     if (!isWorkoutDetail(workoutDetail) && workoutDetail.id) {
-      console.log("zzz");
       await deleteRoutineDetail(workoutDetail.id);
       await reorderAfterDelete(workoutDetail.exerciseOrder);
 

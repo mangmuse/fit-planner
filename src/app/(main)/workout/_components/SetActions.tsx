@@ -15,8 +15,6 @@ import {
   updateLocalWorkoutDetail,
 } from "@/services/workoutDetail.service";
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
-import { useSession } from "next-auth/react";
-import { useParams } from "next/navigation";
 
 type SetActionsProps = {
   reorderAfterDelete: (deletedExerciseOrder: number) => Promise<void>;
@@ -44,10 +42,8 @@ const SetActions = ({
     } else {
       await deleteRoutineDetail(lastValue.id ?? 0);
     }
-    console.log("핸들딜릿 실행직전");
     await reorderAfterDelete(lastValue.exerciseOrder);
     reload();
-    console.log("핸들딜릿 실행직후");
   };
   return (
     <div data-testid="set-actions" className="flex justify-center gap-2.5 mt-2">

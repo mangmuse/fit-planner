@@ -33,7 +33,6 @@ const WorkoutExerciseGroup = ({
   reload,
   reorderAfterDelete,
 }: WorkoutExerciseGroupProps) => {
-  console.log(details);
   const [exercise, setExercise] = useState<LocalExercise | null>(null);
   const { openBottomSheet } = useBottomSheet();
   const lastDetail = details[details.length - 1];

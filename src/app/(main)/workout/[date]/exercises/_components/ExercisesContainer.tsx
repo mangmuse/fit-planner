@@ -30,22 +30,6 @@ export default function ExercisesContainer({
   const { date } = useParams<{ date?: string }>();
   const { routineId: stringRoutineId } = useParams();
   const routineId = stringRoutineId ? Number(stringRoutineId) : undefined;
-  // const {
-  //   exercises,
-  //   selectedCategory,
-  //   selectedExerciseType,
-  //   handleAddDetail,
-  //   handleAddSelectedExercise,
-  //   handleChangeSelectedCategory,
-  //   handleChangeSelectedExerciseType,
-  //   handleDeleteSelectedExercise,
-  //   handleReplaceExercise,
-  //   handleSearchKeyword,
-  //   reloadExercises,
-  //   searchKeyword,
-  //   selectedExercises,
-  //   visibleExercises,
-  // } =
 
   const { data, filters, handlers } = useExercises({
     type,
@@ -69,14 +53,6 @@ export default function ExercisesContainer({
     handleSearchKeyword,
     reloadExercises,
   } = handlers;
-
-  // const router = useRouter();
-  // const { reload } = useLoadDetails({
-  //   type,
-  //   userId: userId ?? "",
-  //   date,
-  //   routineId: routineId ? Number(routineId) : undefined,
-  // });
 
   const buttonLabel = allowMultipleSelection
     ? `${selectedExercises.length}개 선택 완료`
