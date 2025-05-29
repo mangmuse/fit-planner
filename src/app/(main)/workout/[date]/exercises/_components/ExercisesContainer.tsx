@@ -61,10 +61,10 @@ export default function ExercisesContainer({
   const { searchKeyword, selectedCategory, selectedExerciseType } = filters;
   const {
     handleAddDetail,
-    handleAddSelectedExercise,
+    handleSelectExercise,
+    handleUnselectExercise,
     handleChangeSelectedCategory,
     handleChangeSelectedExerciseType,
-    handleDeleteSelectedExercise,
     handleReplaceExercise,
     handleSearchKeyword,
     reloadExercises,
@@ -99,8 +99,8 @@ export default function ExercisesContainer({
         <ExerciseList
           exercises={visibleExercises}
           selectedExercises={selectedExercises}
-          onAdd={handleAddSelectedExercise}
-          onDelete={handleDeleteSelectedExercise}
+          onAdd={handleSelectExercise}
+          onDelete={handleUnselectExercise}
           onReload={reloadExercises}
         />
       )}
