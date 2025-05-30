@@ -1,26 +1,49 @@
 "use client";
 
-import { addSet, deleteWorkoutDetail } from "@/services/workoutDetail.service";
-import { LocalWorkoutDetail } from "@/types/models";
-import { useSession } from "next-auth/react";
-import { useParams } from "next/navigation";
+import {
+  isWorkoutDetail,
+  isWorkoutDetails,
+} from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
+import {
+  addSetToRoutine,
+  deleteRoutineDetail,
+  updateLocalRoutineDetail,
+} from "@/services/routineDetail.service";
+import {
+  addSetToWorkout,
+  deleteWorkoutDetail,
+  updateLocalWorkoutDetail,
+} from "@/services/workoutDetail.service";
+import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 
 type SetActionsProps = {
-  lastValue: LocalWorkoutDetail;
-  loadLocalWorkoutDetails: () => Promise<void>;
+  reorderAfterDelete: (deletedExerciseOrder: number) => Promise<void>;
+  lastValue: LocalWorkoutDetail | LocalRoutineDetail;
+  reload: () => Promise<void>;
 };
 
 const SetActions = ({
   lastValue,
-  loadLocalWorkoutDetails,
+  reload,
+  reorderAfterDelete,
 }: SetActionsProps) => {
   const handleAddSet = async () => {
-    await addSet(lastValue);
-    loadLocalWorkoutDetails();
+    if (isWorkoutDetail(lastValue)) {
+      await addSetToWorkout(lastValue);
+    } else {
+      await addSetToRoutine(lastValue);
+    }
+    reload();
   };
+
   const handleDeleteSet = async () => {
-    await deleteWorkoutDetail(lastValue.id ?? 0);
-    loadLocalWorkoutDetails();
+    if (isWorkoutDetail(lastValue)) {
+      await deleteWorkoutDetail(lastValue.id ?? 0);
+    } else {
+      await deleteRoutineDetail(lastValue.id ?? 0);
+    }
+    await reorderAfterDelete(lastValue.exerciseOrder);
+    reload();
   };
   return (
     <div data-testid="set-actions" className="flex justify-center gap-2.5 mt-2">

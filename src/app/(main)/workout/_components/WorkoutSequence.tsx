@@ -17,24 +17,26 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import SortableItem from "@/app/(main)/workout/_components/SortableItem";
-import { LocalWorkoutDetail } from "@/types/models";
+import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { updateLocalWorkoutDetail } from "@/services/workoutDetail.service";
 import { reorderDetailGroups } from "@/app/(main)/workout/_utils/getGroupedDetails";
+import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
+import { updateLocalRoutineDetail } from "@/services/routineDetail.service";
 
 export type DetailGroup = {
   exerciseOrder: number;
-  details: LocalWorkoutDetail[];
+  details: LocalWorkoutDetail[] | LocalRoutineDetail[];
 };
 
 type WorkoutSequenceProps = {
   detailGroups: DetailGroup[];
-  loadLocalWorkoutDetails: () => Promise<void>;
+  reload: () => Promise<void>;
 };
 
 const WorkoutSequence = ({
   detailGroups: initialGroups,
-  loadLocalWorkoutDetails,
+  reload,
 }: WorkoutSequenceProps) => {
   const { closeBottomSheet } = useBottomSheet();
   const [groups, setGroups] = useState<DetailGroup[]>(initialGroups);
@@ -66,14 +68,19 @@ const WorkoutSequence = ({
   const loadReorder = async () => {
     for (const group of groups) {
       for (const detail of group.details) {
-        await updateLocalWorkoutDetail({
+        const updateInput = {
           id: detail.id,
           exerciseOrder: group.exerciseOrder,
-        });
+        };
+        if (isWorkoutDetail(detail)) {
+          await updateLocalWorkoutDetail(updateInput);
+        } else {
+          await updateLocalRoutineDetail(updateInput);
+        }
       }
     }
 
-    await loadLocalWorkoutDetails?.();
+    await reload?.();
     closeBottomSheet();
   };
 

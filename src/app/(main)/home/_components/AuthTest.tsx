@@ -1,7 +1,16 @@
 "use client";
 
+import { fetchRoutinesFromServer } from "@/api/routine.api";
 import {
-  overWriteAllWithWerverData,
+  overwriteWithServerRoutines,
+  syncToServerRoutines,
+} from "@/services/routine.service";
+import {
+  overwriteWithServerRoutineDetails,
+  syncToServerRoutineDetails,
+} from "@/services/routineDetail.service";
+import {
+  overWriteAllWithServerData,
   syncToServer,
 } from "@/services/syncAll.service";
 import { signIn, signOut, useSession } from "next-auth/react";
@@ -31,10 +40,18 @@ const AuthTest = () => {
       </button>
       <button
         onClick={() => {
-          overWriteAllWithWerverData(userId ?? "");
+          overWriteAllWithServerData(userId ?? "");
         }}
       >
         From Server
+      </button>
+      <button
+        onClick={async () => {
+          await overwriteWithServerRoutines(userId ?? "");
+          await overwriteWithServerRoutineDetails(userId ?? "");
+        }}
+      >
+        루틴만체크
       </button>
     </div>
   );

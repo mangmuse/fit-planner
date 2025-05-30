@@ -1,21 +1,37 @@
 "use client";
+import deletIcon from "public/delete.svg";
 import SetOrderCell from "@/app/(main)/workout/_components/SetOrderCell";
 import WorkoutCheckbox from "@/app/(main)/workout/_components/WorkoutCheckbox";
+import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
+import {
+  deleteRoutineDetail,
+  updateLocalRoutineDetail,
+} from "@/services/routineDetail.service";
 import { updateLocalWorkoutDetail } from "@/services/workoutDetail.service";
-import { LocalExercise, LocalWorkoutDetail } from "@/types/models";
+import {
+  LocalExercise,
+  LocalRoutineDetail,
+  LocalWorkoutDetail,
+} from "@/types/models";
+import Image from "next/image";
 import { ChangeEventHandler, useRef, useState } from "react";
 
 type WorkoutItemProps = {
   exercise: LocalExercise;
-  workoutDetail: LocalWorkoutDetail;
-  loadLocalWorkoutDetails: () => Promise<void>;
+  workoutDetail: LocalWorkoutDetail | LocalRoutineDetail;
+  reorderAfterDelete: (deletedExerciseOrder: number) => Promise<void>;
+
+  reload: () => Promise<void>;
 };
 
 const WorkoutItem = ({
   workoutDetail,
-  loadLocalWorkoutDetails,
+  reload,
+  reorderAfterDelete,
 }: WorkoutItemProps) => {
-  const { setOrder, weight, reps, isDone, id, setType } = workoutDetail;
+  const { setOrder, weight, reps, id, setType } = workoutDetail;
+  console.log(setOrder);
+  const isDone = isWorkoutDetail(workoutDetail) ? workoutDetail.isDone : false;
   const [editedWeight, setEditedWeight] = useState<number | null>(
     weight || null
   );
@@ -26,19 +42,34 @@ const WorkoutItem = ({
   const handleChangeReps: ChangeEventHandler<HTMLInputElement> = (e) =>
     setEditedReps(e.target.value ? ~~e.target.value : null);
 
-  const handleUpdate = async (data: Partial<LocalWorkoutDetail>) => {
+  const handleUpdate = async (
+    data: Partial<LocalWorkoutDetail | LocalRoutineDetail>
+  ) => {
     const updateWorkoutInput = {
       ...data,
       id,
     };
-    await updateLocalWorkoutDetail(updateWorkoutInput);
-    loadLocalWorkoutDetails();
+    if (isWorkoutDetail(workoutDetail)) {
+      await updateLocalWorkoutDetail(updateWorkoutInput);
+    } else {
+      await updateLocalRoutineDetail(updateWorkoutInput);
+    }
+    await reload();
+  };
+
+  const handleDelete = async () => {
+    if (!isWorkoutDetail(workoutDetail) && workoutDetail.id) {
+      await deleteRoutineDetail(workoutDetail.id);
+      await reorderAfterDelete(workoutDetail.exerciseOrder);
+
+      await reload();
+    }
   };
 
   return (
     <tr data-testid={`workout-detail-item-${id}`} className="h-[22px]">
       <SetOrderCell
-        loadLocalWorkoutDetails={loadLocalWorkoutDetails}
+        loadLocalWorkoutDetails={reload}
         workoutDetail={workoutDetail}
       />
       <td className="text-center">-</td>
@@ -66,11 +97,13 @@ const WorkoutItem = ({
       </td>
       <td className="text-center  ">
         <div className="flex justify-center items-center">
-          <WorkoutCheckbox
-            loadLocalWorkoutDetails={loadLocalWorkoutDetails}
-            id={id!}
-            prevIsDone={isDone}
-          />
+          {isWorkoutDetail(workoutDetail) ? (
+            <WorkoutCheckbox reload={reload} id={id!} prevIsDone={isDone} />
+          ) : (
+            <button onClick={handleDelete}>
+              <Image src={deletIcon} alt="delete" />
+            </button>
+          )}
         </div>
       </td>
     </tr>

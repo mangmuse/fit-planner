@@ -124,7 +124,7 @@ model Routine {
 }
 
 model RoutineDetail {
-  id            String   @id @default(uuid())
+  id            String    @id @default(uuid())
   routineId     String
   exerciseId    Int
   weight        Float?
@@ -132,8 +132,11 @@ model RoutineDetail {
   exerciseOrder Int
   reps          Int?
   setOrder      Int
-  exercise      Exercise @relation(fields: [exerciseId], references: [id])
-  routine       Routine  @relation(fields: [routineId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
+  setType       SetType   @default(NORMAL)
+  updatedAt     DateTime? @updatedAt
+  exercise      Exercise  @relation(fields: [exerciseId], references: [id])
+  routine       Routine   @relation(fields: [routineId], references: [id], onDelete: Cascade)
 
   @@unique([routineId, exerciseOrder, setOrder])
 }

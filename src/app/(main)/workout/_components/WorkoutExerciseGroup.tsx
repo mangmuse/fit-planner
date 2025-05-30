@@ -2,11 +2,18 @@ import SetActions from "@/app/(main)/workout/_components/SetActions";
 import WorkoutDetailGroupOptions from "@/app/(main)/workout/_components/WorkoutDetailGroupOptions";
 import WorkoutItem from "@/app/(main)/workout/_components/WorkoutItem";
 import WorkoutTableHeader from "@/app/(main)/workout/_components/WorkoutTableHeader";
+import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { getExerciseWithLocalId } from "@/services/exercise.service";
+import { updateLocalRoutineDetail } from "@/services/routineDetail.service";
+import {
+  getLocalWorkoutDetails,
+  updateLocalWorkoutDetail,
+} from "@/services/workoutDetail.service";
 import {
   ClientWorkoutDetail,
   LocalExercise,
+  LocalRoutineDetail,
   LocalWorkoutDetail,
 } from "@/types/models";
 import Image from "next/image";
@@ -15,26 +22,30 @@ import { useEffect, useState } from "react";
 
 type WorkoutExerciseGroupProps = {
   exerciseOrder: number;
-  details: LocalWorkoutDetail[];
-  loadLocalWorkoutDetails: () => Promise<void>;
+  details: LocalWorkoutDetail[] | LocalRoutineDetail[];
+  reload: () => Promise<void>;
+  reorderAfterDelete: (deletedExerciseOrder: number) => Promise<void>;
 };
 
 const WorkoutExerciseGroup = ({
   details,
   exerciseOrder,
-  loadLocalWorkoutDetails,
+  reload,
+  reorderAfterDelete,
 }: WorkoutExerciseGroupProps) => {
   const [exercise, setExercise] = useState<LocalExercise | null>(null);
   const { openBottomSheet } = useBottomSheet();
-  const lastValue = details[details.length - 1];
+  const lastDetail = details[details.length - 1];
   const fetchAndSetExerciseData = async () => {
     const exerciseData = await getExerciseWithLocalId(details[0].exerciseId);
     setExercise(exerciseData);
   };
+
   useEffect(() => {
     fetchAndSetExerciseData();
   }, [details]);
 
+  if (details.length === 0) return null;
   return (
     exercise && (
       <div className="bg-bg-surface font-semibold pb-2.5">
@@ -49,7 +60,8 @@ const WorkoutExerciseGroup = ({
                 minHeight: 300,
                 children: (
                   <WorkoutDetailGroupOptions
-                    loadLocalWorkoutDetails={loadLocalWorkoutDetails}
+                    reload={reload}
+                    reorderAfterDelete={reorderAfterDelete}
                     loadExercises={fetchAndSetExerciseData}
                     details={details}
                     exercise={exercise}
@@ -68,16 +80,18 @@ const WorkoutExerciseGroup = ({
             {details.map((detail) => (
               <WorkoutItem
                 key={detail.id}
+                reorderAfterDelete={reorderAfterDelete}
                 exercise={exercise}
-                loadLocalWorkoutDetails={loadLocalWorkoutDetails}
+                reload={reload}
                 workoutDetail={detail}
               />
             ))}
           </tbody>
         </table>
         <SetActions
-          loadLocalWorkoutDetails={loadLocalWorkoutDetails}
-          lastValue={lastValue}
+          reorderAfterDelete={reorderAfterDelete}
+          reload={reload}
+          lastValue={lastDetail}
         />
       </div>
     )

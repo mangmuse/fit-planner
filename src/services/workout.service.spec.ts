@@ -16,7 +16,7 @@ import {
   mockServerWorkouts,
 } from "@/__mocks__/workout.mock";
 import {
-  fetchWorkoutFromServer,
+  fetchWorkoutsFromServer,
   postWorkoutsToServer,
 } from "@/api/workout.api";
 import { db } from "@/lib/db";
@@ -131,7 +131,7 @@ describe("workout.service", () => {
 
   describe("overwriteWithServerWorkouts", () => {
     it("fetchWorkoutFromServer 의 반환값을 로컬데이터 형식으로 변환하여 workouts를 덮어씌운다", async () => {
-      (fetchWorkoutFromServer as jest.Mock).mockResolvedValueOnce(
+      (fetchWorkoutsFromServer as jest.Mock).mockResolvedValueOnce(
         mockServerWorkouts
       );
 
@@ -154,7 +154,7 @@ describe("workout.service", () => {
     });
 
     it("fetchWorkoutFromServer이 빈 배열을 반환할 경우에는 clear와 bulkAdd를 호출하지 않고 함수를 종료한다, ", async () => {
-      (fetchWorkoutFromServer as jest.Mock).mockResolvedValueOnce([]);
+      (fetchWorkoutsFromServer as jest.Mock).mockResolvedValueOnce([]);
       await overwriteWithServerWorkouts(userId);
 
       expect(db.workouts.clear).not.toHaveBeenCalled();

@@ -9,11 +9,12 @@ import {
 } from "@/services/workout.service";
 import { NewWorkoutDetailInput } from "@/services/workoutDetail.service";
 import {
+  LocalRoutineDetail,
   LocalWorkoutDetail,
   LocalWorkoutDetailWithServerWorkoutId,
 } from "@/types/models";
 
-export function createDetail(
+export function createWorkoutDetail(
   override: Partial<LocalWorkoutDetail>
 ): LocalWorkoutDetail {
   const { exerciseName, exerciseId, exerciseOrder, setOrder, workoutId } =
@@ -44,7 +45,7 @@ export function createDetail(
   };
 }
 
-export const getAddSetInputByLastSet = (
+export const getAddSetToWorkoutByLastSet = (
   lastSet: LocalWorkoutDetail
 ): LocalWorkoutDetail => {
   const { id, rpe, setOrder, isSynced, isDone, updatedAt, ...rest } = lastSet;
@@ -58,10 +59,10 @@ export const getAddSetInputByLastSet = (
     createdAt: new Date().toISOString(),
   };
 
-  return createDetail(addSetInput);
+  return createWorkoutDetail(addSetInput);
 };
 
-export const getNewDetails = (
+export const getNewWorkoutDetails = (
   selectedExercises: { id: number | undefined; name: string }[],
   { workoutId, startOrder }: NewWorkoutDetailInput
 ): LocalWorkoutDetail[] => {
@@ -78,7 +79,7 @@ export const getNewDetails = (
         setOrder: 1,
         exerciseName: name,
       };
-      return createDetail(newValue);
+      return createWorkoutDetail(newValue);
     }
   );
 
@@ -90,9 +91,11 @@ export const convertLocalWorkoutDetailToServer = async (
 ): Promise<LocalWorkoutDetailWithServerWorkoutId[]> => {
   return await Promise.all(
     workoutDetails.map(async (detail) => {
+      console.log(detail, "detail");
       const exercise = await getExerciseWithLocalId(detail.exerciseId);
       const workout = await getWorkoutWithLocalId(detail.workoutId);
-
+      console.log(exercise, "exercise");
+      console.log(workout, "workout");
       if (!exercise.serverId || !workout?.serverId) {
         throw new Error("exerciseId 또는 workoutId가 없습니다");
       }
@@ -134,4 +137,18 @@ export const getStartExerciseOrder = async (
   const lastDetail = allDetails[allDetails.length - 1];
   const startOrder = lastDetail ? lastDetail.exerciseOrder + 1 : 1;
   return startOrder;
+};
+
+export const convertRoutineDetailToWorkoutDetailInput = (
+  routineDetail: LocalRoutineDetail,
+  workoutId: LocalWorkoutDetail["workoutId"]
+): LocalWorkoutDetail => {
+  const { createdAt, updatedAt, isSynced, serverId, routineId, id, ...rest } =
+    routineDetail;
+  const workoutDetail: Partial<LocalWorkoutDetail> = {
+    ...rest,
+    isDone: false,
+    workoutId,
+  };
+  return createWorkoutDetail(workoutDetail);
 };

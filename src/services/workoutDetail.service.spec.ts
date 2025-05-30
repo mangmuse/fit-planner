@@ -13,8 +13,8 @@ import {
 } from "@/__mocks__/workoutDetail.mock";
 import {
   convertLocalWorkoutDetailToServer,
-  getAddSetInputByLastSet,
-  getNewDetails,
+  getAddSetToWorkoutByLastSet,
+  getNewWorkoutDetails,
   getStartExerciseOrder,
 } from "@/adapter/workoutDetail.adapter";
 import {
@@ -30,7 +30,7 @@ import {
 } from "@/services/workout.service";
 import {
   addLocalWorkoutDetailsByUserDate,
-  addSet,
+  addSetToWorkout,
   deleteWorkoutDetail,
   getLocalWorkoutDetails,
   overwriteWithServerWorkoutDetails,
@@ -59,7 +59,7 @@ describe("workoutDetail.service", () => {
     mockServerWorkoutDetails
   );
   (addLocalWorkout as jest.Mock).mockResolvedValue(localDetails[0]);
-  (getNewDetails as jest.Mock).mockReturnValue(localDetails);
+  (getNewWorkoutDetails as jest.Mock).mockReturnValue(localDetails);
   (getWorkoutByUserIdAndDate as jest.Mock).mockResolvedValue(localDetails[0]);
   (getStartExerciseOrder as jest.Mock).mockResolvedValue(1);
   (getExerciseWithServerId as jest.Mock).mockResolvedValue(exercise);
@@ -164,18 +164,18 @@ describe("workoutDetail.service", () => {
       setOrder: lastSet.setOrder + 1,
       createdAt: expect.any(String),
     };
-    (getAddSetInputByLastSet as jest.Mock).mockReturnValue(newSet);
+    (getAddSetToWorkoutByLastSet as jest.Mock).mockReturnValue(newSet);
     it("마지막 세트를 기반으로 무게, 횟수, 운동종류 등이 동일한 운동을 생성하며 id를 반환한다", async () => {
       (db.workoutDetails.add as jest.Mock).mockResolvedValue(newSet.id);
-      const result = await addSet(lastSet);
+      const result = await addSetToWorkout(lastSet);
       expect(db.workoutDetails.add).toHaveBeenCalledWith(newSet);
       expect(result).toEqual(newSet.id);
     });
     it("", async () => {
-      (getAddSetInputByLastSet as jest.Mock).mockReturnValueOnce(undefined);
+      (getAddSetToWorkoutByLastSet as jest.Mock).mockReturnValueOnce(undefined);
       (db.workoutDetails.add as jest.Mock).mockResolvedValue(undefined);
 
-      const result = await addSet(lastSet);
+      const result = await addSetToWorkout(lastSet);
 
       expect(result).toEqual(undefined);
     });

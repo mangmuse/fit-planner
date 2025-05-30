@@ -7,7 +7,7 @@ import mockRouter from "next-router-mock";
 describe("WorkoutPlaceholer", () => {
   const date = "2025-01-01";
   it("나의 루틴 가져오기 버튼와 운동 추가하기 버튼이 올바르게 렌더링된다", () => {
-    customRender(<WorkoutPlaceholder date={date} />);
+    customRender(<WorkoutPlaceholder title={date} />);
     const routineBtn = screen.getByRole("link", { name: "나의 루틴 가져오기" });
     const addExBtn = screen.getByRole("link", { name: "운동 추가하기" });
     expect(routineBtn).toBeInTheDocument();
@@ -15,7 +15,7 @@ describe("WorkoutPlaceholer", () => {
   });
   //   it("나의 루틴 가져오기 버튼 클릭시 루틴 페이지로 이동한다", () => {});
   it("운동 추가하기 버튼 클릭시 exercise 페이지로 이동한다", async () => {
-    customRender(<WorkoutPlaceholder date={date} />, {
+    customRender(<WorkoutPlaceholder title={date} />, {
       wrapper: MemoryRouterProvider,
     });
     const addExBtn = screen.getByRole("link", { name: "운동 추가하기" });

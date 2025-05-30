@@ -1,12 +1,22 @@
 import { expectType } from "tsd";
 import { User, Exercise, WorkoutDetail, Workout } from "@prisma/client";
 import { boolean, nullable, z } from "zod";
+import { set } from "lodash";
 
 export const clientWorkoutSchema = z.object({
   id: z.string(),
   userId: z.string(),
   date: z.string(),
   status: z.enum(["EMPTY", "PLANNED", "IN_PROGRESS", "COMPLETED"]),
+  createdAt: z.string(),
+  updatedAt: z.string().nullable().optional(),
+});
+
+export const clientRoutineSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  description: z.string().nullable(),
+  name: z.string(),
   createdAt: z.string(),
   updatedAt: z.string().nullable().optional(),
 });
@@ -47,6 +57,21 @@ export const clientWorkoutDetailSchema = z.object({
   updatedAt: z.string().optional().nullable(),
 });
 
+export const clientRoutineDetailSchema = z.object({
+  id: z.string(),
+  routineId: z.string(),
+  exerciseId: z.number(),
+  exerciseName: z.string(),
+  weight: z.number().nullable(),
+  reps: z.number().nullable(),
+  rpe: z.number().nullable(),
+  exerciseOrder: z.number(),
+  setOrder: z.number(),
+  setType: z.enum(["NORMAL", "WARMUP", "DROP", "FAILURE", "AMRAP"]),
+  createdAt: z.string(),
+  updatedAt: z.string().optional().nullable(),
+});
+
 export const localWorkoutSchema = z.object({
   serverId: z.string().nullable(),
   updatedAt: z.string().optional().nullable(),
@@ -56,6 +81,17 @@ export const localWorkoutSchema = z.object({
   date: z.string(),
   isSynced: z.boolean(),
   status: z.enum(["EMPTY", "PLANNED", "IN_PROGRESS", "COMPLETED"]),
+});
+
+export const localRoutineSchema = z.object({
+  id: z.number().optional(),
+  serverId: z.string().nullable(),
+  isSynced: z.boolean(),
+  userId: z.string(),
+  description: z.string().nullable(),
+  name: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string().nullable().optional(),
 });
 
 export const localExerciseSchema = z.object({
@@ -98,6 +134,23 @@ export const localWorkoutDetailSchema = z.object({
   updatedAt: z.string().optional().nullable(),
 });
 
+export const localRoutineDetailSchema = z.object({
+  id: z.number().optional(),
+  serverId: z.string().nullable(),
+  routineId: z.number(),
+  weight: z.number().nullable(),
+  reps: z.number().nullable(),
+  rpe: z.number().nullable(),
+  isSynced: z.boolean(),
+  setOrder: z.number(),
+  setType: z.enum(["NORMAL", "WARMUP", "DROP", "FAILURE", "AMRAP"]),
+  exerciseOrder: z.number(),
+  exerciseName: z.string(),
+  exerciseId: z.number(),
+  createdAt: z.string(),
+  updatedAt: z.string().optional().nullable(),
+});
+
 // expectType<>({} as LocalExercise);
 export type ModelWithStringDates<T> = Omit<T, "createdAt" | "updatedAt"> & {
   createdAt: string;
@@ -107,16 +160,26 @@ export type ModelWithStringDates<T> = Omit<T, "createdAt" | "updatedAt"> & {
 export type ClientUser = ModelWithStringDates<User>;
 export type ClientExercise = z.infer<typeof clientExerciseSchema>;
 export type ClientWorkout = z.infer<typeof clientWorkoutSchema>;
+export type ClientRoutine = z.infer<typeof clientRoutineSchema>;
 export type ClientWorkoutDetail = z.infer<typeof clientWorkoutDetailSchema>;
+export type ClientRoutineDetail = z.infer<typeof clientRoutineDetailSchema>;
 
 export type LocalExercise = z.infer<typeof localExerciseSchema>;
 export type LocalWorkout = z.infer<typeof localWorkoutSchema>;
+export type LocalRoutine = z.infer<typeof localRoutineSchema>;
 export type LocalWorkoutDetail = z.infer<typeof localWorkoutDetailSchema>;
 export type LocalWorkoutDetailWithServerWorkoutId = Omit<
   LocalWorkoutDetail,
   "workoutId"
 > & {
   workoutId: string;
+};
+export type LocalRoutineDetail = z.infer<typeof localRoutineDetailSchema>;
+export type LocalRoutineDetailWithServerRoutineId = Omit<
+  LocalRoutineDetail,
+  "routineId"
+> & {
+  routineId: string;
 };
 
 export type AddLocalWorkoutDetailInput = {

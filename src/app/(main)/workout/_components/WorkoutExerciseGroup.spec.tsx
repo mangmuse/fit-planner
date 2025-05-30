@@ -51,7 +51,7 @@ describe("WorkoutExerciseGroup", () => {
       <WorkoutExerciseGroup
         details={mockWorkoutDetails}
         exerciseOrder={2}
-        loadLocalWorkoutDetails={loadDetailsMock}
+        reload={loadDetailsMock}
       />
     );
   };

@@ -5,8 +5,8 @@ import {
 import { db } from "@/lib/db";
 import {
   convertLocalWorkoutDetailToServer,
-  getAddSetInputByLastSet,
-  getNewDetails,
+  getAddSetToWorkoutByLastSet,
+  getNewWorkoutDetails,
   getStartExerciseOrder,
 } from "@/adapter/workoutDetail.adapter";
 import { getExerciseWithServerId } from "@/services/exercise.service";
@@ -16,7 +16,6 @@ import {
   getWorkoutWithServerId,
 } from "@/services/workout.service";
 import { ClientWorkoutDetail, LocalWorkoutDetail } from "@/types/models";
-import { mockWhereEqualsFirst } from "@/util/dbMockUtils";
 
 export type NewWorkoutDetailInput = {
   workoutId: number;
@@ -28,7 +27,9 @@ type AddWorkoutDetailsOptions = {
   startOrder?: number;
 };
 
-export const overwriteWithServerWorkoutDetails = async (userId: string) => {
+export const overwriteWithServerWorkoutDetails = async (
+  userId: string
+): Promise<void> => {
   const serverData: ClientWorkoutDetail[] =
     await fetchWorkoutDetailsFromServer(userId);
 
@@ -45,8 +46,8 @@ export const overwriteWithServerWorkoutDetails = async (userId: string) => {
         id: undefined,
         serverId: data.id,
         isSynced: true,
-        exerciseId: exercise?.id,
-        workoutId: workout?.id,
+        exerciseId: exercise.id,
+        workoutId: workout.id,
       };
     })
   );
@@ -63,7 +64,7 @@ export async function addLocalWorkoutDetailsByUserDate(
 
   const startOrder = await getStartExerciseOrder(workoutId);
 
-  const newDetails = getNewDetails(selectedExercises, {
+  const newDetails = getNewWorkoutDetails(selectedExercises, {
     workoutId,
     startOrder,
   });
@@ -71,6 +72,12 @@ export async function addLocalWorkoutDetailsByUserDate(
   const workoutDetails = await db.workoutDetails.bulkAdd(newDetails);
   return workoutDetails;
 }
+
+export const addLocalWorkoutDetail = (
+  detailInput: LocalWorkoutDetail
+): void => {
+  db.workoutDetails.add(detailInput);
+};
 
 export async function addLocalWorkoutDetailsByWorkoutId(
   workoutId: number,
@@ -80,7 +87,7 @@ export async function addLocalWorkoutDetailsByWorkoutId(
   if (startOrder == null) {
     startOrder = await getStartExerciseOrder(workoutId);
   }
-  const newDetails = getNewDetails(selectedExercises, {
+  const newDetails = getNewWorkoutDetails(selectedExercises, {
     workoutId,
     startOrder,
   });
@@ -116,8 +123,10 @@ export const updateLocalWorkoutDetail = async (
   await db.workoutDetails.update(updateWorkoutInput.id, updateWorkoutInput);
 };
 
-export const addSet = async (lastSet: LocalWorkoutDetail): Promise<number> => {
-  const addSetInput = getAddSetInputByLastSet(lastSet);
+export const addSetToWorkout = async (
+  lastSet: LocalWorkoutDetail
+): Promise<number> => {
+  const addSetInput = getAddSetToWorkoutByLastSet(lastSet);
   const newSet = await db.workoutDetails.add(addSetInput);
   return newSet;
 };
@@ -137,7 +146,7 @@ export const deleteWorkoutDetails = async (
   );
 };
 
-export const syncToServerWorkoutDetails = async () => {
+export const syncToServerWorkoutDetails = async (): Promise<void> => {
   const all = await db.workoutDetails.toArray();
 
   const unsynced = all.filter((detail) => !detail.isSynced);

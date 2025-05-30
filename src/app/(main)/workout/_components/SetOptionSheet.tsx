@@ -1,12 +1,14 @@
 import RPESelector from "@/app/(main)/workout/_components/RPESelector";
 import SetTypeSelector from "@/app/(main)/workout/_components/SetTypeSelector";
-import { LocalWorkoutDetail } from "@/types/models";
+import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 import { useState, useEffect } from "react";
 import { updateLocalWorkoutDetail } from "@/services/workoutDetail.service";
 import { WorkoutSetType } from "@/app/(main)/workout/constants";
+import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
+import { updateLocalRoutineDetail } from "@/services/routineDetail.service";
 
 type SetOptionSheetProps = {
-  workoutDetail: LocalWorkoutDetail;
+  workoutDetail: LocalWorkoutDetail | LocalRoutineDetail;
 };
 
 const SetOptionSheet = ({ workoutDetail }: SetOptionSheetProps) => {
@@ -26,7 +28,11 @@ const SetOptionSheet = ({ workoutDetail }: SetOptionSheetProps) => {
         setType,
         rpe,
       };
-      await updateLocalWorkoutDetail(updateInput);
+      if (isWorkoutDetail(workoutDetail)) {
+        await updateLocalWorkoutDetail(updateInput);
+      } else {
+        await updateLocalRoutineDetail(updateInput);
+      }
     };
     updateDetail();
   }, [setType, rpe]);

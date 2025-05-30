@@ -1,69 +1,44 @@
 "use client";
 
-import ExerciseMemo from "@/app/(main)/workout/_components/ExerciseMemo";
-import SetOptionSheet from "@/app/(main)/workout/_components/SetOptionSheet";
 import WorkoutSequence from "@/app/(main)/workout/_components/WorkoutSequence";
 import WorkoutExerciseGroup from "@/app/(main)/workout/_components/WorkoutExerciseGroup";
 import WorkoutPlaceholder from "@/app/(main)/workout/_components/WorkoutPlaceholder";
-import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
-import TestModal from "@/components/Modal/testModal";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
-import { useModal } from "@/providers/contexts/ModalContext";
-import {
-  updateLocalWorkout,
-  getWorkoutByUserIdAndDate,
-} from "@/services/workout.service";
-import { getLocalWorkoutDetails } from "@/services/workoutDetail.service";
-import { LocalWorkoutDetail } from "@/types/models";
+
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+
+import useLoadDetails from "@/hooks/useLoadDetails";
 
 type WorkoutContainerProps = {
-  date: string;
+  type: "ROUTINE" | "RECORD";
+  routineId?: number;
+  date?: string;
 };
 
-const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
+const WorkoutContainer = ({ type, date, routineId }: WorkoutContainerProps) => {
   const userId = useSession().data?.user?.id;
+  const { isLoading, workoutGroups, reload, reorderAfterDelete } =
+    useLoadDetails({
+      type,
+      userId: userId ?? "",
+      date,
+      routineId,
+    });
   const { openBottomSheet } = useBottomSheet();
 
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [workoutGroups, setWorkoutGroups] = useState<
-    { exerciseOrder: number; details: LocalWorkoutDetail[] }[]
-  >([]);
-  console.log(workoutGroups);
-  const loadLocalWorkoutDetails = async () => {
-    console.log("실행됐지롱");
-    if (!userId) return;
-    const details = await getLocalWorkoutDetails(userId, date);
-    console.log("먼ㅇ라ㅣ머라ㅣㅁ언라ㅣㅁ");
+  const exercisePath =
+    type === "RECORD"
+      ? `/workout/${date}/exercises`
+      : `/routines/${routineId}/exercises`;
 
-    const adjustedGroups = getGroupedDetails(details);
-
-    console.log(adjustedGroups);
-    setWorkoutGroups(adjustedGroups);
-
-    setIsLoading(false);
-  };
-  const syncWorkoutStatus = async () => {
-    if (!userId) return;
-    const workout = await getWorkoutByUserIdAndDate(userId, date);
-
-    if (!workout?.id || workout.status === "COMPLETED") return;
-    const newStatus = workoutGroups.length === 0 ? "EMPTY" : "PLANNED";
-    await updateLocalWorkout({ ...workout, status: newStatus });
-  };
-
-  useEffect(() => {
-    loadLocalWorkoutDetails();
-  }, [userId, date]);
-
-  useEffect(() => {
-    syncWorkoutStatus();
-  }, [workoutGroups]);
+  // type이 record일때에는 workoutId도 전달함
+  const placeholderProps =
+    type === "ROUTINE"
+      ? { type: "ROUTINE" as const }
+      : { type: "RECORD" as const, date: date!, userId: userId! };
 
   if (isLoading) return <div>Loading...</div>;
-  console.log(workoutGroups, "workoutGroupsworkoutGroups");
   return (
     <div>
       {workoutGroups.length !== 0 ? (
@@ -72,11 +47,12 @@ const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
             <WorkoutExerciseGroup
               key={exerciseOrder}
               details={details}
+              reorderAfterDelete={reorderAfterDelete}
               exerciseOrder={exerciseOrder}
-              loadLocalWorkoutDetails={loadLocalWorkoutDetails}
+              reload={reload}
             />
           ))}
-          <Link href={`/workout/${date}/exercises`}>운동 추가</Link>
+          <Link href={exercisePath}>운동 추가</Link>
           <button
             onClick={() =>
               openBottomSheet({
@@ -84,7 +60,7 @@ const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
                 children: (
                   <WorkoutSequence
                     detailGroups={workoutGroups}
-                    loadLocalWorkoutDetails={loadLocalWorkoutDetails}
+                    reload={reload}
                   />
                 ),
               })
@@ -94,7 +70,7 @@ const WorkoutContainer = ({ date }: WorkoutContainerProps) => {
           </button>
         </ul>
       ) : (
-        <WorkoutPlaceholder date={date} />
+        <WorkoutPlaceholder reloadDetails={reload} {...placeholderProps} />
       )}
     </div>
   );

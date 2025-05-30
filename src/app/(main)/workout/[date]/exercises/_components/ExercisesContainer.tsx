@@ -1,138 +1,58 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Image from "next/image";
-
 import addButton from "public/add.svg";
-import { Category, ExerciseType } from "@/types/filters";
-
-import { syncExercisesFromServerLocalFirst } from "@/services/exercise.service";
-import { getFilteredExercises } from "./_utils/getFilteredExercises";
-
-import { useDebounce } from "@/hooks/useDebounce";
-import { getFormattedDateYMD } from "@/util/formatDate";
-import { LocalExercise, LocalWorkoutDetail } from "@/types/models";
+import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 import ExerciseFilter from "@/app/(main)/workout/[date]/exercises/_components/ExerciseFilter";
 import SearchBar from "@/app/(main)/workout/[date]/exercises/_components/SearchBar";
 import ExerciseList from "@/app/(main)/workout/[date]/exercises/_components/ExerciseList";
-import {
-  addLocalWorkoutDetailsByUserDate,
-  addLocalWorkoutDetailsByWorkoutId,
-  deleteWorkoutDetails,
-} from "@/services/workoutDetail.service";
-import { getAllLocalExercises } from "@/services/exercise.service";
-import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
+
+import useExercises from "@/hooks/exercises/useExercises";
 
 type ExercisesContainerProps = {
+  type: "ROUTINE" | "RECORD";
+  routineId?: number;
   allowMultipleSelection?: boolean;
-  currentDetails?: LocalWorkoutDetail[];
-  loadLocalWorkoutDetails?: () => Promise<void>;
+  currentDetails?: LocalWorkoutDetail[] | LocalRoutineDetail[];
+  reloadDetails?: () => Promise<void>;
 };
 
 export default function ExercisesContainer({
+  type,
   allowMultipleSelection,
   currentDetails,
-  loadLocalWorkoutDetails,
+  reloadDetails,
 }: ExercisesContainerProps) {
   const { data: session } = useSession();
-  const { closeBottomSheet } = useBottomSheet();
-  const router = useRouter();
-  const { date } = useParams<{ date?: string }>();
   const userId = session?.user?.id;
+  const { date } = useParams<{ date?: string }>();
+  const { routineId: stringRoutineId } = useParams();
+  const routineId = stringRoutineId ? Number(stringRoutineId) : undefined;
 
-  const [exercises, setExercises] = useState<LocalExercise[]>([]);
-  const [visibleExercises, setVisibleExercises] = useState<LocalExercise[]>([]);
+  const { data, filters, handlers } = useExercises({
+    type,
+    allowMultipleSelection,
+    userId,
+    reloadDetails,
+    currentDetails,
+    date,
+    routineId,
+  });
 
-  const [searchKeyword, setSearchKeyword] = useState("");
-  const [selectedExerciseType, setSelectedExerciseType] =
-    useState<ExerciseType>("전체");
-  const [selectedCategory, setSelectedCategory] = useState<Category>("전체");
-  const debouncedKeyword = useDebounce(searchKeyword, 500);
-
-  const [selectedExercises, setSelectedExercises] = useState<
-    { id: number; name: string }[]
-  >([]);
-
-  async function loadLocalExerciseData() {
-    const all = await getAllLocalExercises();
-    setExercises(all);
-  }
-
-  const handleAddWorkoutDetail = async () => {
-    if (!userId || !date) return;
-
-    await addLocalWorkoutDetailsByUserDate(userId, date, selectedExercises);
-
-    router.push(`/workout/${date}`);
-  };
-
-  const handleSearchKeyword = (kw: string) => setSearchKeyword(kw);
-  const handleChangeSelectedExerciseType = (t: ExerciseType) =>
-    setSelectedExerciseType(t);
-  const handleChangeSelectedCategory = (c: Category) => setSelectedCategory(c);
-
-  const handleAddSelectedExercise = (exercise: LocalExercise) => {
-    if (!exercise.id || !exercise.name) return;
-
-    if (!allowMultipleSelection) {
-      setSelectedExercises([{ id: exercise.id, name: exercise.name }]);
-      return;
-    }
-
-    setSelectedExercises((prev) => [
-      ...prev,
-      { id: exercise.id!, name: exercise.name },
-    ]);
-  };
-  const handleDeleteSelectedExercise = (id: number) => {
-    setSelectedExercises((prev) => prev.filter((item) => item.id !== id));
-  };
-
-  // 새로 선택한 운동들을 기존 운동의 exerciseOrder를 startOrder로 하여 생성
-  // 기존운동 삭제
-  const handleReplaceExercise = async () => {
-    console.log(loadLocalWorkoutDetails);
-    try {
-      if (!currentDetails || currentDetails.length === 0) return;
-      console.log("hello");
-      const { exerciseOrder: startOrder, workoutId } = currentDetails[0];
-      await addLocalWorkoutDetailsByWorkoutId(
-        workoutId,
-        startOrder,
-        selectedExercises
-      );
-
-      await deleteWorkoutDetails(currentDetails);
-      await loadLocalWorkoutDetails?.();
-      closeBottomSheet();
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  useEffect(() => {
-    (async () => {
-      if (!userId) return;
-
-      const localAll = await getAllLocalExercises();
-      if (localAll.length === 0) {
-        await syncExercisesFromServerLocalFirst(userId);
-      }
-      loadLocalExerciseData();
-    })();
-  }, [userId]);
-
-  useEffect(() => {
-    const filtered = getFilteredExercises(
-      exercises,
-      debouncedKeyword,
-      selectedExerciseType,
-      selectedCategory
-    );
-    setVisibleExercises(filtered);
-  }, [exercises, debouncedKeyword, selectedExerciseType, selectedCategory]);
+  const { exercises, selectedExercises, visibleExercises } = data;
+  const { searchKeyword, selectedCategory, selectedExerciseType } = filters;
+  const {
+    handleAddDetail,
+    handleSelectExercise,
+    handleUnselectExercise,
+    handleChangeSelectedCategory,
+    handleChangeSelectedExerciseType,
+    handleReplaceExercise,
+    handleSearchKeyword,
+    reloadExercises,
+  } = handlers;
 
   const buttonLabel = allowMultipleSelection
     ? `${selectedExercises.length}개 선택 완료`
@@ -155,18 +75,16 @@ export default function ExercisesContainer({
         <ExerciseList
           exercises={visibleExercises}
           selectedExercises={selectedExercises}
-          onAdd={handleAddSelectedExercise}
-          onDelete={handleDeleteSelectedExercise}
-          onReload={loadLocalExerciseData}
+          onAdd={handleSelectExercise}
+          onDelete={handleUnselectExercise}
+          onReload={reloadExercises}
         />
       )}
 
       {selectedExercises.length > 0 && (
         <button
           onClick={
-            allowMultipleSelection
-              ? handleAddWorkoutDetail
-              : handleReplaceExercise
+            allowMultipleSelection ? handleAddDetail : handleReplaceExercise
           }
           className="fixed left-1/2 -translate-x-1/2 bottom-8 w-[330px] h-[47px] bg-primary text-text-black font-bold rounded-2xl shadow-xl"
         >

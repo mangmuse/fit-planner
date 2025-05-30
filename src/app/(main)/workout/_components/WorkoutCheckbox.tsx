@@ -4,14 +4,10 @@ import { useState } from "react";
 export type WorkoutCheckboxProps = {
   prevIsDone?: boolean;
   id?: number;
-  loadLocalWorkoutDetails?: () => Promise<void>;
+  reload?: () => Promise<void>;
 };
 
-const WorkoutCheckbox = ({
-  prevIsDone,
-  id,
-  loadLocalWorkoutDetails,
-}: WorkoutCheckboxProps) => {
+const WorkoutCheckbox = ({ prevIsDone, id, reload }: WorkoutCheckboxProps) => {
   const [isDone, setIsDone] = useState<boolean>(prevIsDone ?? false);
 
   const handleChange = async () => {
@@ -19,7 +15,7 @@ const WorkoutCheckbox = ({
     const newValue = !isDone;
     setIsDone(newValue);
     await updateLocalWorkoutDetail({ isDone: newValue, id });
-    if (loadLocalWorkoutDetails) loadLocalWorkoutDetails();
+    if (reload) reload();
   };
   return (
     <label className="inline-flex items-center cursor-pointer">

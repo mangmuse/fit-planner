@@ -23,7 +23,7 @@ const WorkoutPage = async ({ params }: WorkoutPageProps) => {
       ) : (
        
       )} */}
-      <WorkoutContainer date={date} />
+      <WorkoutContainer type="RECORD" date={date} />
     </main>
   );
 };
