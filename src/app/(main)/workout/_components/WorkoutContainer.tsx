@@ -32,10 +32,11 @@ const WorkoutContainer = ({ type, date, routineId }: WorkoutContainerProps) => {
       ? `/workout/${date}/exercises`
       : `/routines/${routineId}/exercises`;
 
+  // type이 record일때에는 workoutId도 전달함
   const placeholderProps =
     type === "ROUTINE"
       ? { type: "ROUTINE" as const }
-      : { type: "RECORD" as const, date: date! };
+      : { type: "RECORD" as const, date: date!, userId: userId! };
 
   if (isLoading) return <div>Loading...</div>;
   return (
@@ -69,7 +70,7 @@ const WorkoutContainer = ({ type, date, routineId }: WorkoutContainerProps) => {
           </button>
         </ul>
       ) : (
-        <WorkoutPlaceholder {...placeholderProps} />
+        <WorkoutPlaceholder reloadDetails={reload} {...placeholderProps} />
       )}
     </div>
   );

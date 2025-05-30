@@ -15,7 +15,6 @@ import {
 } from "@/types/models";
 import Image from "next/image";
 import { ChangeEventHandler, useRef, useState } from "react";
-import { c } from "node_modules/framer-motion/dist/types.d-6pKw1mTI";
 
 type WorkoutItemProps = {
   exercise: LocalExercise;

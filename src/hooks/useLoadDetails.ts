@@ -1,3 +1,5 @@
+import { createWorkoutDetail } from "@/adapter/workoutDetail.adapter";
+import { mockInvalidFetchWorkoutDetailsResponse } from "./../__mocks__/workoutDetail.mock";
 import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
 import {
@@ -9,6 +11,7 @@ import {
   updateLocalWorkout,
 } from "@/services/workout.service";
 import {
+  addLocalWorkoutDetail,
   getLocalWorkoutDetails,
   updateLocalWorkoutDetail,
 } from "@/services/workoutDetail.service";
@@ -93,7 +96,15 @@ const useLoadDetails = ({
 
   useEffect(() => {
     (async () => {
+      //   if (type === "RECORD" && userId && date) {
+      console.log("WorkoutDetails 로딩중");
       await loadLocalDetails();
+      // Load local workout details logic here
+      //   } else if (type === "ROUTINE" && userId && routineId) {
+      //   console.log("RoutineDetails 로딩중");
+      //   await loadLocalDetails();
+      // Load local routine details logic here
+      //   }
     })();
   }, [type, userId, date, routineId]);
 

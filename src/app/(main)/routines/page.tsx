@@ -1,10 +1,10 @@
-import RoutineContainer from "@/app/(main)/routines/_components/RoutineContainer";
+import RoutinesContainer from "@/app/(main)/routines/_components/RoutinesContainer";
 
 const RoutinesPage = () => {
   return (
-    <main>
+    <main className="">
       RoutinesPage
-      <RoutineContainer />
+      <RoutinesContainer />
     </main>
   );
 };

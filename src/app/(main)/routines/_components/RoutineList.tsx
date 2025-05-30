@@ -1,18 +1,32 @@
 import RoutineItem from "@/app/(main)/routines/_components/RoutineItem";
+import { getAllLocalRoutines } from "@/services/routine.service";
 import { LocalRoutine } from "@/types/models";
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 
-type RoutineListProps = {
-  routines: LocalRoutine[];
-};
+const RoutineList = ({
+  onPick,
+}: {
+  onPick: (routineId: number) => Promise<void>;
+}) => {
+  const [routines, setRoutines] = useState<LocalRoutine[]>([]);
+  const userId = useSession().data?.user?.id;
 
-const RoutineList = ({ routines }: RoutineListProps) => {
+  useEffect(() => {
+    (async () => {
+      if (userId) {
+        const allRoutines = await getAllLocalRoutines(userId);
+        setRoutines(allRoutines);
+      }
+    })();
+  }, [userId]);
   console.log(routines);
   return (
     <>
       {routines.length && (
-        <ul className="flex flex-col gap-4">
+        <ul className="flex flex-col gap-4 ">
           {routines.map((item) => (
-            <RoutineItem key={item.id} routine={item} />
+            <RoutineItem key={item.id} onPick={onPick} routine={item} />
           ))}
         </ul>
       )}

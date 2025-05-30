@@ -7,7 +7,7 @@ const ConfirmModal = ({
   onCancel,
 }: ConfirmModalProps) => {
   return (
-    <div role="dialog">
+    <div className="bg-white px-8 py-5 z-40" role="dialog">
       <h2 className="font-bold mb-2">{title || "확인"}</h2>
       <p>{message}</p>
       <div className="mt-4 flex justify-end gap-2">

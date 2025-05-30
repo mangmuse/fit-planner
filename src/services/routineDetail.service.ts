@@ -105,6 +105,24 @@ export const syncToServerRoutineDetails = async (): Promise<void> => {
   }
 };
 
+export const cloneRoutineDetailWithNewRoutineId = async (
+  originalDetail: LocalRoutineDetail,
+  newRoutineId: number
+) => {
+  console.log("hello", originalDetail, newRoutineId);
+  const { id, createdAt, updatedAt, serverId, isSynced, routineId, ...rest } =
+    originalDetail;
+  const newDetailInput: LocalRoutineDetail = {
+    ...rest,
+    routineId: newRoutineId,
+    serverId: null,
+    isSynced: false,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  await db.routineDetails.add(newDetailInput);
+};
+
 export const overwriteWithServerRoutineDetails = async (
   userId: string
 ): Promise<void> => {

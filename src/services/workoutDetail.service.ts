@@ -73,6 +73,12 @@ export async function addLocalWorkoutDetailsByUserDate(
   return workoutDetails;
 }
 
+export const addLocalWorkoutDetail = (
+  detailInput: LocalWorkoutDetail
+): void => {
+  db.workoutDetails.add(detailInput);
+};
+
 export async function addLocalWorkoutDetailsByWorkoutId(
   workoutId: number,
   startOrder: number,

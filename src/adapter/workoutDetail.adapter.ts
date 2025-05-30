@@ -9,6 +9,7 @@ import {
 } from "@/services/workout.service";
 import { NewWorkoutDetailInput } from "@/services/workoutDetail.service";
 import {
+  LocalRoutineDetail,
   LocalWorkoutDetail,
   LocalWorkoutDetailWithServerWorkoutId,
 } from "@/types/models";
@@ -136,4 +137,18 @@ export const getStartExerciseOrder = async (
   const lastDetail = allDetails[allDetails.length - 1];
   const startOrder = lastDetail ? lastDetail.exerciseOrder + 1 : 1;
   return startOrder;
+};
+
+export const convertRoutineDetailToWorkoutDetailInput = (
+  routineDetail: LocalRoutineDetail,
+  workoutId: LocalWorkoutDetail["workoutId"]
+): LocalWorkoutDetail => {
+  const { createdAt, updatedAt, isSynced, serverId, routineId, id, ...rest } =
+    routineDetail;
+  const workoutDetail: Partial<LocalWorkoutDetail> = {
+    ...rest,
+    isDone: false,
+    workoutId,
+  };
+  return createWorkoutDetail(workoutDetail);
 };
