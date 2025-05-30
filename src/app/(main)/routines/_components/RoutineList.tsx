@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 const RoutineList = ({
   onPick,
 }: {
-  onPick: (routineId: number) => Promise<void>;
+  onPick?: (routineId: number) => Promise<void>;
 }) => {
   const [routines, setRoutines] = useState<LocalRoutine[]>([]);
   const userId = useSession().data?.user?.id;
