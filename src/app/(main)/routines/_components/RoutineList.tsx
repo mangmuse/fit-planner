@@ -23,7 +23,7 @@ const RoutineList = ({
   console.log(routines);
   return (
     <>
-      {routines.length && (
+      {routines.length > 0 && (
         <ul className="flex flex-col gap-4 ">
           {routines.map((item) => (
             <RoutineItem key={item.id} onPick={onPick} routine={item} />
