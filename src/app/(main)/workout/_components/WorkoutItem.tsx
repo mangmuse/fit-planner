@@ -1,6 +1,5 @@
 "use client";
 import deletIcon from "public/delete.svg";
-import SetOrderCell from "@/app/(main)/workout/_components/SetOrderCell";
 import WorkoutCheckbox from "@/app/(main)/workout/_components/WorkoutCheckbox";
 import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import {
@@ -15,7 +14,7 @@ import {
 } from "@/types/models";
 import Image from "next/image";
 import { ChangeEventHandler, useRef, useState } from "react";
-import { c } from "node_modules/framer-motion/dist/types.d-6pKw1mTI";
+import SetOrderCell from "@/app/(main)/workout/_components/SetOrderCell";
 
 type WorkoutItemProps = {
   exercise: LocalExercise;
