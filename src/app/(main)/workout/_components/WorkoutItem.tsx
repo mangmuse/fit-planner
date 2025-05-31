@@ -1,6 +1,5 @@
 "use client";
 import deletIcon from "public/delete.svg";
-import SetOrderCell from "@/app/(main)/workout/_components/SetOrderCell";
 import WorkoutCheckbox from "@/app/(main)/workout/_components/WorkoutCheckbox";
 import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import {
@@ -15,10 +14,12 @@ import {
 } from "@/types/models";
 import Image from "next/image";
 import { ChangeEventHandler, useRef, useState } from "react";
+import SetOrderCell from "@/app/(main)/workout/_components/SetOrderCell";
 
 type WorkoutItemProps = {
   exercise: LocalExercise;
   workoutDetail: LocalWorkoutDetail | LocalRoutineDetail;
+  prevWorkoutDetail?: LocalWorkoutDetail;
   reorderAfterDelete: (deletedExerciseOrder: number) => Promise<void>;
 
   reload: () => Promise<void>;
@@ -26,6 +27,8 @@ type WorkoutItemProps = {
 
 const WorkoutItem = ({
   workoutDetail,
+  exercise,
+  prevWorkoutDetail,
   reload,
   reorderAfterDelete,
 }: WorkoutItemProps) => {
@@ -72,7 +75,11 @@ const WorkoutItem = ({
         loadLocalWorkoutDetails={reload}
         workoutDetail={workoutDetail}
       />
-      <td className="text-center">-</td>
+      <td className="text-center">
+        {prevWorkoutDetail
+          ? `${prevWorkoutDetail.weight} ${exercise.unit} x ${prevWorkoutDetail.reps} 회`
+          : "-"}
+      </td>
       <td className="text-center">
         <input
           data-testid="weight"

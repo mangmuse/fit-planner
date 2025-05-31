@@ -33,7 +33,6 @@ export const getRoutineByServerId = async (
 };
 
 export const getRoutineByLocalId = async (localId: number) => {
-  console.log(localId, "getRoutineByLocalIdgetRoutineByLocalId");
   const routine = await db.routines.where("id").equals(localId).first();
   if (!routine) throw new Error("일치하는 routine이 없습니다");
   return routine;
@@ -48,7 +47,6 @@ export const getAllLocalRoutines = async (userId: string) => {
 export const updateLocalRoutine = async (
   routine: Partial<LocalRoutine>
 ): Promise<void> => {
-  console.log(routine, "updateLocalRoutine");
   if (!routine.id) throw new Error("routine id는 꼭 전달해주세요");
   await db.routines.update(routine.id, {
     ...routine,
@@ -58,10 +56,7 @@ export const updateLocalRoutine = async (
 };
 
 export const syncToServerRoutines = async (): Promise<void> => {
-  console.log("syncToServerRoutines called");
-
   const all = await db.routines.toArray();
-  console.log("all routines to sync:", all);
 
   const unsynced = all.filter((routine) => !routine.isSynced);
   const data = await postRoutinesToServer(unsynced);

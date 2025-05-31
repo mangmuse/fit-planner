@@ -29,13 +29,11 @@ export const getWorkoutWithLocalId = async (
   id: number
 ): Promise<LocalWorkout | void> => {
   const workout = await db.workouts.where("id").equals(id).first();
-  console.log(workout, "이거 나오잖아 그치?");
   return workout;
 };
 
 export const syncToServerWorkouts = async (): Promise<void> => {
   const all = await db.workouts.toArray();
-  console.log("all workouts to sync:", all);
 
   const unsynced = all.filter((workout) => !workout.isSynced);
   const data = await postWorkoutsToServer(unsynced);
@@ -56,7 +54,6 @@ export async function overwriteWithServerWorkouts(
   const serverData: ClientWorkout[] = await fetchWorkoutsFromServer(userId);
   if (!serverData) throw new Error("데이터 받아오기를 실패했습니다");
   if (serverData.length === 0) return;
-  console.log(getFormattedDateYMD(serverData[0].date), "date 형태 확인");
   const toInsert = serverData.map((workout) => ({
     id: undefined,
     userId: workout.userId,

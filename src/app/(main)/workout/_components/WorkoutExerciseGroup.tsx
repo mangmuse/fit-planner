@@ -2,16 +2,14 @@ import SetActions from "@/app/(main)/workout/_components/SetActions";
 import WorkoutDetailGroupOptions from "@/app/(main)/workout/_components/WorkoutDetailGroupOptions";
 import WorkoutItem from "@/app/(main)/workout/_components/WorkoutItem";
 import WorkoutTableHeader from "@/app/(main)/workout/_components/WorkoutTableHeader";
-import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
+
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { getExerciseWithLocalId } from "@/services/exercise.service";
-import { updateLocalRoutineDetail } from "@/services/routineDetail.service";
 import {
-  getLocalWorkoutDetails,
-  updateLocalWorkoutDetail,
+  getLatestWorkoutDetailByExerciseId,
+  getWorkoutGroupByWorkoutDetail,
 } from "@/services/workoutDetail.service";
 import {
-  ClientWorkoutDetail,
   LocalExercise,
   LocalRoutineDetail,
   LocalWorkoutDetail,
@@ -34,6 +32,9 @@ const WorkoutExerciseGroup = ({
   reorderAfterDelete,
 }: WorkoutExerciseGroupProps) => {
   const [exercise, setExercise] = useState<LocalExercise | null>(null);
+  const [prevWorkoutDetails, setPrevDetails] = useState<LocalWorkoutDetail[]>(
+    []
+  );
   const { openBottomSheet } = useBottomSheet();
   const lastDetail = details[details.length - 1];
   const fetchAndSetExerciseData = async () => {
@@ -41,8 +42,22 @@ const WorkoutExerciseGroup = ({
     setExercise(exerciseData);
   };
 
+  const getPrevious = async () => {
+    const detail = await getLatestWorkoutDetailByExerciseId(details);
+    if (!detail) return [];
+
+    const workoutDetails = await getWorkoutGroupByWorkoutDetail(detail);
+    const completedDetails = workoutDetails
+      .filter((detail) => detail.isDone)
+      .map((detail, idx) => ({ ...detail, setOrder: idx + 1 }));
+    setPrevDetails(completedDetails);
+  };
+
   useEffect(() => {
-    fetchAndSetExerciseData();
+    (async () => {
+      await fetchAndSetExerciseData();
+      await getPrevious();
+    })();
   }, [details]);
 
   if (details.length === 0) return null;
@@ -75,15 +90,19 @@ const WorkoutExerciseGroup = ({
           </button>
         </div>
         <table className="w-full text-[10px]">
-          <WorkoutTableHeader exercise={exercise} />
+          <WorkoutTableHeader
+            prevDetails={prevWorkoutDetails}
+            exercise={exercise}
+          />
           <tbody>
-            {details.map((detail) => (
+            {details.map((detail, idx) => (
               <WorkoutItem
                 key={detail.id}
                 reorderAfterDelete={reorderAfterDelete}
                 exercise={exercise}
                 reload={reload}
                 workoutDetail={detail}
+                prevWorkoutDetail={prevWorkoutDetails[idx]}
               />
             ))}
           </tbody>

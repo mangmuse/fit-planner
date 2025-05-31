@@ -18,12 +18,9 @@ const requestBodySchema = z.object({
 type RequestBody = z.infer<typeof requestBodySchema>;
 
 export const POST = async (req: NextRequest) => {
-  console.log("hellohellohellohellohellohellohellohellohellohellohello");
   try {
     const body = await req.json();
-    console.log(body, "bodybodybodybodybodybody");
     const parsedBody = validateData<RequestBody>(requestBodySchema, body);
-    console.log(parsedBody, "parsedBodyparsedBodyparsedBody");
     const unsynced = parsedBody.mappedUnsynced;
     const updatedList: SyncRoutineDetailsToServerResponse["updated"] = [];
     await pMap(
@@ -58,7 +55,6 @@ export const POST = async (req: NextRequest) => {
               "RoutineId가 일치하는 routine을 찾지 못했습니다",
               404
             );
-          console.log(detail, "여기왔나요??????");
           const created = await prisma.routineDetail.create({
             data: {
               ...detailInput,
