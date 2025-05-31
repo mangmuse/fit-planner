@@ -14,7 +14,6 @@ import {
   LocalRoutineDetail,
   LocalWorkoutDetail,
 } from "@/types/models";
-import { set } from "lodash";
 import Image from "next/image";
 import menuIcon from "public/meatball.svg";
 import { useEffect, useState } from "react";

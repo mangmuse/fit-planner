@@ -14,7 +14,7 @@ const PrevWorkoutDetails = ({ prevDetails }: PrevWorkoutDetailsProps) => {
 
       <ul>
         {prevDetails.map((detail, idx) => (
-          <li className="flex flex-col gap-1 max-w-48" key={idx}>
+          <li className="flex flex-col gap-1 max-w-48" key={detail.id}>
             <div className="flex gap-1 ">
               <span>{idx + 1}.</span>
               <span>
