@@ -64,7 +64,6 @@ const useSelectedExercises = ({
 
   const handleAddDetail = async () => {
     if (type === "RECORD" && userId && date) {
-      console.log("dqwjdqwpoj");
       await addLocalWorkoutDetailsByUserDate(userId, date, selectedExercises);
       router.push(`/workout/${date}`);
     } else {
@@ -84,10 +83,8 @@ const useSelectedExercises = ({
   };
 
   const handleReplaceExercise = async () => {
-    console.log(reloadDetails);
     try {
       if (!currentDetails || currentDetails.length === 0) return;
-      console.log("hello");
       if (isWorkoutDetails(currentDetails)) {
         const { exerciseOrder: startOrder, workoutId } = currentDetails[0];
         await addLocalWorkoutDetailsByWorkoutId(

@@ -43,7 +43,6 @@ export const fetchRoutinesFromServer = async (
     data
   );
   const serverRoutines = parsedData.routines;
-  console.log(serverRoutines, "서버에서 받아온 루틴들");
   return serverRoutines;
 };
 
@@ -55,7 +54,6 @@ export async function postRoutinesToServer(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ unsynced }),
   });
-  console.log(res, "res from postRoutinesToServer");
 
   if (!res.ok) throw new Error(POST_ROUTINES_ERROR);
 

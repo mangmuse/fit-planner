@@ -81,7 +81,6 @@ const WorkoutDetailGroupOptions = ({
     await reload();
   };
   const handleOpenDeleteConfirmModal = () => {
-    console.log("hello");
     closeBottomSheet();
     openModal({
       type: "confirm",

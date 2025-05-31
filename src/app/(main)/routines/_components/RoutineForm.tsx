@@ -17,12 +17,10 @@ const RoutineForm = () => {
 
   const loadName = async () => {
     const routine = await getRoutineByLocalId(Number(routineId));
-    console.log("routineroutineroutineroutine", routine);
     setName(routine.name);
   };
 
   useEffect(() => {
-    console.log(routineId, "routineId");
     loadName();
   }, []);
 

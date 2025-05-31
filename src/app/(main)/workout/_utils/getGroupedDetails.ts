@@ -34,7 +34,6 @@ export const getGroupedDetails = <
     exerciseOrder: index + 1,
     details: group.details,
   }));
-  console.log(adjustedGroups);
 
   return adjustedGroups;
 };

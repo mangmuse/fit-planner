@@ -20,7 +20,6 @@ const RoutineList = ({
       }
     })();
   }, [userId]);
-  console.log(routines);
   return (
     <>
       {routines.length > 0 && (

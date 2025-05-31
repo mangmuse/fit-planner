@@ -14,7 +14,6 @@ const WorkoutTableHeader = ({
 }: WorkoutTableHeaderProps) => {
   const { openModal } = useModal();
   const handleDisplayPrevDetailsModal = () => {
-    console.log(prevDetails, "prevDetails");
     if (prevDetails.length < 0) return;
     openModal({
       type: "generic",

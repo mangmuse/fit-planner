@@ -20,7 +20,6 @@ const WorkoutCalendar = () => {
   const year = dayjs(currentDate).year();
   const month = dayjs(currentDate).month();
   const { data } = useSession();
-  console.log(data?.user?.id);
   const { start: startDate, end: endDate } = getMonthRange(year, month);
 
   const firstDayOfMonth = dayjs(currentDate).startOf("month");

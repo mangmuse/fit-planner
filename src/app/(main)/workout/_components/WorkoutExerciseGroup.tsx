@@ -45,7 +45,6 @@ const WorkoutExerciseGroup = ({
 
   const getPrevious = async () => {
     const detail = await getLatestWorkoutDetailByExerciseId(details);
-    console.log(detail, "detail");
     if (!detail) return [];
 
     const workoutDetails = await getWorkoutGroupByWorkoutDetail(detail);

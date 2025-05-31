@@ -17,11 +17,9 @@ const RoutineDetailContainer = ({
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const { routineId } = useParams();
-  console.log(routineId);
   const getDetails = async () => {
     const id = routineId ?? TEMP_ROUTINE_ID;
     const good = await getLocalRoutineDetails(Number(id));
-    console.log(good);
   };
 
   useEffect(() => {

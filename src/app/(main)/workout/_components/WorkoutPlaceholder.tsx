@@ -30,7 +30,6 @@ function WorkoutPlaceholder({
   date,
   reloadDetails,
 }: WorkoutPlaceholderProps) {
-  console.log(type, "type");
   const pathname = usePathname();
   const { openBottomSheet } = useBottomSheet();
 

@@ -54,13 +54,11 @@ export const fetchRoutineDetailsFromServer = async (
 export const postRoutineDetailsToServer = async (
   mappedUnsynced: LocalRoutineDetailWithServerRoutineId[]
 ): Promise<SyncRoutineDetailsToServerResponse> => {
-  console.log("dqwijhdqwoihdwqoihdwqiohdwioqhdiwoqhdioqwhdioqwh");
   const res = await fetch(`${BASE_URL}/api/routine/detail/sync`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ mappedUnsynced }),
   });
-  console.log(res);
 
   if (!res.ok) throw new Error(POST_ROUTINE_DETAILS_ERROR);
 

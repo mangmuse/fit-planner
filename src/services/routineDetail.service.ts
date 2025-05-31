@@ -38,7 +38,6 @@ export const getLocalRoutineDetails = async (
   routineId: number
 ): Promise<LocalRoutineDetail[]> => {
   // routineId로 db에서 가져오기
-  console.log(routineId);
   const details = await db.routineDetails
     .where("routineId")
     .equals(routineId)
@@ -80,11 +79,8 @@ export const updateLocalRoutineDetail = async (
 
 export const syncToServerRoutineDetails = async (): Promise<void> => {
   // syncToServerRoutine 가 완료된 후에 호출되어야 함
-  console.log("hellooo?");
-  console.log("syncToServerRoutineDetails called");
 
   const all = await db.routineDetails.toArray();
-  console.log("all routineDetails to sync:", all);
 
   const unsynced = all.filter((detail) => !detail.isSynced);
   const mappedUnsynced = await convertLocalRoutineDetailsToServer(unsynced);
@@ -109,7 +105,6 @@ export const cloneRoutineDetailWithNewRoutineId = async (
   originalDetail: LocalRoutineDetail,
   newRoutineId: number
 ) => {
-  console.log("hello", originalDetail, newRoutineId);
   const { id, createdAt, updatedAt, serverId, isSynced, routineId, ...rest } =
     originalDetail;
   const newDetailInput: LocalRoutineDetail = {
