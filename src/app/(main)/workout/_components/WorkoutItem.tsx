@@ -15,10 +15,12 @@ import {
 } from "@/types/models";
 import Image from "next/image";
 import { ChangeEventHandler, useRef, useState } from "react";
+import { c } from "node_modules/framer-motion/dist/types.d-6pKw1mTI";
 
 type WorkoutItemProps = {
   exercise: LocalExercise;
   workoutDetail: LocalWorkoutDetail | LocalRoutineDetail;
+  prevWorkoutDetail?: LocalWorkoutDetail;
   reorderAfterDelete: (deletedExerciseOrder: number) => Promise<void>;
 
   reload: () => Promise<void>;
@@ -26,6 +28,8 @@ type WorkoutItemProps = {
 
 const WorkoutItem = ({
   workoutDetail,
+  exercise,
+  prevWorkoutDetail,
   reload,
   reorderAfterDelete,
 }: WorkoutItemProps) => {
@@ -72,7 +76,11 @@ const WorkoutItem = ({
         loadLocalWorkoutDetails={reload}
         workoutDetail={workoutDetail}
       />
-      <td className="text-center">-</td>
+      <td className="text-center">
+        {prevWorkoutDetail
+          ? `${prevWorkoutDetail.weight} ${exercise.unit} x ${prevWorkoutDetail.reps} 회`
+          : "-"}
+      </td>
       <td className="text-center">
         <input
           data-testid="weight"
