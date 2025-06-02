@@ -9,6 +9,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 
 import useLoadDetails from "@/hooks/useLoadDetails";
+import LoadPastWorkoutSheet from "@/app/(main)/workout/_components/LoadPastWorkoutSheet";
 
 type WorkoutContainerProps = {
   type: "ROUTINE" | "RECORD";
@@ -26,6 +27,13 @@ const WorkoutContainer = ({ type, date, routineId }: WorkoutContainerProps) => {
       routineId,
     });
   const { openBottomSheet } = useBottomSheet();
+
+  const handleOpenLocalWorkoutSheet = () => {
+    openBottomSheet({
+      height: "95vh",
+      children: <LoadPastWorkoutSheet />,
+    });
+  };
 
   const exercisePath =
     type === "RECORD"
@@ -68,6 +76,7 @@ const WorkoutContainer = ({ type, date, routineId }: WorkoutContainerProps) => {
           >
             순서바꾸는 버튼
           </button>
+          <button onClick={handleOpenLocalWorkoutSheet}>불러오기</button>
         </ul>
       ) : (
         <WorkoutPlaceholder reloadDetails={reload} {...placeholderProps} />
