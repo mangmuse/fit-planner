@@ -118,6 +118,17 @@ export const getLocalWorkoutDetails = async (
   return details;
 };
 
+export const getLocalWorkoutDetailsByWorkoutId = async (
+  workoutId: number
+): Promise<LocalWorkoutDetail[]> => {
+  if (!workoutId) throw new Error("workoutId가 없습니다");
+  const details = await db.workoutDetails
+    .where("workoutId")
+    .equals(workoutId)
+    .toArray();
+  return details;
+};
+
 export const updateLocalWorkoutDetail = async (
   updateWorkoutInput: Partial<LocalWorkoutDetail>
 ): Promise<void> => {
