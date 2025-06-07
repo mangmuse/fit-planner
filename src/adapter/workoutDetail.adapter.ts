@@ -49,6 +49,27 @@ export function createWorkoutDetail(
   };
 }
 
+export const mapPastWorkoutToWorkoutDetail = (
+  pastWorkoutDetail: LocalWorkoutDetail,
+  targetWorkoutId: number,
+  newExerciseOrder: number
+): LocalWorkoutDetail => {
+  const initialDetail = getInitialWorkoutDetail();
+
+  return {
+    ...initialDetail,
+    workoutId: targetWorkoutId,
+    exerciseId: pastWorkoutDetail.exerciseId,
+    exerciseName: pastWorkoutDetail.exerciseName,
+    exerciseOrder: newExerciseOrder,
+    setOrder: pastWorkoutDetail.setOrder,
+    weight: pastWorkoutDetail.weight,
+    reps: pastWorkoutDetail.reps,
+    rpe: pastWorkoutDetail.rpe,
+    setType: pastWorkoutDetail.setType,
+  };
+};
+
 // TODO 비슷한함수 너무 많다
 
 export const getAddSetToWorkoutByLastSet = (

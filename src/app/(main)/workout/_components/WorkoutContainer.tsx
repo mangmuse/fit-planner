@@ -37,6 +37,7 @@ const WorkoutContainer = ({ type, date, routineId }: WorkoutContainerProps) => {
           routineId={routineId}
           startExerciseOrder={workoutGroups.length + 1}
           date={date}
+          reload={reload}
         />
       ),
     });

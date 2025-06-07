@@ -1,8 +1,18 @@
 "use client;";
 
 import { useSelectedWorkoutGroups } from "@/__mocks__/src/store/useSelectedWorkoutGroups";
-import { getInitialWorkoutDetail } from "@/adapter/workoutDetail.adapter";
+import {
+  getInitialRoutineDetail,
+  mapPastWorkoutToRoutineDetail,
+} from "@/adapter/routineDetail.adapter";
+import {
+  getInitialWorkoutDetail,
+  mapPastWorkoutToWorkoutDetail,
+} from "@/adapter/workoutDetail.adapter";
 import PastWorkoutList from "@/app/(main)/workout/_components/PastWorkoutList";
+import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
+import { getRoutineByLocalId } from "@/services/routine.service";
+import { addLocalRoutineDetail } from "@/services/routineDetail.service";
 import {
   getAllWorkouts,
   getWorkoutByUserIdAndDate,
@@ -11,13 +21,18 @@ import {
   addLocalWorkoutDetail,
   getLocalWorkoutDetailsByWorkoutIdAndExerciseOrder,
 } from "@/services/workoutDetail.service";
-import { LocalWorkout, LocalWorkoutDetail } from "@/types/models";
+import {
+  LocalRoutineDetail,
+  LocalWorkout,
+  LocalWorkoutDetail,
+} from "@/types/models";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type LoadPastWorkoutSheetProps = {
   type: "ROUTINE" | "RECORD";
+  reload: () => Promise<void>;
   startExerciseOrder: number;
   routineId?: number;
   date?: string;
@@ -27,10 +42,12 @@ const LoadPastWorkoutSheet = ({
   type,
   date,
   routineId,
+  reload,
   startExerciseOrder,
 }: LoadPastWorkoutSheetProps) => {
   const { data: session } = useSession();
   const userId = session?.user?.id;
+  const { closeBottomSheet } = useBottomSheet();
   const reset = useSelectedWorkoutGroups((state) => state.reset);
   const selectedGroups = useSelectedWorkoutGroups(
     (state) => state.selectedGroups
@@ -48,6 +65,8 @@ const LoadPastWorkoutSheet = ({
 
         await Promise.all(
           details.map(async (detail) => {
+            const newExerciseOrder = startExerciseOrder + index + 1;
+
             if (type === "RECORD") {
               if (!userId || !date)
                 throw new Error("userId 또는 date가 없습니다");
@@ -55,27 +74,31 @@ const LoadPastWorkoutSheet = ({
               if (!workout || !workout.id) {
                 throw new Error("해당 날짜의 운동 기록이 없습니다");
               }
-              const initialDetail = getInitialWorkoutDetail();
-              const newDetail: LocalWorkoutDetail = {
-                ...initialDetail,
-                workoutId: workout.id,
-                exerciseId: detail.exerciseId,
-                exerciseName: detail.exerciseName,
-                exerciseOrder: startExerciseOrder + index + 1,
-                setOrder: detail.setOrder,
-                weight: detail.weight,
-                reps: detail.reps,
-                rpe: detail.rpe,
-                setType: detail.setType,
-              };
+
+              const newDetail = mapPastWorkoutToWorkoutDetail(
+                detail,
+                workout.id,
+                newExerciseOrder
+              );
               await addLocalWorkoutDetail(newDetail);
+            } else if (type === "ROUTINE") {
+              if (!routineId) return;
+              const routine = await getRoutineByLocalId(routineId);
+              if (!routine.id) throw new Error("루틴 ID가 없습니다");
+
+              const newDetail = mapPastWorkoutToRoutineDetail(
+                detail,
+                routine.id,
+                newExerciseOrder
+              );
+              await addLocalRoutineDetail(newDetail);
             }
           })
         );
       })
     );
-
-    // TODO 로직 함수로 분리 및 reload + 루틴로직추가
+    await reload();
+    closeBottomSheet();
   };
 
   useEffect(() => {
@@ -91,10 +114,26 @@ const LoadPastWorkoutSheet = ({
     return () => reset();
   }, [userId, params.date]);
   return (
-    <>
-      <PastWorkoutList pastWorkouts={pastWorkouts} />
-      <button onClick={handleAddSelectedWorkout}>선택완료</button>
-    </>
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto px-4 pb-4">
+        <PastWorkoutList pastWorkouts={pastWorkouts} />
+      </div>
+      <div className="sticky bottom-0 p-4 bg-bg-surface-variant border-t border-border-gray">
+        <button
+          onClick={handleAddSelectedWorkout}
+          disabled={selectedGroups.length === 0}
+          className={`w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 ${
+            selectedGroups.length > 0
+              ? "bg-primary text-bg-base hover:bg-primary/90 active:scale-95"
+              : "bg-bg-surface text-text-muted cursor-not-allowed"
+          }`}
+        >
+          {selectedGroups.length > 0
+            ? `선택완료 (${selectedGroups.length}개)`
+            : "운동을 선택해주세요"}
+        </button>
+      </div>
+    </div>
   );
 };
 
