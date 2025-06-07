@@ -1,15 +1,19 @@
-import { useSelectedWokroutDetails } from "@/__mocks__/src/store/useSelectedWorkoutDetails";
+import { useSelectedWorkoutGroups } from "@/__mocks__/src/store/useSelectedWorkoutGroups";
 import ExpandedWorkoutItem from "@/app/(main)/workout/_components/ExpandedWorkoutItem";
 import { WorkoutGroup } from "@/hooks/useLoadDetails";
 import { getExerciseWithLocalId } from "@/services/exercise.service";
+import { LocalWorkoutDetail } from "@/types/models";
 import { on } from "events";
 import { useEffect, useState } from "react";
 
 type ExpanedWorkoutGroupProps = {
-  workoutGroup: WorkoutGroup;
+  workoutGroup: {
+    exerciseOrder: number;
+    details: LocalWorkoutDetail[];
+  };
   isSelected: boolean;
 
-  onToggleSelect: (exerciseOrder: number) => void;
+  onToggleSelect: (workoutId: number, exerciseOrder: number) => void;
 };
 
 const ExpandedWorkoutGroup = ({
@@ -20,11 +24,11 @@ const ExpandedWorkoutGroup = ({
   const exerciseName = workoutGroup.details[0].exerciseName;
   const [exerciseUnit, setExerciseUnit] = useState<"kg" | "lbs">("kg");
 
-  const handleToggleSelect = () =>
-    workoutGroup.details.forEach((detail) => {
-      if (!detail.id) throw new Error("detail id가 없어요");
-      onToggleSelect(detail.id);
-    });
+  const handleToggleSelect = () => {
+    const workoutId = workoutGroup.details[0].workoutId;
+    const exerciseOrder = workoutGroup.exerciseOrder;
+    onToggleSelect(workoutId, exerciseOrder);
+  };
 
   useEffect(() => {
     (async () => {

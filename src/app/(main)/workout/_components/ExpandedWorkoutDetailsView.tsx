@@ -1,4 +1,4 @@
-import { useSelectedWokroutDetails } from "@/__mocks__/src/store/useSelectedWorkoutDetails";
+import { useSelectedWorkoutGroups } from "@/__mocks__/src/store/useSelectedWorkoutGroups";
 import ExpandedWorkoutGroup from "@/app/(main)/workout/_components/ExpandedWorkoutGroup";
 import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
 import { WorkoutGroup } from "@/hooks/useLoadDetails";
@@ -7,6 +7,7 @@ import {
   getLocalWorkoutDetails,
   getLocalWorkoutDetailsByWorkoutId,
 } from "@/services/workoutDetail.service";
+import { LocalWorkoutDetail } from "@/types/models";
 import { useEffect, useState } from "react";
 
 type ExpandedWorkoutDetailsViewProps = {
@@ -17,12 +18,23 @@ const ExpandedWorkoutDetailsView = ({
   onToggle,
   workoutId,
 }: ExpandedWorkoutDetailsViewProps) => {
-  const [expandedDetails, setExpandedDetails] = useState<WorkoutGroup[]>([]);
-  const { selectedIds, toggleId } = useSelectedWokroutDetails();
-  console.log(selectedIds);
-
-  const getIsSelected = (group: WorkoutGroup) =>
-    group.details.every((detail) => selectedIds.includes(detail.id ?? 0));
+  const [expandedDetails, setExpandedDetails] = useState<
+    {
+      exerciseOrder: number;
+      details: LocalWorkoutDetail[];
+    }[]
+  >([]);
+  const { selectedGroups, toggleGroup } = useSelectedWorkoutGroups();
+  console.log(selectedGroups, "selectedGroups");
+  const getIsSelected = (group: {
+    exerciseOrder: number;
+    details: LocalWorkoutDetail[];
+  }) =>
+    selectedGroups.some(
+      (g) =>
+        group.details[0].workoutId === g.workoutId &&
+        group.exerciseOrder === g.exerciseOrder
+    );
 
   useEffect(() => {
     (async () => {
@@ -40,7 +52,7 @@ const ExpandedWorkoutDetailsView = ({
             <ExpandedWorkoutGroup
               key={group.exerciseOrder}
               isSelected={getIsSelected(group)}
-              onToggleSelect={toggleId}
+              onToggleSelect={toggleGroup}
               workoutGroup={group}
             />
           ))}

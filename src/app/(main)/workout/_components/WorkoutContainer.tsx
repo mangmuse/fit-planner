@@ -27,11 +27,18 @@ const WorkoutContainer = ({ type, date, routineId }: WorkoutContainerProps) => {
       routineId,
     });
   const { openBottomSheet } = useBottomSheet();
-
+  console.log(workoutGroups);
   const handleOpenLocalWorkoutSheet = () => {
     openBottomSheet({
       height: "95vh",
-      children: <LoadPastWorkoutSheet />,
+      children: (
+        <LoadPastWorkoutSheet
+          type={type}
+          routineId={routineId}
+          startExerciseOrder={workoutGroups.length + 1}
+          date={date}
+        />
+      ),
     });
   };
 
