@@ -25,6 +25,11 @@ type UseLoadDetailsProps = {
   routineId?: number;
 };
 
+export type WorkoutGroup = {
+  exerciseOrder: number;
+  details: LocalWorkoutDetail[] | LocalRoutineDetail[];
+};
+
 const useLoadDetails = ({
   type,
   userId,
@@ -35,12 +40,7 @@ const useLoadDetails = ({
   const [allDetails, setAllDetails] = useState<
     LocalWorkoutDetail[] | LocalRoutineDetail[]
   >([]);
-  const [workoutGroups, setWorkoutGroups] = useState<
-    {
-      exerciseOrder: number;
-      details: LocalWorkoutDetail[] | LocalRoutineDetail[];
-    }[]
-  >([]);
+  const [workoutGroups, setWorkoutGroups] = useState<WorkoutGroup[]>([]);
 
   const loadLocalDetails = async () => {
     if (type === "RECORD") {
@@ -48,7 +48,6 @@ const useLoadDetails = ({
       const details = await getLocalWorkoutDetails(userId, date);
       setAllDetails(details);
       const adjustedGroups = getGroupedDetails(details);
-      console.log(adjustedGroups, "adjustedGroupsadjustedGroups");
 
       setWorkoutGroups(adjustedGroups);
       setIsLoading(false);

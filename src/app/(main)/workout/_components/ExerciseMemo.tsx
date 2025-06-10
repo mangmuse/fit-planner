@@ -1,3 +1,6 @@
+import DailyMemoContent from "@/app/(main)/workout/_components/ExerciseMemo/DailyMemoContent";
+import ExerciseMemoTab from "@/app/(main)/workout/_components/ExerciseMemo/ExerciseMemoTab";
+import FixedMemoContent from "@/app/(main)/workout/_components/ExerciseMemo/FixedMemoContent";
 import { useModal } from "@/providers/contexts/ModalContext";
 import { updateExercise } from "@/services/exercise.service";
 import { LocalExercise } from "@/types/models";
@@ -16,10 +19,9 @@ const ExerciseMemo = ({ exercise, loadExercises }: ExerciseMemoProps) => {
   const initialMemo = existingMemo?.content || "";
 
   const [memoText, setMemoText] = useState(initialMemo);
-
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setMemoText(e.target.value);
-  };
+  const [activeTab, setActiveTab] = useState<"fixed" | "today">("fixed");
+  const [isWritingNew, setIsWritingNew] = useState(false);
+  const [newMemoText, setNewMemoText] = useState("");
 
   const handleUpdateMemo = async () => {
     if (!loadExercises) return;
@@ -47,21 +49,30 @@ const ExerciseMemo = ({ exercise, loadExercises }: ExerciseMemoProps) => {
     closeModal();
   };
 
+  const handleSelectTab = (tab: "fixed" | "today") => setActiveTab(tab);
+
   return (
-    <div className="relative flex px-6 rounded-xl text-white flex-col item-center pt-5 bg-bg-surface-variant w-80 h-[350px]">
+    <div className="relative flex px-6 rounded-xl text-white flex-col item-center pt-5 bg-bg-surface-variant w-80 h-[400px]">
       <span className="text-center font-semibold">{exercise.name}</span>
-      <textarea
-        value={memoText}
-        onChange={handleChange}
-        placeholder="메모를 입력하세요"
-        className="placeholder:opacity-50 text-xs p-3 bg-[#444444] mt-4 rounded-lg self-center w-full h-48 resize-none outline-none"
-      />
-      <span className="text-[10px] opacity-50 mt-1">
-        마지막 수정일{" "}
-        {getFormattedDateYMD(
-          existingMemo?.updatedAt ?? existingMemo?.createdAt
-        )}
-      </span>
+
+      <ExerciseMemoTab activeTab={activeTab} onSelect={handleSelectTab} />
+
+      {activeTab === "fixed" && (
+        <FixedMemoContent
+          existingMemo={existingMemo}
+          onChange={setMemoText}
+          memoText={memoText}
+        />
+      )}
+      {activeTab === "today" && (
+        <DailyMemoContent
+          isWritingNew={isWritingNew}
+          newMemoText={newMemoText}
+          setIsWritingNew={setIsWritingNew}
+          setNewMemoText={setNewMemoText}
+        />
+      )}
+
       <nav className="flex h-14 font-semibold w-full border-t-2 border-border-gray absolute right-0 left-0 bottom-0">
         <button
           onClick={closeModal}
@@ -70,7 +81,9 @@ const ExerciseMemo = ({ exercise, loadExercises }: ExerciseMemoProps) => {
           취소
         </button>
         <button
-          disabled={!memoText.trim() && !existingMemo}
+          disabled={
+            activeTab === "fixed" ? !memoText.trim() && !existingMemo : true
+          }
           onClick={handleUpdateMemo}
           className="w-1/2 text-primary disabled:opacity-30"
         >

@@ -32,7 +32,9 @@ export const getRoutineByServerId = async (
   return routine;
 };
 
-export const getRoutineByLocalId = async (localId: number) => {
+export const getRoutineByLocalId = async (
+  localId: number
+): Promise<LocalRoutine> => {
   const routine = await db.routines.where("id").equals(localId).first();
   if (!routine) throw new Error("일치하는 routine이 없습니다");
   return routine;

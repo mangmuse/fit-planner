@@ -14,16 +14,8 @@ import {
   LocalWorkoutDetailWithServerWorkoutId,
 } from "@/types/models";
 
-export function createWorkoutDetail(
-  override: Partial<LocalWorkoutDetail>
-): LocalWorkoutDetail {
-  const { exerciseName, exerciseId, exerciseOrder, setOrder, workoutId } =
-    override;
-  if (!exerciseName || !exerciseId || !exerciseOrder || !setOrder || !workoutId)
-    throw new Error(
-      "exerciseName, exerciseId, exerciseOrder, setOrder, workoutId 는 필수 입력사항입니다."
-    );
-  const defaultValue: LocalWorkoutDetail = {
+export const getInitialWorkoutDetail = (): LocalWorkoutDetail => {
+  return {
     serverId: null,
     weight: 0,
     rpe: null,
@@ -38,12 +30,47 @@ export function createWorkoutDetail(
     workoutId: 0,
     createdAt: new Date().toISOString(),
   };
+};
+
+export function createWorkoutDetail(
+  override: Partial<LocalWorkoutDetail>
+): LocalWorkoutDetail {
+  const { exerciseName, exerciseId, exerciseOrder, setOrder, workoutId } =
+    override;
+  if (!exerciseName || !exerciseId || !exerciseOrder || !setOrder || !workoutId)
+    throw new Error(
+      "exerciseName, exerciseId, exerciseOrder, setOrder, workoutId 는 필수 입력사항입니다."
+    );
+  const defaultValue: LocalWorkoutDetail = getInitialWorkoutDetail();
 
   return {
     ...defaultValue,
     ...override,
   };
 }
+
+export const mapPastWorkoutToWorkoutDetail = (
+  pastWorkoutDetail: LocalWorkoutDetail,
+  targetWorkoutId: number,
+  newExerciseOrder: number
+): LocalWorkoutDetail => {
+  const initialDetail = getInitialWorkoutDetail();
+
+  return {
+    ...initialDetail,
+    workoutId: targetWorkoutId,
+    exerciseId: pastWorkoutDetail.exerciseId,
+    exerciseName: pastWorkoutDetail.exerciseName,
+    exerciseOrder: newExerciseOrder,
+    setOrder: pastWorkoutDetail.setOrder,
+    weight: pastWorkoutDetail.weight,
+    reps: pastWorkoutDetail.reps,
+    rpe: pastWorkoutDetail.rpe,
+    setType: pastWorkoutDetail.setType,
+  };
+};
+
+// TODO 비슷한함수 너무 많다
 
 export const getAddSetToWorkoutByLastSet = (
   lastSet: LocalWorkoutDetail

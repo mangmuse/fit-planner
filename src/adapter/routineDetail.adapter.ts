@@ -4,19 +4,11 @@ import { NewRoutineDetailInput } from "@/services/routineDetail.service";
 import {
   LocalRoutineDetail,
   LocalRoutineDetailWithServerRoutineId,
+  LocalWorkoutDetail,
 } from "@/types/models";
 
-export const createRoutineDetail = (
-  override: Partial<LocalRoutineDetail>
-): LocalRoutineDetail => {
-  const { exerciseName, exerciseId, exerciseOrder, setOrder, routineId } =
-    override;
-  if (!exerciseName || !exerciseId || !exerciseOrder || !setOrder || !routineId)
-    throw new Error(
-      "exerciseName, exerciseId, exerciseOrder, setOrder, routineId 는 필수 입력사항입니다."
-    );
-
-  const defaultValue: LocalRoutineDetail = {
+export const getInitialRoutineDetail = (): LocalRoutineDetail => {
+  return {
     serverId: null,
     weight: 0,
     rpe: null,
@@ -30,6 +22,17 @@ export const createRoutineDetail = (
     routineId: -9999,
     createdAt: new Date().toISOString(),
   };
+};
+
+export const createRoutineDetail = (
+  override: Partial<LocalRoutineDetail>
+): LocalRoutineDetail => {
+  const { exerciseName, exerciseId, exerciseOrder, setOrder, routineId } =
+    override;
+  if (!exerciseName || !exerciseId || !exerciseOrder || !setOrder || !routineId)
+    throw new Error("...");
+
+  const defaultValue = getInitialRoutineDetail();
 
   return {
     ...defaultValue,
@@ -75,6 +78,28 @@ export const getAddSetToRoutineByLastSet = (
   };
 
   return createRoutineDetail(addSetInput);
+};
+
+export const mapPastWorkoutToRoutineDetail = (
+  pastWorkoutDetail: LocalWorkoutDetail,
+  targetRoutineId: number,
+  newExerciseOrder: number
+): LocalRoutineDetail => {
+  const initialDetail = getInitialRoutineDetail();
+
+  // isDone 제외하고 나머지 필드 매핑
+  return {
+    ...initialDetail,
+    routineId: targetRoutineId,
+    exerciseId: pastWorkoutDetail.exerciseId,
+    exerciseName: pastWorkoutDetail.exerciseName,
+    exerciseOrder: newExerciseOrder,
+    setOrder: pastWorkoutDetail.setOrder,
+    weight: pastWorkoutDetail.weight,
+    reps: pastWorkoutDetail.reps,
+    rpe: pastWorkoutDetail.rpe,
+    setType: pastWorkoutDetail.setType,
+  };
 };
 
 export const convertLocalRoutineDetailsToServer = async (

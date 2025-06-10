@@ -1,4 +1,4 @@
-import { LocalWorkoutDetail } from "./../types/models";
+import { LocalWorkout, LocalWorkoutDetail } from "./../types/models";
 import {
   fetchWorkoutDetailsFromServer,
   postWorkoutDetailsToServer,
@@ -75,10 +75,10 @@ export async function addLocalWorkoutDetailsByUserDate(
   return workoutDetails;
 }
 
-export const addLocalWorkoutDetail = (
+export const addLocalWorkoutDetail = async (
   detailInput: LocalWorkoutDetail
-): void => {
-  db.workoutDetails.add(detailInput);
+): Promise<void> => {
+  console.log(await db.workoutDetails.add(detailInput));
 };
 
 export async function addLocalWorkoutDetailsByWorkoutId(
@@ -118,6 +118,27 @@ export const getLocalWorkoutDetails = async (
   return details;
 };
 
+export const getLocalWorkoutDetailsByWorkoutId = async (
+  workoutId: number
+): Promise<LocalWorkoutDetail[]> => {
+  if (!workoutId) throw new Error("workoutId가 없습니다");
+  const details = await db.workoutDetails
+    .where("workoutId")
+    .equals(workoutId)
+    .toArray();
+  return details;
+};
+
+export const getLocalWorkoutDetailsByWorkoutIdAndExerciseOrder = async (
+  workoutId: number,
+  exerciseOrder: number
+): Promise<LocalWorkoutDetail[]> => {
+  return db.workoutDetails
+    .where("workoutId")
+    .equals(workoutId)
+    .and((detail) => detail.exerciseOrder === exerciseOrder)
+    .toArray();
+};
 export const updateLocalWorkoutDetail = async (
   updateWorkoutInput: Partial<LocalWorkoutDetail>
 ): Promise<void> => {

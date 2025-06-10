@@ -34,6 +34,12 @@ export async function addLocalRoutineDetailsByWorkoutId(
   return routineDetails;
 }
 
+export const addLocalRoutineDetail = async (
+  routineDetailInput: LocalRoutineDetail
+): Promise<void> => {
+  await db.routineDetails.add(routineDetailInput);
+};
+
 export const getLocalRoutineDetails = async (
   routineId: number
 ): Promise<LocalRoutineDetail[]> => {

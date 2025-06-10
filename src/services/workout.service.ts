@@ -18,6 +18,21 @@ export const getWorkoutByUserIdAndDate = async (
   return workout;
 };
 
+// export const getPastWorkouts = async (
+//   workoutId: number
+// ): Promise<LocalWorkout[]> => {};
+
+export const getAllWorkouts = async (
+  userId: string
+): Promise<LocalWorkout[]> => {
+  const workouts = await db.workouts
+    .where("userId")
+    .equals(userId)
+    .sortBy("date")
+    .then((workouts) => workouts.reverse());
+
+  return workouts;
+};
 export const getWorkoutWithServerId = async (
   serverId: string
 ): Promise<LocalWorkout> => {

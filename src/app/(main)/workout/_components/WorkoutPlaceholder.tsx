@@ -82,12 +82,10 @@ function WorkoutPlaceholder({
 
     reloadDetails?.();
   };
-  // TODO 생각해보니 루틴에서도 루틴을 가져올수있기떄문에 wokroutId뿐만아니라 RoutineId도 분기 필요할듯
   const addExercisePath =
     type === "RECORD"
       ? `/workout/${date}/exercises`
       : `/routines/${routineId}/exercises`;
-  // useEffect(() => setRoute(pathname), [pathname]);
   return (
     <div className="flex flex-col mt-6 gap-3 ">
       <button
@@ -97,7 +95,6 @@ function WorkoutPlaceholder({
         나의 루틴 가져오기
       </button>
       <Link
-        // onClick={recordRoutineId}
         href={addExercisePath}
         className="flex justify-center items-center w-full h-[47px] font-bold rounded-2xl bg-primary text-text-black"
       >
