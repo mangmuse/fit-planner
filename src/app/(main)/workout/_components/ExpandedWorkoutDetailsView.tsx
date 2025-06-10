@@ -25,7 +25,6 @@ const ExpandedWorkoutDetailsView = ({
     }[]
   >([]);
   const { selectedGroups, toggleGroup } = useSelectedWorkoutGroups();
-  console.log(selectedGroups, "selectedGroups");
   const getIsSelected = (group: {
     exerciseOrder: number;
     details: LocalWorkoutDetail[];

@@ -27,7 +27,6 @@ const WorkoutContainer = ({ type, date, routineId }: WorkoutContainerProps) => {
       routineId,
     });
   const { openBottomSheet } = useBottomSheet();
-  console.log(workoutGroups);
   const handleOpenLocalWorkoutSheet = () => {
     openBottomSheet({
       height: "95vh",

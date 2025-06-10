@@ -18,7 +18,6 @@ export const POST = async (req: NextRequest) => {
     const body = await req.json();
     const parsedBody = validateData<RequestBody>(requestBodySchema, body);
     const unsynced = parsedBody.unsynced;
-    console.log(unsynced, "unsyncedunsyncedunsynced");
     const updatedList: Array<{ localId: number; serverId: string }> = [];
     await pMap(
       unsynced,

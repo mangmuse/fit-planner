@@ -78,7 +78,6 @@ export async function addLocalWorkoutDetailsByUserDate(
 export const addLocalWorkoutDetail = async (
   detailInput: LocalWorkoutDetail
 ): Promise<void> => {
-  console.log("hellooooo", detailInput);
   console.log(await db.workoutDetails.add(detailInput));
 };
 

@@ -33,7 +33,6 @@ const WorkoutItem = ({
   reorderAfterDelete,
 }: WorkoutItemProps) => {
   const { setOrder, weight, reps, id, setType } = workoutDetail;
-  console.log(setOrder);
   const isDone = isWorkoutDetail(workoutDetail) ? workoutDetail.isDone : false;
   const [editedWeight, setEditedWeight] = useState<number | null>(
     weight || null

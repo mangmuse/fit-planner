@@ -48,7 +48,6 @@ const useLoadDetails = ({
       const details = await getLocalWorkoutDetails(userId, date);
       setAllDetails(details);
       const adjustedGroups = getGroupedDetails(details);
-      console.log(adjustedGroups, "adjustedGroupsadjustedGroups");
 
       setWorkoutGroups(adjustedGroups);
       setIsLoading(false);
