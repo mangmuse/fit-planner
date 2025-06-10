@@ -103,12 +103,13 @@ const LoadPastWorkoutSheet = ({
 
   useEffect(() => {
     (async () => {
-      let workouts = await getAllWorkouts(userId ?? "");
+      const workouts = await getAllWorkouts(userId ?? "");
 
-      if (params.date) {
-        workouts = workouts.filter((workout) => workout.date !== params.date);
-      }
-      setPastWorkouts(workouts);
+      const filteredWorkouts = workouts
+        .filter((workout) => workout.status !== "EMPTY")
+        .filter((workout) => !params.date || workout.date !== params.date);
+
+      setPastWorkouts(filteredWorkouts);
     })();
 
     return () => reset();

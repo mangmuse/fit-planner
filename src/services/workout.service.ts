@@ -28,7 +28,8 @@ export const getAllWorkouts = async (
   const workouts = await db.workouts
     .where("userId")
     .equals(userId)
-    .sortBy("date");
+    .sortBy("date")
+    .then((workouts) => workouts.reverse());
 
   return workouts;
 };
