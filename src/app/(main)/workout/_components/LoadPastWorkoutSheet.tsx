@@ -1,6 +1,6 @@
 "use client;";
 
-import { useSelectedWorkoutGroups } from "@/__mocks__/src/store/useSelectedWorkoutGroups";
+import { useSelectedWorkoutGroups } from "@/store/useSelectedWorkoutGroups";
 import {
   getInitialRoutineDetail,
   mapPastWorkoutToRoutineDetail,

@@ -1,4 +1,4 @@
-import { useSelectedWorkoutGroups } from "@/__mocks__/src/store/useSelectedWorkoutGroups";
+import { useSelectedWorkoutGroups } from "@/store/useSelectedWorkoutGroups";
 import ExpandedWorkoutGroup from "@/app/(main)/workout/_components/ExpandedWorkoutGroup";
 import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
 import { WorkoutGroup } from "@/hooks/useLoadDetails";
