@@ -1,9 +1,6 @@
-import { useSelectedWorkoutGroups } from "@/store/useSelectedWorkoutGroups";
 import ExpandedWorkoutItem from "@/app/(main)/workout/_components/ExpandedWorkoutItem";
-import { WorkoutGroup } from "@/hooks/useLoadDetails";
 import { getExerciseWithLocalId } from "@/services/exercise.service";
 import { LocalWorkoutDetail } from "@/types/models";
-import { on } from "events";
 import { useEffect, useState } from "react";
 
 type ExpanedWorkoutGroupProps = {

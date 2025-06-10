@@ -56,6 +56,8 @@ const LoadPastWorkoutSheet = ({
   const [pastWorkouts, setPastWorkouts] = useState<LocalWorkout[]>([]);
 
   const handleAddSelectedWorkout = async () => {
+    // TODO: 선택한 그룹 수만큼 DB 쿼리 발생.
+    // 배치 처리나 JOIN 쿼리로 최적화 필요
     await Promise.all(
       selectedGroups.map(async (group, index) => {
         const details = await getLocalWorkoutDetailsByWorkoutIdAndExerciseOrder(
