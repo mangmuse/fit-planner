@@ -66,7 +66,7 @@ const ExerciseMemo = ({ exercise, loadExercises }: ExerciseMemoProps) => {
         />
       )}
 
-      <nav className="flex h-14 font-semibold wㅌㅌ-full border-t-2 border-border-gray absolute right-0 left-0 bottom-0">
+      <nav className="flex h-14 font-semibold w-full border-t-2 border-border-gray absolute right-0 left-0 bottom-0">
         <button
           onClick={closeModal}
           className="w-1/2 border-r-2 border-border-gray"
