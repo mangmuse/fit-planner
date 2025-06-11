@@ -54,20 +54,74 @@ export async function POST(req: NextRequest) {
         }
 
         if (userId && serverExerciseId) {
-          await prisma.userExercise.upsert({
+          const userExercise = await prisma.userExercise.upsert({
             where: {
               userId_exerciseId: {
                 userId,
                 exerciseId: serverExerciseId,
               },
             },
-            update: { isBookmarked },
+            update: { 
+              isBookmarked,
+              unit: item.unit,
+            },
             create: {
               userId,
               exerciseId: serverExerciseId,
               isBookmarked,
+              unit: item.unit,
             },
           });
+
+          // Fixed 메모 동기화 처리
+          if (item.exerciseMemo?.fixed) {
+            const fixedMemo = item.exerciseMemo.fixed;
+            await prisma.fixedExerciseMemo.upsert({
+              where: {
+                userExerciseId: userExercise.id,
+              },
+              update: {
+                content: fixedMemo.content,
+                updatedAt: fixedMemo.updatedAt ? new Date(fixedMemo.updatedAt) : new Date(),
+              },
+              create: {
+                userExerciseId: userExercise.id,
+                content: fixedMemo.content,
+                createdAt: new Date(fixedMemo.createdAt),
+                updatedAt: fixedMemo.updatedAt ? new Date(fixedMemo.updatedAt) : null,
+              },
+            });
+          }
+
+          // Daily 메모 동기화 처리
+          if (item.exerciseMemo?.daily && item.exerciseMemo.daily.length > 0) {
+            // 기존 daily 메모들을 날짜별로 upsert
+            await pMap(
+              item.exerciseMemo.daily,
+              async (dailyMemo) => {
+                await prisma.dailyExerciseMemo.upsert({
+                  where: {
+                    userExerciseId_date: {
+                      userExerciseId: userExercise.id,
+                      date: new Date(dailyMemo.date),
+                    },
+                  },
+                  update: {
+                    content: dailyMemo.content,
+                    updatedAt: dailyMemo.updatedAt ? new Date(dailyMemo.updatedAt) : new Date(),
+                  },
+                  create: {
+                    userExerciseId: userExercise.id,
+                    date: new Date(dailyMemo.date),
+                    content: dailyMemo.content,
+                    createdAt: new Date(dailyMemo.createdAt),
+                    updatedAt: dailyMemo.updatedAt ? new Date(dailyMemo.updatedAt) : null,
+                  },
+                });
+              },
+              { concurrency: 3 } // daily 메모는 여러 개일 수 있으므로 동시성 제한
+            );
+          }
         }
       },
       { concurrency: 5 }

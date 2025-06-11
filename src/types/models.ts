@@ -30,9 +30,21 @@ export const clientExerciseSchema = z.object({
   isCustom: z.boolean(),
   exerciseMemo: z
     .object({
-      content: z.string(),
-      createdAt: z.string(),
-      updatedAt: z.string().nullable(),
+      fixed: z
+        .object({
+          content: z.string(),
+          createdAt: z.string(),
+          updatedAt: z.string().nullable(),
+        })
+        .nullable(),
+      daily: z.array(
+        z.object({
+          date: z.string(),
+          content: z.string(),
+          createdAt: z.string(),
+          updatedAt: z.string().nullable(),
+        })
+      ),
     })
     .nullable(),
   name: z.string(),
@@ -105,9 +117,21 @@ export const localExerciseSchema = z.object({
   unit: z.enum(["kg", "lbs"]),
   exerciseMemo: z
     .object({
-      content: z.string(),
-      createdAt: z.string(),
-      updatedAt: z.string().nullable(),
+      fixed: z
+        .object({
+          content: z.string(),
+          createdAt: z.string(),
+          updatedAt: z.string().nullable(),
+        })
+        .nullable(),
+      daily: z.array(
+        z.object({
+          date: z.string(),
+          content: z.string(),
+          createdAt: z.string(),
+          updatedAt: z.string().nullable(),
+        })
+      ),
     })
     .nullable(),
   id: z.number().optional(),
