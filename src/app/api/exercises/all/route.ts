@@ -18,9 +18,17 @@ export async function GET(request: NextRequest) {
           select: {
             isBookmarked: true,
             unit: true,
-            exerciseMemo: {
+            fixedExerciseMemo: {
               select: {
                 content: true,
+                updatedAt: true,
+                createdAt: true,
+              },
+            },
+            dailyExerciseMemos: {
+              select: {
+                content: true,
+                date: true,
                 updatedAt: true,
                 createdAt: true,
               },
@@ -33,22 +41,21 @@ export async function GET(request: NextRequest) {
 
     const exercisesWithBookmark = exercises.map((exercise) => {
       const userExercise = exercise.userExercises[0];
-      const isBookmarked = parsedUserId
-        ? userExercise.isBookmarked ?? false
-        : false;
-      const unit = userExercise.unit;
       const { userExercises, ...rest } = exercise;
+
       return {
         ...rest,
-        isBookmarked,
-        unit,
-        exerciseMemo: userExercise.exerciseMemo,
+        isBookmarked: userExercise?.isBookmarked ?? false,
+        unit: userExercise?.unit ?? null,
+        exerciseMemo: userExercise
+          ? {
+              fixed: userExercise.fixedExerciseMemo || null,
+              daily: userExercise.dailyExerciseMemos || [],
+            }
+          : null,
       };
     });
-    console.log(
-      exercisesWithBookmark,
-      "exercisesWithBookmarkexercisesWithBookmark"
-    );
+
     return NextResponse.json(
       { success: true, exercises: exercisesWithBookmark },
       { status: 200 }

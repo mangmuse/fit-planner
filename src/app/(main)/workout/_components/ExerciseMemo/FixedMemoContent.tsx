@@ -3,13 +3,13 @@ import { getFormattedDateYMD } from "@/util/formatDate";
 import { Dispatch, SetStateAction } from "react";
 
 type FixedMemoContentProps = {
-  existingMemo: LocalExercise["exerciseMemo"];
+  fixedMemo: NonNullable<LocalExercise["exerciseMemo"]>["fixed"] | null;
   memoText: string;
   onChange: (e: string) => void;
 };
 
 const FixedMemoContent = ({
-  existingMemo,
+  fixedMemo: existingMemo,
   memoText,
   onChange,
 }: FixedMemoContentProps) => {
