@@ -14,37 +14,30 @@ type ExerciseMemoProps = {
 };
 
 const ExerciseMemo = ({ exercise, loadExercises }: ExerciseMemoProps) => {
+  // TODO: 메모 추가 후 리로드하는로직에서 전체 운동을 다시 불러오는부분 개선 필요
   const { closeModal } = useModal();
   const existingMemo = exercise.exerciseMemo;
-  const initialMemo = existingMemo?.content || "";
+  const initialMemo = existingMemo?.fixed?.content || "";
 
   const [memoText, setMemoText] = useState(initialMemo);
   const [activeTab, setActiveTab] = useState<"fixed" | "today">("fixed");
-  const [isWritingNew, setIsWritingNew] = useState(false);
-  const [newMemoText, setNewMemoText] = useState("");
 
-  const handleUpdateMemo = async () => {
+  const handleUpdateFixedMemo = async () => {
     if (!loadExercises) return;
     const now = dayjs().toISOString();
 
-    let updatedMemo;
-    if (existingMemo?.createdAt) {
-      updatedMemo = {
-        ...existingMemo,
-        content: memoText,
-        updatedAt: now,
-      };
-    } else {
-      updatedMemo = {
-        content: memoText,
-        createdAt: now,
-      };
-    }
+    const updatedFixedMemo = existingMemo?.fixed?.createdAt
+      ? { ...existingMemo.fixed, content: memoText, updatedAt: now }
+      : { content: memoText, createdAt: now, updatedAt: null };
 
     await updateExercise({
       ...exercise,
-      exerciseMemo: updatedMemo,
+      exerciseMemo: {
+        fixed: updatedFixedMemo,
+        daily: existingMemo?.daily || [],
+      },
     });
+
     await loadExercises();
     closeModal();
   };
@@ -59,21 +52,21 @@ const ExerciseMemo = ({ exercise, loadExercises }: ExerciseMemoProps) => {
 
       {activeTab === "fixed" && (
         <FixedMemoContent
-          existingMemo={existingMemo}
+          fixedMemo={existingMemo?.fixed || null}
           onChange={setMemoText}
           memoText={memoText}
         />
       )}
       {activeTab === "today" && (
         <DailyMemoContent
-          isWritingNew={isWritingNew}
-          newMemoText={newMemoText}
-          setIsWritingNew={setIsWritingNew}
-          setNewMemoText={setNewMemoText}
+          existingMemo={existingMemo}
+          dailyMemos={existingMemo?.daily || []}
+          loadExercises={loadExercises}
+          exercise={exercise}
         />
       )}
 
-      <nav className="flex h-14 font-semibold w-full border-t-2 border-border-gray absolute right-0 left-0 bottom-0">
+      <nav className="flex h-14 font-semibold wㅌㅌ-full border-t-2 border-border-gray absolute right-0 left-0 bottom-0">
         <button
           onClick={closeModal}
           className="w-1/2 border-r-2 border-border-gray"
@@ -82,9 +75,11 @@ const ExerciseMemo = ({ exercise, loadExercises }: ExerciseMemoProps) => {
         </button>
         <button
           disabled={
-            activeTab === "fixed" ? !memoText.trim() && !existingMemo : true
+            activeTab === "fixed"
+              ? !memoText.trim() && !existingMemo?.fixed
+              : true
           }
-          onClick={handleUpdateMemo}
+          onClick={handleUpdateFixedMemo}
           className="w-1/2 text-primary disabled:opacity-30"
         >
           확인
