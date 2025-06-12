@@ -71,6 +71,7 @@ const CustomExerciseForm = ({ reload }: CustomExerciseFormProps) => {
       {/* 버튼 */}
       <div className="flex gap-3">
         <button
+          onClick={closeModal}
           className="flex-1 py-3 rounded-lg bg-gray-200 text-black
                             font-medium hover:bg-opacity-80 transition-colors"
         >
