@@ -2,7 +2,7 @@ import DailyMemoContent from "@/app/(main)/workout/_components/ExerciseMemo/Dail
 import ExerciseMemoTab from "@/app/(main)/workout/_components/ExerciseMemo/ExerciseMemoTab";
 import FixedMemoContent from "@/app/(main)/workout/_components/ExerciseMemo/FixedMemoContent";
 import { useModal } from "@/providers/contexts/ModalContext";
-import { updateExercise } from "@/services/exercise.service";
+import { updateLocalExercise } from "@/services/exercise.service";
 import { LocalExercise } from "@/types/models";
 import { getFormattedDateYMD } from "@/util/formatDate";
 import dayjs from "dayjs";
@@ -30,7 +30,7 @@ const ExerciseMemo = ({ exercise, loadExercises }: ExerciseMemoProps) => {
       ? { ...existingMemo.fixed, content: memoText, updatedAt: now }
       : { content: memoText, createdAt: now, updatedAt: null };
 
-    await updateExercise({
+    await updateLocalExercise({
       ...exercise,
       exerciseMemo: {
         fixed: updatedFixedMemo,

@@ -1,6 +1,5 @@
 export const EXERCISETYPELIST = ["전체", "커스텀", "즐겨찾기"] as const;
-export const CATEGORYLIST = [
-  "전체",
+export const CATEGORY_OPTIONS = [
   "가슴",
   "등",
   "하체",
@@ -8,3 +7,4 @@ export const CATEGORYLIST = [
   "팔",
   "코어",
 ] as const;
+export const CATEGORY_LIST = ["전체", ...CATEGORY_OPTIONS] as const;

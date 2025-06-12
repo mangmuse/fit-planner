@@ -16,7 +16,7 @@ jest.mock("@/services/exercise.service", () => {
 import { mockLocalExercises } from "@/__mocks__/exercise.mock";
 import { mockLocalWorkouts } from "@/__mocks__/workout.mock";
 import ExercisesContainer from "@/app/(main)/workout/[date]/exercises/_components/ExercisesContainer";
-import { CATEGORYLIST, EXERCISETYPELIST } from "@/constants/filters";
+import { CATEGORY_LIST, EXERCISETYPELIST } from "@/constants/filters";
 import { db } from "@/lib/db";
 import { toggleLocalBookmark } from "@/services/exercise.service";
 import { customRender, screen, waitFor, within } from "@/test-utils/test-utils";
@@ -109,7 +109,7 @@ describe("ExercisesContainer", () => {
       it("CategoryFilter 가 올바르게 렌더링된다", async () => {
         const { getAllByText } = renderExercisesContainer();
         await waitFor(() => {
-          CATEGORYLIST.forEach((type) => {
+          CATEGORY_LIST.forEach((type) => {
             const elements = getAllByText(type);
             expect(elements.length).toBeGreaterThan(0);
           });

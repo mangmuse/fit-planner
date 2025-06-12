@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       return {
         ...rest,
         isBookmarked: userExercise?.isBookmarked ?? false,
-        unit: userExercise?.unit ?? null,
+        unit: userExercise?.unit ?? "kg",
         exerciseMemo: userExercise
           ? {
               fixed: userExercise.fixedExerciseMemo || null,
