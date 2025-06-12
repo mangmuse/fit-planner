@@ -59,7 +59,7 @@ export default function ExercisesContainer({
     : "교체하기";
 
   return (
-    <main>
+    <main className="pb-20">
       <div className="flex justify-end mt-4 mb-3">
         <Image src={addButton} alt="추가하기" />
       </div>
@@ -82,14 +82,16 @@ export default function ExercisesContainer({
       )}
 
       {selectedExercises.length > 0 && (
-        <button
-          onClick={
-            allowMultipleSelection ? handleAddDetail : handleReplaceExercise
-          }
-          className="fixed left-1/2 -translate-x-1/2 bottom-8 w-[330px] h-[47px] bg-primary text-text-black font-bold rounded-2xl shadow-xl"
-        >
-          {buttonLabel}
-        </button>
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] p-4 bg-bg-primary border-t border-border-gray">
+          <button
+            onClick={
+              allowMultipleSelection ? handleAddDetail : handleReplaceExercise
+            }
+            className="w-full py-3 px-4 rounded-xl bg-primary text-bg-base font-semibold hover:bg-primary/90 active:scale-95 transition-all duration-200"
+          >
+            {buttonLabel}
+          </button>
+        </div>
       )}
     </main>
   );

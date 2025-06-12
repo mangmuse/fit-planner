@@ -10,15 +10,27 @@ type CategoryFilterProps = {
 
 const CategoryFilter = ({ selectedCategory, onClick }: CategoryFilterProps) => {
   return (
-    <nav data-testid="category-filter" className="flex gap-1">
-      {CATEGORYLIST.map((category, idx) => (
-        <FilterButton<Category>
-          key={`category-${idx}`}
-          onClick={onClick}
-          isSelected={selectedCategory === category}
-          label={category}
-        />
-      ))}
+    <nav data-testid="category-filter">
+      <div className="flex gap-1.5 mb-1.5">
+        {CATEGORYLIST.slice(0, 4).map((category, idx) => (
+          <FilterButton<Category>
+            key={`category-${idx}`}
+            onClick={onClick}
+            isSelected={selectedCategory === category}
+            label={category}
+          />
+        ))}
+      </div>
+      <div className="flex gap-1.5">
+        {CATEGORYLIST.slice(4).map((category, idx) => (
+          <FilterButton<Category>
+            key={`category-${idx + 4}`}
+            onClick={onClick}
+            isSelected={selectedCategory === category}
+            label={category}
+          />
+        ))}
+      </div>
     </nav>
   );
 };
