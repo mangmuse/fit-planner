@@ -1,3 +1,4 @@
+import { CATEGORY_OPTIONS } from "./../constants/filters";
 import { mergeServerExerciseData } from "@/adapter/exercise.adapter";
 import {
   fetchExercisesFromServer,
@@ -64,7 +65,7 @@ export const toggleLocalBookmark = async (
 };
 
 export const getUnsyncedExercises = async (): Promise<LocalExercise[]> => {
-  return db.exercises.where("isSynced").equals(0).toArray();
+  return db.exercises.filter((ex) => !ex.isSynced).toArray();
 };
 
 // export const getExerciseName = async (exerciseId: number): Promise<string> => {
@@ -75,7 +76,7 @@ export const getUnsyncedExercises = async (): Promise<LocalExercise[]> => {
 
 export async function syncToServerExercises(userId: string): Promise<void> {
   const unsynced = await getUnsyncedExercises();
-
+  console.log(unsynced);
   const data = await postExercisesToServer(unsynced, userId);
 
   for (const updated of data.updated) {
@@ -86,7 +87,7 @@ export async function syncToServerExercises(userId: string): Promise<void> {
   }
 }
 
-export const updateExercise = async (
+export const updateLocalExercise = async (
   updateInput: Partial<LocalExercise>
 ): Promise<number> => {
   if (!updateInput.id) throw new Error("id가 없습니다");
@@ -94,4 +95,31 @@ export const updateExercise = async (
     ...updateInput,
     isSynced: false,
   });
+};
+
+export const addLocalExercise = async ({
+  name,
+  category,
+  userId,
+}: {
+  name: string;
+  category: string;
+  userId: string;
+}) => {
+  if (!userId) throw new Error("userId가 없습니다");
+  const newExercise: LocalExercise = {
+    imageUrl: "",
+    createdAt: new Date().toISOString(),
+    isCustom: true,
+    isBookmarked: false,
+    name,
+    category,
+    serverId: null,
+    unit: "kg",
+    exerciseMemo: null,
+    id: undefined, // id는 자동 생성됨
+    userId,
+    isSynced: false,
+  };
+  await db.exercises.add(newExercise);
 };
