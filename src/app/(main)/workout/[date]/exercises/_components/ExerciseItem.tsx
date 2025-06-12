@@ -28,7 +28,7 @@ const ExerciseItem = ({
     return isSelected ? onDelete(exercise.id) : onAdd(exercise);
   };
   const handleToggleBookmark = async (
-    e: React.MouseEvent<HTMLImageElement>
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     e.stopPropagation();
     if (!id) return;
