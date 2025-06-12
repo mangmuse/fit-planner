@@ -38,10 +38,12 @@ export async function fetchExercisesFromServer(
 ): Promise<ClientExercise[]> {
   const queryParams = new URLSearchParams({ userId: userId ?? "" });
   const res = await fetch(`${BASE_URL}/api/exercises/all?${queryParams}`);
+
   if (!res.ok) {
     throw new Error(FETCH_EXERCISES_ERROR);
   }
   const serverData = await res.json();
+  console.log(serverData, "asdilkhwaoqdioqwdhiqowhdqwiohdioq");
   const parsedExercises = validateData<FetchExercisesResponse>(
     fetchExercisesSchema,
     serverData
@@ -54,7 +56,7 @@ export async function postExercisesToServer(
   unsynced: LocalExercise[],
   userId: string
 ): Promise<SyncExercisesToServerResponse> {
-  const res = await fetch(`${BASE_URL}/api/exercises/sync`, {
+  const res = await fetch(`${BASE_URL}/api/exercises/sync?${userId}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ unsynced, userId }),
@@ -64,7 +66,7 @@ export async function postExercisesToServer(
   }
 
   const data = await res.json();
-
+  console.log(data, "postExercisesToServer datapostExercisesToServer data");
   const parsedData = validateData<SyncExercisesToServerResponse>(
     syncExercisesToServerResponseSchema,
     data
