@@ -17,6 +17,7 @@ const BottomSheet = ({
   minHeight: minheight,
   isOpen,
   onExitComplete,
+  rounded = true,
 }: BottomSheetProps) => {
   const { closeBottomSheet } = useBottomSheet();
 
@@ -53,20 +54,22 @@ const BottomSheet = ({
           <motion.div
             role="dialog"
             key="bottomsheet"
-            className="absolute overflow-auto px-3 py-5 bg-bg-surface-variant 
-                       rounded-t-3xl bottom-0 left-0 w-full z-30 "
+            className={`absolute overflow-hidden px-3 py-5 bg-bg-surface-variant 
+                       ${rounded ? 'rounded-t-3xl' : ''} bottom-0 left-0 w-full z-30 flex flex-col`}
             style={{ height: height, minHeight: minheight }}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ duration: 0.1 }}
           >
-            <div className="flex justify-end px-2">
+            <div className="flex justify-end px-2 mb-2">
               <button onClick={handleClose} aria-label="바텀시트 닫기">
                 <Image src={closeBtn} alt="바텀시트 닫기" />
               </button>
             </div>
-            {children}
+            <div className="flex-1 overflow-hidden">
+              {children}
+            </div>
           </motion.div>
         </>
       )}

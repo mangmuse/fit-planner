@@ -9,6 +9,7 @@ export type BottomSheetProps = {
   minHeight?: number;
   height?: number | string;
   onExitComplete?: () => void;
+  rounded?: boolean;
 };
 
 type BottomSheetContextValue = {

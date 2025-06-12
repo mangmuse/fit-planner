@@ -118,7 +118,7 @@ const LoadPastWorkoutSheet = ({
   }, [userId, params.date]);
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto px-4 pb-4">
+      <div className="flex-1 overflow-y-auto px-4 pb-4 scrollbar-none">
         <PastWorkoutList pastWorkouts={pastWorkouts} />
       </div>
       <div className="sticky bottom-0 p-4 bg-bg-surface-variant border-t border-border-gray">

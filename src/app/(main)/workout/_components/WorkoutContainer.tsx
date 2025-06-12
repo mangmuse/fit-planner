@@ -22,7 +22,12 @@ type WorkoutContainerProps = {
   formattedDate?: string | React.ReactNode;
 };
 
-const WorkoutContainer = ({ type, date, routineId, formattedDate }: WorkoutContainerProps) => {
+const WorkoutContainer = ({
+  type,
+  date,
+  routineId,
+  formattedDate,
+}: WorkoutContainerProps) => {
   const userId = useSession().data?.user?.id;
   const { isLoading, workoutGroups, reload, reorderAfterDelete } =
     useLoadDetails({
@@ -35,7 +40,8 @@ const WorkoutContainer = ({ type, date, routineId, formattedDate }: WorkoutConta
   const { openModal } = useModal();
   const handleOpenLocalWorkoutSheet = () => {
     openBottomSheet({
-      height: "95vh",
+      height: "100vh",
+      rounded: false,
       children: (
         <LoadPastWorkoutSheet
           type={type}
@@ -59,18 +65,22 @@ const WorkoutContainer = ({ type, date, routineId, formattedDate }: WorkoutConta
       ? { type: "ROUTINE" as const }
       : { type: "RECORD" as const, date: date!, userId: userId! };
 
-  if (isLoading) return <div className="flex justify-center items-center h-40">Loading...</div>;
+  if (isLoading)
+    return (
+      <div className="flex justify-center items-center h-40">Loading...</div>
+    );
   return (
     <div>
       {workoutGroups.length !== 0 ? (
         <>
           {(formattedDate || type === "ROUTINE") && (
             <div className="flex justify-between items-center mb-6">
-              {formattedDate && (
-                typeof formattedDate === 'string' ? 
-                  <time className="text-2xl font-bold">{formattedDate}</time> :
+              {formattedDate &&
+                (typeof formattedDate === "string" ? (
+                  <time className="text-2xl font-bold">{formattedDate}</time>
+                ) : (
                   <div className="text-2xl font-bold">{formattedDate}</div>
-              )}
+                ))}
               <div className="flex gap-2">
                 <button
                   onClick={() =>
@@ -86,7 +96,12 @@ const WorkoutContainer = ({ type, date, routineId, formattedDate }: WorkoutConta
                   }
                   className="p-2 hover:bg-bg-surface rounded-lg transition-colors"
                 >
-                  <Image src={trashIcon} alt="전체 삭제" width={24} height={24} />
+                  <Image
+                    src={trashIcon}
+                    alt="전체 삭제"
+                    width={24}
+                    height={24}
+                  />
                 </button>
                 <button
                   onClick={() =>
@@ -102,12 +117,17 @@ const WorkoutContainer = ({ type, date, routineId, formattedDate }: WorkoutConta
                   }
                   className="p-2 hover:bg-bg-surface rounded-lg transition-colors"
                 >
-                  <Image src={sortIcon} alt="순서 변경" width={24} height={24} />
+                  <Image
+                    src={sortIcon}
+                    alt="순서 변경"
+                    width={24}
+                    height={24}
+                  />
                 </button>
               </div>
             </div>
           )}
-        <ul className="flex flex-col gap-2.5">
+          <ul className="flex flex-col gap-2.5">
             {workoutGroups.map(({ exerciseOrder, details }) => (
               <WorkoutExerciseGroup
                 key={exerciseOrder}
@@ -119,13 +139,13 @@ const WorkoutContainer = ({ type, date, routineId, formattedDate }: WorkoutConta
             ))}
           </ul>
           <div className="flex gap-2 mt-2">
-            <Link 
+            <Link
               href={exercisePath}
               className="flex-1 py-2.5 bg-bg-surface text-sm rounded-lg text-center hover:bg-bg-surface-variant transition-colors"
             >
               + 운동 추가
             </Link>
-            <button 
+            <button
               onClick={handleOpenLocalWorkoutSheet}
               className="flex-1 py-2.5 bg-bg-surface text-sm rounded-lg hover:bg-bg-surface-variant transition-colors"
             >
