@@ -49,13 +49,13 @@ const SetActions = ({
     <div data-testid="set-actions" className="flex justify-center gap-2.5 mt-2">
       <button
         onClick={handleAddSet}
-        className="rounded-[4px] bg-primary text-text-black text-[10px] w-[46%] h-[28px]"
+        className="rounded-md bg-primary text-text-black text-xs flex-1 h-9 font-medium"
       >
         Add Set
       </button>
       <button
         onClick={handleDeleteSet}
-        className="rounded-[4px] bg-bg-surface-variant text-text-white text-[10px] w-[46%] h-[28px]"
+        className="rounded-md bg-bg-surface-variant text-text-white text-xs flex-1 h-9 font-medium"
       >
         Delete Set
       </button>

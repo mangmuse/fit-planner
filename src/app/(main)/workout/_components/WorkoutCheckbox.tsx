@@ -1,5 +1,7 @@
 import { updateLocalWorkoutDetail } from "@/services/workoutDetail.service";
 import { useState } from "react";
+import Image from "next/image";
+import checkIcon from "public/check.svg";
 
 export type WorkoutCheckboxProps = {
   prevIsDone?: boolean;
@@ -25,7 +27,17 @@ const WorkoutCheckbox = ({ prevIsDone, id, reload }: WorkoutCheckboxProps) => {
         checked={isDone}
         className="sr-only peer"
       />
-      <div className="flex w-[14px] h-[14px] rounded-full border-[2px] border-text-muted peer-checked:bg-primary peer-checked:border-none" />
+      <div className="relative flex items-center justify-center w-[16px] h-[16px] rounded border-[1.5px] border-text-muted peer-checked:bg-primary peer-checked:border-primary transition-all duration-200">
+        {isDone && (
+          <Image 
+            src={checkIcon} 
+            alt="완료" 
+            width={10} 
+            height={10}
+            className="absolute"
+          />
+        )}
+      </div>
     </label>
   );
 };

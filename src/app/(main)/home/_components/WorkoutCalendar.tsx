@@ -85,21 +85,29 @@ const WorkoutCalendar = () => {
   };
 
   return (
-    <div className="px-2.5 py-8 flex flex-col items-center w-full h-[367px] bg-bg-surface rounded-[30px]">
-      <header className="flex gap-2.5">
-        <button aria-label="prevMonthBtn" onClick={handleGoPrevMonth}>
-          <Image src={leftArrow} alt="prev-month" />
+    <div className="px-4 py-6 flex flex-col items-center w-full bg-bg-surface rounded-[20px] shadow-sm">
+      <header className="flex items-center gap-4 mb-4">
+        <button 
+          aria-label="prevMonthBtn" 
+          onClick={handleGoPrevMonth}
+          className="p-2 hover:bg-bg-secondary rounded-lg transition-colors"
+        >
+          <Image src={leftArrow} alt="prev-month" width={20} height={20} />
         </button>
-        <span>
+        <span className="text-lg font-medium min-w-[100px] text-center">
           {year}년 {month + 1}월
         </span>
-        <button aria-label="nextMonthBtn" onClick={handleGoNextMonth}>
-          <Image src={rightArrow} alt="next-month" />
+        <button 
+          aria-label="nextMonthBtn" 
+          onClick={handleGoNextMonth}
+          className="p-2 hover:bg-bg-secondary rounded-lg transition-colors"
+        >
+          <Image src={rightArrow} alt="next-month" width={20} height={20} />
         </button>
       </header>
-      <table className="gap2 w-full text-sm  mt-2.5">
+      <table className="w-full text-sm">
         <thead>
-          <tr className="mb-3">
+          <tr className="h-8">
             <th>일</th>
             <th>월</th>
             <th>화</th>
@@ -109,9 +117,9 @@ const WorkoutCalendar = () => {
             <th>토</th>
           </tr>
         </thead>
-        <tbody className="mt-2">
+        <tbody>
           {weeks.map((week, index) => (
-            <tr className="h-9" key={index}>
+            <tr className="h-10" key={index}>
               {week.map((day, dayIndex) => (
                 <CalendarCell
                   key={dayIndex}

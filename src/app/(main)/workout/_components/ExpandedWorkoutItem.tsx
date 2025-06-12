@@ -10,13 +10,11 @@ const ExpandedWorkoutItem = ({
 }: ExpandedWorkoutItem) => {
   const { setOrder, reps, weight } = workoutDetail;
   return (
-    <li className="flex gap-1">
-      <span>{setOrder}세트</span>
-      <span>
-        {weight}
-        {exerciseUnit}
+    <li className="flex items-center gap-3 text-sm text-text-muted">
+      <span className="w-12">{setOrder}세트</span>
+      <span className="font-medium text-white">
+        {weight}{exerciseUnit} × {reps}회
       </span>
-      <span>{reps}회</span>
     </li>
   );
 };

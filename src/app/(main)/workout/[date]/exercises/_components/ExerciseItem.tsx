@@ -28,7 +28,7 @@ const ExerciseItem = ({
     return isSelected ? onDelete(exercise.id) : onAdd(exercise);
   };
   const handleToggleBookmark = async (
-    e: React.MouseEvent<HTMLImageElement>
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     e.stopPropagation();
     if (!id) return;
@@ -52,20 +52,32 @@ const ExerciseItem = ({
     <li
       aria-labelledby="name"
       onClick={handleClick}
-      className="px-3 flex justify-between w-full h-[51px] rounded-lg bg-bg-surface"
+      className={clsx(
+        "px-4 py-3 flex justify-between items-center w-full rounded-xl bg-bg-surface hover:bg-bg-surface-variant transition-all cursor-pointer",
+        {
+          "ring-2 ring-primary bg-bg-surface-variant": isSelected,
+        }
+      )}
     >
-      <div className="flex items-center gap-5">
-        <div className="bg-slate-300 w-8 h-8">
-          {/* <Image src={favoriteIcon} alt="운동 이미지" /> */}
+      <div className="flex items-center gap-3">
+        <div className="bg-bg-secondary w-10 h-10 rounded-lg flex items-center justify-center">
+          <span className="text-text-muted text-xs">GYM</span>
         </div>
-        <span className={clsx({ "text-primary": isSelected })}>{name}</span>
+        <span className={clsx("font-medium", { "text-primary": isSelected })}>
+          {name}
+        </span>
       </div>
-      <div role="button" className="self-center" onClick={handleToggleBookmark}>
+      <button
+        className="p-2 hover:bg-bg-secondary rounded-lg transition-colors"
+        onClick={handleToggleBookmark}
+      >
         <Image
           src={isBookmarked ? filledFavoriteIcon : favoriteIcon}
           alt={isBookmarked ? "북마크 해제" : "북마크"}
+          width={20}
+          height={20}
         />
-      </div>
+      </button>
     </li>
   );
 };

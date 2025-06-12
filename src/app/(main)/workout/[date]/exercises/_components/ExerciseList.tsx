@@ -17,7 +17,7 @@ const ExerciseList = ({
   selectedExercises,
 }: ExerciseListProps) => {
   return (
-    <ul className="h-full flex flex-col gap-1 my-[14px]">
+    <ul className="flex flex-col gap-2 mt-4">
       {exercises.map((exercise: LocalExercise) => (
         <ExerciseItem
           key={exercise.id}

@@ -18,15 +18,17 @@ const ExerciseFilter = ({
   selectedCategory,
 }: ExerciseFilterProps) => {
   return (
-    <div className="flex flex-col  mt-4">
+    <div className="flex flex-col mt-4">
       <TypeFilter
         onClick={handleChangeSelectedExerciseType}
         selectedExerciseType={selectedExerciseType}
       />
-      <CategoryFilter
-        onClick={handleChangeSelectedCategory}
-        selectedCategory={selectedCategory}
-      />
+      <div className="mt-2">
+        <CategoryFilter
+          onClick={handleChangeSelectedCategory}
+          selectedCategory={selectedCategory}
+        />
+      </div>
     </div>
   );
 };

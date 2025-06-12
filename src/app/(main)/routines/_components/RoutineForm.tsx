@@ -37,16 +37,24 @@ const RoutineForm = () => {
     });
   };
 
+  const routineTitle = (
+    <div className="flex items-center gap-2">
+      <span>{name}</span>
+      <button 
+        onClick={handleClickEditBtn}
+        className="p-1 hover:bg-bg-surface rounded transition-colors"
+      >
+        <Image src={editIcon} alt="edit_name" width={20} height={20} />
+      </button>
+    </div>
+  );
+
   return (
-    <>
-      <div className="flex gap-1 max-h-10">
-        <h1 className="text-2xl font-semibold mb-4">{name}</h1>
-        <button onClick={handleClickEditBtn}>
-          <Image src={editIcon} alt="edit_name" />
-        </button>
-      </div>
-      <WorkoutContainer type="ROUTINE" routineId={Number(routineId)} />
-    </>
+    <WorkoutContainer 
+      type="ROUTINE" 
+      routineId={Number(routineId)} 
+      formattedDate={routineTitle}
+    />
   );
 };
 

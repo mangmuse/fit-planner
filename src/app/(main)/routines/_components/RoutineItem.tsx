@@ -3,6 +3,8 @@ import { useModal } from "@/providers/contexts/ModalContext";
 import { LocalRoutine } from "@/types/models";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import rightChevron from "public/right-chevron.svg";
 
 type RoutineItemProps = {
   routine: LocalRoutine;
@@ -38,11 +40,30 @@ const RoutineItem = ({ routine, onPick }: RoutineItemProps) => {
     }
   };
   return (
-    <button onClick={handleClick}>
-      <li className="p-2 w-full h-20 bg-bg-surface rounded-xl">
-        <p>{routine.name}</p>
-      </li>
-    </button>
+    <li>
+      <button 
+        onClick={handleClick}
+        className="w-full p-4 bg-bg-surface rounded-xl hover:bg-bg-surface-variant transition-colors shadow-sm"
+      >
+        <div className="flex items-center justify-between">
+          <div className="text-left">
+            <h3 className="font-medium text-base mb-1">{routine.name}</h3>
+            <p className="text-text-muted text-sm">
+              {routine.updatedAt ? 
+                `마지막 수정: ${new Date(routine.updatedAt).toLocaleDateString('ko-KR')}` : 
+                '새로운 루틴'
+              }
+            </p>
+          </div>
+          <Image 
+            src={rightChevron} 
+            alt="상세보기" 
+            width={20} 
+            height={20}
+          />
+        </div>
+      </button>
+    </li>
   );
 };
 

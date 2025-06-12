@@ -118,14 +118,14 @@ const LoadPastWorkoutSheet = ({
   }, [userId, params.date]);
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto px-4 pb-4">
+      <div className="flex-1 overflow-y-auto px-4 pb-4 scrollbar-none">
         <PastWorkoutList pastWorkouts={pastWorkouts} />
       </div>
-      <div className="sticky bottom-0 p-4 bg-bg-surface-variant border-t border-border-gray">
+      <div className="sticky bottom-0 p-4 bg-bg-primary border-t border-border-gray">
         <button
           onClick={handleAddSelectedWorkout}
           disabled={selectedGroups.length === 0}
-          className={`w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 ${
+          className={`w-full py-3 px-4 rounded-xl font-semibold transition-all duration-200 ${
             selectedGroups.length > 0
               ? "bg-primary text-bg-base hover:bg-primary/90 active:scale-95"
               : "bg-bg-surface text-text-muted cursor-not-allowed"

@@ -21,17 +21,18 @@ const AuthTest = () => {
   const handleSignIn = () => signIn("google");
   const handleSignOut = () => signOut();
   return (
-    <div className="flex gap2 mt-10">
+    <div className="fixed bottom-24 right-4 flex flex-col gap-2 p-2 bg-bg-surface rounded-lg shadow-lg opacity-50 hover:opacity-100 transition-opacity">
       {status === "authenticated" ? (
-        <button className="px-3 py-2 bg-red-500" onClick={handleSignOut}>
+        <button className="px-3 py-1.5 bg-red-500 text-xs rounded" onClick={handleSignOut}>
           로그아웃
         </button>
       ) : (
-        <button className="px-3 py-2 bg-blue-500" onClick={handleSignIn}>
+        <button className="px-3 py-1.5 bg-blue-500 text-xs rounded" onClick={handleSignIn}>
           로그인
         </button>
       )}
       <button
+        className="px-2 py-1 bg-bg-secondary text-xs rounded"
         onClick={() => {
           syncToServer(userId ?? "");
         }}
@@ -39,6 +40,7 @@ const AuthTest = () => {
         To Server
       </button>
       <button
+        className="px-2 py-1 bg-bg-secondary text-xs rounded"
         onClick={() => {
           overWriteAllWithServerData(userId ?? "");
         }}
@@ -46,6 +48,7 @@ const AuthTest = () => {
         From Server
       </button>
       <button
+        className="px-2 py-1 bg-bg-secondary text-xs rounded"
         onClick={async () => {
           await overwriteWithServerRoutines(userId ?? "");
           await overwriteWithServerRoutineDetails(userId ?? "");

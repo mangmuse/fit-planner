@@ -16,8 +16,8 @@ function FilterButton<T extends string>({
       data-is-selected={isSelected}
       onClick={() => onClick?.(label)}
       className={clsx(
-        "text-[10px] rounded-md w-12 min-w-12 max-w-12 h-[28px] px-1",
-        isSelected ? "bg-primary text-text-black" : "bg-[#212121]"
+        "text-xs rounded-md h-8 min-w-[60px] px-3 transition-all",
+        isSelected ? "bg-primary text-text-black font-medium" : "bg-[#212121] text-text-muted"
       )}
     >
       {label}

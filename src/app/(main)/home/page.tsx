@@ -5,8 +5,8 @@ import AuthTest from "@/app/(main)/home/_components/AuthTest";
 
 const HomePage = () => {
   return (
-    <main className="px-4 ">
-      <h1 className="text-primary text-[32px] mb-4">LOGO</h1>
+    <main className="px-4 pt-12 pb-20">
+      <h1 className="text-primary text-2xl font-bold mb-6">FIT PLANNER</h1>
       <StartWorkoutSection />
       <WorkoutCalendar />
       <AuthTest />

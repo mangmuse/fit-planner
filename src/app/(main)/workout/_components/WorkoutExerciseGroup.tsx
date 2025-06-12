@@ -63,11 +63,13 @@ const WorkoutExerciseGroup = ({
   if (details.length === 0) return null;
   return (
     exercise && (
-      <div className="bg-bg-surface font-semibold pb-2.5">
-        <div className="flex relative text-xs px-1 h-5 items-center justify-between">
-          <h6 className="flex gap-1">
-            <span data-testid="exercise-order">{exerciseOrder}</span>
-            <span className="text-primary">{exercise?.name}</span>
+      <div className="bg-bg-surface font-semibold rounded-xl mb-3">
+        <div className="flex px-3 py-1 items-center justify-between">
+          <h6 className="flex items-center gap-1.5 text-sm">
+            <span data-testid="exercise-order" className="text-text-muted">
+              {exerciseOrder}
+            </span>
+            <span className="font-medium">{exercise?.name}</span>
           </h6>
           <button
             onClick={() => {
@@ -84,15 +86,16 @@ const WorkoutExerciseGroup = ({
                 ),
               });
             }}
-            className="cursor-pointer absolute top-[0.5px] right-2.5"
+            className="p-1.5 -mr-1 hover:bg-bg-base rounded-lg transition-colors"
           >
-            <Image src={menuIcon} alt="운동 메뉴" />
+            <Image src={menuIcon} alt="운동 메뉴" width={20} height={20} />
           </button>
         </div>
-        <table className="w-full text-[10px]">
+        <table className="w-full text-xs px-3">
           <WorkoutTableHeader
             prevDetails={prevWorkoutDetails}
             exercise={exercise}
+            isRoutine={details[0] && "workoutId" in details[0] ? false : true}
           />
           <tbody>
             {details.map((detail, idx) => (
@@ -107,11 +110,13 @@ const WorkoutExerciseGroup = ({
             ))}
           </tbody>
         </table>
-        <SetActions
-          reorderAfterDelete={reorderAfterDelete}
-          reload={reload}
-          lastValue={lastDetail}
-        />
+        <div className="px-3 pb-3">
+          <SetActions
+            reorderAfterDelete={reorderAfterDelete}
+            reload={reload}
+            lastValue={lastDetail}
+          />
+        </div>
       </div>
     )
   );

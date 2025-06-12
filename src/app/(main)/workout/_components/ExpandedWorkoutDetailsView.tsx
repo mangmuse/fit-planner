@@ -44,9 +44,9 @@ const ExpandedWorkoutDetailsView = ({
     })();
   }, [workoutId]);
   return (
-    <div className="">
+    <div className="mt-3">
       {expandedDetails.length > 0 && (
-        <ul className="flex flex-col gap-2.5">
+        <ul className="flex flex-col gap-3">
           {expandedDetails.map((group) => (
             <ExpandedWorkoutGroup
               key={group.exerciseOrder}

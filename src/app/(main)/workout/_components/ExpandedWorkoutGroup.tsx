@@ -36,26 +36,28 @@ const ExpandedWorkoutGroup = ({
     })();
   }, [workoutGroup]);
   return (
-    <div>
-      <div className="flex gap-1">
+    <div className="bg-bg-secondary rounded-lg p-3">
+      <div className="flex items-start gap-3">
         <input
           checked={isSelected}
           onClick={(e) => e.stopPropagation()}
           onChange={handleToggleSelect}
           type="checkbox"
-          className="peer"
+          className="mt-1 w-5 h-5 rounded border-2 border-text-muted checked:bg-primary checked:border-primary focus:outline-none"
         />
-        <h1>{exerciseName}</h1>
-        <ul>
-          {workoutGroup.details.length > 0 &&
-            workoutGroup.details.map((detail) => (
-              <ExpandedWorkoutItem
-                key={detail.id}
-                workoutDetail={detail}
-                exerciseUnit={exerciseUnit}
-              />
-            ))}
-        </ul>
+        <div className="flex-1">
+          <h3 className="font-medium text-base mb-2">{exerciseName}</h3>
+          <ul className="flex flex-col gap-1">
+            {workoutGroup.details.length > 0 &&
+              workoutGroup.details.map((detail) => (
+                <ExpandedWorkoutItem
+                  key={detail.id}
+                  workoutDetail={detail}
+                  exerciseUnit={exerciseUnit}
+                />
+              ))}
+          </ul>
+        </div>
       </div>
     </div>
   );
