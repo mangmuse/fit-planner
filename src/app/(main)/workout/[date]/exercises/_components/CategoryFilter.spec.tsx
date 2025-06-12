@@ -1,6 +1,6 @@
 import CategoryFilter from "@/app/(main)/workout/[date]/exercises/_components/CategoryFilter";
 import TypeFilter from "@/app/(main)/workout/[date]/exercises/_components/TypeFilter";
-import { CATEGORYLIST, EXERCISETYPELIST } from "@/constants/filters";
+import { CATEGORY_LIST, EXERCISETYPELIST } from "@/constants/filters";
 import { customRender, screen } from "@/test-utils/test-utils";
 
 describe("CategoryFilter", () => {
@@ -20,12 +20,14 @@ describe("CategoryFilter", () => {
   };
   it("EXERCISETPYELIST 를 기반으로 FilterButton 을 올바르게 렌더링한다", () => {
     const { getByText } = renderTypeFilter();
-    CATEGORYLIST.forEach((type) => expect(getByText(type)).toBeInTheDocument());
+    CATEGORY_LIST.forEach((type) =>
+      expect(getByText(type)).toBeInTheDocument()
+    );
   });
   it("selectedExerciseType과 같으면 true, 다르면 false를 전달한다", () => {
     const { getByText, selectedCategory } = renderTypeFilter();
 
-    CATEGORYLIST.forEach((type) => {
+    CATEGORY_LIST.forEach((type) => {
       const button = getByText(type);
       const attrValue = button.getAttribute("data-is-selected");
       if (type === selectedCategory) {
