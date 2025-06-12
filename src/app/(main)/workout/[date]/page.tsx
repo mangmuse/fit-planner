@@ -16,14 +16,8 @@ const WorkoutPage = async ({ params }: WorkoutPageProps) => {
   // const workoutDetails = await getWorkoutDetails(userId, date);
   const formattedDate = getFormattedDateWithoutDay(date);
   return (
-    <main className="px-4 pt-[70px]">
-      <time className="text-2xl font-semibold">{formattedDate}</time>
-      {/* {workoutDetails.length === 0 ? (
-        <WorkoutPlaceholder date={date} />
-      ) : (
-       
-      )} */}
-      <WorkoutContainer type="RECORD" date={date} />
+    <main className="px-4 pt-12 pb-20">
+      <WorkoutContainer type="RECORD" date={date} formattedDate={formattedDate} />
     </main>
   );
 };

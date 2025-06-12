@@ -69,7 +69,7 @@ const WorkoutItem = ({
   };
 
   return (
-    <tr data-testid={`workout-detail-item-${id}`} className="h-[22px]">
+    <tr data-testid={`workout-detail-item-${id}`} className="h-9">
       <SetOrderCell
         loadLocalWorkoutDetails={reload}
         workoutDetail={workoutDetail}
@@ -87,7 +87,7 @@ const WorkoutItem = ({
             weight !== editedWeight && handleUpdate({ weight: editedWeight })
           }
           value={editedWeight ?? 0}
-          className="w-[30px] rounded-sm h-3 resize-none bg-transparent outline outline-text-muted text-center"
+          className="w-9 h-5 rounded bg-transparent outline outline-1 outline-text-muted text-center focus:outline-primary"
         />
       </td>
       <td className="text-center">
@@ -98,7 +98,7 @@ const WorkoutItem = ({
             reps !== editedReps && handleUpdate({ reps: editedReps })
           }
           value={editedReps ?? 0}
-          className="w-[30px] rounded-sm h-3 resize-none bg-transparent outline outline- outline-text-muted text-center"
+          className="w-9 h-5 rounded bg-transparent outline outline-1 outline-text-muted text-center focus:outline-primary"
         />
       </td>
       <td className="text-center  ">
@@ -107,7 +107,7 @@ const WorkoutItem = ({
             <WorkoutCheckbox reload={reload} id={id!} prevIsDone={isDone} />
           ) : (
             <button onClick={handleDelete}>
-              <Image src={deletIcon} alt="delete" />
+              <Image src={deletIcon} alt="delete" width={20} height={20} />
             </button>
           )}
         </div>

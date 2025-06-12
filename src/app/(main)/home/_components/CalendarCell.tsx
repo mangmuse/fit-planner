@@ -22,7 +22,7 @@ const CalendarCell = ({ day, month, year, daysStatus }: CalendarCellProps) => {
     const dayStatus = daysStatus[dateStr];
     const isToday = dayjs().format("YYYY-MM-DD") === dateStr;
     return clsx("w-9 h-9 flex justify-center items-center rounded-full", {
-      "opacity-75 bg-primary  text-text-black font-semibold":
+      "opacity-75 bg-primary text-text-black font-semibold":
         dayStatus === "COMPLETED",
       "bg-gray-400 opacity-75 text-text-black":
         dayStatus === "PLANNED" || dayStatus === "IN_PROGRESS",
