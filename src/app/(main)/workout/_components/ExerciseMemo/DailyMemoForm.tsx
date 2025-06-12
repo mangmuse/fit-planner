@@ -1,6 +1,6 @@
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { useModal } from "@/providers/contexts/ModalContext";
-import { updateExercise } from "@/services/exercise.service";
+import { updateLocalExercise } from "@/services/exercise.service";
 import { LocalExercise } from "@/types/models";
 import { useState } from "react";
 import { date } from "zod";
@@ -35,7 +35,10 @@ const DailyMemoForm = ({
       fixed: existingMemo?.fixed || null,
       daily: [...(existingMemo?.daily || []), newDailyMemo],
     };
-    await updateExercise({ ...exercise, exerciseMemo: { ...updatedMemo } });
+    await updateLocalExercise({
+      ...exercise,
+      exerciseMemo: { ...updatedMemo },
+    });
 
     await onAdd(updatedMemo.daily);
     setIsWritingNew(false);

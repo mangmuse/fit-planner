@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import clsx from "clsx";
 import {
   getExerciseWithLocalId,
-  updateExercise,
+  updateLocalExercise,
 } from "@/services/exercise.service";
 import {
   LocalExercise,
@@ -119,7 +119,7 @@ const WorkoutDetailGroupOptions = ({
   useEffect(() => {
     if (!loadExercises) return;
     const updateUnit = async () => {
-      await updateExercise({ ...exercise, unit });
+      await updateLocalExercise({ ...exercise, unit });
       await loadExercises();
     };
     updateUnit();

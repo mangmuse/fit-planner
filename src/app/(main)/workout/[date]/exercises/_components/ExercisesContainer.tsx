@@ -10,6 +10,8 @@ import SearchBar from "@/app/(main)/workout/[date]/exercises/_components/SearchB
 import ExerciseList from "@/app/(main)/workout/[date]/exercises/_components/ExerciseList";
 
 import useExercises from "@/hooks/exercises/useExercises";
+import { useModal } from "@/providers/contexts/ModalContext";
+import CustomExerciseForm from "@/app/(main)/workout/[date]/exercises/_components/CustomExerciseForm";
 
 type ExercisesContainerProps = {
   type: "ROUTINE" | "RECORD";
@@ -27,6 +29,7 @@ export default function ExercisesContainer({
 }: ExercisesContainerProps) {
   const { data: session } = useSession();
   const userId = session?.user?.id;
+  const { openModal } = useModal();
   const { date } = useParams<{ date?: string }>();
   const { routineId: stringRoutineId } = useParams();
   const routineId = stringRoutineId ? Number(stringRoutineId) : undefined;
@@ -54,13 +57,22 @@ export default function ExercisesContainer({
     reloadExercises,
   } = handlers;
 
+  const handleOpenCreateExerciseModal = () =>
+    openModal({
+      type: "generic",
+      children: <CustomExerciseForm reload={reloadExercises} />,
+    });
+
   const buttonLabel = allowMultipleSelection
     ? `${selectedExercises.length}개 선택 완료`
     : "교체하기";
 
   return (
     <main className="pb-20">
-      <div className="flex justify-end mt-4 mb-3">
+      <div 
+        onClick={handleOpenCreateExerciseModal}
+        className="flex justify-end mt-4 mb-3"
+      >
         <Image src={addButton} alt="추가하기" />
       </div>
       <SearchBar onChange={handleSearchKeyword} keyword={searchKeyword} />

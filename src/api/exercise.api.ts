@@ -38,6 +38,7 @@ export async function fetchExercisesFromServer(
 ): Promise<ClientExercise[]> {
   const queryParams = new URLSearchParams({ userId: userId ?? "" });
   const res = await fetch(`${BASE_URL}/api/exercises/all?${queryParams}`);
+
   if (!res.ok) {
     throw new Error(FETCH_EXERCISES_ERROR);
   }
@@ -64,7 +65,6 @@ export async function postExercisesToServer(
   }
 
   const data = await res.json();
-
   const parsedData = validateData<SyncExercisesToServerResponse>(
     syncExercisesToServerResponseSchema,
     data

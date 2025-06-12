@@ -17,7 +17,7 @@ type RequestBody = z.infer<typeof requestBodySchema>;
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-
+    console.log(body, "Received body in sync route");
     const parsedBody = validateData<RequestBody>(requestBodySchema, body);
 
     const unsynced = parsedBody.unsynced;
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
                 exerciseId: serverExerciseId,
               },
             },
-            update: { 
+            update: {
               isBookmarked,
               unit: item.unit,
             },
@@ -82,13 +82,17 @@ export async function POST(req: NextRequest) {
               },
               update: {
                 content: fixedMemo.content,
-                updatedAt: fixedMemo.updatedAt ? new Date(fixedMemo.updatedAt) : new Date(),
+                updatedAt: fixedMemo.updatedAt
+                  ? new Date(fixedMemo.updatedAt)
+                  : new Date(),
               },
               create: {
                 userExerciseId: userExercise.id,
                 content: fixedMemo.content,
                 createdAt: new Date(fixedMemo.createdAt),
-                updatedAt: fixedMemo.updatedAt ? new Date(fixedMemo.updatedAt) : null,
+                updatedAt: fixedMemo.updatedAt
+                  ? new Date(fixedMemo.updatedAt)
+                  : null,
               },
             });
           }
@@ -108,14 +112,18 @@ export async function POST(req: NextRequest) {
                   },
                   update: {
                     content: dailyMemo.content,
-                    updatedAt: dailyMemo.updatedAt ? new Date(dailyMemo.updatedAt) : new Date(),
+                    updatedAt: dailyMemo.updatedAt
+                      ? new Date(dailyMemo.updatedAt)
+                      : new Date(),
                   },
                   create: {
                     userExerciseId: userExercise.id,
                     date: new Date(dailyMemo.date),
                     content: dailyMemo.content,
                     createdAt: new Date(dailyMemo.createdAt),
-                    updatedAt: dailyMemo.updatedAt ? new Date(dailyMemo.updatedAt) : null,
+                    updatedAt: dailyMemo.updatedAt
+                      ? new Date(dailyMemo.updatedAt)
+                      : null,
                   },
                 });
               },

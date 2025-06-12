@@ -1,4 +1,4 @@
-import { CATEGORYLIST } from "@/constants/filters";
+import { CATEGORY_LIST } from "@/constants/filters";
 import FilterButton from "./FilterButton";
 import { Category } from "@/types/filters";
 // TODO: TypeFilter 와의 통합 필요성
@@ -12,7 +12,7 @@ const CategoryFilter = ({ selectedCategory, onClick }: CategoryFilterProps) => {
   return (
     <nav data-testid="category-filter">
       <div className="flex gap-1.5 mb-1.5">
-        {CATEGORYLIST.slice(0, 4).map((category, idx) => (
+        {CATEGORY_LIST.slice(0, 4).map((category, idx) => (
           <FilterButton<Category>
             key={`category-${idx}`}
             onClick={onClick}
@@ -22,7 +22,7 @@ const CategoryFilter = ({ selectedCategory, onClick }: CategoryFilterProps) => {
         ))}
       </div>
       <div className="flex gap-1.5">
-        {CATEGORYLIST.slice(4).map((category, idx) => (
+        {CATEGORY_LIST.slice(4).map((category, idx) => (
           <FilterButton<Category>
             key={`category-${idx + 4}`}
             onClick={onClick}
