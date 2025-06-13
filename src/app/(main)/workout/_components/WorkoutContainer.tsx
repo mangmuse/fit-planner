@@ -29,13 +29,20 @@ const WorkoutContainer = ({
   formattedDate,
 }: WorkoutContainerProps) => {
   const userId = useSession().data?.user?.id;
-  const { isLoading, workoutGroups, reload, reorderAfterDelete } =
-    useLoadDetails({
-      type,
-      userId: userId ?? "",
-      date,
-      routineId,
-    });
+  const {
+    isLoading,
+    workoutGroups,
+    reload,
+    workout,
+    reorderAfterDelete,
+    handleClickCompleteBtn,
+    handleDeleteAll,
+  } = useLoadDetails({
+    type,
+    userId: userId ?? "",
+    date,
+    routineId,
+  });
   const { openBottomSheet } = useBottomSheet();
   const { openModal } = useModal();
   const handleOpenLocalWorkoutSheet = () => {
@@ -83,17 +90,7 @@ const WorkoutContainer = ({
                 ))}
               <div className="flex gap-2">
                 <button
-                  onClick={() =>
-                    openModal({
-                      type: "confirm",
-                      title: "운동 전체 삭제",
-                      message: "모든 운동을 삭제하시겠습니까?",
-                      onConfirm: async () => {
-                        // TODO: 전체 삭제 로직 구현
-                        console.log("전체 삭제");
-                      },
-                    })
-                  }
+                  onClick={handleDeleteAll}
                   className="p-2 hover:bg-bg-surface rounded-lg transition-colors"
                 >
                   <Image
@@ -130,7 +127,7 @@ const WorkoutContainer = ({
           <ul className="flex flex-col gap-2.5">
             {workoutGroups.map(({ exerciseOrder, details }) => (
               <WorkoutExerciseGroup
-                key={exerciseOrder}
+                key={`${exerciseOrder}-${details[0]?.exerciseId}`}
                 details={details}
                 reorderAfterDelete={reorderAfterDelete}
                 exerciseOrder={exerciseOrder}
@@ -143,7 +140,7 @@ const WorkoutContainer = ({
               href={exercisePath}
               className="flex-1 py-2.5 bg-bg-surface text-sm rounded-lg text-center hover:bg-bg-surface-variant transition-colors"
             >
-              + 운동 추가
+              운동 추가
             </Link>
             <button
               onClick={handleOpenLocalWorkoutSheet}
@@ -152,6 +149,14 @@ const WorkoutContainer = ({
               불러오기
             </button>
           </div>
+          {type === "RECORD" && workout?.status !== "COMPLETED" && (
+            <button
+              onClick={handleClickCompleteBtn}
+              className="w-full mt-6 py-3 bg-primary text-text-black font-semibold rounded-xl hover:bg-primary/90 active:scale-[0.98] transition-all duration-200"
+            >
+              운동 완료
+            </button>
+          )}
         </>
       ) : (
         <>

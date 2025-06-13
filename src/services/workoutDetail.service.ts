@@ -279,3 +279,10 @@ export const getWorkoutGroupByWorkoutDetail = async (
     .and((d) => d.exerciseOrder === detail.exerciseOrder)
     .toArray();
 };
+
+export const updateWorkoutDetails = async (
+  updatedDetails: LocalWorkoutDetail[]
+) => {
+  console.log(updatedDetails);
+  await db.workoutDetails.bulkPut(updatedDetails);
+};
