@@ -28,15 +28,7 @@ const WorkoutCheckbox = ({ prevIsDone, id, reload }: WorkoutCheckboxProps) => {
         className="sr-only peer"
       />
       <div className="relative flex items-center justify-center w-[16px] h-[16px] rounded border-[1.5px] border-text-muted peer-checked:bg-primary peer-checked:border-primary transition-all duration-200">
-        {isDone && (
-          <Image 
-            src={checkIcon} 
-            alt="완료" 
-            width={10} 
-            height={10}
-            className="absolute"
-          />
-        )}
+        {isDone && <Image src={checkIcon} alt="완료" width={10} height={10} />}
       </div>
     </label>
   );

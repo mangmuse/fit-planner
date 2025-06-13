@@ -9,40 +9,54 @@ export type CalendarCellProps = {
   daysStatus: {
     [date: string]: "PLANNED" | "IN_PROGRESS" | "COMPLETED";
   };
+  isWeekend?: boolean;
 };
 
-const CalendarCell = ({ day, month, year, daysStatus }: CalendarCellProps) => {
-  const getDayClass = () => {
-    const dateStr = dayjs()
-      .year(year)
-      .month(month)
-      .date(day!)
-      .format("YYYY-MM-DD");
+const CalendarCell = ({
+  day,
+  month,
+  year,
+  daysStatus,
+  isWeekend,
+}: CalendarCellProps) => {
+  if (!day) {
+    return <td className="h-10" />;
+  }
 
-    const dayStatus = daysStatus[dateStr];
-    const isToday = dayjs().format("YYYY-MM-DD") === dateStr;
-    return clsx("w-9 h-9 flex justify-center items-center rounded-full", {
-      "opacity-75 bg-primary text-text-black font-semibold":
-        dayStatus === "COMPLETED",
-      "bg-gray-400 opacity-75 text-text-black":
-        dayStatus === "PLANNED" || dayStatus === "IN_PROGRESS",
-      "opacity-100 font-semibold": isToday,
-      "text-primary": isToday,
-    });
+  const dateStr = dayjs()
+    .year(year)
+    .month(month)
+    .date(day)
+    .format("YYYY-MM-DD");
+
+  const dayStatus = daysStatus[dateStr];
+  const isToday = dayjs().format("YYYY-MM-DD") === dateStr;
+
+  const getDayClass = () => {
+    return clsx(
+      "relative w-10 h-10 flex justify-center items-center rounded-xl transition-all duration-200 text-sm",
+      {
+        // 오늘 날짜
+        "ring-2 ring-primary font-bold": isToday,
+
+        // 운동 상태별 스타일
+        "bg-primary text-text-black font-medium hover:bg-primary/90":
+          dayStatus === "COMPLETED",
+        "bg-bg-secondary text-text-white":
+          dayStatus === "PLANNED" || dayStatus === "IN_PROGRESS",
+
+        // 기본 스타일
+        "hover:bg-bg-secondary": !dayStatus,
+        "text-text-muted": isWeekend && !dayStatus && !isToday,
+      }
+    );
   };
 
   return (
-    <td className="text-center h-11 w-11">
-      {day && (
-        <Link
-          href={`/workout/${dayjs(`${year}-${month + 1}-${day}`).format(
-            "YYYY-MM-DD"
-          )}`}
-          className={getDayClass()}
-        >
-          {day}
-        </Link>
-      )}
+    <td className="text-center p-0.5">
+      <Link href={`/workout/${dateStr}`} className={getDayClass()}>
+        {day}
+      </Link>
     </td>
   );
 };

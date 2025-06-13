@@ -19,10 +19,13 @@ export const getGroupedDetails = <
   }, new Map<number, T[]>());
 
   const groups = Array.from(groupedDetails, ([exerciseOrder, details]) => {
-    const sortedDetails = details.sort((a, b) => a.setOrder - b.setOrder);
-    sortedDetails.forEach((detail, index) => {
-      detail.setOrder = index + 1;
-    });
+    // 불변성을 유지하기 위해 새로운 객체 생성
+    const sortedDetails = details
+      .sort((a, b) => a.setOrder - b.setOrder)
+      .map((detail, index) => ({
+        ...detail,
+        setOrder: index + 1,
+      }));
 
     return {
       exerciseOrder,
