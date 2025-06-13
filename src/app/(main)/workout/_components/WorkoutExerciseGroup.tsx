@@ -58,7 +58,7 @@ const WorkoutExerciseGroup = ({
       await fetchAndSetExerciseData();
       await getPrevious();
     })();
-  }, [details]);
+  }, [details.map((d) => d.isDone).join(",")]);
 
   if (details.length === 0) return null;
   return (
@@ -95,6 +95,8 @@ const WorkoutExerciseGroup = ({
           <WorkoutTableHeader
             prevDetails={prevWorkoutDetails}
             exercise={exercise}
+            details={details}
+            reload={reload}
             isRoutine={details[0] && "workoutId" in details[0] ? false : true}
           />
           <tbody>

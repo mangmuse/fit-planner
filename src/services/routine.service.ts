@@ -94,3 +94,7 @@ export const overwriteWithServerRoutines = async (
 };
 
 // userId, description, name
+
+export const deleteLocalRoutine = async (routineId: number) => {
+  await db.routines.delete(routineId);
+};

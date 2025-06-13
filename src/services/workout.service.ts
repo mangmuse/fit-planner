@@ -47,6 +47,17 @@ export const getWorkoutWithLocalId = async (
   return workout;
 };
 
+export const updateWorkout = async (updatedWorkout: Partial<LocalWorkout>) => {
+  if (!updatedWorkout.id) {
+    throw new Error("workout id는 꼭 전달해주세요");
+  }
+  await db.workouts.update(updatedWorkout.id, {
+    ...updatedWorkout,
+    updatedAt: new Date().toISOString(),
+    isSynced: false,
+  });
+};
+
 export const syncToServerWorkouts = async (): Promise<void> => {
   const all = await db.workouts.toArray();
 
@@ -131,4 +142,8 @@ export const getThisMonthWorkouts = (
     .between(startDate, endDate, true, true)
     .filter((workout) => workout.status !== "EMPTY")
     .toArray();
+};
+
+export const deleteLocalWorkout = async (workoutId: number) => {
+  await db.workouts.delete(workoutId);
 };

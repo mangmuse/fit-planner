@@ -11,8 +11,8 @@ import {
 
 function BackDrop({ children }: { children: React.ReactNode }) {
   return (
-    <div className="fixed inset-0 bg-black/30 flex justify-center items-center">
-      <div className="p-6 rounded">{children}</div>
+    <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+      {children}
     </div>
   );
 }

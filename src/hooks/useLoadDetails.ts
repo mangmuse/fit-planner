@@ -1,22 +1,35 @@
 import { createWorkoutDetail } from "@/adapter/workoutDetail.adapter";
 import { mockInvalidFetchWorkoutDetailsResponse } from "./../__mocks__/workoutDetail.mock";
-import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
+import {
+  isWorkoutDetail,
+  isWorkoutDetails,
+} from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
 import {
+  deleteRoutineDetails,
   getLocalRoutineDetails,
   updateLocalRoutineDetail,
 } from "@/services/routineDetail.service";
 import {
+  deleteLocalWorkout,
   getWorkoutByUserIdAndDate,
   updateLocalWorkout,
 } from "@/services/workout.service";
 import {
   addLocalWorkoutDetail,
+  deleteWorkoutDetails,
   getLocalWorkoutDetails,
   updateLocalWorkoutDetail,
 } from "@/services/workoutDetail.service";
-import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
+import {
+  LocalRoutineDetail,
+  LocalWorkout,
+  LocalWorkoutDetail,
+} from "@/types/models";
 import { use, useEffect, useState } from "react";
+import { useModal } from "@/providers/contexts/ModalContext";
+import { useRouter } from "next/navigation";
+import { deleteLocalRoutine } from "@/services/routine.service";
 
 type UseLoadDetailsProps = {
   type: "RECORD" | "ROUTINE";
@@ -36,11 +49,15 @@ const useLoadDetails = ({
   date,
   routineId,
 }: UseLoadDetailsProps) => {
+  const [workout, setWorkout] = useState<LocalWorkout | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [allDetails, setAllDetails] = useState<
     LocalWorkoutDetail[] | LocalRoutineDetail[]
   >([]);
   const [workoutGroups, setWorkoutGroups] = useState<WorkoutGroup[]>([]);
+
+  const router = useRouter();
+  const { openModal } = useModal();
 
   const loadLocalDetails = async () => {
     if (type === "RECORD") {
@@ -51,6 +68,7 @@ const useLoadDetails = ({
 
       setWorkoutGroups(adjustedGroups);
       setIsLoading(false);
+      console.log("helooooo");
     } else if (type === "ROUTINE") {
       if (!userId || !routineId) return;
       const details = await getLocalRoutineDetails(routineId);
@@ -63,12 +81,21 @@ const useLoadDetails = ({
 
   const syncWorkoutStatus = async () => {
     if (!date || !userId) return;
-    // if (!userId) return;
-    const workout = await getWorkoutByUserIdAndDate(userId, date);
 
-    if (!workout?.id || workout.status === "COMPLETED") return;
+    let currentWorkout = workout;
+    if (!currentWorkout) {
+      const fetchedWorkout = await getWorkoutByUserIdAndDate(userId, date);
+      currentWorkout = fetchedWorkout || null;
+      if (!currentWorkout) {
+        // 최초 렌더링이나 workout이 아직 생성되지 않은 경우
+        return;
+      }
+      setWorkout(currentWorkout);
+    }
+
+    if (!currentWorkout?.id || currentWorkout.status === "COMPLETED") return;
     const newStatus = workoutGroups.length === 0 ? "EMPTY" : "PLANNED";
-    await updateLocalWorkout({ ...workout, status: newStatus });
+    await updateLocalWorkout({ ...currentWorkout, status: newStatus });
   };
 
   const reorderAfterDelete = async (
@@ -91,6 +118,62 @@ const useLoadDetails = ({
     );
   };
 
+  const handleDeleteAll = async () => {
+    async function deleteAll() {
+      if (type === "RECORD" && isWorkoutDetails(allDetails) && workout?.id) {
+        if (allDetails.length === 0) return;
+        await deleteWorkoutDetails(allDetails);
+        await deleteLocalWorkout(workout.id);
+      } else if (
+        type === "ROUTINE" &&
+        !isWorkoutDetails(allDetails) &&
+        routineId
+      ) {
+        if (allDetails.length === 0) return;
+        if (!routineId) {
+          console.error("루틴 ID를 찾을 수 없습니다");
+          return;
+        }
+        await deleteRoutineDetails(allDetails);
+        await deleteLocalRoutine(routineId);
+      }
+      router.push("/");
+      setWorkout(null);
+    }
+
+    openModal({
+      type: "confirm",
+      title: "운동 전체 삭제",
+      message: "모든 운동을 삭제하시겠습니까?",
+      onConfirm: async () => deleteAll(),
+    });
+  };
+
+  const handleCompleteWorkout = async () => {
+    if (type !== "RECORD") return;
+    if (!workout?.id) {
+      console.error("Workout을 찾을 수 없습니다");
+      return;
+    }
+    // workout status COMPLETED로 변경하고
+    const updatedWorkout: Partial<LocalWorkout> = {
+      id: workout.id,
+      status: "COMPLETED",
+    };
+    await updateLocalWorkout(updatedWorkout);
+
+    // 메인메이지로 이동
+    router.push("/");
+  };
+
+  const handleClickCompleteBtn = () =>
+    openModal({
+      type: "confirm",
+      title: "운동 완료",
+      message: "운동을 완료하시겠습니까?",
+      onConfirm: async () => handleCompleteWorkout(),
+    });
+
   useEffect(() => {
     (async () => {
       await loadLocalDetails();
@@ -105,9 +188,12 @@ const useLoadDetails = ({
 
   return {
     isLoading,
+    workout,
     workoutGroups,
     reload: loadLocalDetails,
     reorderAfterDelete,
+    handleClickCompleteBtn,
+    handleDeleteAll,
   };
 };
 

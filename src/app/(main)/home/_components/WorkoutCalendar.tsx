@@ -12,6 +12,8 @@ import { LocalWorkout } from "@/types/models";
 import CalendarCell from "@/app/(main)/home/_components/CalendarCell";
 import { useSession } from "next-auth/react";
 
+const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"] as const;
+
 const WorkoutCalendar = () => {
   const [currentDate, setCurrentDate] = useState<string>(getFormattedDateYMD());
   const [daysStatus, setDaysStatus] = useState<{
@@ -85,41 +87,39 @@ const WorkoutCalendar = () => {
   };
 
   return (
-    <div className="px-4 py-6 flex flex-col items-center w-full bg-bg-surface rounded-[20px] shadow-sm">
-      <header className="flex items-center gap-4 mb-4">
-        <button 
-          aria-label="prevMonthBtn" 
+    <div className="p-5 flex flex-col items-center w-full bg-bg-surface rounded-2xl shadow-sm">
+      <header className="flex items-center justify-between w-full mb-6">
+        <button
+          aria-label="prevMonthBtn"
           onClick={handleGoPrevMonth}
-          className="p-2 hover:bg-bg-secondary rounded-lg transition-colors"
+          className="p-2 hover:bg-bg-secondary rounded-xl transition-all duration-200 active:scale-95"
         >
           <Image src={leftArrow} alt="prev-month" width={20} height={20} />
         </button>
-        <span className="text-lg font-medium min-w-[100px] text-center">
+        <h2 className="text-lg font-semibold">
           {year}년 {month + 1}월
-        </span>
-        <button 
-          aria-label="nextMonthBtn" 
+        </h2>
+        <button
+          aria-label="nextMonthBtn"
           onClick={handleGoNextMonth}
-          className="p-2 hover:bg-bg-secondary rounded-lg transition-colors"
+          className="p-2 hover:bg-bg-secondary rounded-xl transition-all duration-200 active:scale-95"
         >
           <Image src={rightArrow} alt="next-month" width={20} height={20} />
         </button>
       </header>
-      <table className="w-full text-sm">
+      <table className="w-full">
         <thead>
-          <tr className="h-8">
-            <th>일</th>
-            <th>월</th>
-            <th>화</th>
-            <th>수</th>
-            <th>목</th>
-            <th>금</th>
-            <th>토</th>
+          <tr className="text-xs text-text-muted">
+            {WEEKDAYS.map((day) => (
+              <th key={day} className="pb-3 font-medium">
+                {day}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
           {weeks.map((week, index) => (
-            <tr className="h-10" key={index}>
+            <tr key={index}>
               {week.map((day, dayIndex) => (
                 <CalendarCell
                   key={dayIndex}
@@ -127,6 +127,7 @@ const WorkoutCalendar = () => {
                   year={year}
                   month={month}
                   day={day}
+                  isWeekend={dayIndex === 0 || dayIndex === 6}
                 />
               ))}
             </tr>
