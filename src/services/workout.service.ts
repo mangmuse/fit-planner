@@ -10,12 +10,16 @@ export const getWorkoutByUserIdAndDate = async (
   userId: string,
   date: string
 ): Promise<LocalWorkout | void> => {
-  const workout = await db.workouts
-    .where(["userId", "date"])
-    .equals([userId, date])
-    .first();
+  try {
+    const workout = await db.workouts
+      .where(["userId", "date"])
+      .equals([userId, date])
+      .first();
 
-  return workout;
+    return workout;
+  } catch (e) {
+    throw new Error("workout을 불러오는 데 실패했습니다");
+  }
 };
 
 // export const getPastWorkouts = async (
@@ -25,37 +29,57 @@ export const getWorkoutByUserIdAndDate = async (
 export const getAllWorkouts = async (
   userId: string
 ): Promise<LocalWorkout[]> => {
-  const workouts = await db.workouts
-    .where("userId")
-    .equals(userId)
-    .sortBy("date")
-    .then((workouts) => workouts.reverse());
+  try {
+    const workouts = await db.workouts
+      .where("userId")
+      .equals(userId)
+      .sortBy("date")
+      .then((workouts) => workouts.reverse());
 
-  return workouts;
+    return workouts;
+  } catch (e) {
+    throw new Error("workout 목록을 불러오는 데 실패했습니다");
+  }
 };
 export const getWorkoutWithServerId = async (
   serverId: string
-): Promise<LocalWorkout> => {
-  const workout = await db.workouts.where("serverId").equals(serverId).first();
-  if (!workout) throw new Error("일치하는 workout이 없습니다");
-  return workout;
+): Promise<LocalWorkout | void> => {
+  try {
+    const workout = await db.workouts
+      .where("serverId")
+      .equals(serverId)
+      .first();
+    return workout;
+  } catch (e) {
+    throw new Error("workout을 불러오는 데 실패했습니다");
+  }
 };
 export const getWorkoutWithLocalId = async (
   id: number
 ): Promise<LocalWorkout | void> => {
-  const workout = await db.workouts.where("id").equals(id).first();
-  return workout;
+  try {
+    const workout = await db.workouts.where("id").equals(id).first();
+    return workout;
+  } catch (e) {
+    throw new Error("workout을 불러오는 데 실패했습니다");
+  }
 };
 
-export const updateWorkout = async (updatedWorkout: Partial<LocalWorkout>) => {
+export const updateWorkout = async (
+  updatedWorkout: Partial<LocalWorkout>
+): Promise<void> => {
   if (!updatedWorkout.id) {
     throw new Error("workout id는 꼭 전달해주세요");
   }
-  await db.workouts.update(updatedWorkout.id, {
-    ...updatedWorkout,
-    updatedAt: new Date().toISOString(),
-    isSynced: false,
-  });
+  try {
+    await db.workouts.update(updatedWorkout.id, {
+      ...updatedWorkout,
+      updatedAt: new Date().toISOString(),
+      isSynced: false,
+    });
+  } catch (e) {
+    throw new Error("workout 업데이트에 실패했습니다");
+  }
 };
 
 export const syncToServerWorkouts = async (): Promise<void> => {
@@ -99,30 +123,33 @@ export const addLocalWorkout = async (
   userId: string,
   date: string
 ): Promise<LocalWorkout> => {
-  const existing = await getWorkoutByUserIdAndDate(userId, date);
-  if (existing) {
-    return existing;
-  }
+  try {
+    const existing = await getWorkoutByUserIdAndDate(userId, date);
+    if (existing) {
+      return existing;
+    }
 
-  const localId = await db.workouts.add({
-    userId,
-    date,
-    createdAt: new Date().toISOString(),
-    isSynced: false,
-    status: "EMPTY",
-    serverId: null,
-  });
+    const localId = await db.workouts.add({
+      userId,
+      date,
+      createdAt: new Date().toISOString(),
+      isSynced: false,
+      status: "EMPTY",
+      serverId: null,
+    });
 
-  const workout = await getWorkoutWithLocalId(localId);
-  if (!workout) {
-    throw new Error("Workout을 불러오지 못했습니다");
+    const workout = await getWorkoutWithLocalId(localId);
+    if (!workout) throw new Error("Workout을 불러오지 못했습니다");
+
+    return workout;
+  } catch (e) {
+    throw new Error("Workout 추가에 실패했습니다");
   }
-  return workout;
 };
 
 export const updateLocalWorkout = async (workout: Partial<LocalWorkout>) => {
+  if (!workout.id) throw new Error("workout id는 필수입니다");
   try {
-    if (!workout.id) throw "workout id는 꼭 전달해주세요";
     await db.workouts.update(workout.id, {
       ...workout,
       updatedAt: new Date().toISOString(),
@@ -133,17 +160,26 @@ export const updateLocalWorkout = async (workout: Partial<LocalWorkout>) => {
   }
 };
 
-export const getThisMonthWorkouts = (
+export const getThisMonthWorkouts = async (
   startDate: string,
   endDate: string
 ): Promise<LocalWorkout[]> => {
-  return db.workouts
-    .where("date")
-    .between(startDate, endDate, true, true)
-    .filter((workout) => workout.status !== "EMPTY")
-    .toArray();
+  try {
+    const workouts = await db.workouts
+      .where("date")
+      .between(startDate, endDate, true, true)
+      .filter((workout) => workout.status !== "EMPTY")
+      .toArray();
+    return workouts;
+  } catch (e) {
+    throw new Error("이번 달 workout 목록을 불러오는 데 실패했습니다");
+  }
 };
 
 export const deleteLocalWorkout = async (workoutId: number) => {
-  await db.workouts.delete(workoutId);
+  try {
+    await db.workouts.delete(workoutId);
+  } catch (e) {
+    throw new Error("Workout 삭제에 실패했습니다");
+  }
 };

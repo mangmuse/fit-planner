@@ -34,7 +34,7 @@ export default function ExercisesContainer({
   const { routineId: stringRoutineId } = useParams();
   const routineId = stringRoutineId ? Number(stringRoutineId) : undefined;
 
-  const { data, filters, handlers } = useExercises({
+  const { data, filters, handlers, error, isLoading } = useExercises({
     type,
     allowMultipleSelection,
     userId,
@@ -67,9 +67,30 @@ export default function ExercisesContainer({
     ? `${selectedExercises.length}개 선택 완료`
     : "교체하기";
 
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-40 gap-4">
+        <p className="text-red-500">{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-4 py-2 bg-primary text-white rounded-lg"
+        >
+          다시 시도
+        </button>
+      </div>
+    );
+  }
+
+  // 로딩 처리
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-40">Loading...</div>
+    );
+  }
+
   return (
     <main className="pb-20">
-      <div 
+      <div
         onClick={handleOpenCreateExerciseModal}
         className="flex justify-end mt-4 mb-3"
       >
