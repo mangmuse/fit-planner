@@ -37,7 +37,6 @@ export async function GET(request: NextRequest) {
         },
       },
     });
-    exercises.forEach((e) => console.log(e.userExercises[0]));
 
     const exercisesWithBookmark = exercises.map((exercise) => {
       const userExercise = exercise.userExercises[0];

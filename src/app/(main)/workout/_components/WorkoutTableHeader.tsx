@@ -1,9 +1,5 @@
 import PrevWorkoutDetails from "@/app/(main)/workout/_components/PrevWorkoutDetails";
-import WorkoutCheckbox from "@/app/(main)/workout/_components/WorkoutCheckbox";
-import WorkoutSelectAllCheckbox from "@/app/(main)/workout/_components/WorkoutSelectAllCheckbox";
-import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import { useModal } from "@/providers/contexts/ModalContext";
-import { updateWorkoutDetails } from "@/services/workoutDetail.service";
 import {
   LocalExercise,
   LocalRoutineDetail,
@@ -41,7 +37,6 @@ const WorkoutTableHeader = ({
   };
 
   useEffect(() => {
-    console.log(details);
     const isallDone =
       !isRoutine && details.every((d) => (d as LocalWorkoutDetail).isDone);
     setAllDone(isallDone);

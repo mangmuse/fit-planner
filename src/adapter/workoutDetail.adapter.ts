@@ -121,7 +121,7 @@ export const convertLocalWorkoutDetailToServer = async (
       const exercise = await getExerciseWithLocalId(detail.exerciseId);
       const workout = await getWorkoutWithLocalId(detail.workoutId);
 
-      if (!exercise.serverId || !workout?.serverId) {
+      if (!exercise?.serverId || !workout?.serverId) {
         throw new Error("exerciseId 또는 workoutId가 없습니다");
       }
       return {
@@ -140,7 +140,7 @@ export const convertServerWorkoutDetailToLocal = async (
       const exercise = await getExerciseWithServerId(detail.exerciseId);
       const workout = await getWorkoutWithServerId(detail.workoutId);
 
-      if (!exercise.id || !workout.id) {
+      if (!exercise?.id || !workout?.id) {
         throw new Error("exerciseId 또는 workoutId가 없습니다.");
       }
       return {

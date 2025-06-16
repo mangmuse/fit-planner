@@ -17,7 +17,9 @@ const RoutineForm = () => {
 
   const loadName = async () => {
     const routine = await getRoutineByLocalId(Number(routineId));
-    setName(routine.name);
+    if (routine) {
+      setName(routine.name);
+    }
   };
 
   useEffect(() => {
@@ -40,7 +42,7 @@ const RoutineForm = () => {
   const routineTitle = (
     <div className="flex items-center gap-2">
       <span>{name}</span>
-      <button 
+      <button
         onClick={handleClickEditBtn}
         className="p-1 hover:bg-bg-surface rounded transition-colors"
       >
@@ -50,9 +52,9 @@ const RoutineForm = () => {
   );
 
   return (
-    <WorkoutContainer 
-      type="ROUTINE" 
-      routineId={Number(routineId)} 
+    <WorkoutContainer
+      type="ROUTINE"
+      routineId={Number(routineId)}
       formattedDate={routineTitle}
     />
   );
