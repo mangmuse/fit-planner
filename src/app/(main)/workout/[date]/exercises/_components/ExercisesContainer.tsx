@@ -12,6 +12,7 @@ import ExerciseList from "@/app/(main)/workout/[date]/exercises/_components/Exer
 import useExercises from "@/hooks/exercises/useExercises";
 import { useModal } from "@/providers/contexts/ModalContext";
 import CustomExerciseForm from "@/app/(main)/workout/[date]/exercises/_components/CustomExerciseForm";
+import ErrorState from "@/components/ErrorState";
 
 type ExercisesContainerProps = {
   type: "ROUTINE" | "RECORD";
@@ -67,19 +68,7 @@ export default function ExercisesContainer({
     ? `${selectedExercises.length}개 선택 완료`
     : "교체하기";
 
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center h-40 gap-4">
-        <p className="text-red-500">{error}</p>
-        <button
-          onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-primary text-white rounded-lg"
-        >
-          다시 시도
-        </button>
-      </div>
-    );
-  }
+  if (error) return <ErrorState error={error} onRetry={reloadExercises} />;
 
   // 로딩 처리
   if (isLoading) {

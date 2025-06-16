@@ -70,11 +70,14 @@ const LoadPastWorkoutSheet = ({
             const newExerciseOrder = startExerciseOrder + index + 1;
 
             if (type === "RECORD") {
-              if (!userId || !date)
-                throw new Error("userId 또는 date가 없습니다");
+              if (!userId || !date) {
+                console.error("userId 또는 date가 없습니다");
+                return;
+              }
               const workout = await getWorkoutByUserIdAndDate(userId, date);
               if (!workout || !workout.id) {
-                throw new Error("해당 날짜의 운동 기록이 없습니다");
+                console.error("workout ID가 없습니다");
+                return;
               }
 
               const newDetail = mapPastWorkoutToWorkoutDetail(
@@ -86,7 +89,10 @@ const LoadPastWorkoutSheet = ({
             } else if (type === "ROUTINE") {
               if (!routineId) return;
               const routine = await getRoutineByLocalId(routineId);
-              if (!routine.id) throw new Error("루틴 ID가 없습니다");
+              if (!routine || !routine.id) {
+                console.error("루틴 ID가 없습니다");
+                return;
+              }
 
               const newDetail = mapPastWorkoutToRoutineDetail(
                 detail,

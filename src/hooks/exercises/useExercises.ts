@@ -10,6 +10,7 @@ import {
   LocalRoutineDetail,
   LocalWorkoutDetail,
 } from "@/types/models";
+import { testError } from "@/util/testError";
 import { useEffect, useState } from "react";
 
 type UseExercisesProps = {
@@ -67,10 +68,12 @@ const useExercises = ({
 
   async function loadLocalExerciseData() {
     try {
+      setError(null);
+      setLoading(true);
+
       const all = await getAllLocalExercises();
       setExercises(all);
     } catch (e) {
-      console.error("[loadLocalExerciseData] Error", e);
       setError("운동 목록을 불러오지 못했습니다.");
     } finally {
       setLoading(false);
