@@ -1,0 +1,108 @@
+   ▲ Next.js 15.1.0
+   - Environments: .env
+
+   Creating an optimized production build ...
+> [PWA] Compile server
+> [PWA] Compile server
+> [PWA] Compile client (static)
+> [PWA] Auto register service worker with: /Users/mangmuse/Documents/project/fit-planner-ll/node_modules/next-pwa/register.js
+> [PWA] Service worker: /Users/mangmuse/Documents/project/fit-planner-ll/public/sw.js
+> [PWA]   url: /sw.js
+> [PWA]   scope: /
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+
+./src/app/(main)/routines/_components/RoutineDetailContainer.tsx
+28:6  Warning: React Hook useEffect has a missing dependency: 'getDetails'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/(main)/routines/_components/RoutineForm.tsx
+27:6  Warning: React Hook useEffect has a missing dependency: 'loadName'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/(main)/routines/_components/RoutineList.tsx
+35:6  Warning: React Hook useEffect has a missing dependency: 'loadRoutines'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/(main)/workout/_components/LoadPastWorkoutSheet.tsx
+124:6  Warning: React Hook useEffect has a missing dependency: 'reset'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/(main)/workout/_components/SetOptionSheet.tsx
+38:6  Warning: React Hook useEffect has a missing dependency: 'workoutDetail'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/(main)/workout/_components/WorkoutDetailGroupOptions.tsx
+126:6  Warning: React Hook useEffect has missing dependencies: 'exercise' and 'loadExercises'. Either include them or remove the dependency array. If 'loadExercises' changes too often, find the parent component that defines it and wrap that definition in useCallback.  react-hooks/exhaustive-deps
+
+./src/app/(main)/workout/_components/WorkoutExerciseGroup.tsx
+61:6  Warning: React Hook useEffect has missing dependencies: 'fetchAndSetExerciseData' and 'getPrevious'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+61:7  Warning: React Hook useEffect has a complex expression in the dependency array. Extract it to a separate variable so it can be statically checked.  react-hooks/exhaustive-deps
+
+./src/app/(main)/workout/_components/WorkoutTableHeader.tsx
+43:6  Warning: React Hook useEffect has a missing dependency: 'isRoutine'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/hooks/useLoadDetails.ts
+219:6  Warning: React Hook useEffect has a missing dependency: 'loadLocalDetails'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+225:6  Warning: React Hook useEffect has missing dependencies: 'date', 'syncWorkoutStatus', and 'type'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+   Collecting page data ...
+   Generating static pages (0/17) ...
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /_not-found. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /_not-found. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+   Generating static pages (4/17) 
+   Generating static pages (8/17) 
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /analytics. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /analytics. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /routines. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /routines. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+   Generating static pages (12/17) 
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /home. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /home. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /routines/create. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /routines/create. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ✓ Generating static pages (17/17)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                    Size     First Load JS
+┌ ○ /_not-found                                981 B           106 kB
+├ ○ /analytics                                 175 B           106 kB
+├ ƒ /api/auth/[...nextauth]                    175 B           106 kB
+├ ƒ /api/exercises/all                         175 B           106 kB
+├ ƒ /api/exercises/bookmark                    175 B           106 kB
+├ ƒ /api/exercises/sync                        175 B           106 kB
+├ ƒ /api/routine/[userId]                      175 B           106 kB
+├ ƒ /api/routine/detail/[userId]               175 B           106 kB
+├ ƒ /api/routine/detail/sync                   175 B           106 kB
+├ ƒ /api/routine/sync                          175 B           106 kB
+├ ƒ /api/workout/[userId]                      175 B           106 kB
+├ ƒ /api/workout/detail                        175 B           106 kB
+├ ƒ /api/workout/detail/[userId]               175 B           106 kB
+├ ƒ /api/workout/detail/[userId]/[date]        175 B           106 kB
+├ ƒ /api/workout/detail/set                    175 B           106 kB
+├ ƒ /api/workout/detail/set/[workoutDetailId]  175 B           106 kB
+├ ƒ /api/workout/detail/sync                   175 B           106 kB
+├ ƒ /api/workout/sync                          175 B           106 kB
+├ ○ /home                                      5.37 kB         194 kB
+├ ○ /routines                                  4.95 kB         222 kB
+├ ƒ /routines/[routineId]                      902 B           263 kB
+├ ƒ /routines/[routineId]/exercises            189 B           233 kB
+├ ○ /routines/create                           2.69 kB         177 kB
+├ ƒ /workout/[date]                            198 B           262 kB
+└ ƒ /workout/[date]/exercises                  189 B           233 kB
++ First Load JS shared by all                  105 kB
+  ├ chunks/4bd1b696-fcb765e7691c98d9.js        52.9 kB
+  ├ chunks/517-d507e6037d1c3d72.js             50.5 kB
+  └ other shared chunks (total)                1.91 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

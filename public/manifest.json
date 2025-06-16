@@ -1,20 +1,20 @@
 {
-  "name": "Fit Planner",
-  "short_name": "FitPlanner",
-  "icons": [],
+  "name": "Fit Planner - 운동 기록 관리",
+  "short_name": "Fit Planner",
+  "description": "운동 루틴과 기록을 관리하는 PWA 앱",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ff0000"
+  "orientation": "portrait",
+  "background_color": "#121212",
+  "theme_color": "#121212",
+  "categories": ["health", "fitness", "lifestyle"]
 }
-// {
-//     "src": "/",
-//     "sizes": "192x192",
-//     "type": "image/png"
-//   },
-//   {
-//     "src": "/",
-//     "sizes": "512x512",
-//     "type": "image/png"
-//   }

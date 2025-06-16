@@ -17,7 +17,7 @@ const customJestConfig = {
     "^@/(.*)$": "<rootDir>/src/$1",
     "^next/image$": "<rootDir>/src/__mocks__/next/Image.tsx",
     "^next/navigation$": "<rootDir>/src/__mocks__/next/navigation.ts",
-    "\\.(css|less)$": "identity-obj-proxy",
+    "\\.(css|less)$": "<rootDir>/src/__mocks__/styleMock.js",
   },
 };
 
