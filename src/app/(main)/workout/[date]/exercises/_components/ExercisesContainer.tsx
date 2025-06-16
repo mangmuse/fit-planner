@@ -12,6 +12,7 @@ import ExerciseList from "@/app/(main)/workout/[date]/exercises/_components/Exer
 import useExercises from "@/hooks/exercises/useExercises";
 import { useModal } from "@/providers/contexts/ModalContext";
 import CustomExerciseForm from "@/app/(main)/workout/[date]/exercises/_components/CustomExerciseForm";
+import ErrorState from "@/components/ErrorState";
 
 type ExercisesContainerProps = {
   type: "ROUTINE" | "RECORD";
@@ -34,7 +35,7 @@ export default function ExercisesContainer({
   const { routineId: stringRoutineId } = useParams();
   const routineId = stringRoutineId ? Number(stringRoutineId) : undefined;
 
-  const { data, filters, handlers } = useExercises({
+  const { data, filters, handlers, error, isLoading } = useExercises({
     type,
     allowMultipleSelection,
     userId,
@@ -67,9 +68,18 @@ export default function ExercisesContainer({
     ? `${selectedExercises.length}개 선택 완료`
     : "교체하기";
 
+  if (error) return <ErrorState error={error} onRetry={reloadExercises} />;
+
+  // 로딩 처리
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-40">Loading...</div>
+    );
+  }
+
   return (
     <main className="pb-20">
-      <div 
+      <div
         onClick={handleOpenCreateExerciseModal}
         className="flex justify-end mt-4 mb-3"
       >

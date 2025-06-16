@@ -39,7 +39,7 @@ const WorkoutExerciseGroup = ({
   const lastDetail = details[details.length - 1];
   const fetchAndSetExerciseData = async () => {
     const exerciseData = await getExerciseWithLocalId(details[0].exerciseId);
-    setExercise(exerciseData);
+    setExercise(exerciseData || null);
   };
 
   const getPrevious = async () => {

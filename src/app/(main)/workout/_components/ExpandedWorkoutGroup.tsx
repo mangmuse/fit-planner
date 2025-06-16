@@ -32,7 +32,9 @@ const ExpandedWorkoutGroup = ({
       const exercise = await getExerciseWithLocalId(
         workoutGroup.details[0].exerciseId
       );
-      setExerciseUnit(exercise.unit);
+      if (exercise) {
+        setExerciseUnit(exercise.unit);
+      }
     })();
   }, [workoutGroup]);
   return (

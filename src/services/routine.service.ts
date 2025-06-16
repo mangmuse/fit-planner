@@ -14,47 +14,70 @@ type AddLocalRoutineInput = {
 export const addLocalRoutine = async (
   addLocalRoutineInput: AddLocalRoutineInput
 ): Promise<number> => {
-  const localId = await db.routines.add({
-    ...addLocalRoutineInput,
-    createdAt: new Date().toISOString(),
-    isSynced: false,
-    serverId: null,
-    description: addLocalRoutineInput.description || "",
-  });
-  return localId;
+  try {
+    const localId = await db.routines.add({
+      ...addLocalRoutineInput,
+      createdAt: new Date().toISOString(),
+      isSynced: false,
+      serverId: null,
+      description: addLocalRoutineInput.description || "",
+    });
+    return localId;
+  } catch (e) {
+    throw new Error("루틴 추가에 실패했습니다");
+  }
 };
 
 export const getRoutineByServerId = async (
   serverId: string
-): Promise<LocalRoutine> => {
-  const routine = await db.routines.where("serverId").equals(serverId).first();
-  if (!routine) throw new Error("일치하는 routine이 없습니다");
-  return routine;
+): Promise<LocalRoutine | void> => {
+  try {
+    const routine = await db.routines
+      .where("serverId")
+      .equals(serverId)
+      .first();
+    return routine;
+  } catch (e) {
+    throw new Error("routine을 불러오는 데 실패했습니다");
+  }
 };
 
 export const getRoutineByLocalId = async (
   localId: number
-): Promise<LocalRoutine> => {
-  const routine = await db.routines.where("id").equals(localId).first();
-  if (!routine) throw new Error("일치하는 routine이 없습니다");
-  return routine;
+): Promise<LocalRoutine | void> => {
+  try {
+    const routine = await db.routines.where("id").equals(localId).first();
+    return routine;
+  } catch (e) {
+    throw new Error("routine을 불러오는 데 실패했습니다");
+  }
 };
 
-export const getAllLocalRoutines = async (userId: string) => {
-  const routines = await db.routines.where("userId").equals(userId).toArray();
+export const getAllLocalRoutines = async (
+  userId: string
+): Promise<LocalRoutine[]> => {
+  try {
+    const routines = await db.routines.where("userId").equals(userId).toArray();
 
-  return routines;
+    return routines;
+  } catch (e) {
+    throw new Error("루틴 목록을 불러오는 데 실패했습니다");
+  }
 };
 
 export const updateLocalRoutine = async (
   routine: Partial<LocalRoutine>
 ): Promise<void> => {
-  if (!routine.id) throw new Error("routine id는 꼭 전달해주세요");
-  await db.routines.update(routine.id, {
-    ...routine,
-    updatedAt: new Date().toISOString(),
-    isSynced: false,
-  });
+  try {
+    if (!routine.id) throw new Error("routine id는 꼭 전달해주세요");
+    await db.routines.update(routine.id, {
+      ...routine,
+      updatedAt: new Date().toISOString(),
+      isSynced: false,
+    });
+  } catch (e) {
+    throw new Error("루틴 업데이트에 실패했습니다");
+  }
 };
 
 export const syncToServerRoutines = async (): Promise<void> => {
@@ -96,5 +119,9 @@ export const overwriteWithServerRoutines = async (
 // userId, description, name
 
 export const deleteLocalRoutine = async (routineId: number) => {
-  await db.routines.delete(routineId);
+  try {
+    await db.routines.delete(routineId);
+  } catch (e) {
+    throw new Error("루틴 삭제에 실패했습니다");
+  }
 };

@@ -14,6 +14,7 @@ import trashIcon from "public/trash.svg";
 import useLoadDetails from "@/hooks/useLoadDetails";
 import LoadPastWorkoutSheet from "@/app/(main)/workout/_components/LoadPastWorkoutSheet";
 import { useModal } from "@/providers/contexts/ModalContext";
+import ErrorState from "@/components/ErrorState";
 
 type WorkoutContainerProps = {
   type: "ROUTINE" | "RECORD";
@@ -30,6 +31,7 @@ const WorkoutContainer = ({
 }: WorkoutContainerProps) => {
   const userId = useSession().data?.user?.id;
   const {
+    error,
     isLoading,
     workoutGroups,
     reload,
@@ -76,6 +78,8 @@ const WorkoutContainer = ({
     return (
       <div className="flex justify-center items-center h-40">Loading...</div>
     );
+
+  if (error) return <ErrorState error={error} onRetry={reload} />;
   return (
     <div>
       {workoutGroups.length !== 0 ? (

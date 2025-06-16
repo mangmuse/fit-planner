@@ -17,7 +17,6 @@ type RequestBody = z.infer<typeof requestBodySchema>;
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    console.log(body, "Received body in sync route");
     const parsedBody = validateData<RequestBody>(requestBodySchema, body);
 
     const unsynced = parsedBody.unsynced;

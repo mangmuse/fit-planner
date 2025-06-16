@@ -7,6 +7,7 @@ type ModalContextValue = {
   openModal: (options: ModalProps) => void;
   closeModal: () => void;
   isOpen: boolean;
+  showError: (message: string) => void;
 };
 
 const ModalContext = createContext<ModalContextValue | null>(null);
@@ -28,12 +29,16 @@ export function ModalProvider({ children }: { children: ReactNode }) {
   const closeModal = () => {
     setModalOptions(null);
   };
+  const showError = (message: string) => {
+    openModal({ type: "alert", title: "오류", message });
+  };
 
   return (
     <ModalContext.Provider
       value={{
         openModal,
         closeModal,
+        showError,
         isOpen: modalOptions !== null,
       }}
     >

@@ -21,17 +21,26 @@ const SortableItem = ({ id, value }: SortableItemProps) => {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    padding: "8px",
-    border: "1px solid white",
-    borderRadius: "4px",
-    backgroundColor: "#333333",
     opacity: isDragging ? 0 : 1,
     cursor: "grab",
   };
 
   return (
-    <li ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      {value}
+    <li
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="bg-bg-surface rounded-lg px-4 py-3 flex items-center justify-between hover:bg-bg-surface-variant transition-colors"
+    >
+      <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-0.5 w-6 justify-center">
+          <div className="h-[2px] bg-text-muted rounded-full"></div>
+          <div className="h-[2px] bg-text-muted rounded-full"></div>
+          <div className="h-[2px] bg-text-muted rounded-full"></div>
+        </div>
+        <span className="text-text-white font-medium">{value}</span>
+      </div>
     </li>
   );
 };

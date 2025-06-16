@@ -1,5 +1,6 @@
 import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
+import { useModal } from "@/providers/contexts/ModalContext";
 import {
   addLocalRoutineDetailsByWorkoutId,
   deleteRoutineDetails,
@@ -40,6 +41,7 @@ const useSelectedExercises = ({
 }: UseSelectedExercises) => {
   const router = useRouter();
   const { closeBottomSheet } = useBottomSheet();
+  const { showError } = useModal();
 
   const [selectedExercises, setSelectedExercises] = useState<
     { id: number; name: string }[]
@@ -58,27 +60,32 @@ const useSelectedExercises = ({
       { id: exercise.id!, name: exercise.name },
     ]);
   };
+
   const handleUnselectExercise = (id: number) => {
     setSelectedExercises((prev) => prev.filter((item) => item.id !== id));
   };
 
   const handleAddDetail = async () => {
-    if (type === "RECORD" && userId && date) {
-      await addLocalWorkoutDetailsByUserDate(userId, date, selectedExercises);
-      router.push(`/workout/${date}`);
-    } else {
-      if (!routineId) return;
+    try {
+      if (type === "RECORD" && userId && date) {
+        await addLocalWorkoutDetailsByUserDate(userId, date, selectedExercises);
+        router.push(`/workout/${date}`);
+      } else {
+        if (!routineId) return;
 
-      // routineId로 맞는 detail찾아서 몇개인지 확인해서 startOrder 가져오기
-      const details = await getLocalRoutineDetails(Number(routineId));
-      const startOrder = details.length + 1;
+        // routineId로 맞는 detail찾아서 몇개인지 확인해서 startOrder 가져오기
+        const details = await getLocalRoutineDetails(Number(routineId));
+        const startOrder = details.length + 1;
 
-      await addLocalRoutineDetailsByWorkoutId(
-        Number(routineId),
-        startOrder,
-        selectedExercises
-      );
-      router.push(`/routines/${routineId}`);
+        await addLocalRoutineDetailsByWorkoutId(
+          Number(routineId),
+          startOrder,
+          selectedExercises
+        );
+        router.push(`/routines/${routineId}`);
+      }
+    } catch (e) {
+      showError("운동을 추가하는데 실패했습니다.");
     }
   };
 
@@ -107,7 +114,7 @@ const useSelectedExercises = ({
       await reloadDetails?.();
       closeBottomSheet();
     } catch (e) {
-      console.log(e);
+      showError("운동을 교체하는데 실패했습니다.");
     }
   };
 

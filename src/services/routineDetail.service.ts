@@ -22,65 +22,90 @@ export async function addLocalRoutineDetailsByWorkoutId(
   startOrder: number,
   selectedExercises: { id: number; name: string }[]
 ): Promise<number> {
-  if (startOrder === null) {
-    // startOrder = await getStartExerciseOrder(workoutId); // workoutId가 temp인경우 startOrder는 1
-  }
-  const newDetails = getNewRoutineDetails(selectedExercises, {
-    routineId,
-    startOrder,
-  });
-  const routineDetails = await db.routineDetails.bulkAdd(newDetails);
+  try {
+    if (startOrder === null) {
+      // startOrder = await getStartExerciseOrder(workoutId); // workoutId가 temp인경우 startOrder는 1
+    }
+    const newDetails = getNewRoutineDetails(selectedExercises, {
+      routineId,
+      startOrder,
+    });
+    const routineDetails = await db.routineDetails.bulkAdd(newDetails);
 
-  return routineDetails;
+    return routineDetails;
+  } catch (e) {
+    throw new Error("RoutineDetails를 추가하는 데 실패했습니다");
+  }
 }
 
 export const addLocalRoutineDetail = async (
   routineDetailInput: LocalRoutineDetail
 ): Promise<void> => {
-  await db.routineDetails.add(routineDetailInput);
+  try {
+    await db.routineDetails.add(routineDetailInput);
+  } catch (e) {
+    throw new Error("RoutineDetails를 추가하는 데 실패했습니다");
+  }
 };
 
 export const getLocalRoutineDetails = async (
   routineId: number
 ): Promise<LocalRoutineDetail[]> => {
-  // routineId로 db에서 가져오기
-  const details = await db.routineDetails
-    .where("routineId")
-    .equals(routineId)
-    .toArray();
-  if (!details) throw new Error("routineId를 가져오지 못했습니다");
-  return details;
+  try {
+    const details = await db.routineDetails
+      .where("routineId")
+      .equals(routineId)
+      .toArray();
+    return details;
+  } catch (e) {
+    throw new Error("RoutineDetails를 불러오는 데 실패했습니다");
+  }
 };
-// routineDetails db만들고 세팅
 
 export const addSetToRoutine = async (
   lastSet: LocalRoutineDetail
 ): Promise<number> => {
-  const addSetInput = getAddSetToRoutineByLastSet(lastSet);
-  const newSet = await db.routineDetails.add(addSetInput);
-  return newSet;
+  try {
+    const addSetInput = getAddSetToRoutineByLastSet(lastSet);
+    const newSet = await db.routineDetails.add(addSetInput);
+    return newSet;
+  } catch (e) {
+    throw new Error("RoutineDetail을 추가하는 데 실패했습니다");
+  }
 };
 
 export const deleteRoutineDetail = async (detailId: number): Promise<void> => {
-  db.routineDetails.delete(detailId);
+  try {
+    await db.routineDetails.delete(detailId);
+  } catch (e) {
+    throw new Error("RoutineDetail을 삭제하는 데 실패했습니다");
+  }
 };
 
 export const deleteRoutineDetails = async (
   details: LocalRoutineDetail[]
 ): Promise<void> => {
-  Promise.all(
-    details.map(async (detail) => {
-      if (!detail.id) throw new Error("id가 없습니다");
-      await db.routineDetails.delete(detail.id);
-    })
-  );
+  try {
+    await Promise.all(
+      details.map(async (detail) => {
+        if (!detail.id) throw new Error("id가 없습니다");
+        await db.routineDetails.delete(detail.id);
+      })
+    );
+  } catch (e) {
+    throw new Error("RoutineDetails를 삭제하는 데 실패했습니다");
+  }
 };
 
 export const updateLocalRoutineDetail = async (
   updateWorkoutInput: Partial<LocalRoutineDetail>
 ): Promise<void> => {
-  if (!updateWorkoutInput.id) throw new Error("id가 없습니다");
-  await db.routineDetails.update(updateWorkoutInput.id, updateWorkoutInput);
+  try {
+    if (!updateWorkoutInput.id) throw new Error("id가 없습니다");
+    await db.routineDetails.update(updateWorkoutInput.id, updateWorkoutInput);
+  } catch (e) {
+    throw new Error("RoutineDetails를 업데이트하는 데 실패했습니다");
+  }
 };
 
 export const syncToServerRoutineDetails = async (): Promise<void> => {
@@ -111,17 +136,21 @@ export const cloneRoutineDetailWithNewRoutineId = async (
   originalDetail: LocalRoutineDetail,
   newRoutineId: number
 ) => {
-  const { id, createdAt, updatedAt, serverId, isSynced, routineId, ...rest } =
-    originalDetail;
-  const newDetailInput: LocalRoutineDetail = {
-    ...rest,
-    routineId: newRoutineId,
-    serverId: null,
-    isSynced: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-  await db.routineDetails.add(newDetailInput);
+  try {
+    const { id, createdAt, updatedAt, serverId, isSynced, routineId, ...rest } =
+      originalDetail;
+    const newDetailInput: LocalRoutineDetail = {
+      ...rest,
+      routineId: newRoutineId,
+      serverId: null,
+      isSynced: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    await db.routineDetails.add(newDetailInput);
+  } catch (e) {
+    throw new Error("RoutineDetail을 복제하는 데 실패했습니다");
+  }
 };
 
 export const overwriteWithServerRoutineDetails = async (

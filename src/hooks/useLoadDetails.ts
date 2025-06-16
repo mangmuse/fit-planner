@@ -50,7 +50,8 @@ const useLoadDetails = ({
   routineId,
 }: UseLoadDetailsProps) => {
   const [workout, setWorkout] = useState<LocalWorkout | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isInitialLoading, setIsInitialLoading] = useState<boolean>(true);
   const [allDetails, setAllDetails] = useState<
     LocalWorkoutDetail[] | LocalRoutineDetail[]
   >([]);
@@ -60,110 +61,147 @@ const useLoadDetails = ({
   const { openModal } = useModal();
 
   const loadLocalDetails = async () => {
-    if (type === "RECORD") {
-      if (!userId || !date) return;
-      const details = await getLocalWorkoutDetails(userId, date);
-      setAllDetails(details);
-      const adjustedGroups = getGroupedDetails(details);
+    try {
+      setIsInitialLoading(true);
+      if (type === "RECORD") {
+        if (!userId || !date) return;
+        const details = await getLocalWorkoutDetails(userId, date);
+        setAllDetails(details);
+        const adjustedGroups = getGroupedDetails(details);
 
-      setWorkoutGroups(adjustedGroups);
-      setIsLoading(false);
-      console.log("helooooo");
-    } else if (type === "ROUTINE") {
-      if (!userId || !routineId) return;
-      const details = await getLocalRoutineDetails(routineId);
-      setAllDetails(details);
-      const adjustedGroups = getGroupedDetails(details);
-      setWorkoutGroups(adjustedGroups);
-      setIsLoading(false);
+        setWorkoutGroups(adjustedGroups);
+      } else if (type === "ROUTINE") {
+        if (!userId || !routineId) return;
+        const details = await getLocalRoutineDetails(routineId);
+        setAllDetails(details);
+        const adjustedGroups = getGroupedDetails(details);
+        setWorkoutGroups(adjustedGroups);
+      }
+    } catch (e) {
+      setError("운동 세부 정보를 불러오는데 실패했습니다");
+    } finally {
+      setIsInitialLoading(false);
     }
   };
 
   const syncWorkoutStatus = async () => {
-    if (!date || !userId) return;
+    try {
+      if (!date || !userId) return;
 
-    let currentWorkout = workout;
-    if (!currentWorkout) {
-      const fetchedWorkout = await getWorkoutByUserIdAndDate(userId, date);
-      currentWorkout = fetchedWorkout || null;
+      let currentWorkout = workout;
       if (!currentWorkout) {
-        // 최초 렌더링이나 workout이 아직 생성되지 않은 경우
-        return;
+        const fetchedWorkout = await getWorkoutByUserIdAndDate(userId, date);
+        currentWorkout = fetchedWorkout || null;
+        if (!currentWorkout) {
+          // 최초 렌더링이나 workout이 아직 생성되지 않은 경우
+          return;
+        }
+        setWorkout(currentWorkout);
       }
-      setWorkout(currentWorkout);
+      if (!currentWorkout?.id || currentWorkout.status === "COMPLETED") return;
+      const newStatus = workoutGroups.length === 0 ? "EMPTY" : "PLANNED";
+      await updateLocalWorkout({ ...currentWorkout, status: newStatus });
+    } catch (e) {
+      openModal({
+        type: "alert",
+        title: "오류",
+        message: "운동 상태를 동기화하는 데 실패했습니다",
+      });
     }
-
-    if (!currentWorkout?.id || currentWorkout.status === "COMPLETED") return;
-    const newStatus = workoutGroups.length === 0 ? "EMPTY" : "PLANNED";
-    await updateLocalWorkout({ ...currentWorkout, status: newStatus });
   };
 
   const reorderAfterDelete = async (
     deletedExerciseOrder: number
   ): Promise<void> => {
-    // 1. 삭제한 세트 제외한 나머지 중 exerciseOrder가 큰 것들만 필터링
-    const affectedDetails = allDetails.filter(
-      (d) => d.exerciseOrder > deletedExerciseOrder
-    );
-    // 2. exerciseOrder를 1씩 감소시키면서 DB 업데이트
-    const details = await Promise.all(
-      affectedDetails.map((detail) => {
-        const updated = { ...detail, exerciseOrder: detail.exerciseOrder - 1 };
-        if (isWorkoutDetail(detail)) {
-          return updateLocalWorkoutDetail(updated);
-        } else {
-          return updateLocalRoutineDetail(updated);
-        }
-      })
-    );
+    try {
+      // 1. 삭제한 세트 제외한 나머지 중 exerciseOrder가 큰 것들만 필터링
+      const affectedDetails = allDetails.filter(
+        (d) => d.exerciseOrder > deletedExerciseOrder
+      );
+      // 2. exerciseOrder를 1씩 감소시키면서 DB 업데이트
+      const details = await Promise.all(
+        affectedDetails.map((detail) => {
+          const updated = {
+            ...detail,
+            exerciseOrder: detail.exerciseOrder - 1,
+          };
+          if (isWorkoutDetail(detail)) {
+            return updateLocalWorkoutDetail(updated);
+          } else {
+            return updateLocalRoutineDetail(updated);
+          }
+        })
+      );
+    } catch (e) {
+      openModal({
+        type: "alert",
+        title: "오류",
+        message: "운동 상태를 동기화하는 데 실패했습니다",
+      });
+    }
   };
 
   const handleDeleteAll = async () => {
-    async function deleteAll() {
-      if (type === "RECORD" && isWorkoutDetails(allDetails) && workout?.id) {
-        if (allDetails.length === 0) return;
-        await deleteWorkoutDetails(allDetails);
-        await deleteLocalWorkout(workout.id);
-      } else if (
-        type === "ROUTINE" &&
-        !isWorkoutDetails(allDetails) &&
-        routineId
-      ) {
-        if (allDetails.length === 0) return;
-        if (!routineId) {
-          console.error("루틴 ID를 찾을 수 없습니다");
-          return;
+    try {
+      async function deleteAll() {
+        if (type === "RECORD" && isWorkoutDetails(allDetails) && workout?.id) {
+          if (allDetails.length === 0) return;
+          await deleteWorkoutDetails(allDetails);
+          await deleteLocalWorkout(workout.id);
+        } else if (
+          type === "ROUTINE" &&
+          !isWorkoutDetails(allDetails) &&
+          routineId
+        ) {
+          if (allDetails.length === 0) return;
+          if (!routineId) {
+            console.error("루틴 ID를 찾을 수 없습니다");
+            return;
+          }
+          await deleteRoutineDetails(allDetails);
+          await deleteLocalRoutine(routineId);
         }
-        await deleteRoutineDetails(allDetails);
-        await deleteLocalRoutine(routineId);
+        router.push("/");
+        setWorkout(null);
       }
-      router.push("/");
-      setWorkout(null);
+      openModal({
+        type: "confirm",
+        title: "운동 전체 삭제",
+        message: "모든 운동을 삭제하시겠습니까?",
+        onConfirm: async () => deleteAll(),
+      });
+    } catch (e) {
+      openModal({
+        type: "alert",
+        title: "오류",
+        message: "운동 전체 삭제에 실패했습니다",
+      });
     }
-
-    openModal({
-      type: "confirm",
-      title: "운동 전체 삭제",
-      message: "모든 운동을 삭제하시겠습니까?",
-      onConfirm: async () => deleteAll(),
-    });
   };
 
   const handleCompleteWorkout = async () => {
-    if (type !== "RECORD") return;
-    if (!workout?.id) {
-      console.error("Workout을 찾을 수 없습니다");
-      return;
-    }
-    // workout status COMPLETED로 변경하고
-    const updatedWorkout: Partial<LocalWorkout> = {
-      id: workout.id,
-      status: "COMPLETED",
-    };
-    await updateLocalWorkout(updatedWorkout);
+    try {
+      if (type !== "RECORD") return;
+      if (!workout?.id) {
+        console.error("Workout을 찾을 수 없습니다");
+        return;
+      }
+      // workout status COMPLETED로 변경하고
+      const updatedWorkout: Partial<LocalWorkout> = {
+        id: workout.id,
+        status: "COMPLETED",
+      };
+      await updateLocalWorkout(updatedWorkout);
 
-    // 메인메이지로 이동
-    router.push("/");
+      // 메인메이지로 이동
+      router.push("/");
+    } catch (e) {
+      openModal({
+        type: "alert",
+        title: "오류",
+        message: "운동 완료 처리에 실패했습니다",
+      });
+    }
   };
 
   const handleClickCompleteBtn = () =>
@@ -187,7 +225,8 @@ const useLoadDetails = ({
   }, [workoutGroups]);
 
   return {
-    isLoading,
+    error,
+    isLoading: isInitialLoading,
     workout,
     workoutGroups,
     reload: loadLocalDetails,
