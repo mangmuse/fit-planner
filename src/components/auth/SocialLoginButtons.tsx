@@ -12,7 +12,7 @@ export default function SocialLoginButtons({
   onGoogleLogin,
   onKakaoLogin,
 }: SocialLoginButtonsProps) {
-  const handleSignIn = () => signIn("google");
+  const handleSignIn = () => signIn("google", { callbackUrl: "/" });
   const handleSignOut = () => signOut();
   return (
     <div className="space-y-3">
