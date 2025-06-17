@@ -1,5 +1,11 @@
 "use client";
-import { createContext, useContext, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 import { ModalProps } from "@/types/modal.type";
 import Modal from "@/components/Modal/Modal";
 
@@ -32,6 +38,22 @@ export function ModalProvider({ children }: { children: ReactNode }) {
   const showError = (message: string) => {
     openModal({ type: "alert", title: "오류", message });
   };
+
+  useEffect(() => {
+    if (modalOptions) {
+      window.history.pushState({ modal: true }, "");
+
+      const handlePopState = () => {
+        closeModal();
+      };
+
+      window.addEventListener("popstate", handlePopState);
+
+      return () => {
+        window.removeEventListener("popstate", handlePopState);
+      };
+    }
+  }, [modalOptions]);
 
   return (
     <ModalContext.Provider

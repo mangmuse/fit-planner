@@ -59,7 +59,9 @@ const WorkoutDetailGroupOptions = ({
   // 삭제하기: 삭제 모달띄우기 -> 해당 workout의 exerciseOrder 일치 삭제
 
   // const [exercise, setExercise] = useState<LocalExercise | null>(null);
-  const [unit, setUnit] = useState<(typeof units)[number]>("kg");
+  const [unit, setUnit] = useState<(typeof units)[number]>(
+    exercise.unit || "kg"
+  );
   const { closeBottomSheet, openBottomSheet } = useBottomSheet();
   const { openModal } = useModal();
   const handleOpenMemo = () => {

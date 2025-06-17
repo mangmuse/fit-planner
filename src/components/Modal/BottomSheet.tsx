@@ -27,14 +27,36 @@ const BottomSheet = ({
   };
 
   useEffect(() => {
+    if (!isOpen) return;
+
+    window.history.pushState({ bottomSheet: true }, "");
+
+    const handlePopState = () => {
+      closeBottomSheet();
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [isOpen, onClose]);
+
+  useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
       // 390px 컨테이너의 위치 계산
-      const container = document.querySelector('.max-w-\\[390px\\]');
+      const container = document.querySelector(".max-w-\\[390px\\]");
       if (container) {
         const rect = container.getBoundingClientRect();
-        document.documentElement.style.setProperty('--container-left', `${rect.left}px`);
-        document.documentElement.style.setProperty('--container-width', `${rect.width}px`);
+        document.documentElement.style.setProperty(
+          "--container-left",
+          `${rect.left}px`
+        );
+        document.documentElement.style.setProperty(
+          "--container-width",
+          `${rect.width}px`
+        );
       }
     }
   }, [isOpen]);
@@ -62,11 +84,13 @@ const BottomSheet = ({
             role="dialog"
             key="bottomsheet"
             className={`fixed overflow-hidden px-3 py-5 bg-bg-surface-variant 
-                       ${rounded ? 'rounded-t-3xl' : ''} bottom-0 z-30 flex flex-col
+                       ${
+                         rounded ? "rounded-t-3xl" : ""
+                       } bottom-0 z-30 flex flex-col
                        left-[var(--container-left,0)] w-[var(--container-width,100%)] max-w-[390px]`}
-            style={{ 
-              height: height, 
-              minHeight: minheight
+            style={{
+              height: height,
+              minHeight: minheight,
             }}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
@@ -78,9 +102,7 @@ const BottomSheet = ({
                 <Image src={closeBtn} alt="바텀시트 닫기" />
               </button>
             </div>
-            <div className="flex-1 overflow-hidden">
-              {children}
-            </div>
+            <div className="flex-1 overflow-hidden">{children}</div>
           </motion.div>
         </>
       )}
