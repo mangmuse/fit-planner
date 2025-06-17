@@ -1,6 +1,6 @@
 "use client";
 
-import { convertRoutineDetailToWorkoutDetailInput } from "@/adapter/workoutDetail.adapter";
+import { workoutDetailAdapter } from "@/adapter/workoutDetail.adapter";
 import RoutineList from "@/app/(main)/routines/_components/RoutineList";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import {
@@ -54,7 +54,10 @@ function WorkoutPlaceholder({
       routineDetails.map(async (detail) => {
         if (!workoutId) throw new Error("workoutId가 없습니다");
         const workoutDetail: LocalWorkoutDetail =
-          convertRoutineDetailToWorkoutDetailInput(detail, workoutId);
+          workoutDetailAdapter.convertRoutineDetailToWorkoutDetailInput(
+            detail,
+            workoutId
+          );
         addLocalWorkoutDetail(workoutDetail);
       })
     );

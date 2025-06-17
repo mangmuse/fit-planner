@@ -1,5 +1,3 @@
-import { createWorkoutDetail } from "@/adapter/workoutDetail.adapter";
-import { mockInvalidFetchWorkoutDetailsResponse } from "./../__mocks__/workoutDetail.mock";
 import {
   isWorkoutDetail,
   isWorkoutDetails,

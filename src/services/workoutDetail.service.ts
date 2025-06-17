@@ -5,12 +5,7 @@ import {
   postWorkoutDetailsToServer,
 } from "@/api/workoutDetail.api";
 import { db } from "@/lib/db";
-import {
-  convertLocalWorkoutDetailToServer,
-  getAddSetToWorkoutByLastSet,
-  getNewWorkoutDetails,
-  getStartExerciseOrder,
-} from "@/adapter/workoutDetail.adapter";
+import { workoutDetailAdapter } from "@/adapter/workoutDetail.adapter";
 import { getExerciseWithServerId } from "@/services/exercise.service";
 import {
   addLocalWorkout,
@@ -66,12 +61,16 @@ export async function addLocalWorkoutDetailsByUserDate(
     const workout = await addLocalWorkout(userId, date);
     const workoutId = workout.id!;
 
-    const startOrder = await getStartExerciseOrder(workoutId);
+    const startOrder =
+      await workoutDetailAdapter.getStartExerciseOrder(workoutId);
 
-    const newDetails = getNewWorkoutDetails(selectedExercises, {
-      workoutId,
-      startOrder,
-    });
+    const newDetails = workoutDetailAdapter.getNewWorkoutDetails(
+      selectedExercises,
+      {
+        workoutId,
+        startOrder,
+      }
+    );
 
     const workoutDetails = await db.workoutDetails.bulkAdd(newDetails);
     return workoutDetails;
@@ -97,12 +96,15 @@ export async function addLocalWorkoutDetailsByWorkoutId(
 ): Promise<number> {
   try {
     if (startOrder == null) {
-      startOrder = await getStartExerciseOrder(workoutId);
+      startOrder = await workoutDetailAdapter.getStartExerciseOrder(workoutId);
     }
-    const newDetails = getNewWorkoutDetails(selectedExercises, {
-      workoutId,
-      startOrder,
-    });
+    const newDetails = workoutDetailAdapter.getNewWorkoutDetails(
+      selectedExercises,
+      {
+        workoutId,
+        startOrder,
+      }
+    );
     const workoutDetails = await db.workoutDetails.bulkAdd(newDetails);
 
     return workoutDetails;
@@ -179,7 +181,8 @@ export const addSetToWorkout = async (
   lastSet: LocalWorkoutDetail
 ): Promise<number> => {
   try {
-    const addSetInput = getAddSetToWorkoutByLastSet(lastSet);
+    const addSetInput =
+      workoutDetailAdapter.getAddSetToWorkoutByLastSet(lastSet);
     const newSet = await db.workoutDetails.add(addSetInput);
     return newSet;
   } catch (e) {
@@ -214,7 +217,8 @@ export const syncToServerWorkoutDetails = async (): Promise<void> => {
   const all = await db.workoutDetails.toArray();
 
   const unsynced = all.filter((detail) => !detail.isSynced);
-  const mappedUnsynced = await convertLocalWorkoutDetailToServer(unsynced);
+  const mappedUnsynced =
+    await workoutDetailAdapter.convertLocalWorkoutDetailToServer(unsynced);
   const data = await postWorkoutDetailsToServer(mappedUnsynced);
 
   if (data.updated.length === 0) return;

@@ -5,10 +5,7 @@ import {
   getInitialRoutineDetail,
   mapPastWorkoutToRoutineDetail,
 } from "@/adapter/routineDetail.adapter";
-import {
-  getInitialWorkoutDetail,
-  mapPastWorkoutToWorkoutDetail,
-} from "@/adapter/workoutDetail.adapter";
+import { workoutDetailAdapter } from "@/adapter/workoutDetail.adapter";
 import PastWorkoutList from "@/app/(main)/workout/_components/PastWorkoutList";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { getRoutineByLocalId } from "@/services/routine.service";
@@ -80,11 +77,12 @@ const LoadPastWorkoutSheet = ({
                 return;
               }
 
-              const newDetail = mapPastWorkoutToWorkoutDetail(
-                detail,
-                workout.id,
-                newExerciseOrder
-              );
+              const newDetail =
+                workoutDetailAdapter.mapPastWorkoutToWorkoutDetail(
+                  detail,
+                  workout.id,
+                  newExerciseOrder
+                );
               await addLocalWorkoutDetail(newDetail);
             } else if (type === "ROUTINE") {
               if (!routineId) return;
