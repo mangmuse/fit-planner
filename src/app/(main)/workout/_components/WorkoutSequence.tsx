@@ -5,6 +5,7 @@ import {
   DndContext,
   closestCenter,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   DragOverlay,
@@ -43,7 +44,20 @@ const WorkoutSequence = ({
   const [groups, setGroups] = useState<DetailGroup[]>(initialGroups);
   const [activeId, setActiveId] = useState<string | null>(null);
 
-  const sensors = useSensors(useSensor(PointerSensor));
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        delay: 100,
+        tolerance: 5,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 100,
+        tolerance: 5,
+      },
+    })
+  );
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id.toString());
