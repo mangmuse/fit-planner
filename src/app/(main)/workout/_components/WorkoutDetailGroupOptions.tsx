@@ -93,7 +93,7 @@ const WorkoutDetailGroupOptions = ({
     closeBottomSheet();
     // TODO: 최대 높이가 작을경우 제대로 표기되지 않음
     openBottomSheet({
-      height: "100vh",
+      height: "100dvh",
       rounded: false,
       children: (
         <ExercisesContainer

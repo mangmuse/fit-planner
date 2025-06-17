@@ -37,7 +37,7 @@ function WorkoutPlaceholder({
 
   const handleClickRoutineBtn = () =>
     openBottomSheet({
-      height: "90vh",
+      height: "100dvh",
       children: <RoutineList onPick={handlePickRoutine} />,
     });
 
