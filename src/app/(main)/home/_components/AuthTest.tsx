@@ -23,11 +23,17 @@ const AuthTest = () => {
   return (
     <div className="fixed bottom-24 right-4 flex flex-col gap-2 p-2 bg-bg-surface rounded-lg shadow-lg opacity-50 hover:opacity-100 transition-opacity">
       {status === "authenticated" ? (
-        <button className="px-3 py-1.5 bg-red-500 text-xs rounded" onClick={handleSignOut}>
+        <button
+          className="px-3 py-1.5 bg-red-500 text-xs rounded"
+          onClick={handleSignOut}
+        >
           로그아웃
         </button>
       ) : (
-        <button className="px-3 py-1.5 bg-blue-500 text-xs rounded" onClick={handleSignIn}>
+        <button
+          className="px-3 py-1.5 bg-blue-500 text-xs rounded"
+          onClick={handleSignIn}
+        >
           로그인
         </button>
       )}
