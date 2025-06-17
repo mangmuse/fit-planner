@@ -15,6 +15,8 @@ import useLoadDetails from "@/hooks/useLoadDetails";
 import LoadPastWorkoutSheet from "@/app/(main)/workout/_components/LoadPastWorkoutSheet";
 import { useModal } from "@/providers/contexts/ModalContext";
 import ErrorState from "@/components/ErrorState";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 type WorkoutContainerProps = {
   type: "ROUTINE" | "RECORD";
@@ -45,8 +47,10 @@ const WorkoutContainer = ({
     date,
     routineId,
   });
-  const { openBottomSheet } = useBottomSheet();
-  const { openModal } = useModal();
+  const { openBottomSheet, isOpen: isBottomSheetOpen } = useBottomSheet();
+  const { openModal, isOpen: isModalOpen } = useModal();
+  const router = useRouter();
+  const pathname = usePathname();
   const handleOpenLocalWorkoutSheet = () => {
     openBottomSheet({
       height: "100dvh",
@@ -74,6 +78,24 @@ const WorkoutContainer = ({
       ? { type: "ROUTINE" as const }
       : { type: "RECORD" as const, date: date!, userId: userId! };
 
+  useEffect(() => {
+    console.log(pathname, "qwdoihwqodhqw");
+    const handlePopState = () => {
+      console.log("hello");
+
+      // 모달이 열려있으면 모달 핸들러가 처리하도록 놔둠
+      if (isModalOpen || isBottomSheetOpen) return;
+
+      // 모달이 없고 workout 페이지면 홈으로
+      if (pathname.startsWith("/workout")) {
+        router.push("/");
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [pathname, isModalOpen]);
+
   if (isLoading)
     return (
       <div className="flex justify-center items-center h-40">Loading...</div>
@@ -85,7 +107,7 @@ const WorkoutContainer = ({
       {workoutGroups.length !== 0 ? (
         <>
           {(formattedDate || type === "ROUTINE") && (
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-6 ">
               {formattedDate &&
                 (typeof formattedDate === "string" ? (
                   <time className="text-2xl font-bold">{formattedDate}</time>
@@ -128,7 +150,7 @@ const WorkoutContainer = ({
               </div>
             </div>
           )}
-          <ul className="flex flex-col gap-2.5">
+          <ul className="flex flex-col gap-2.5 scrollbar-none">
             {workoutGroups.map(({ exerciseOrder, details }) => (
               <WorkoutExerciseGroup
                 key={`${exerciseOrder}-${details[0]?.exerciseId}`}
@@ -142,6 +164,7 @@ const WorkoutContainer = ({
           <div className="flex gap-2 mt-2">
             <Link
               href={exercisePath}
+              replace
               className="flex-1 py-2.5 bg-bg-surface text-sm rounded-lg text-center hover:bg-bg-surface-variant transition-colors"
             >
               운동 추가

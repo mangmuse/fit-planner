@@ -63,7 +63,7 @@ const WorkoutExerciseGroup = ({
   if (details.length === 0) return null;
   return (
     exercise && (
-      <div className="bg-bg-surface font-semibold rounded-xl mb-3">
+      <div className="bg-bg-surface font-semibold rounded-xl mb-3 ">
         <div className="flex px-3 py-1 items-center justify-between">
           <h6 className="flex items-center gap-1.5 text-sm">
             <span data-testid="exercise-order" className="text-text-muted">
