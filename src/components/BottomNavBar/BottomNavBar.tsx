@@ -24,7 +24,7 @@ const BottomNavBar = () => {
   }
 
   return (
-    <nav className="sticky bottom-0 w-full h-[52px] bg-bg-base text-text-muted flex justify-around items-center">
+    <nav className="bottom-0 w-full h-[52px] bg-bg-base text-text-muted flex justify-around items-center">
       <BottomNavBarItem
         activeIcon={activeHome}
         path="/"
