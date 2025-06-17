@@ -17,7 +17,7 @@ export default function GenericModal({ children, onClose }: GenericModalProps) {
       className="fixed inset-0 bg-black/30 flex justify-center items-center"
     >
       <div
-        className="p-6 rounded max-h-[90vh] overflow-y-auto"
+        className="bg-bg-secondary p-6 rounded-2xl max-h-[90vh] overflow-y-auto border border-border-gray"
         onClick={(e) => e.stopPropagation()}
       >
         {children}

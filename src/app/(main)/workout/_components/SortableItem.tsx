@@ -22,7 +22,10 @@ const SortableItem = ({ id, value }: SortableItemProps) => {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0 : 1,
-    cursor: "grab",
+    cursor: isDragging ? "grabbing" : "grab",
+    touchAction: "none" as const,
+    WebkitUserSelect: "none" as const,
+    userSelect: "none" as const,
   };
 
   return (
@@ -31,10 +34,10 @@ const SortableItem = ({ id, value }: SortableItemProps) => {
       style={style}
       {...attributes}
       {...listeners}
-      className="bg-bg-surface rounded-lg px-4 py-3 flex items-center justify-between hover:bg-bg-surface-variant transition-colors"
+      className="bg-bg-surface rounded-lg px-4 py-3 flex items-center justify-between hover:bg-bg-surface-variant active:bg-bg-surface-variant transition-colors touch-none"
     >
       <div className="flex items-center gap-3">
-        <div className="flex flex-col gap-0.5 w-6 justify-center">
+        <div className="flex flex-col gap-0.5 w-6 justify-center p-2 -m-2">
           <div className="h-[2px] bg-text-muted rounded-full"></div>
           <div className="h-[2px] bg-text-muted rounded-full"></div>
           <div className="h-[2px] bg-text-muted rounded-full"></div>
