@@ -49,7 +49,7 @@ const WorkoutContainer = ({
   const { openModal } = useModal();
   const handleOpenLocalWorkoutSheet = () => {
     openBottomSheet({
-      height: "100vh",
+      height: "100dvh",
       rounded: false,
       children: (
         <LoadPastWorkoutSheet
