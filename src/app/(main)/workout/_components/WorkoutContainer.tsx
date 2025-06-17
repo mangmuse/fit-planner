@@ -107,7 +107,7 @@ const WorkoutContainer = ({
                 <button
                   onClick={() =>
                     openBottomSheet({
-                      height: "100vh",
+                      height: "100dvh",
                       children: (
                         <WorkoutSequence
                           detailGroups={workoutGroups}
