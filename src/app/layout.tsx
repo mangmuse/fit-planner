@@ -23,7 +23,9 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  themeColor: "#121212",
+  userScalable: "no",
+  viewportFit: "cover",
+  themeColor: "#111111",
 };
 
 export default function RootLayout({
@@ -37,7 +39,7 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#000000" />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} bg-bg-base`}>
         {children}
         <RegisterSW />
       </body>

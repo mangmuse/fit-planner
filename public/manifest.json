@@ -14,7 +14,7 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#121212",
-  "theme_color": "#121212",
+  "background_color": "#111111",
+  "theme_color": "#111111",
   "categories": ["health", "fitness", "lifestyle"]
 }
