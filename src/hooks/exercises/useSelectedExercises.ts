@@ -69,7 +69,7 @@ const useSelectedExercises = ({
     try {
       if (type === "RECORD" && userId && date) {
         await addLocalWorkoutDetailsByUserDate(userId, date, selectedExercises);
-        router.push(`/workout/${date}`);
+        router.replace(`/workout/${date}`);
       } else {
         if (!routineId) return;
 
@@ -82,7 +82,7 @@ const useSelectedExercises = ({
           startOrder,
           selectedExercises
         );
-        router.push(`/routines/${routineId}`);
+        router.replace(`/routines/${routineId}`);
       }
     } catch (e) {
       showError("운동을 추가하는데 실패했습니다.");
