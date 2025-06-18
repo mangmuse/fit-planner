@@ -1,4 +1,4 @@
-import { toggleLocalBookmark } from "@/services/exercise.service";
+import { exerciseService } from "@/services/exercise.service";
 import { useModal } from "@/providers/contexts/ModalContext";
 import { ClientExercise, ClientUser, LocalExercise } from "@/types/models";
 import clsx from "clsx";
@@ -39,12 +39,12 @@ const ExerciseItem = ({
         title: "즐겨찾기에서 제거하시겠습니까?",
         message: name,
         onConfirm: async () => {
-          await toggleLocalBookmark(id, false);
+          await exerciseService.toggleLocalBookmark(id, false);
           onReload();
         },
       });
     } else {
-      await toggleLocalBookmark(id, true);
+      await exerciseService.toggleLocalBookmark(id, true);
       onReload();
     }
   };

@@ -8,10 +8,7 @@ import arrowIcon from "public/right-arrow.svg";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
-import {
-  getExerciseWithLocalId,
-  updateLocalExercise,
-} from "@/services/exercise.service";
+import { exerciseService } from "@/services/exercise.service";
 import {
   LocalExercise,
   LocalRoutineDetail,
@@ -121,7 +118,7 @@ const WorkoutDetailGroupOptions = ({
   useEffect(() => {
     if (!loadExercises) return;
     const updateUnit = async () => {
-      await updateLocalExercise({ ...exercise, unit });
+      await exerciseService.updateLocalExercise({ ...exercise, unit });
       await loadExercises();
     };
     updateUnit();

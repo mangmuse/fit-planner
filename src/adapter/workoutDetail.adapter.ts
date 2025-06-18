@@ -1,8 +1,5 @@
 import { db } from "@/lib/db";
-import {
-  getExerciseWithLocalId,
-  getExerciseWithServerId,
-} from "@/services/exercise.service";
+import { exerciseService } from "@/services/exercise.service";
 import {
   getWorkoutWithLocalId,
   getWorkoutWithServerId,
@@ -126,7 +123,9 @@ export const workoutDetailAdapter = {
     return await Promise.all(
       workoutDetails.map(async (detail) => {
         // 외부 의존성은 그대로 사용
-        const exercise = await getExerciseWithLocalId(detail.exerciseId);
+        const exercise = await exerciseService.getExerciseWithLocalId(
+          detail.exerciseId
+        );
         const workout = await getWorkoutWithLocalId(detail.workoutId);
 
         if (!exercise?.serverId || !workout?.serverId) {
@@ -146,7 +145,9 @@ export const workoutDetailAdapter = {
   ): Promise<LocalWorkoutDetail[]> {
     return await Promise.all(
       workoutDetails.map(async (detail) => {
-        const exercise = await getExerciseWithServerId(detail.exerciseId);
+        const exercise = await exerciseService.getExerciseWithServerId(
+          detail.exerciseId
+        );
         const workout = await getWorkoutWithServerId(detail.workoutId);
 
         if (!exercise?.id || !workout?.id) {

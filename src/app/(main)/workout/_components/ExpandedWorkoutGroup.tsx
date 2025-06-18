@@ -1,5 +1,5 @@
 import ExpandedWorkoutItem from "@/app/(main)/workout/_components/ExpandedWorkoutItem";
-import { getExerciseWithLocalId } from "@/services/exercise.service";
+import { exerciseService } from "@/services/exercise.service";
 import { LocalWorkoutDetail } from "@/types/models";
 import { useEffect, useState } from "react";
 
@@ -29,7 +29,7 @@ const ExpandedWorkoutGroup = ({
 
   useEffect(() => {
     (async () => {
-      const exercise = await getExerciseWithLocalId(
+      const exercise = await exerciseService.getExerciseWithLocalId(
         workoutGroup.details[0].exerciseId
       );
       if (exercise) {

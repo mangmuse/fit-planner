@@ -1,4 +1,4 @@
-import { getExerciseWithLocalId } from "@/services/exercise.service";
+import { exerciseService } from "@/services/exercise.service";
 import { getRoutineByLocalId } from "@/services/routine.service";
 import { NewRoutineDetailInput } from "@/services/routineDetail.service";
 import {
@@ -112,7 +112,9 @@ export const routineDetailAdapter = {
   ): Promise<LocalRoutineDetailWithServerRoutineId[]> {
     return await Promise.all(
       routineDetails.map(async (detail) => {
-        const exercise = await getExerciseWithLocalId(detail.exerciseId);
+        const exercise = await exerciseService.getExerciseWithLocalId(
+          detail.exerciseId
+        );
         const routine = await getRoutineByLocalId(detail.routineId);
         if (!exercise?.serverId || !routine?.serverId) {
           throw new Error("exerciseId 또는 workoutId가 없습니다");

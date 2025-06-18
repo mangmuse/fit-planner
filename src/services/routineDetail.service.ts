@@ -4,7 +4,7 @@ import {
   postRoutineDetailsToServer,
 } from "@/api/routineDetail.api";
 import { db } from "@/lib/db";
-import { getExerciseWithServerId } from "@/services/exercise.service";
+import { exerciseService } from "@/services/exercise.service";
 import { getRoutineByServerId } from "@/services/routine.service";
 import { ClientRoutineDetail, LocalRoutineDetail } from "@/types/models";
 
@@ -121,7 +121,9 @@ export const syncToServerRoutineDetails = async (): Promise<void> => {
 
   if (data.updated) {
     for (const updated of data.updated) {
-      const exercise = await getExerciseWithServerId(updated.exerciseId);
+      const exercise = await exerciseService.getExerciseWithServerId(
+        updated.exerciseId
+      );
       const routine = await getRoutineByServerId(updated.routineId);
       await db.routineDetails.update(updated.localId, {
         serverId: updated.serverId,
@@ -162,7 +164,9 @@ export const overwriteWithServerRoutineDetails = async (
 
   const toInsert = await Promise.all(
     serverData.map(async (data) => {
-      const exercise = await getExerciseWithServerId(data.exerciseId);
+      const exercise = await exerciseService.getExerciseWithServerId(
+        data.exerciseId
+      );
       const routine = await getRoutineByServerId(data.routineId);
 
       if (!exercise?.id || !routine?.id) {

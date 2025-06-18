@@ -4,7 +4,7 @@ import WorkoutItem from "@/app/(main)/workout/_components/WorkoutItem";
 import WorkoutTableHeader from "@/app/(main)/workout/_components/WorkoutTableHeader";
 
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
-import { getExerciseWithLocalId } from "@/services/exercise.service";
+import { exerciseService } from "@/services/exercise.service";
 import {
   getLatestWorkoutDetailByExerciseId,
   getWorkoutGroupByWorkoutDetail,
@@ -38,7 +38,9 @@ const WorkoutExerciseGroup = ({
   const { openBottomSheet } = useBottomSheet();
   const lastDetail = details[details.length - 1];
   const fetchAndSetExerciseData = async () => {
-    const exerciseData = await getExerciseWithLocalId(details[0].exerciseId);
+    const exerciseData = await exerciseService.getExerciseWithLocalId(
+      details[0].exerciseId
+    );
     setExercise(exerciseData || null);
   };
 

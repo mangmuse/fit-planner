@@ -1,9 +1,6 @@
 import useExericseFilters from "@/hooks/exercises/useExericseFilters";
 import useSelectedExercises from "@/hooks/exercises/useSelectedExercises";
-import {
-  getAllLocalExercises,
-  syncExercisesFromServerLocalFirst,
-} from "@/services/exercise.service";
+import { exerciseService } from "@/services/exercise.service";
 
 import {
   LocalExercise,
@@ -71,7 +68,7 @@ const useExercises = ({
       setError(null);
       setLoading(true);
 
-      const all = await getAllLocalExercises();
+      const all = await exerciseService.getAllLocalExercises();
       setExercises(all);
     } catch (e) {
       setError("운동 목록을 불러오지 못했습니다.");
@@ -85,9 +82,9 @@ const useExercises = ({
       try {
         if (!userId) return;
 
-        const localAll = await getAllLocalExercises();
+        const localAll = await exerciseService.getAllLocalExercises();
         if (localAll.length === 0) {
-          await syncExercisesFromServerLocalFirst(userId);
+          await exerciseService.syncExercisesFromServerLocalFirst(userId);
         }
         await loadLocalExerciseData();
       } catch (e) {

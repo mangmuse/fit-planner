@@ -6,7 +6,7 @@ import {
 } from "@/api/workoutDetail.api";
 import { db } from "@/lib/db";
 import { workoutDetailAdapter } from "@/adapter/workoutDetail.adapter";
-import { getExerciseWithServerId } from "@/services/exercise.service";
+import { exerciseService } from "@/services/exercise.service";
 import {
   addLocalWorkout,
   getWorkoutByUserIdAndDate,
@@ -33,7 +33,9 @@ export const overwriteWithServerWorkoutDetails = async (
 
   const toInsert = await Promise.all(
     serverData.map(async (data) => {
-      const exercise = await getExerciseWithServerId(data.exerciseId);
+      const exercise = await exerciseService.getExerciseWithServerId(
+        data.exerciseId
+      );
 
       const workout = await getWorkoutWithServerId(data.workoutId);
 
@@ -234,7 +236,9 @@ export const syncToServerWorkoutDetails = async (): Promise<void> => {
 
   if (data.updated) {
     for (const updated of data.updated) {
-      const exercise = await getExerciseWithServerId(updated.exerciseId);
+      const exercise = await exerciseService.getExerciseWithServerId(
+        updated.exerciseId
+      );
       const workout = await getWorkoutWithServerId(updated.workoutId);
       await db.workoutDetails.update(updated.localId, {
         serverId: updated.serverId,
