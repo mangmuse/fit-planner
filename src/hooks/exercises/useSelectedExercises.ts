@@ -6,11 +6,7 @@ import {
   deleteRoutineDetails,
   getLocalRoutineDetails,
 } from "@/services/routineDetail.service";
-import {
-  addLocalWorkoutDetailsByUserDate,
-  addLocalWorkoutDetailsByWorkoutId,
-  deleteWorkoutDetails,
-} from "@/services/workoutDetail.service";
+import { workoutDetailService } from "@/services/workoutDetail.service";
 import {
   LocalExercise,
   LocalRoutineDetail,
@@ -68,7 +64,11 @@ const useSelectedExercises = ({
   const handleAddDetail = async () => {
     try {
       if (type === "RECORD" && userId && date) {
-        await addLocalWorkoutDetailsByUserDate(userId, date, selectedExercises);
+        await workoutDetailService.addLocalWorkoutDetailsByUserDate(
+          userId,
+          date,
+          selectedExercises
+        );
         router.replace(`/workout/${date}`);
       } else {
         if (!routineId) return;
@@ -94,13 +94,13 @@ const useSelectedExercises = ({
       if (!currentDetails || currentDetails.length === 0) return;
       if (isWorkoutDetails(currentDetails)) {
         const { exerciseOrder: startOrder, workoutId } = currentDetails[0];
-        await addLocalWorkoutDetailsByWorkoutId(
+        await workoutDetailService.addLocalWorkoutDetailsByWorkoutId(
           workoutId,
           startOrder,
           selectedExercises
         );
 
-        await deleteWorkoutDetails(currentDetails);
+        await workoutDetailService.deleteWorkoutDetails(currentDetails);
       } else {
         const { exerciseOrder: startOrder, routineId } = currentDetails[0];
         await addLocalRoutineDetailsByWorkoutId(

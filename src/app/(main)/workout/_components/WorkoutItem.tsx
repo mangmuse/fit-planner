@@ -6,7 +6,7 @@ import {
   deleteRoutineDetail,
   updateLocalRoutineDetail,
 } from "@/services/routineDetail.service";
-import { updateLocalWorkoutDetail } from "@/services/workoutDetail.service";
+import { workoutDetailService } from "@/services/workoutDetail.service";
 import {
   LocalExercise,
   LocalRoutineDetail,
@@ -52,7 +52,7 @@ const WorkoutItem = ({
       id,
     };
     if (isWorkoutDetail(workoutDetail)) {
-      await updateLocalWorkoutDetail(updateWorkoutInput);
+      await workoutDetailService.updateLocalWorkoutDetail(updateWorkoutInput);
     } else {
       await updateLocalRoutineDetail(updateWorkoutInput);
     }

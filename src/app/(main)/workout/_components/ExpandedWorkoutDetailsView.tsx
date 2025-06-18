@@ -1,7 +1,7 @@
 import { useSelectedWorkoutGroups } from "@/store/useSelectedWorkoutGroups";
 import ExpandedWorkoutGroup from "@/app/(main)/workout/_components/ExpandedWorkoutGroup";
 import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
-import { getLocalWorkoutDetailsByWorkoutId } from "@/services/workoutDetail.service";
+import { workoutDetailService } from "@/services/workoutDetail.service";
 import { LocalWorkoutDetail } from "@/types/models";
 import { useEffect, useState } from "react";
 
@@ -32,7 +32,8 @@ const ExpandedWorkoutDetailsView = ({
 
   useEffect(() => {
     (async () => {
-      const details = await getLocalWorkoutDetailsByWorkoutId(workoutId);
+      const details =
+        await workoutDetailService.getLocalWorkoutDetailsByWorkoutId(workoutId);
       const groupedDetails = getGroupedDetails(details);
 
       setExpandedDetails(groupedDetails);

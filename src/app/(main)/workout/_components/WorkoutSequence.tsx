@@ -20,7 +20,7 @@ import {
 import SortableItem from "@/app/(main)/workout/_components/SortableItem";
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
-import { updateLocalWorkoutDetail } from "@/services/workoutDetail.service";
+import { workoutDetailService } from "@/services/workoutDetail.service";
 import { reorderDetailGroups } from "@/app/(main)/workout/_utils/getGroupedDetails";
 import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import { updateLocalRoutineDetail } from "@/services/routineDetail.service";
@@ -88,7 +88,7 @@ const WorkoutSequence = ({
           exerciseOrder: group.exerciseOrder,
         };
         if (isWorkoutDetail(detail)) {
-          await updateLocalWorkoutDetail(updateInput);
+          await workoutDetailService.updateLocalWorkoutDetail(updateInput);
         } else {
           await updateLocalRoutineDetail(updateInput);
         }

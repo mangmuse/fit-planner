@@ -8,10 +8,7 @@ import {
   syncToServerRoutineDetails,
 } from "@/services/routineDetail.service";
 import { workoutService } from "@/services/workout.service";
-import {
-  overwriteWithServerWorkoutDetails,
-  syncToServerWorkoutDetails,
-} from "@/services/workoutDetail.service";
+import { workoutDetailService } from "@/services/workoutDetail.service";
 
 export const overWriteAllWithServerData = async (userId: string) => {
   await exerciseService.overwriteWithServerExercises(userId);
@@ -19,7 +16,7 @@ export const overWriteAllWithServerData = async (userId: string) => {
   await workoutService.overwriteWithServerWorkouts(userId);
   await overwriteWithServerRoutines(userId);
 
-  await overwriteWithServerWorkoutDetails(userId);
+  await workoutDetailService.overwriteWithServerWorkoutDetails(userId);
   await overwriteWithServerRoutineDetails(userId);
 };
 
@@ -29,6 +26,6 @@ export const syncToServer = async (userId: string) => {
   await workoutService.syncToServerWorkouts();
   await syncToServerRoutines();
 
-  await syncToServerWorkoutDetails();
+  await workoutDetailService.syncToServerWorkoutDetails();
   await syncToServerRoutineDetails();
 };

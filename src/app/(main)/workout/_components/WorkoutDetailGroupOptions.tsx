@@ -17,11 +17,7 @@ import {
 import { useModal } from "@/providers/contexts/ModalContext";
 import ExerciseMemo from "@/app/(main)/workout/_components/ExerciseMemo";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
-import {
-  addLocalWorkoutDetailsByUserDate,
-  deleteWorkoutDetail,
-  deleteWorkoutDetails,
-} from "@/services/workoutDetail.service";
+import { workoutDetailService } from "@/services/workoutDetail.service";
 import ExercisesContainer from "@/app/(main)/workout/[date]/exercises/_components/ExercisesContainer";
 import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import {
@@ -72,7 +68,7 @@ const WorkoutDetailGroupOptions = ({
   };
   const deleteAndLoadDetails = async () => {
     if (isWorkoutDetails(details)) {
-      await deleteWorkoutDetails(details);
+      await workoutDetailService.deleteWorkoutDetails(details);
     } else {
       await deleteRoutineDetails(details);
     }

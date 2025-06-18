@@ -9,12 +9,7 @@ import {
   updateLocalRoutineDetail,
 } from "@/services/routineDetail.service";
 import { workoutService } from "@/services/workout.service";
-import {
-  addLocalWorkoutDetail,
-  deleteWorkoutDetails,
-  getLocalWorkoutDetails,
-  updateLocalWorkoutDetail,
-} from "@/services/workoutDetail.service";
+import { workoutDetailService } from "@/services/workoutDetail.service";
 import {
   LocalRoutineDetail,
   LocalWorkout,
@@ -59,7 +54,10 @@ const useLoadDetails = ({
       setIsInitialLoading(true);
       if (type === "RECORD") {
         if (!userId || !date) return;
-        const details = await getLocalWorkoutDetails(userId, date);
+        const details = await workoutDetailService.getLocalWorkoutDetails(
+          userId,
+          date
+        );
         setAllDetails(details);
         const adjustedGroups = getGroupedDetails(details);
 
@@ -126,7 +124,7 @@ const useLoadDetails = ({
             exerciseOrder: detail.exerciseOrder - 1,
           };
           if (isWorkoutDetail(detail)) {
-            return updateLocalWorkoutDetail(updated);
+            return workoutDetailService.updateLocalWorkoutDetail(updated);
           } else {
             return updateLocalRoutineDetail(updated);
           }
@@ -146,7 +144,7 @@ const useLoadDetails = ({
       async function deleteAll() {
         if (type === "RECORD" && isWorkoutDetails(allDetails) && workout?.id) {
           if (allDetails.length === 0) return;
-          await deleteWorkoutDetails(allDetails);
+          await workoutDetailService.deleteWorkoutDetails(allDetails);
           await workoutService.deleteLocalWorkout(workout.id);
         } else if (
           type === "ROUTINE" &&

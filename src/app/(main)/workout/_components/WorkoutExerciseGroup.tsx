@@ -5,10 +5,7 @@ import WorkoutTableHeader from "@/app/(main)/workout/_components/WorkoutTableHea
 
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { exerciseService } from "@/services/exercise.service";
-import {
-  getLatestWorkoutDetailByExerciseId,
-  getWorkoutGroupByWorkoutDetail,
-} from "@/services/workoutDetail.service";
+import { workoutDetailService } from "@/services/workoutDetail.service";
 import {
   LocalExercise,
   LocalRoutineDetail,
@@ -45,10 +42,12 @@ const WorkoutExerciseGroup = ({
   };
 
   const getPrevious = async () => {
-    const detail = await getLatestWorkoutDetailByExerciseId(details);
+    const detail =
+      await workoutDetailService.getLatestWorkoutDetailByExerciseId(details);
     if (!detail) return [];
 
-    const workoutDetails = await getWorkoutGroupByWorkoutDetail(detail);
+    const workoutDetails =
+      await workoutDetailService.getWorkoutGroupByWorkoutDetail(detail);
     const completedDetails = workoutDetails
       .filter((detail) => detail.isDone)
       .map((detail, idx) => ({ ...detail, setOrder: idx + 1 }));

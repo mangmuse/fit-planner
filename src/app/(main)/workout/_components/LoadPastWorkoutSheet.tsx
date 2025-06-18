@@ -8,10 +8,7 @@ import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { getRoutineByLocalId } from "@/services/routine.service";
 import { addLocalRoutineDetail } from "@/services/routineDetail.service";
 import { workoutService } from "@/services/workout.service";
-import {
-  addLocalWorkoutDetail,
-  getLocalWorkoutDetailsByWorkoutIdAndExerciseOrder,
-} from "@/services/workoutDetail.service";
+import { workoutDetailService } from "@/services/workoutDetail.service";
 import {
   LocalRoutineDetail,
   LocalWorkout,
@@ -51,10 +48,11 @@ const LoadPastWorkoutSheet = ({
     // 배치 처리나 JOIN 쿼리로 최적화 필요
     await Promise.all(
       selectedGroups.map(async (group, index) => {
-        const details = await getLocalWorkoutDetailsByWorkoutIdAndExerciseOrder(
-          group.workoutId,
-          group.exerciseOrder
-        );
+        const details =
+          await workoutDetailService.getLocalWorkoutDetailsByWorkoutIdAndExerciseOrder(
+            group.workoutId,
+            group.exerciseOrder
+          );
 
         await Promise.all(
           details.map(async (detail) => {
@@ -80,7 +78,7 @@ const LoadPastWorkoutSheet = ({
                   workout.id,
                   newExerciseOrder
                 );
-              await addLocalWorkoutDetail(newDetail);
+              await workoutDetailService.addLocalWorkoutDetail(newDetail);
             } else if (type === "ROUTINE") {
               if (!routineId) return;
               const routine = await getRoutineByLocalId(routineId);

@@ -8,7 +8,7 @@ import {
   getLocalRoutineDetails,
 } from "@/services/routineDetail.service";
 import { workoutService } from "@/services/workout.service";
-import { addLocalWorkoutDetail } from "@/services/workoutDetail.service";
+import { workoutDetailService } from "@/services/workoutDetail.service";
 import {
   LocalRoutineDetail,
   LocalWorkout,
@@ -61,7 +61,7 @@ function WorkoutPlaceholder({
             detail,
             workoutId
           );
-        addLocalWorkoutDetail(workoutDetail);
+        workoutDetailService.addLocalWorkoutDetail(workoutDetail);
       })
     );
   };
