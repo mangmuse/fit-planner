@@ -1,9 +1,6 @@
 import { db } from "@/lib/db";
 import { exerciseService } from "@/services/exercise.service";
-import {
-  getWorkoutWithLocalId,
-  getWorkoutWithServerId,
-} from "@/services/workout.service";
+import { workoutService } from "@/services/workout.service";
 import { NewWorkoutDetailInput } from "@/services/workoutDetail.service";
 import {
   LocalRoutineDetail,
@@ -126,7 +123,9 @@ export const workoutDetailAdapter = {
         const exercise = await exerciseService.getExerciseWithLocalId(
           detail.exerciseId
         );
-        const workout = await getWorkoutWithLocalId(detail.workoutId);
+        const workout = await workoutService.getWorkoutWithLocalId(
+          detail.workoutId
+        );
 
         if (!exercise?.serverId || !workout?.serverId) {
           throw new Error("exerciseId 또는 workoutId가 없습니다");
@@ -148,7 +147,9 @@ export const workoutDetailAdapter = {
         const exercise = await exerciseService.getExerciseWithServerId(
           detail.exerciseId
         );
-        const workout = await getWorkoutWithServerId(detail.workoutId);
+        const workout = await workoutService.getWorkoutWithServerId(
+          detail.workoutId
+        );
 
         if (!exercise?.id || !workout?.id) {
           throw new Error("exerciseId 또는 workoutId가 없습니다.");

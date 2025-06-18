@@ -7,11 +7,7 @@ import {
 import { db } from "@/lib/db";
 import { workoutDetailAdapter } from "@/adapter/workoutDetail.adapter";
 import { exerciseService } from "@/services/exercise.service";
-import {
-  addLocalWorkout,
-  getWorkoutByUserIdAndDate,
-  getWorkoutWithServerId,
-} from "@/services/workout.service";
+import { workoutService } from "@/services/workout.service";
 import { ClientWorkoutDetail, LocalRoutineDetail } from "@/types/models";
 import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 
@@ -37,7 +33,9 @@ export const overwriteWithServerWorkoutDetails = async (
         data.exerciseId
       );
 
-      const workout = await getWorkoutWithServerId(data.workoutId);
+      const workout = await workoutService.getWorkoutWithServerId(
+        data.workoutId
+      );
 
       if (!exercise?.id || !workout?.id)
         throw new Error("exerciseId 또는 workoutId가 없습니다");
@@ -60,7 +58,7 @@ export async function addLocalWorkoutDetailsByUserDate(
   selectedExercises: { id: number | undefined; name: string }[]
 ): Promise<number> {
   try {
-    const workout = await addLocalWorkout(userId, date);
+    const workout = await workoutService.addLocalWorkout(userId, date);
     const workoutId = workout.id!;
 
     const startOrder = await getStartExerciseOrder(workoutId);
@@ -129,10 +127,10 @@ export const getLocalWorkoutDetails = async (
   date: string
 ): Promise<LocalWorkoutDetail[]> => {
   try {
-    let workout = await getWorkoutByUserIdAndDate(userId, date);
+    let workout = await workoutService.getWorkoutByUserIdAndDate(userId, date);
 
     if (!workout) {
-      workout = await addLocalWorkout(userId, date);
+      workout = await workoutService.addLocalWorkout(userId, date);
     }
 
     if (!workout?.id) throw new Error("workoutId를 가져오지 못했습니다");
@@ -239,7 +237,9 @@ export const syncToServerWorkoutDetails = async (): Promise<void> => {
       const exercise = await exerciseService.getExerciseWithServerId(
         updated.exerciseId
       );
-      const workout = await getWorkoutWithServerId(updated.workoutId);
+      const workout = await workoutService.getWorkoutWithServerId(
+        updated.workoutId
+      );
       await db.workoutDetails.update(updated.localId, {
         serverId: updated.serverId,
         isSynced: true,

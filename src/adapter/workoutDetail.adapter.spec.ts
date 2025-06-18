@@ -1,5 +1,6 @@
-jest.mock("@/services/exercise.service.ts");
-jest.mock("@/services/workout.service.ts");
+import { exerciseService } from "@/services/exercise.service";
+// jest.mock("@/services/exercise.service.ts");
+// jest.mock("@/services/workout.service.ts");
 import { createMockExercise, mockExercise } from "@/__mocks__/exercise.mock";
 import { mockRoutineDetail } from "@/__mocks__/routineDetail.mock";
 import { mockWorkout } from "@/__mocks__/workout.mock";
@@ -8,14 +9,7 @@ import {
   mockWorkoutDetail,
 } from "@/__mocks__/workoutDetail.mock";
 import { workoutDetailAdapter } from "@/adapter/workoutDetail.adapter";
-import {
-  getExerciseWithLocalId,
-  getExerciseWithServerId,
-} from "@/services/exercise.service";
-import {
-  getWorkoutWithLocalId,
-  getWorkoutWithServerId,
-} from "@/services/workout.service";
+import { workoutService } from "@/services/workout.service";
 
 import {
   LocalExercise,
@@ -257,8 +251,12 @@ describe("convertLocalWorkoutDetailToServer", () => {
     const exerciseMock = mockExercise.synced;
     const workoutMock = mockWorkout.synced;
 
-    (getExerciseWithLocalId as jest.Mock).mockResolvedValueOnce(exerciseMock);
-    (getWorkoutWithLocalId as jest.Mock).mockResolvedValueOnce(workoutMock);
+    jest
+      .spyOn(exerciseService, "getExerciseWithLocalId")
+      .mockResolvedValueOnce(exerciseMock);
+    jest
+      .spyOn(workoutService, "getWorkoutWithLocalId")
+      .mockResolvedValueOnce(workoutMock);
 
     const localDetails = [
       mockWorkoutDetail.new({
@@ -285,8 +283,12 @@ describe("convertLocalWorkoutDetailToServer", () => {
         workoutId: workoutMock.id,
       }),
     ];
-    (getExerciseWithLocalId as jest.Mock).mockResolvedValueOnce(exerciseMock);
-    (getWorkoutWithLocalId as jest.Mock).mockResolvedValueOnce(workoutMock);
+    jest
+      .spyOn(exerciseService, "getExerciseWithLocalId")
+      .mockResolvedValueOnce(exerciseMock);
+    jest
+      .spyOn(workoutService, "getWorkoutWithLocalId")
+      .mockResolvedValueOnce(workoutMock);
 
     const promise =
       workoutDetailAdapter.convertLocalWorkoutDetailToServer(localDetails);
@@ -302,8 +304,12 @@ describe("convertServerWorkoutDetailToLocal", () => {
     const exerciseMock = mockExercise.synced;
     const workoutMock = mockWorkout.synced;
 
-    (getExerciseWithServerId as jest.Mock).mockResolvedValueOnce(exerciseMock);
-    (getWorkoutWithServerId as jest.Mock).mockResolvedValueOnce(workoutMock);
+    jest
+      .spyOn(exerciseService, "getExerciseWithServerId")
+      .mockResolvedValueOnce(exerciseMock);
+    jest
+      .spyOn(workoutService, "getWorkoutWithServerId")
+      .mockResolvedValueOnce(workoutMock);
 
     const localDetails = [
       mockWorkoutDetail.fromServer({
@@ -321,11 +327,17 @@ describe("convertServerWorkoutDetailToLocal", () => {
     expect(result[0].workoutId).toBe(workoutMock.id);
   });
   it("의존 함수가 반환한 값에 localId가 없는경우 에러를 던진다", async () => {
-    const exerciseMock = { ...mockExercise.synced, id: null };
-    const workoutMock = { ...mockWorkout.synced, id: null };
-    (getExerciseWithServerId as jest.Mock).mockResolvedValueOnce(exerciseMock);
-    (getWorkoutWithServerId as jest.Mock).mockResolvedValueOnce(workoutMock);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const exerciseMock = { ...mockExercise.synced, id: null } as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const workoutMock = { ...mockWorkout.synced, id: null } as any;
 
+    jest
+      .spyOn(exerciseService, "getExerciseWithServerId")
+      .mockResolvedValueOnce(exerciseMock);
+    jest
+      .spyOn(workoutService, "getWorkoutWithServerId")
+      .mockResolvedValueOnce(workoutMock);
     const localDetails = [
       mockWorkoutDetail.fromServer({
         exerciseId: exerciseMock.serverId!,

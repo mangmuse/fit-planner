@@ -8,11 +8,7 @@ import {
   getLocalRoutineDetails,
   updateLocalRoutineDetail,
 } from "@/services/routineDetail.service";
-import {
-  deleteLocalWorkout,
-  getWorkoutByUserIdAndDate,
-  updateLocalWorkout,
-} from "@/services/workout.service";
+import { workoutService } from "@/services/workout.service";
 import {
   addLocalWorkoutDetail,
   deleteWorkoutDetails,
@@ -88,7 +84,10 @@ const useLoadDetails = ({
 
       let currentWorkout = workout;
       if (!currentWorkout) {
-        const fetchedWorkout = await getWorkoutByUserIdAndDate(userId, date);
+        const fetchedWorkout = await workoutService.getWorkoutByUserIdAndDate(
+          userId,
+          date
+        );
         currentWorkout = fetchedWorkout || null;
         if (!currentWorkout) {
           // 최초 렌더링이나 workout이 아직 생성되지 않은 경우
@@ -98,7 +97,10 @@ const useLoadDetails = ({
       }
       if (!currentWorkout?.id || currentWorkout.status === "COMPLETED") return;
       const newStatus = workoutGroups.length === 0 ? "EMPTY" : "PLANNED";
-      await updateLocalWorkout({ ...currentWorkout, status: newStatus });
+      await workoutService.updateLocalWorkout({
+        ...currentWorkout,
+        status: newStatus,
+      });
     } catch (e) {
       openModal({
         type: "alert",
@@ -145,7 +147,7 @@ const useLoadDetails = ({
         if (type === "RECORD" && isWorkoutDetails(allDetails) && workout?.id) {
           if (allDetails.length === 0) return;
           await deleteWorkoutDetails(allDetails);
-          await deleteLocalWorkout(workout.id);
+          await workoutService.deleteLocalWorkout(workout.id);
         } else if (
           type === "ROUTINE" &&
           !isWorkoutDetails(allDetails) &&
@@ -189,7 +191,7 @@ const useLoadDetails = ({
         id: workout.id,
         status: "COMPLETED",
       };
-      await updateLocalWorkout(updatedWorkout);
+      await workoutService.updateLocalWorkout(updatedWorkout);
 
       // 메인메이지로 이동
       router.push("/");

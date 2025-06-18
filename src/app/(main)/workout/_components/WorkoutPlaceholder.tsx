@@ -7,7 +7,7 @@ import {
   cloneRoutineDetailWithNewRoutineId,
   getLocalRoutineDetails,
 } from "@/services/routineDetail.service";
-import { getWorkoutByUserIdAndDate } from "@/services/workout.service";
+import { workoutService } from "@/services/workout.service";
 import { addLocalWorkoutDetail } from "@/services/workoutDetail.service";
 import {
   LocalRoutineDetail,
@@ -45,7 +45,10 @@ function WorkoutPlaceholder({
     routineDetails: LocalRoutineDetail[]
   ) => {
     if (!userId || !date) return;
-    const workoutResult = await getWorkoutByUserIdAndDate(userId, date);
+    const workoutResult = await workoutService.getWorkoutByUserIdAndDate(
+      userId,
+      date
+    );
     if (!workoutResult) throw new Error("Workout 을 찾을 수 없습니다.");
     const workout: LocalWorkout = workoutResult;
     const workoutId = workout.id;

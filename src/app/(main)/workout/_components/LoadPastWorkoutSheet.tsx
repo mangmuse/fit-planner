@@ -7,10 +7,7 @@ import PastWorkoutList from "@/app/(main)/workout/_components/PastWorkoutList";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { getRoutineByLocalId } from "@/services/routine.service";
 import { addLocalRoutineDetail } from "@/services/routineDetail.service";
-import {
-  getAllWorkouts,
-  getWorkoutByUserIdAndDate,
-} from "@/services/workout.service";
+import { workoutService } from "@/services/workout.service";
 import {
   addLocalWorkoutDetail,
   getLocalWorkoutDetailsByWorkoutIdAndExerciseOrder,
@@ -68,7 +65,10 @@ const LoadPastWorkoutSheet = ({
                 console.error("userId 또는 date가 없습니다");
                 return;
               }
-              const workout = await getWorkoutByUserIdAndDate(userId, date);
+              const workout = await workoutService.getWorkoutByUserIdAndDate(
+                userId,
+                date
+              );
               if (!workout || !workout.id) {
                 console.error("workout ID가 없습니다");
                 return;
@@ -107,7 +107,7 @@ const LoadPastWorkoutSheet = ({
 
   useEffect(() => {
     (async () => {
-      const workouts = await getAllWorkouts(userId ?? "");
+      const workouts = await workoutService.getAllWorkouts(userId ?? "");
 
       const filteredWorkouts = workouts
         .filter((workout) => workout.status !== "EMPTY")

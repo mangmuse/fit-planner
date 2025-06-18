@@ -7,7 +7,7 @@ import rightArrow from "public/calendar-arrow-right.svg";
 import leftArrow from "public/calendar-arrow-left.svg";
 import Image from "next/image";
 
-import { getThisMonthWorkouts } from "@/services/workout.service";
+import { workoutService } from "@/services/workout.service";
 import { LocalWorkout } from "@/types/models";
 import CalendarCell from "@/app/(main)/home/_components/CalendarCell";
 import { useSession } from "next-auth/react";
@@ -57,7 +57,10 @@ const WorkoutCalendar = () => {
 
   useEffect(() => {
     const loadWorkoutsThisMonth = async () => {
-      const workouts = await getThisMonthWorkouts(startDate, endDate);
+      const workouts = await workoutService.getThisMonthWorkouts(
+        startDate,
+        endDate
+      );
       const statusMap: {
         [data: string]: "PLANNED" | "IN_PROGRESS" | "COMPLETED";
       } = {};
