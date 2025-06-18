@@ -161,16 +161,6 @@ export const workoutDetailAdapter = {
     );
   },
 
-  async getStartExerciseOrder(workoutId: number): Promise<number> {
-    const allDetails = await db.workoutDetails
-      .where("workoutId")
-      .equals(workoutId)
-      .sortBy("exerciseOrder");
-    const lastDetail = allDetails[allDetails.length - 1];
-    const startOrder = lastDetail ? lastDetail.exerciseOrder + 1 : 1;
-    return startOrder;
-  },
-
   convertRoutineDetailToWorkoutDetailInput(
     routineDetail: LocalRoutineDetail,
     workoutId: LocalWorkoutDetail["workoutId"]
