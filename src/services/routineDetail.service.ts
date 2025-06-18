@@ -4,6 +4,7 @@ import {
   postRoutineDetailsToServer,
 } from "@/api/routineDetail.api";
 import { db } from "@/lib/db";
+import { routineDetailRepository } from "@/repositories/routineDetail.repository";
 import { exerciseService } from "@/services/exercise.service";
 import { getRoutineByServerId } from "@/services/routine.service";
 import { ClientRoutineDetail, LocalRoutineDetail } from "@/types/models";
@@ -18,10 +19,8 @@ const coreService = {
     routineId: number
   ): Promise<LocalRoutineDetail[]> {
     try {
-      const details = await db.routineDetails
-        .where("routineId")
-        .equals(routineId)
-        .toArray();
+      const details =
+        await routineDetailRepository.findAllByRoutineId(routineId);
       return details;
     } catch (e) {
       throw new Error("RoutineDetails를 불러오는 데 실패했습니다");
@@ -32,7 +31,7 @@ const coreService = {
     routineDetailInput: LocalRoutineDetail
   ): Promise<void> {
     try {
-      await db.routineDetails.add(routineDetailInput);
+      await routineDetailRepository.add(routineDetailInput);
     } catch (e) {
       throw new Error("RoutineDetails를 추가하는 데 실패했습니다");
     }
@@ -42,7 +41,7 @@ const coreService = {
     try {
       const addSetInput =
         routineDetailAdapter.getAddSetToRoutineByLastSet(lastSet);
-      const newSet = await db.routineDetails.add(addSetInput);
+      const newSet = await routineDetailRepository.add(addSetInput);
       return newSet;
     } catch (e) {
       throw new Error("RoutineDetail을 추가하는 데 실패했습니다");
@@ -65,7 +64,7 @@ const coreService = {
           startOrder,
         }
       );
-      const routineDetails = await db.routineDetails.bulkAdd(newDetails);
+      const routineDetails = await routineDetailRepository.bulkAdd(newDetails);
 
       return routineDetails;
     } catch (e) {
@@ -94,7 +93,7 @@ const coreService = {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      await db.routineDetails.add(newDetailInput);
+      await routineDetailRepository.add(newDetailInput);
     } catch (e) {
       throw new Error("RoutineDetail을 복제하는 데 실패했습니다");
     }
@@ -105,7 +104,10 @@ const coreService = {
   ): Promise<void> {
     try {
       if (!updateWorkoutInput.id) throw new Error("id가 없습니다");
-      await db.routineDetails.update(updateWorkoutInput.id, updateWorkoutInput);
+      await routineDetailRepository.update(
+        updateWorkoutInput.id,
+        updateWorkoutInput
+      );
     } catch (e) {
       throw new Error("RoutineDetails를 업데이트하는 데 실패했습니다");
     }
@@ -113,7 +115,7 @@ const coreService = {
 
   async deleteRoutineDetail(detailId: number): Promise<void> {
     try {
-      await db.routineDetails.delete(detailId);
+      await routineDetailRepository.delete(detailId);
     } catch (e) {
       throw new Error("RoutineDetail을 삭제하는 데 실패했습니다");
     }
@@ -124,7 +126,7 @@ const coreService = {
       await Promise.all(
         details.map(async (detail) => {
           if (!detail.id) throw new Error("id가 없습니다");
-          await db.routineDetails.delete(detail.id);
+          await routineDetailRepository.delete(detail.id);
         })
       );
     } catch (e) {
@@ -137,7 +139,7 @@ const syncService = {
   async syncToServerRoutineDetails(): Promise<void> {
     // syncToServerRoutine 가 완료된 후에 호출되어야 함
 
-    const all = await db.routineDetails.toArray();
+    const all = await routineDetailRepository.findAll();
 
     const unsynced = all.filter((detail) => !detail.isSynced);
     const mappedUnsynced =
@@ -151,7 +153,7 @@ const syncService = {
           updated.exerciseId
         );
         const routine = await getRoutineByServerId(updated.routineId);
-        await db.routineDetails.update(updated.localId, {
+        await routineDetailRepository.update(updated.localId, {
           serverId: updated.serverId,
           isSynced: true,
           exerciseId: exercise?.id,
@@ -188,8 +190,8 @@ const syncService = {
         };
       })
     );
-    await db.routineDetails.clear();
-    await db.routineDetails.bulkAdd(toInsert);
+    await routineDetailRepository.clear();
+    await routineDetailRepository.bulkAdd(toInsert);
   },
 };
 const queryService = {};
