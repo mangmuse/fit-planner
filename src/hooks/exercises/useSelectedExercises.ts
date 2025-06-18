@@ -1,11 +1,7 @@
 import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { useModal } from "@/providers/contexts/ModalContext";
-import {
-  addLocalRoutineDetailsByWorkoutId,
-  deleteRoutineDetails,
-  getLocalRoutineDetails,
-} from "@/services/routineDetail.service";
+import { routineDetailService } from "@/services/routineDetail.service";
 import { workoutDetailService } from "@/services/workoutDetail.service";
 import {
   LocalExercise,
@@ -74,10 +70,12 @@ const useSelectedExercises = ({
         if (!routineId) return;
 
         // routineId로 맞는 detail찾아서 몇개인지 확인해서 startOrder 가져오기
-        const details = await getLocalRoutineDetails(Number(routineId));
+        const details = await routineDetailService.getLocalRoutineDetails(
+          Number(routineId)
+        );
         const startOrder = details.length + 1;
 
-        await addLocalRoutineDetailsByWorkoutId(
+        await routineDetailService.addLocalRoutineDetailsByWorkoutId(
           Number(routineId),
           startOrder,
           selectedExercises
@@ -103,13 +101,13 @@ const useSelectedExercises = ({
         await workoutDetailService.deleteWorkoutDetails(currentDetails);
       } else {
         const { exerciseOrder: startOrder, routineId } = currentDetails[0];
-        await addLocalRoutineDetailsByWorkoutId(
+        await routineDetailService.addLocalRoutineDetailsByWorkoutId(
           routineId,
           startOrder,
           selectedExercises
         );
 
-        await deleteRoutineDetails(currentDetails);
+        await routineDetailService.deleteRoutineDetails(currentDetails);
       }
       await reloadDetails?.();
       closeBottomSheet();

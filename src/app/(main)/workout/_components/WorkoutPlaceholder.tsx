@@ -3,10 +3,7 @@
 import { workoutDetailAdapter } from "@/adapter/workoutDetail.adapter";
 import RoutineList from "@/app/(main)/routines/_components/RoutineList";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
-import {
-  cloneRoutineDetailWithNewRoutineId,
-  getLocalRoutineDetails,
-} from "@/services/routineDetail.service";
+import { routineDetailService } from "@/services/routineDetail.service";
 import { workoutService } from "@/services/workout.service";
 import { workoutDetailService } from "@/services/workoutDetail.service";
 import {
@@ -72,14 +69,17 @@ function WorkoutPlaceholder({
     if (!routineId) throw new Error("routineId가 없습니다");
     await Promise.all(
       routineDetails.map(async (detail) => {
-        await cloneRoutineDetailWithNewRoutineId(detail, Number(routineId));
+        await routineDetailService.cloneRoutineDetailWithNewRoutineId(
+          detail,
+          Number(routineId)
+        );
       })
     );
   };
 
   const handlePickRoutine = async (targetRoutineId: number) => {
     const routineDetails: LocalRoutineDetail[] =
-      await getLocalRoutineDetails(targetRoutineId);
+      await routineDetailService.getLocalRoutineDetails(targetRoutineId);
     if (type === "RECORD") {
       await handlePickRoutineForWorkout(routineDetails);
     } else {

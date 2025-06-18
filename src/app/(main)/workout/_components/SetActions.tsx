@@ -4,11 +4,7 @@ import {
   isWorkoutDetail,
   isWorkoutDetails,
 } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
-import {
-  addSetToRoutine,
-  deleteRoutineDetail,
-  updateLocalRoutineDetail,
-} from "@/services/routineDetail.service";
+import { routineDetailService } from "@/services/routineDetail.service";
 import { workoutDetailService } from "@/services/workoutDetail.service";
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 
@@ -27,7 +23,7 @@ const SetActions = ({
     if (isWorkoutDetail(lastValue)) {
       await workoutDetailService.addSetToWorkout(lastValue);
     } else {
-      await addSetToRoutine(lastValue);
+      await routineDetailService.addSetToRoutine(lastValue);
     }
     reload();
   };
@@ -36,7 +32,7 @@ const SetActions = ({
     if (isWorkoutDetail(lastValue)) {
       await workoutDetailService.deleteWorkoutDetail(lastValue.id ?? 0);
     } else {
-      await deleteRoutineDetail(lastValue.id ?? 0);
+      await routineDetailService.deleteRoutineDetail(lastValue.id ?? 0);
     }
     await reorderAfterDelete(lastValue.exerciseOrder);
     reload();

@@ -6,7 +6,7 @@ import { workoutDetailAdapter } from "@/adapter/workoutDetail.adapter";
 import PastWorkoutList from "@/app/(main)/workout/_components/PastWorkoutList";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { getRoutineByLocalId } from "@/services/routine.service";
-import { addLocalRoutineDetail } from "@/services/routineDetail.service";
+import { routineDetailService } from "@/services/routineDetail.service";
 import { workoutService } from "@/services/workout.service";
 import { workoutDetailService } from "@/services/workoutDetail.service";
 import {
@@ -93,7 +93,7 @@ const LoadPastWorkoutSheet = ({
                   routine.id,
                   newExerciseOrder
                 );
-              await addLocalRoutineDetail(newDetail);
+              await routineDetailService.addLocalRoutineDetail(newDetail);
             }
           })
         );

@@ -20,10 +20,7 @@ import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { workoutDetailService } from "@/services/workoutDetail.service";
 import ExercisesContainer from "@/app/(main)/workout/[date]/exercises/_components/ExercisesContainer";
 import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
-import {
-  deleteRoutineDetail,
-  deleteRoutineDetails,
-} from "@/services/routineDetail.service";
+import { routineDetailService } from "@/services/routineDetail.service";
 
 type WorkoutDetailGroupOptions = {
   exercise: LocalExercise;
@@ -70,7 +67,7 @@ const WorkoutDetailGroupOptions = ({
     if (isWorkoutDetails(details)) {
       await workoutDetailService.deleteWorkoutDetails(details);
     } else {
-      await deleteRoutineDetails(details);
+      await routineDetailService.deleteRoutineDetails(details);
     }
     await reorderAfterDelete(details[0].exerciseOrder);
     await reload();

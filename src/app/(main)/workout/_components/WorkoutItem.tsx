@@ -2,10 +2,7 @@
 import deletIcon from "public/delete.svg";
 import WorkoutCheckbox from "@/app/(main)/workout/_components/WorkoutCheckbox";
 import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
-import {
-  deleteRoutineDetail,
-  updateLocalRoutineDetail,
-} from "@/services/routineDetail.service";
+import { routineDetailService } from "@/services/routineDetail.service";
 import { workoutDetailService } from "@/services/workoutDetail.service";
 import {
   LocalExercise,
@@ -54,14 +51,14 @@ const WorkoutItem = ({
     if (isWorkoutDetail(workoutDetail)) {
       await workoutDetailService.updateLocalWorkoutDetail(updateWorkoutInput);
     } else {
-      await updateLocalRoutineDetail(updateWorkoutInput);
+      await routineDetailService.updateLocalRoutineDetail(updateWorkoutInput);
     }
     await reload();
   };
 
   const handleDelete = async () => {
     if (!isWorkoutDetail(workoutDetail) && workoutDetail.id) {
-      await deleteRoutineDetail(workoutDetail.id);
+      await routineDetailService.deleteRoutineDetail(workoutDetail.id);
       await reorderAfterDelete(workoutDetail.exerciseOrder);
 
       await reload();

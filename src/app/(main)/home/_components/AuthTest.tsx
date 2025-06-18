@@ -5,10 +5,7 @@ import {
   overwriteWithServerRoutines,
   syncToServerRoutines,
 } from "@/services/routine.service";
-import {
-  overwriteWithServerRoutineDetails,
-  syncToServerRoutineDetails,
-} from "@/services/routineDetail.service";
+import { routineDetailService } from "@/services/routineDetail.service";
 import {
   overWriteAllWithServerData,
   syncToServer,
@@ -57,7 +54,9 @@ const AuthTest = () => {
         className="px-2 py-1 bg-bg-secondary text-xs rounded"
         onClick={async () => {
           await overwriteWithServerRoutines(userId ?? "");
-          await overwriteWithServerRoutineDetails(userId ?? "");
+          await routineDetailService.overwriteWithServerRoutineDetails(
+            userId ?? ""
+          );
         }}
       >
         루틴만체크

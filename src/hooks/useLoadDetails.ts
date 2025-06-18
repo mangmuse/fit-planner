@@ -3,11 +3,7 @@ import {
   isWorkoutDetails,
 } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
-import {
-  deleteRoutineDetails,
-  getLocalRoutineDetails,
-  updateLocalRoutineDetail,
-} from "@/services/routineDetail.service";
+import { routineDetailService } from "@/services/routineDetail.service";
 import { workoutService } from "@/services/workout.service";
 import { workoutDetailService } from "@/services/workoutDetail.service";
 import {
@@ -64,7 +60,8 @@ const useLoadDetails = ({
         setWorkoutGroups(adjustedGroups);
       } else if (type === "ROUTINE") {
         if (!userId || !routineId) return;
-        const details = await getLocalRoutineDetails(routineId);
+        const details =
+          await routineDetailService.getLocalRoutineDetails(routineId);
         setAllDetails(details);
         const adjustedGroups = getGroupedDetails(details);
         setWorkoutGroups(adjustedGroups);
@@ -126,7 +123,7 @@ const useLoadDetails = ({
           if (isWorkoutDetail(detail)) {
             return workoutDetailService.updateLocalWorkoutDetail(updated);
           } else {
-            return updateLocalRoutineDetail(updated);
+            return routineDetailService.updateLocalRoutineDetail(updated);
           }
         })
       );
@@ -156,7 +153,7 @@ const useLoadDetails = ({
             console.error("루틴 ID를 찾을 수 없습니다");
             return;
           }
-          await deleteRoutineDetails(allDetails);
+          await routineDetailService.deleteRoutineDetails(allDetails);
           await deleteLocalRoutine(routineId);
         }
         router.push("/");

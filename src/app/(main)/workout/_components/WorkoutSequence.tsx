@@ -23,7 +23,7 @@ import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { workoutDetailService } from "@/services/workoutDetail.service";
 import { reorderDetailGroups } from "@/app/(main)/workout/_utils/getGroupedDetails";
 import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
-import { updateLocalRoutineDetail } from "@/services/routineDetail.service";
+import { routineDetailService } from "@/services/routineDetail.service";
 
 export type DetailGroup = {
   exerciseOrder: number;
@@ -90,7 +90,7 @@ const WorkoutSequence = ({
         if (isWorkoutDetail(detail)) {
           await workoutDetailService.updateLocalWorkoutDetail(updateInput);
         } else {
-          await updateLocalRoutineDetail(updateInput);
+          await routineDetailService.updateLocalRoutineDetail(updateInput);
         }
       }
     }
