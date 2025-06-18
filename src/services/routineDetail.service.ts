@@ -1,8 +1,4 @@
-import {
-  convertLocalRoutineDetailsToServer,
-  getAddSetToRoutineByLastSet,
-  getNewRoutineDetails,
-} from "@/adapter/routineDetail.adapter";
+import { routineDetailAdapter } from "@/adapter/routineDetail.adapter";
 import {
   fetchRoutineDetailsFromServer,
   postRoutineDetailsToServer,
@@ -26,10 +22,13 @@ export async function addLocalRoutineDetailsByWorkoutId(
     if (startOrder === null) {
       // startOrder = await getStartExerciseOrder(workoutId); // workoutId가 temp인경우 startOrder는 1
     }
-    const newDetails = getNewRoutineDetails(selectedExercises, {
-      routineId,
-      startOrder,
-    });
+    const newDetails = routineDetailAdapter.getNewRoutineDetails(
+      selectedExercises,
+      {
+        routineId,
+        startOrder,
+      }
+    );
     const routineDetails = await db.routineDetails.bulkAdd(newDetails);
 
     return routineDetails;
@@ -66,7 +65,8 @@ export const addSetToRoutine = async (
   lastSet: LocalRoutineDetail
 ): Promise<number> => {
   try {
-    const addSetInput = getAddSetToRoutineByLastSet(lastSet);
+    const addSetInput =
+      routineDetailAdapter.getAddSetToRoutineByLastSet(lastSet);
     const newSet = await db.routineDetails.add(addSetInput);
     return newSet;
   } catch (e) {
@@ -114,7 +114,8 @@ export const syncToServerRoutineDetails = async (): Promise<void> => {
   const all = await db.routineDetails.toArray();
 
   const unsynced = all.filter((detail) => !detail.isSynced);
-  const mappedUnsynced = await convertLocalRoutineDetailsToServer(unsynced);
+  const mappedUnsynced =
+    await routineDetailAdapter.convertLocalRoutineDetailsToServer(unsynced);
 
   const data = await postRoutineDetailsToServer(mappedUnsynced);
 

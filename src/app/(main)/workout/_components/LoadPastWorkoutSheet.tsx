@@ -1,10 +1,7 @@
 "use client;";
 
 import { useSelectedWorkoutGroups } from "@/store/useSelectedWorkoutGroups";
-import {
-  getInitialRoutineDetail,
-  mapPastWorkoutToRoutineDetail,
-} from "@/adapter/routineDetail.adapter";
+import { routineDetailAdapter } from "@/adapter/routineDetail.adapter";
 import { workoutDetailAdapter } from "@/adapter/workoutDetail.adapter";
 import PastWorkoutList from "@/app/(main)/workout/_components/PastWorkoutList";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
@@ -92,11 +89,12 @@ const LoadPastWorkoutSheet = ({
                 return;
               }
 
-              const newDetail = mapPastWorkoutToRoutineDetail(
-                detail,
-                routine.id,
-                newExerciseOrder
-              );
+              const newDetail =
+                routineDetailAdapter.mapPastWorkoutToRoutineDetail(
+                  detail,
+                  routine.id,
+                  newExerciseOrder
+                );
               await addLocalRoutineDetail(newDetail);
             }
           })

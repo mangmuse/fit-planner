@@ -1,5 +1,5 @@
 import { CATEGORY_OPTIONS } from "./../constants/filters";
-import { mergeServerExerciseData } from "@/adapter/exercise.adapter";
+import { exerciseAdapter } from "@/adapter/exercise.adapter";
 import {
   fetchExercisesFromServer,
   postExercisesToServer,
@@ -44,7 +44,7 @@ export async function syncExercisesFromServerLocalFirst(userId: string) {
   const serverData: ClientExercise[] = await fetchExercisesFromServer(userId);
   const localAll = await db.exercises.toArray();
 
-  const merged = mergeServerExerciseData(serverData, localAll);
+  const merged = exerciseAdapter.mergeServerExerciseData(serverData, localAll);
 
   await db.exercises.clear();
   await db.exercises.bulkPut(merged);

@@ -61,8 +61,7 @@ export async function addLocalWorkoutDetailsByUserDate(
     const workout = await addLocalWorkout(userId, date);
     const workoutId = workout.id!;
 
-    const startOrder =
-      await getStartExerciseOrder(workoutId);
+    const startOrder = await getStartExerciseOrder(workoutId);
 
     const newDetails = workoutDetailAdapter.getNewWorkoutDetails(
       selectedExercises,
@@ -89,15 +88,15 @@ export const addLocalWorkoutDetail = async (
   }
 };
 
- async function getStartExerciseOrder(workoutId: number): Promise<number> {
-    const allDetails = await db.workoutDetails
-      .where("workoutId")
-      .equals(workoutId)
-      .sortBy("exerciseOrder");
-    const lastDetail = allDetails.at(-1);
-    const startOrder = lastDetail ? lastDetail.exerciseOrder + 1 : 1;
-    return startOrder;
-  },
+async function getStartExerciseOrder(workoutId: number): Promise<number> {
+  const allDetails = await db.workoutDetails
+    .where("workoutId")
+    .equals(workoutId)
+    .sortBy("exerciseOrder");
+  const lastDetail = allDetails.at(-1);
+  const startOrder = lastDetail ? lastDetail.exerciseOrder + 1 : 1;
+  return startOrder;
+}
 
 export async function addLocalWorkoutDetailsByWorkoutId(
   workoutId: number,
@@ -360,4 +359,3 @@ export const updateWorkoutDetails = async (
     throw new Error("WorkoutDetails 업데이트에 실패했습니다");
   }
 };
-
