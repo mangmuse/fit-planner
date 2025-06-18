@@ -3,37 +3,15 @@ import {
   postWorkoutsToServer,
 } from "@/api/workout.api";
 import { db } from "@/lib/db";
+import { workoutRepository } from "@/repositories/workout.repository";
 import { ClientWorkout, LocalWorkout } from "@/types/models";
 import { getFormattedDateYMD } from "@/util/formatDate";
 
-export const workoutService = {
-  async getWorkoutByUserIdAndDate(
-    userId: string,
-    date: string
-  ): Promise<LocalWorkout | void> {
-    try {
-      const workout = await db.workouts
-        .where(["userId", "date"])
-        .equals([userId, date])
-        .first();
-
-      return workout;
-    } catch (e) {
-      throw new Error("workout을 불러오는 데 실패했습니다");
-    }
-  },
-
-  // export const getPastWorkouts = async (
-  //   workoutId: number
-  // ): Promise<LocalWorkout[]> => {};
-
+const coreService = {
   async getAllWorkouts(userId: string): Promise<LocalWorkout[]> {
     try {
-      const workouts = await db.workouts
-        .where("userId")
-        .equals(userId)
-        .sortBy("date")
-        .then((workouts) => workouts.reverse());
+      const workouts =
+        await workoutRepository.findAllByUserIdOrderByDate(userId);
 
       return workouts;
     } catch (e) {
@@ -43,49 +21,91 @@ export const workoutService = {
 
   async getWorkoutWithServerId(serverId: string): Promise<LocalWorkout | void> {
     try {
-      const workout = await db.workouts
-        .where("serverId")
-        .equals(serverId)
-        .first();
+      const workout = await workoutRepository.findOneByServerId(serverId);
       return workout;
     } catch (e) {
       throw new Error("workout을 불러오는 데 실패했습니다");
     }
   },
-
   async getWorkoutWithLocalId(id: number): Promise<LocalWorkout | void> {
     try {
-      const workout = await db.workouts.where("id").equals(id).first();
+      const workout = await workoutRepository.findOneById(id);
       return workout;
     } catch (e) {
       throw new Error("workout을 불러오는 데 실패했습니다");
     }
   },
-
-  async updateWorkout(updatedWorkout: Partial<LocalWorkout>): Promise<void> {
-    if (!updatedWorkout.id) {
-      throw new Error("workout id는 꼭 전달해주세요");
-    }
+  async getWorkoutByUserIdAndDate(
+    userId: string,
+    date: string
+  ): Promise<LocalWorkout | void> {
     try {
-      await db.workouts.update(updatedWorkout.id, {
-        ...updatedWorkout,
+      const workout = await workoutRepository.findOneByUserIdAndDate(
+        userId,
+        date
+      );
+
+      return workout;
+    } catch (e) {
+      throw new Error("workout을 불러오는 데 실패했습니다");
+    }
+  },
+  async addLocalWorkout(userId: string, date: string): Promise<LocalWorkout> {
+    try {
+      const existing = await this.getWorkoutByUserIdAndDate(userId, date);
+      if (existing) {
+        return existing;
+      }
+
+      const localId = await workoutRepository.add({
+        userId,
+        date,
+        createdAt: new Date().toISOString(),
+        isSynced: false,
+        status: "EMPTY",
+        serverId: null,
+      });
+
+      const workout = await this.getWorkoutWithLocalId(localId);
+      if (!workout) throw new Error("Workout을 불러오지 못했습니다");
+
+      return workout;
+    } catch (e) {
+      throw new Error("Workout 추가에 실패했습니다");
+    }
+  },
+
+  async updateLocalWorkout(workout: Partial<LocalWorkout>): Promise<void> {
+    if (!workout.id) throw new Error("workout id는 필수입니다");
+    try {
+      await workoutRepository.update(workout.id, {
+        ...workout,
         updatedAt: new Date().toISOString(),
         isSynced: false,
       });
     } catch (e) {
-      throw new Error("workout 업데이트에 실패했습니다");
+      throw new Error("Workout 업데이트에 실패했습니다");
     }
   },
 
+  async deleteLocalWorkout(workoutId: number) {
+    try {
+      await workoutRepository.delete(workoutId);
+    } catch (e) {
+      throw new Error("Workout 삭제에 실패했습니다");
+    }
+  },
+};
+const syncService = {
   async syncToServerWorkouts(): Promise<void> {
-    const all = await db.workouts.toArray();
+    const all = await workoutRepository.findAll();
 
     const unsynced = all.filter((workout) => !workout.isSynced);
     const data = await postWorkoutsToServer(unsynced);
 
     if (data.updated) {
       for (const updated of data.updated) {
-        await db.workouts.update(updated.localId, {
+        await workoutRepository.update(updated.localId, {
           serverId: updated.serverId,
           isSynced: true,
         });
@@ -107,70 +127,30 @@ export const workoutService = {
       createdAt: workout.createdAt,
       updatedAt: workout.updatedAt,
     }));
-    await db.workouts.clear();
+    await workoutRepository.clear();
 
-    await db.workouts.bulkAdd(toInsert);
+    await workoutRepository.bulkAdd(toInsert);
   },
-
-  async addLocalWorkout(userId: string, date: string): Promise<LocalWorkout> {
-    try {
-      const existing = await this.getWorkoutByUserIdAndDate(userId, date);
-      if (existing) {
-        return existing;
-      }
-
-      const localId = await db.workouts.add({
-        userId,
-        date,
-        createdAt: new Date().toISOString(),
-        isSynced: false,
-        status: "EMPTY",
-        serverId: null,
-      });
-
-      const workout = await this.getWorkoutWithLocalId(localId);
-      if (!workout) throw new Error("Workout을 불러오지 못했습니다");
-
-      return workout;
-    } catch (e) {
-      throw new Error("Workout 추가에 실패했습니다");
-    }
-  },
-
-  async updateLocalWorkout(workout: Partial<LocalWorkout>) {
-    if (!workout.id) throw new Error("workout id는 필수입니다");
-    try {
-      await db.workouts.update(workout.id, {
-        ...workout,
-        updatedAt: new Date().toISOString(),
-        isSynced: false,
-      });
-    } catch (e) {
-      throw new Error("Workout 업데이트에 실패했습니다");
-    }
-  },
-
+};
+const queryService = {
   async getThisMonthWorkouts(
     startDate: string,
     endDate: string
   ): Promise<LocalWorkout[]> {
     try {
-      const workouts = await db.workouts
-        .where("date")
-        .between(startDate, endDate, true, true)
-        .filter((workout) => workout.status !== "EMPTY")
-        .toArray();
+      const workouts = await workoutRepository.findAllByDateRangeExcludeEmpty(
+        startDate,
+        endDate
+      );
       return workouts;
     } catch (e) {
       throw new Error("이번 달 workout 목록을 불러오는 데 실패했습니다");
     }
   },
+};
 
-  async deleteLocalWorkout(workoutId: number) {
-    try {
-      await db.workouts.delete(workoutId);
-    } catch (e) {
-      throw new Error("Workout 삭제에 실패했습니다");
-    }
-  },
+export const workoutService = {
+  ...coreService,
+  ...syncService,
+  ...queryService,
 };
