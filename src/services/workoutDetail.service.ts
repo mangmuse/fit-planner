@@ -10,6 +10,8 @@ import { exerciseService } from "@/services/exercise.service";
 import { workoutService } from "@/services/workout.service";
 import { ClientWorkoutDetail, LocalRoutineDetail } from "@/types/models";
 import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
+import { workoutDetailRepository } from "@/repositories/workoutDetail.repository";
+import { workoutRepository } from "@/repositories/workout.repository";
 
 export type NewWorkoutDetailInput = {
   workoutId: number;
@@ -49,8 +51,8 @@ export const overwriteWithServerWorkoutDetails = async (
       };
     })
   );
-  await db.workoutDetails.clear();
-  await db.workoutDetails.bulkAdd(toInsert);
+  await workoutDetailRepository.clear();
+  await workoutDetailRepository.bulkAdd(toInsert);
 };
 export async function addLocalWorkoutDetailsByUserDate(
   userId: string,
@@ -71,7 +73,7 @@ export async function addLocalWorkoutDetailsByUserDate(
       }
     );
 
-    const workoutDetails = await db.workoutDetails.bulkAdd(newDetails);
+    const workoutDetails = await workoutDetailRepository.bulkAdd(newDetails);
     return workoutDetails;
   } catch (e) {
     throw new Error("WorkoutDetails 추가에 실패했습니다");
@@ -82,17 +84,17 @@ export const addLocalWorkoutDetail = async (
   detailInput: LocalWorkoutDetail
 ): Promise<void> => {
   try {
-    await db.workoutDetails.add(detailInput);
+    await workoutDetailRepository.add(detailInput);
   } catch (e) {
     throw new Error("WorkoutDetail 추가에 실패했습니다");
   }
 };
 
 async function getStartExerciseOrder(workoutId: number): Promise<number> {
-  const allDetails = await db.workoutDetails
-    .where("workoutId")
-    .equals(workoutId)
-    .sortBy("exerciseOrder");
+  const allDetails =
+    await workoutDetailRepository.findAllByWorkoutIdOrderByExerciseOrder(
+      workoutId
+    );
   const lastDetail = allDetails.at(-1);
   const startOrder = lastDetail ? lastDetail.exerciseOrder + 1 : 1;
   return startOrder;
@@ -114,7 +116,7 @@ export async function addLocalWorkoutDetailsByWorkoutId(
         startOrder,
       }
     );
-    const workoutDetails = await db.workoutDetails.bulkAdd(newDetails);
+    const workoutDetails = await workoutDetailRepository.bulkAdd(newDetails);
 
     return workoutDetails;
   } catch (e) {
@@ -135,10 +137,9 @@ export const getLocalWorkoutDetails = async (
 
     if (!workout?.id) throw new Error("workoutId를 가져오지 못했습니다");
 
-    const details = await db.workoutDetails
-      .where("workoutId")
-      .equals(workout.id)
-      .toArray();
+    const details = await workoutDetailRepository.findAllByWorkoutId(
+      workout.id
+    );
 
     return details;
   } catch (e) {
@@ -151,10 +152,7 @@ export const getLocalWorkoutDetailsByWorkoutId = async (
 ): Promise<LocalWorkoutDetail[]> => {
   if (!workoutId) throw new Error("workoutId가 없습니다");
   try {
-    const details = await db.workoutDetails
-      .where("workoutId")
-      .equals(workoutId)
-      .toArray();
+    const details = await workoutDetailRepository.findAllByWorkoutId(workoutId);
     return details;
   } catch (e) {
     throw new Error("WorkoutDetails를 불러오는 데 실패했습니다");
@@ -166,11 +164,10 @@ export const getLocalWorkoutDetailsByWorkoutIdAndExerciseOrder = async (
   exerciseOrder: number
 ): Promise<LocalWorkoutDetail[]> => {
   try {
-    return db.workoutDetails
-      .where("workoutId")
-      .equals(workoutId)
-      .and((detail) => detail.exerciseOrder === exerciseOrder)
-      .toArray();
+    return workoutDetailRepository.findAllByWorkoutIdAndExerciseOrder(
+      workoutId,
+      exerciseOrder
+    );
   } catch (e) {
     throw new Error("WorkoutDetails를 불러오는 데 실패했습니다");
   }
@@ -180,7 +177,10 @@ export const updateLocalWorkoutDetail = async (
 ): Promise<void> => {
   if (!updateWorkoutInput.id) throw new Error("id가 없습니다");
   try {
-    await db.workoutDetails.update(updateWorkoutInput.id, updateWorkoutInput);
+    await workoutDetailRepository.update(
+      updateWorkoutInput.id,
+      updateWorkoutInput
+    );
   } catch (e) {
     throw new Error("WorkoutDetail 업데이트에 실패했습니다");
   }
@@ -192,7 +192,7 @@ export const addSetToWorkout = async (
   try {
     const addSetInput =
       workoutDetailAdapter.getAddSetToWorkoutByLastSet(lastSet);
-    const newSet = await db.workoutDetails.add(addSetInput);
+    const newSet = await workoutDetailRepository.add(addSetInput);
     return newSet;
   } catch (e) {
     throw new Error("WorkoutDetail 추가에 실패했습니다");
@@ -201,7 +201,7 @@ export const addSetToWorkout = async (
 
 export const deleteWorkoutDetail = async (lastSetId: number): Promise<void> => {
   try {
-    await db.workoutDetails.delete(lastSetId);
+    await workoutDetailRepository.delete(lastSetId);
   } catch (e) {
     throw new Error("WorkoutDetail 삭제에 실패했습니다");
   }
@@ -214,7 +214,7 @@ export const deleteWorkoutDetails = async (
     await Promise.all(
       details.map(async (detail) => {
         if (!detail.id) throw new Error("id가 없습니다");
-        await db.workoutDetails.delete(detail.id);
+        await workoutDetailRepository.delete(detail.id);
       })
     );
   } catch (e) {
@@ -223,7 +223,7 @@ export const deleteWorkoutDetails = async (
 };
 
 export const syncToServerWorkoutDetails = async (): Promise<void> => {
-  const all = await db.workoutDetails.toArray();
+  const all = await workoutDetailRepository.findAll();
 
   const unsynced = all.filter((detail) => !detail.isSynced);
   const mappedUnsynced =
@@ -240,7 +240,7 @@ export const syncToServerWorkoutDetails = async (): Promise<void> => {
       const workout = await workoutService.getWorkoutWithServerId(
         updated.workoutId
       );
-      await db.workoutDetails.update(updated.localId, {
+      await workoutDetailRepository.update(updated.localId, {
         serverId: updated.serverId,
         isSynced: true,
         exerciseId: exercise?.id,
@@ -255,11 +255,9 @@ const getAllDoneDetailsExceptCurrent = async (
 ): Promise<LocalWorkoutDetail[]> => {
   try {
     const isWorkout = isWorkoutDetails(details);
-    let candidates = await db.workoutDetails
-      .where("exerciseId")
-      .equals(details[0].exerciseId)
-      .and((detail) => detail.isDone === true)
-      .toArray();
+    let candidates = await workoutDetailRepository.findAllDoneByExerciseId(
+      details[0].exerciseId
+    );
     if (isWorkout) {
       const currentWorkoutId = details[0].workoutId;
       candidates = candidates.filter((d) => d.workoutId !== currentWorkoutId);
@@ -280,7 +278,7 @@ const pickMostRecentDetailBeforeDate = async (
     const workoutIdToDateMap = new Map<number, string>();
     for (const detail of candidates) {
       if (!workoutIdToDateMap.has(detail.workoutId)) {
-        const w = await db.workouts.get(detail.workoutId);
+        const w = await workoutRepository.findOneById(detail.workoutId);
         if (w?.date) {
           workoutIdToDateMap.set(detail.workoutId, w.date);
         }
@@ -326,7 +324,9 @@ export const getLatestWorkoutDetailByExerciseId = async (
     if (!candidates.length) return;
     let referenceDate: Date | undefined = undefined;
     if (isWorkout) {
-      const currentWorkout = await db.workouts.get(details[0].workoutId);
+      const currentWorkout = await workoutRepository.findOneById(
+        details[0].workoutId
+      );
       if (!currentWorkout?.date) return;
       referenceDate = new Date(currentWorkout.date);
     }
@@ -343,12 +343,12 @@ export const getLatestWorkoutDetailByExerciseId = async (
 export const getWorkoutGroupByWorkoutDetail = async (
   detail: LocalWorkoutDetail
 ): Promise<LocalWorkoutDetail[]> => {
+  const { exerciseOrder, workoutId } = detail;
   try {
-    return db.workoutDetails
-      .where("workoutId")
-      .equals(detail.workoutId)
-      .and((d) => d.exerciseOrder === detail.exerciseOrder)
-      .toArray();
+    return workoutDetailRepository.findAllByWorkoutIdAndExerciseOrder(
+      workoutId,
+      exerciseOrder
+    );
   } catch (e) {
     throw new Error("WorkoutDetails를 불러오는 데 실패했습니다");
   }
@@ -358,7 +358,7 @@ export const updateWorkoutDetails = async (
   updatedDetails: LocalWorkoutDetail[]
 ) => {
   try {
-    await db.workoutDetails.bulkPut(updatedDetails);
+    await workoutDetailRepository.bulkPut(updatedDetails);
   } catch (e) {
     throw new Error("WorkoutDetails 업데이트에 실패했습니다");
   }
