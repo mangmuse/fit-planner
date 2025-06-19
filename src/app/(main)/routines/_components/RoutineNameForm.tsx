@@ -1,6 +1,6 @@
 "use client";
 import WorkoutContainer from "@/app/(main)/workout/_components/WorkoutContainer";
-import { addLocalRoutine } from "@/services/routine.service";
+import { routineService } from "@/services/routine.service";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -15,7 +15,7 @@ const RoutineNameForm = () => {
   const handleAddRoutine = async () => {
     if (!userId) return;
 
-    const routineId = await addLocalRoutine({ name, userId });
+    const routineId = await routineService.addLocalRoutine({ name, userId });
     router.push(`/routines/${routineId}`);
   };
 

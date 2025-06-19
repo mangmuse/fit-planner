@@ -1,10 +1,6 @@
 "use client";
 
-import { fetchRoutinesFromServer } from "@/api/routine.api";
-import {
-  overwriteWithServerRoutines,
-  syncToServerRoutines,
-} from "@/services/routine.service";
+import { routineService } from "@/services/routine.service";
 import { routineDetailService } from "@/services/routineDetail.service";
 import {
   overWriteAllWithServerData,
@@ -53,7 +49,7 @@ const AuthTest = () => {
       <button
         className="px-2 py-1 bg-bg-secondary text-xs rounded"
         onClick={async () => {
-          await overwriteWithServerRoutines(userId ?? "");
+          await routineService.overwriteWithServerRoutines(userId ?? "");
           await routineDetailService.overwriteWithServerRoutineDetails(
             userId ?? ""
           );

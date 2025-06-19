@@ -14,7 +14,7 @@ import {
 import { use, useEffect, useState } from "react";
 import { useModal } from "@/providers/contexts/ModalContext";
 import { useRouter } from "next/navigation";
-import { deleteLocalRoutine } from "@/services/routine.service";
+import { routineService } from "@/services/routine.service";
 
 type UseLoadDetailsProps = {
   type: "RECORD" | "ROUTINE";
@@ -154,7 +154,7 @@ const useLoadDetails = ({
             return;
           }
           await routineDetailService.deleteRoutineDetails(allDetails);
-          await deleteLocalRoutine(routineId);
+          await routineService.deleteLocalRoutine(routineId);
         }
         router.push("/");
         setWorkout(null);

@@ -6,7 +6,7 @@ import {
 import { db } from "@/lib/db";
 import { routineDetailRepository } from "@/repositories/routineDetail.repository";
 import { exerciseService } from "@/services/exercise.service";
-import { getRoutineByServerId } from "@/services/routine.service";
+import { routineService } from "@/services/routine.service";
 import { ClientRoutineDetail, LocalRoutineDetail } from "@/types/models";
 
 export type NewRoutineDetailInput = {
@@ -152,7 +152,9 @@ const syncService = {
         const exercise = await exerciseService.getExerciseWithServerId(
           updated.exerciseId
         );
-        const routine = await getRoutineByServerId(updated.routineId);
+        const routine = await routineService.getRoutineByServerId(
+          updated.routineId
+        );
         await routineDetailRepository.update(updated.localId, {
           serverId: updated.serverId,
           isSynced: true,
@@ -172,7 +174,9 @@ const syncService = {
         const exercise = await exerciseService.getExerciseWithServerId(
           data.exerciseId
         );
-        const routine = await getRoutineByServerId(data.routineId);
+        const routine = await routineService.getRoutineByServerId(
+          data.routineId
+        );
 
         if (!exercise?.id || !routine?.id) {
           throw new Error(

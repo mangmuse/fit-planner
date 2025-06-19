@@ -2,7 +2,7 @@
 import RoutineDetailContainer from "@/app/(main)/routines/_components/RoutineDetailContainer";
 import { TEMP_ROUTINE_ID } from "@/app/(main)/routines/constants";
 import WorkoutContainer from "@/app/(main)/workout/_components/WorkoutContainer";
-import { getRoutineByLocalId } from "@/services/routine.service";
+import { routineService } from "@/services/routine.service";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import editIcon from "public/edit.svg";
@@ -16,7 +16,7 @@ const RoutineForm = () => {
   const { routineId } = useParams();
 
   const loadName = async () => {
-    const routine = await getRoutineByLocalId(Number(routineId));
+    const routine = await routineService.getRoutineByLocalId(Number(routineId));
     if (routine) {
       setName(routine.name);
     }

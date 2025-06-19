@@ -1,5 +1,5 @@
 import RoutineItem from "@/app/(main)/routines/_components/RoutineItem";
-import { getAllLocalRoutines } from "@/services/routine.service";
+import { routineService } from "@/services/routine.service";
 import { LocalRoutine } from "@/types/models";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
@@ -22,7 +22,7 @@ const RoutineList = ({
     try {
       setError(null);
       setIsLoading(true);
-      const allRoutines = await getAllLocalRoutines(userId);
+      const allRoutines = await routineService.getAllLocalRoutines(userId);
       setRoutines(allRoutines);
     } catch (e) {
       setError("루틴 목록을 불러올 수 없습니다");

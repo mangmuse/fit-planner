@@ -1,7 +1,7 @@
 "use client";
 
 import { useModal } from "@/providers/contexts/ModalContext";
-import { updateLocalRoutine } from "@/services/routine.service";
+import { routineService } from "@/services/routine.service";
 import { ChangeEventHandler, useEffect, useState } from "react";
 
 type EditRoutineNameFormProps = {
@@ -22,7 +22,7 @@ const EditRoutineNameForm = ({
   };
 
   const handleUpdateName = async () => {
-    await updateLocalRoutine({
+    await routineService.updateLocalRoutine({
       id: routineId,
       name,
     });
@@ -32,7 +32,9 @@ const EditRoutineNameForm = ({
 
   return (
     <div className="w-full min-w-[280px]">
-      <h3 className="text-lg font-semibold text-text-white text-center mb-4">루틴명 변경</h3>
+      <h3 className="text-lg font-semibold text-text-white text-center mb-4">
+        루틴명 변경
+      </h3>
       <input
         autoFocus
         value={name}
@@ -41,13 +43,13 @@ const EditRoutineNameForm = ({
         className="w-full px-4 py-3 bg-bg-surface rounded-xl text-text-white placeholder:text-text-muted outline-none focus:ring-2 focus:ring-primary mb-6"
       />
       <div className="flex justify-center gap-3">
-        <button 
+        <button
           onClick={closeModal}
           className="flex-1 py-3 bg-bg-surface text-text-white font-medium rounded-xl hover:bg-bg-surface-variant transition-colors"
         >
           취소
         </button>
-        <button 
+        <button
           onClick={handleUpdateName}
           className="flex-1 py-3 bg-primary text-text-black font-medium rounded-xl hover:bg-primary/90 transition-colors"
         >

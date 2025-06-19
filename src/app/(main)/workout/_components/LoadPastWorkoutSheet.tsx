@@ -5,7 +5,7 @@ import { routineDetailAdapter } from "@/adapter/routineDetail.adapter";
 import { workoutDetailAdapter } from "@/adapter/workoutDetail.adapter";
 import PastWorkoutList from "@/app/(main)/workout/_components/PastWorkoutList";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
-import { getRoutineByLocalId } from "@/services/routine.service";
+
 import { routineDetailService } from "@/services/routineDetail.service";
 import { workoutService } from "@/services/workout.service";
 import { workoutDetailService } from "@/services/workoutDetail.service";
@@ -17,6 +17,7 @@ import {
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { routineService } from "@/services/routine.service";
 
 type LoadPastWorkoutSheetProps = {
   type: "ROUTINE" | "RECORD";
@@ -81,7 +82,8 @@ const LoadPastWorkoutSheet = ({
               await workoutDetailService.addLocalWorkoutDetail(newDetail);
             } else if (type === "ROUTINE") {
               if (!routineId) return;
-              const routine = await getRoutineByLocalId(routineId);
+              const routine =
+                await routineService.getRoutineByLocalId(routineId);
               if (!routine || !routine.id) {
                 console.error("루틴 ID가 없습니다");
                 return;
