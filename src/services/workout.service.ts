@@ -52,7 +52,10 @@ const coreService = {
   },
   async addLocalWorkout(userId: string, date: string): Promise<LocalWorkout> {
     try {
-      const existing = await this.getWorkoutByUserIdAndDate(userId, date);
+      const existing = await coreService.getWorkoutByUserIdAndDate(
+        userId,
+        date
+      );
       if (existing) {
         return existing;
       }
@@ -66,7 +69,7 @@ const coreService = {
         serverId: null,
       });
 
-      const workout = await this.getWorkoutWithLocalId(localId);
+      const workout = await coreService.getWorkoutWithLocalId(localId);
       if (!workout) throw new Error("Workout을 불러오지 못했습니다");
 
       return workout;

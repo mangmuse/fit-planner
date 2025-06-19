@@ -1,8 +1,8 @@
+import { workoutDetailService } from "@/lib/di";
 import { exerciseService } from "@/services/exercise.service";
 import { routineService } from "@/services/routine.service";
 import { routineDetailService } from "@/services/routineDetail.service";
 import { workoutService } from "@/services/workout.service";
-import { workoutDetailService } from "@/services/workoutDetail.service";
 
 export const overWriteAllWithServerData = async (userId: string) => {
   await exerciseService.overwriteWithServerExercises(userId);

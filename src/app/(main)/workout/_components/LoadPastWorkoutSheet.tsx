@@ -8,7 +8,7 @@ import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 
 import { routineDetailService } from "@/services/routineDetail.service";
 import { workoutService } from "@/services/workout.service";
-import { workoutDetailService } from "@/services/workoutDetail.service";
+
 import {
   LocalRoutineDetail,
   LocalWorkout,
@@ -18,6 +18,7 @@ import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { routineService } from "@/services/routine.service";
+import { workoutDetailService } from "@/lib/di";
 
 type LoadPastWorkoutSheetProps = {
   type: "ROUTINE" | "RECORD";

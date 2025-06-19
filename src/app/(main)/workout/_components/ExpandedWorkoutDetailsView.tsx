@@ -1,9 +1,10 @@
 import { useSelectedWorkoutGroups } from "@/store/useSelectedWorkoutGroups";
 import ExpandedWorkoutGroup from "@/app/(main)/workout/_components/ExpandedWorkoutGroup";
 import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
-import { workoutDetailService } from "@/services/workoutDetail.service";
+
 import { LocalWorkoutDetail } from "@/types/models";
 import { useEffect, useState } from "react";
+import { workoutDetailService } from "@/lib/di";
 
 type ExpandedWorkoutDetailsViewProps = {
   onToggle: () => void;

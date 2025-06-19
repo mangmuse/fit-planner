@@ -20,10 +20,10 @@ import {
 import SortableItem from "@/app/(main)/workout/_components/SortableItem";
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
-import { workoutDetailService } from "@/services/workoutDetail.service";
 import { reorderDetailGroups } from "@/app/(main)/workout/_utils/getGroupedDetails";
 import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import { routineDetailService } from "@/services/routineDetail.service";
+import { workoutDetailService } from "@/lib/di";
 
 export type DetailGroup = {
   exerciseOrder: number;

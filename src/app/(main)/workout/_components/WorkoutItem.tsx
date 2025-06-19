@@ -3,7 +3,6 @@ import deletIcon from "public/delete.svg";
 import WorkoutCheckbox from "@/app/(main)/workout/_components/WorkoutCheckbox";
 import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import { routineDetailService } from "@/services/routineDetail.service";
-import { workoutDetailService } from "@/services/workoutDetail.service";
 import {
   LocalExercise,
   LocalRoutineDetail,
@@ -12,6 +11,7 @@ import {
 import Image from "next/image";
 import { ChangeEventHandler, useRef, useState } from "react";
 import SetOrderCell from "@/app/(main)/workout/_components/SetOrderCell";
+import { workoutDetailService } from "@/lib/di";
 
 type WorkoutItemProps = {
   exercise: LocalExercise;

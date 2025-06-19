@@ -5,7 +5,6 @@ import {
 import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
 import { routineDetailService } from "@/services/routineDetail.service";
 import { workoutService } from "@/services/workout.service";
-import { workoutDetailService } from "@/services/workoutDetail.service";
 import {
   LocalRoutineDetail,
   LocalWorkout,
@@ -15,6 +14,7 @@ import { use, useEffect, useState } from "react";
 import { useModal } from "@/providers/contexts/ModalContext";
 import { useRouter } from "next/navigation";
 import { routineService } from "@/services/routine.service";
+import { workoutDetailService } from "@/lib/di";
 
 type UseLoadDetailsProps = {
   type: "RECORD" | "ROUTINE";

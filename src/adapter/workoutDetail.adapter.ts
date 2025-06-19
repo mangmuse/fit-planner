@@ -1,12 +1,17 @@
 import { db } from "@/lib/db";
 import { exerciseService } from "@/services/exercise.service";
 import { workoutService } from "@/services/workout.service";
-import { NewWorkoutDetailInput } from "@/services/workoutDetail.service";
+
 import {
   LocalRoutineDetail,
   LocalWorkoutDetail,
   LocalWorkoutDetailWithServerWorkoutId,
 } from "@/types/models";
+
+export type NewWorkoutDetailInput = {
+  workoutId: number;
+  startOrder: number;
+};
 
 export const workoutDetailAdapter = {
   getInitialWorkoutDetail(): LocalWorkoutDetail {

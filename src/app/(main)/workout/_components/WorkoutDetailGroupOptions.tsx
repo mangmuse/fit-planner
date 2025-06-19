@@ -17,10 +17,10 @@ import {
 import { useModal } from "@/providers/contexts/ModalContext";
 import ExerciseMemo from "@/app/(main)/workout/_components/ExerciseMemo";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
-import { workoutDetailService } from "@/services/workoutDetail.service";
 import ExercisesContainer from "@/app/(main)/workout/[date]/exercises/_components/ExercisesContainer";
 import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import { routineDetailService } from "@/services/routineDetail.service";
+import { workoutDetailService } from "@/lib/di";
 
 type WorkoutDetailGroupOptions = {
   exercise: LocalExercise;

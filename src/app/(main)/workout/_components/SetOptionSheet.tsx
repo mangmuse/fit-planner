@@ -2,10 +2,11 @@ import RPESelector from "@/app/(main)/workout/_components/RPESelector";
 import SetTypeSelector from "@/app/(main)/workout/_components/SetTypeSelector";
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 import { useState, useEffect } from "react";
-import { workoutDetailService } from "@/services/workoutDetail.service";
+
 import { WorkoutSetType } from "@/app/(main)/workout/constants";
 import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import { routineDetailService } from "@/services/routineDetail.service";
+import { workoutDetailService } from "@/lib/di";
 
 type SetOptionSheetProps = {
   workoutDetail: LocalWorkoutDetail | LocalRoutineDetail;

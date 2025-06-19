@@ -43,41 +43,43 @@ export type FetchWorkoutDetailsResponse = z.infer<
   typeof fetchWorkoutDetailsSchema
 >;
 
-export const fetchWorkoutDetailsFromServer = async (
-  userId: string
-): Promise<ClientWorkoutDetail[]> => {
-  const res = await fetch(`${BASE_URL}/api/workout/detail/${userId}`);
-  if (!res.ok) {
-    throw new Error(FETCH_WORKOUT_DETAILS_ERROR);
-  }
-  const data = await res.json();
+export const workoutDetailApi = {
+  async fetchWorkoutDetailsFromServer(
+    userId: string
+  ): Promise<ClientWorkoutDetail[]> {
+    const res = await fetch(`${BASE_URL}/api/workout/detail/${userId}`);
+    if (!res.ok) {
+      throw new Error(FETCH_WORKOUT_DETAILS_ERROR);
+    }
+    const data = await res.json();
 
-  const parsedData = validateData<FetchWorkoutDetailsResponse>(
-    fetchWorkoutDetailsSchema,
-    data
-  );
+    const parsedData = validateData<FetchWorkoutDetailsResponse>(
+      fetchWorkoutDetailsSchema,
+      data
+    );
 
-  const serverWorkoutDetails = parsedData.workoutDetails;
+    const serverWorkoutDetails = parsedData.workoutDetails;
 
-  return serverWorkoutDetails;
+    return serverWorkoutDetails;
+  },
+
+  async postWorkoutDetailsToServer(
+    mappedUnsynced: LocalWorkoutDetailWithServerWorkoutId[]
+  ): Promise<SyncWorkoutDetailsToServerResponse> {
+    const res = await fetch(`${BASE_URL}/api/workout/detail/sync`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mappedUnsynced }),
+    });
+
+    if (!res.ok) throw new Error(POST_WORKOUT_DETAILS_ERROR);
+
+    const data = await res.json();
+    const parsedData = validateData<SyncWorkoutDetailsToServerResponse>(
+      syncWorkoutDetailsToServerResponseSchema,
+      data
+    );
+
+    return parsedData;
+  },
 };
-
-export async function postWorkoutDetailsToServer(
-  mappedUnsynced: LocalWorkoutDetailWithServerWorkoutId[]
-): Promise<SyncWorkoutDetailsToServerResponse> {
-  const res = await fetch(`${BASE_URL}/api/workout/detail/sync`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ mappedUnsynced }),
-  });
-
-  if (!res.ok) throw new Error(POST_WORKOUT_DETAILS_ERROR);
-
-  const data = await res.json();
-  const parsedData = validateData<SyncWorkoutDetailsToServerResponse>(
-    syncWorkoutDetailsToServerResponseSchema,
-    data
-  );
-
-  return parsedData;
-}

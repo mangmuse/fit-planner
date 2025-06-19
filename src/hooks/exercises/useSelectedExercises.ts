@@ -1,8 +1,8 @@
 import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
+import { workoutDetailService } from "@/lib/di";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { useModal } from "@/providers/contexts/ModalContext";
 import { routineDetailService } from "@/services/routineDetail.service";
-import { workoutDetailService } from "@/services/workoutDetail.service";
 import {
   LocalExercise,
   LocalRoutineDetail,

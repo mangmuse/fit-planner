@@ -4,8 +4,9 @@ import {
   isWorkoutDetail,
   isWorkoutDetails,
 } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
+import { workoutDetailService } from "@/lib/di";
 import { routineDetailService } from "@/services/routineDetail.service";
-import { workoutDetailService } from "@/services/workoutDetail.service";
+
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 
 type SetActionsProps = {
