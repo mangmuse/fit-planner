@@ -248,109 +248,83 @@ describe("getNewWorkoutDetails", () => {
   });
 });
 
-describe("convertLocalWorkoutDetailToServer", () => {
-  it("의존 함수들이 반환한 serverId로 데이터를 올바르게 변환한다", async () => {
+describe("mapLocalWorkoutDetailToServer", () => {
+  it("전달받은 workoutDetail의 exerciseId와 workoutId 속성을 서버아이디로 매핑한다 ", async () => {
     const exerciseMock = mockExercise.synced;
     const workoutMock = mockWorkout.synced;
 
-    jest
-      .spyOn(exerciseService, "getExerciseWithLocalId")
-      .mockResolvedValueOnce(exerciseMock);
-    jest
-      .spyOn(workoutService, "getWorkoutWithLocalId")
-      .mockResolvedValueOnce(workoutMock);
+    const localDetail = mockWorkoutDetail.new({
+      exerciseId: exerciseMock.id,
+      workoutId: workoutMock.id,
+    });
 
-    const localDetails = [
-      mockWorkoutDetail.new({
-        exerciseId: exerciseMock.id,
-        workoutId: workoutMock.id,
-      }),
-    ];
+    const result = workoutDetailAdapter.mapLocalWorkoutDetailToServer(
+      localDetail,
+      exerciseMock,
+      workoutMock
+    );
 
-    const result =
-      await workoutDetailAdapter.mapLocalWorkoutDetailToServer(localDetails);
-
-    expect(result[0].exerciseId).toBe(exerciseMock.serverId);
-    expect(result[0].workoutId).toBe(workoutMock.serverId);
+    expect(result.exerciseId).toBe(exerciseMock.serverId);
+    expect(result.workoutId).toBe(workoutMock.serverId);
   });
 
   it("의존 함수가 반환한 값에 serverId가 없는경우 에러를 던진다", async () => {
     const exerciseMock = { ...mockExercise.synced, serverId: null };
     const workoutMock = { ...mockWorkout.synced, serverId: null };
-    const localDetails = [
-      mockWorkoutDetail.new({
-        exerciseId: exerciseMock.id,
-        workoutId: workoutMock.id,
-      }),
-    ];
-    jest
-      .spyOn(exerciseService, "getExerciseWithLocalId")
-      .mockResolvedValueOnce(exerciseMock);
-    jest
-      .spyOn(workoutService, "getWorkoutWithLocalId")
-      .mockResolvedValueOnce(workoutMock);
+    const localDetail = mockWorkoutDetail.new({
+      exerciseId: exerciseMock.id,
+      workoutId: workoutMock.id,
+    });
 
-    const promise =
-      workoutDetailAdapter.mapLocalWorkoutDetailToServer(localDetails);
-
-    await expect(promise).rejects.toThrow(
-      "exerciseId 또는 workoutId가 없습니다"
-    );
+    // workoutDetailAdapter.mapLocalWorkoutDetailToServer(...)를
+    // 화살표 함수로 감싸서 expect에 전달합니다.
+    expect(() =>
+      workoutDetailAdapter.mapLocalWorkoutDetailToServer(
+        localDetail,
+        exerciseMock,
+        workoutMock
+      )
+    ).toThrow("exerciseId 또는 workoutId가 없습니다");
   });
 });
 
 describe("convertServerWorkoutDetailToLocal", () => {
-  it("의존 함수들이 반환한 localId로 데이터를 올바르게 변환한다", async () => {
+  it("의존 함수들이 반환한 localId로 데이터를 올바르게 변환한다", () => {
     const exerciseMock = mockExercise.synced;
     const workoutMock = mockWorkout.synced;
 
-    jest
-      .spyOn(exerciseService, "getExerciseWithServerId")
-      .mockResolvedValueOnce(exerciseMock);
-    jest
-      .spyOn(workoutService, "getWorkoutWithServerId")
-      .mockResolvedValueOnce(workoutMock);
+    const localDetail = mockWorkoutDetail.fromServer({
+      exerciseId: exerciseMock.serverId!,
+      workoutId: workoutMock.serverId!,
+    });
 
-    const localDetails = [
-      mockWorkoutDetail.fromServer({
-        exerciseId: exerciseMock.serverId!,
-        workoutId: workoutMock.serverId!,
-      }),
-    ];
+    const result = workoutDetailAdapter.createOverwriteWorkoutDetailPayload(
+      localDetail,
+      exerciseMock,
+      workoutMock
+    );
 
-    const result =
-      await workoutDetailAdapter.createOverwriteWorkoutDetailPayload(
-        localDetails
-      );
-
-    expect(result[0].exerciseId).toBe(exerciseMock.id);
-    expect(result[0].workoutId).toBe(workoutMock.id);
+    expect(result.exerciseId).toBe(exerciseMock.id);
+    expect(result.workoutId).toBe(workoutMock.id);
   });
-  it("의존 함수가 반환한 값에 localId가 없는경우 에러를 던진다", async () => {
+  it("의존 함수가 반환한 값에 localId가 없는경우 에러를 던진다", () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const exerciseMock = { ...mockExercise.synced, id: null } as any;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const workoutMock = { ...mockWorkout.synced, id: null } as any;
 
-    jest
-      .spyOn(exerciseService, "getExerciseWithServerId")
-      .mockResolvedValueOnce(exerciseMock);
-    jest
-      .spyOn(workoutService, "getWorkoutWithServerId")
-      .mockResolvedValueOnce(workoutMock);
-    const localDetails = [
-      mockWorkoutDetail.fromServer({
-        exerciseId: exerciseMock.serverId!,
-        workoutId: workoutMock.serverId!,
-      }),
-    ];
+    const localDetail = mockWorkoutDetail.fromServer({
+      exerciseId: exerciseMock.serverId!,
+      workoutId: workoutMock.serverId!,
+    });
 
-    const promise =
-      workoutDetailAdapter.createOverwriteWorkoutDetailPayload(localDetails);
-
-    await expect(promise).rejects.toThrow(
-      "exerciseId 또는 workoutId가 없습니다."
-    );
+    expect(() =>
+      workoutDetailAdapter.createOverwriteWorkoutDetailPayload(
+        localDetail,
+        exerciseMock,
+        workoutMock
+      )
+    ).toThrow("exerciseId 또는 workoutId가 없습니다");
   });
 });
 

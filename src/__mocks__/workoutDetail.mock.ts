@@ -1,4 +1,5 @@
 import {
+  ClientWorkoutDetail,
   LocalWorkoutDetail,
   LocalWorkoutDetailWithServerWorkoutId,
 } from "@/types/models";
@@ -38,12 +39,12 @@ export const mockWorkoutDetail = {
   }),
 
   fromServer: (
-    overrides?: Partial<LocalWorkoutDetailWithServerWorkoutId>
-  ): LocalWorkoutDetailWithServerWorkoutId => {
+    overrides?: Partial<ClientWorkoutDetail>
+  ): ClientWorkoutDetail => {
     const base = createBaseWorkoutDetailMock();
     return {
       ...base,
-      id: base.id,
+      id: "server-id",
       exerciseId: 500,
       workoutId: "mock-server-workout-id",
       ...overrides,

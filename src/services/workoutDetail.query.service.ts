@@ -1,4 +1,3 @@
-import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 import {
   IWorkoutDetailRepository,
@@ -43,12 +42,13 @@ export class WorkoutDetailQueryService implements IWorkoutDetailQueryService {
     details: LocalWorkoutDetail[] | LocalRoutineDetail[]
   ): Promise<LocalWorkoutDetail[]> {
     try {
-      const isWorkout = isWorkoutDetails(details);
+      // 직접 타입 체크: details가 비어있거나 첫 번째 요소에 "workoutId"가 있으면 LocalWorkoutDetail[]
+      const isWorkout = details.length === 0 || "workoutId" in details[0];
       let candidates = await this.repository.findAllDoneByExerciseId(
         details[0].exerciseId
       );
       if (isWorkout) {
-        const currentWorkoutId = details[0].workoutId;
+        const currentWorkoutId = (details[0] as LocalWorkoutDetail).workoutId;
         candidates = candidates.filter((d) => d.workoutId !== currentWorkoutId);
       }
       return candidates;
@@ -106,13 +106,13 @@ export class WorkoutDetailQueryService implements IWorkoutDetailQueryService {
     details: LocalWorkoutDetail[] | LocalRoutineDetail[]
   ): Promise<LocalWorkoutDetail | void> {
     try {
-      const isWorkout = isWorkoutDetails(details);
+      const isWorkout = details.length === 0 || "workoutId" in details[0];
       const candidates = await this.getAllDoneDetailsExceptCurrent(details);
       if (!candidates.length) return;
       let referenceDate: Date | undefined = undefined;
       if (isWorkout) {
         const currentWorkout = await this.workoutRepository.findOneById(
-          details[0].workoutId
+          (details[0] as LocalWorkoutDetail).workoutId
         );
         if (!currentWorkout?.date) return;
         referenceDate = new Date(currentWorkout.date);
