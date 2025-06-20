@@ -163,5 +163,3 @@ export class WorkoutdetailAdapter implements IWorkoutDetailAdapter {
     return this.createWorkoutDetail(workoutDetail);
   }
 }
-
-export const workoutDetailAdapter = {};

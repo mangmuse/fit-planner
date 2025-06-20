@@ -1,4 +1,4 @@
-import { exerciseService } from "@/services/exercise.service";
+import { exerciseService } from "@/lib/di";
 import { useModal } from "@/providers/contexts/ModalContext";
 import { ClientExercise, ClientUser, LocalExercise } from "@/types/models";
 import clsx from "clsx";

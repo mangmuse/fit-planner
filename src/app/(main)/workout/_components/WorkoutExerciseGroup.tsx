@@ -2,10 +2,9 @@ import SetActions from "@/app/(main)/workout/_components/SetActions";
 import WorkoutDetailGroupOptions from "@/app/(main)/workout/_components/WorkoutDetailGroupOptions";
 import WorkoutItem from "@/app/(main)/workout/_components/WorkoutItem";
 import WorkoutTableHeader from "@/app/(main)/workout/_components/WorkoutTableHeader";
-import { workoutDetailService } from "@/lib/di";
+import { exerciseService, workoutDetailService } from "@/lib/di";
 
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
-import { exerciseService } from "@/services/exercise.service";
 import {
   LocalExercise,
   LocalRoutineDetail,

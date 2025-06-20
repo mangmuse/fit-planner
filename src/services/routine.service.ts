@@ -1,10 +1,8 @@
-import {
-  fetchRoutinesFromServer,
-  postRoutinesToServer,
-} from "@/api/routine.api";
-import { routineRepository } from "@/lib/di";
+import { IRoutineApi } from "@/types/apis";
 
 import { ClientRoutine, LocalRoutine } from "@/types/models";
+import { IRoutineRepository } from "@/types/repositories";
+import { IRoutineService } from "@/types/services";
 
 type AddLocalRoutineInput = {
   userId: string;
@@ -12,40 +10,45 @@ type AddLocalRoutineInput = {
   description?: string;
 };
 
-const coreService = {
+export class RoutineService implements IRoutineService {
+  constructor(
+    private readonly repository: IRoutineRepository,
+    private readonly api: IRoutineApi
+  ) {}
+  // ----- CORE ----- //
   async getAllLocalRoutines(userId: string): Promise<LocalRoutine[]> {
     try {
-      const routines = await routineRepository.findAllByUserId(userId);
+      const routines = await this.repository.findAllByUserId(userId);
 
       return routines;
     } catch (e) {
       throw new Error("루틴 목록을 불러오는 데 실패했습니다");
     }
-  },
+  }
 
   async getRoutineByServerId(serverId: string): Promise<LocalRoutine | void> {
     try {
-      const routine = await routineRepository.findOneByServerId(serverId);
+      const routine = await this.repository.findOneByServerId(serverId);
       return routine;
     } catch (e) {
       throw new Error("routine을 불러오는 데 실패했습니다");
     }
-  },
+  }
 
   async getRoutineByLocalId(localId: number): Promise<LocalRoutine | void> {
     try {
-      const routine = await routineRepository.findOneById(localId);
+      const routine = await this.repository.findOneById(localId);
       return routine;
     } catch (e) {
       throw new Error("routine을 불러오는 데 실패했습니다");
     }
-  },
+  }
 
   async addLocalRoutine(
     addLocalRoutineInput: AddLocalRoutineInput
   ): Promise<number> {
     try {
-      const localId = await routineRepository.add({
+      const localId = await this.repository.add({
         ...addLocalRoutineInput,
         createdAt: new Date().toISOString(),
         isSynced: false,
@@ -56,12 +59,12 @@ const coreService = {
     } catch (e) {
       throw new Error("루틴 추가에 실패했습니다");
     }
-  },
+  }
 
   async updateLocalRoutine(routine: Partial<LocalRoutine>): Promise<void> {
     try {
       if (!routine.id) throw new Error("routine id는 꼭 전달해주세요");
-      await routineRepository.update(routine.id, {
+      await this.repository.update(routine.id, {
         ...routine,
         updatedAt: new Date().toISOString(),
         isSynced: false,
@@ -69,35 +72,36 @@ const coreService = {
     } catch (e) {
       throw new Error("루틴 업데이트에 실패했습니다");
     }
-  },
+  }
 
   async deleteLocalRoutine(routineId: number) {
     try {
-      await routineRepository.delete(routineId);
+      await this.repository.delete(routineId);
     } catch (e) {
       throw new Error("루틴 삭제에 실패했습니다");
     }
-  },
-};
-const syncService = {
+  }
+
+  // ===== SYNC ===== //
   async syncToServerRoutines(): Promise<void> {
-    const all = await routineRepository.findAll();
+    const all = await this.repository.findAll();
 
     const unsynced = all.filter((routine) => !routine.isSynced);
-    const data = await postRoutinesToServer(unsynced);
+    const data = await this.api.postRoutinesToServer(unsynced);
 
     if (data.updated) {
       for (const updated of data.updated) {
-        await routineRepository.update(updated.localId, {
+        await this.repository.update(updated.localId, {
           serverId: updated.serverId,
           isSynced: true,
         });
       }
     }
-  },
+  }
 
   async overwriteWithServerRoutines(userId: string): Promise<void> {
-    const serverData: ClientRoutine[] = await fetchRoutinesFromServer(userId);
+    const serverData: ClientRoutine[] =
+      await this.api.fetchRoutinesFromServer(userId);
     if (!serverData) throw new Error("데이터 받아오기를 실패했습니다");
     if (serverData.length === 0) return;
     const toInsert = serverData.map((routine) => ({
@@ -110,14 +114,7 @@ const syncService = {
       createdAt: routine.createdAt,
       updatedAt: routine.updatedAt,
     }));
-    await routineRepository.clear();
-    await routineRepository.bulkAdd(toInsert);
-  },
-};
-const queryService = {};
-
-export const routineService = {
-  ...coreService,
-  ...syncService,
-  ...queryService,
-};
+    await this.repository.clear();
+    await this.repository.bulkAdd(toInsert);
+  }
+}

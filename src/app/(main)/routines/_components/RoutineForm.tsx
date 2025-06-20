@@ -2,13 +2,13 @@
 import RoutineDetailContainer from "@/app/(main)/routines/_components/RoutineDetailContainer";
 import { TEMP_ROUTINE_ID } from "@/app/(main)/routines/constants";
 import WorkoutContainer from "@/app/(main)/workout/_components/WorkoutContainer";
-import { routineService } from "@/services/routine.service";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import editIcon from "public/edit.svg";
 import Image from "next/image";
 import { useModal } from "@/providers/contexts/ModalContext";
 import EditRoutineNameForm from "@/app/(main)/routines/_components/EditRoutineNameForm";
+import { routineService } from "@/lib/di";
 
 const RoutineForm = () => {
   const { openModal } = useModal();

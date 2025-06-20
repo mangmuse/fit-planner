@@ -1,6 +1,6 @@
+import { exerciseService } from "@/lib/di";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { useModal } from "@/providers/contexts/ModalContext";
-import { exerciseService } from "@/services/exercise.service";
 import { LocalExercise } from "@/types/models";
 import { useState } from "react";
 import { date } from "zod";

@@ -1,9 +1,9 @@
 "use client";
 
-import { workoutDetailAdapter } from "@/adapter/workoutDetail.adapter";
 import RoutineList from "@/app/(main)/routines/_components/RoutineList";
 import {
   routineDetailService,
+  workoutDetailAdapter,
   workoutDetailService,
   workoutService,
 } from "@/lib/di";

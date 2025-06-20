@@ -1,8 +1,6 @@
 "use client;";
 
 import { useSelectedWorkoutGroups } from "@/store/useSelectedWorkoutGroups";
-import { routineDetailAdapter } from "@/adapter/routineDetail.adapter";
-import { workoutDetailAdapter } from "@/adapter/workoutDetail.adapter";
 import PastWorkoutList from "@/app/(main)/workout/_components/PastWorkoutList";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 
@@ -14,9 +12,11 @@ import {
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { routineService } from "@/services/routine.service";
 import {
+  routineDetailAdapter,
   routineDetailService,
+  routineService,
+  workoutDetailAdapter,
   workoutDetailService,
   workoutService,
 } from "@/lib/di";

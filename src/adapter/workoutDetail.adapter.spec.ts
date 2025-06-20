@@ -1,4 +1,3 @@
-import { exerciseService } from "@/services/exercise.service";
 // jest.mock("@/services/exercise.service.ts");
 // jest.mock("@/services/workout.service.ts");
 import { createMockExercise, mockExercise } from "@/__mocks__/exercise.mock";
@@ -8,7 +7,6 @@ import {
   createBaseWorkoutDetailMock,
   mockWorkoutDetail,
 } from "@/__mocks__/workoutDetail.mock";
-import { workoutDetailAdapter } from "@/adapter/workoutDetail.adapter";
 
 import {
   LocalExercise,
@@ -16,7 +14,11 @@ import {
   LocalWorkout,
   LocalWorkoutDetail,
 } from "@/types/models";
-import { workoutService } from "@/lib/di";
+import {
+  exerciseService,
+  workoutDetailAdapter,
+  workoutService,
+} from "@/lib/di";
 
 describe("getInitialWorkoutDetail", () => {
   it("초기 workout detail 객체를 반환한다", () => {

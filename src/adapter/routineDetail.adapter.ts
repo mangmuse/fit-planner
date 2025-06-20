@@ -124,5 +124,3 @@ export class RoutineDetailAdapter implements IRoutineDetailAdapter {
     };
   }
 }
-
-export const routineDetailAdapter = {};

@@ -1,5 +1,4 @@
 import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
-import { workoutDetailRepository } from "@/repositories/workoutDetail.repository";
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 import {
   IWorkoutDetailRepository,

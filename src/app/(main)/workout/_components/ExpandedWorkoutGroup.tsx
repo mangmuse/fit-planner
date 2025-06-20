@@ -1,5 +1,5 @@
 import ExpandedWorkoutItem from "@/app/(main)/workout/_components/ExpandedWorkoutItem";
-import { exerciseService } from "@/services/exercise.service";
+import { exerciseService } from "@/lib/di";
 import { LocalWorkoutDetail } from "@/types/models";
 import { useEffect, useState } from "react";
 

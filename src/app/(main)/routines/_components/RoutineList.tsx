@@ -1,11 +1,11 @@
 import RoutineItem from "@/app/(main)/routines/_components/RoutineItem";
-import { routineService } from "@/services/routine.service";
 import { LocalRoutine } from "@/types/models";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import plusCircle from "public/plus-circle.svg";
 import ErrorState from "@/components/ErrorState";
+import { routineService } from "@/lib/di";
 
 const RoutineList = ({
   onPick,

@@ -1,28 +1,23 @@
-import {
-  ExerciseAdapter,
-  ExerciseAdapter as exerciseAdapterObj,
-} from "@/adapter/exercise.adapter";
-import {
-  RoutineDetailAdapter,
-  routineDetailAdapter as routineDetailAdapterObj,
-} from "@/adapter/routineDetail.adapter";
-import {
-  WorkoutdetailAdapter,
-  workoutDetailAdapter as workoutDetailAdapterObj,
-} from "@/adapter/workoutDetail.adapter";
+import { ExerciseAdapter } from "@/adapter/exercise.adapter";
+import { RoutineDetailAdapter } from "@/adapter/routineDetail.adapter";
+
+import { WorkoutdetailAdapter } from "@/adapter/workoutDetail.adapter";
+import { ExerciseApi } from "@/api/exercise.api";
+import { RoutineApi } from "@/api/routine.api";
+import { RoutineDetailApi } from "@/api/routineDetail.api";
 import { WorkoutApi } from "@/api/workout.api";
 import { WorkoutDetailApi } from "@/api/workoutDetail.api";
-// import { exerciseApi as exerciseApiObj } from "@/api/exercise.api";
-// import { routineApi as routineApiObj } from "@/api/routine.api";
-// import { routineDetailApi as routineDetailApiObj } from "@/api/routineDetail.api";
+
 import { exerciseRepository as exerciseRepositoryObj } from "@/repositories/exercise.repository";
 import { routineRepository as routineRepositoryObj } from "@/repositories/routine.repository";
 import { routineDetailRepository as routineDetailRepositoryObj } from "@/repositories/routineDetail.repository";
 import { workoutRepository as workoutRepositoryObj } from "@/repositories/workout.repository";
 import { workoutDetailRepository as workoutDetailRepositoryObj } from "@/repositories/workoutDetail.repository";
-import { exerciseService as exerciseServiceObj } from "@/services/exercise.service";
-import { routineService as routineServiceObj } from "@/services/routine.service";
-import { routineDetailService as routineDetailServiceObj } from "@/services/routineDetail.service";
+import { ExerciseService } from "@/services/exercise.service";
+import { RoutineService } from "@/services/routine.service";
+
+import { RoutineDetailService } from "@/services/routineDetail.service";
+
 import { WorkoutService } from "@/services/workout.service";
 import { WorkoutDetailCoreService } from "@/services/workoutDetail.core.service";
 import { WorkoutDetailQueryService } from "@/services/workoutDetail.query.service";
@@ -35,13 +30,15 @@ import {
 } from "@/types/services";
 
 // ------ API ----- //
-// export const exerciseApi = exerciseApiObj;
-// export const routineApi = routineApiObj;
-// export const routineDetailApi = routineDetailApiObj;
+
+export const exerciseApi = new ExerciseApi();
 export const workoutApi = new WorkoutApi();
 export const workoutDetailApi = new WorkoutDetailApi();
+export const routineApi = new RoutineApi();
+export const routineDetailApi = new RoutineDetailApi();
 
 // ------ Repository ----- //
+
 export const exerciseRepository = exerciseRepositoryObj;
 export const routineRepository = routineRepositoryObj;
 export const routineDetailRepository = routineDetailRepositoryObj;
@@ -56,10 +53,14 @@ export const routineDetailAdapter = new RoutineDetailAdapter();
 
 // ----- Service ----- //
 
-export const exerciseService = exerciseServiceObj;
+export const exerciseService = new ExerciseService(
+  exerciseRepository,
+  exerciseAdapter,
+  exerciseApi
+);
 
 export const workoutService = new WorkoutService(workoutRepository, workoutApi);
-export const routineService = routineServiceObj;
+export const routineService = new RoutineService(routineRepository, routineApi);
 
 const workoutDetailCoreService: IWorkoutDetailCoreService =
   new WorkoutDetailCoreService(
@@ -79,10 +80,23 @@ const workoutDetailSyncService: IWorkoutDetailSyncService =
 const workoutDetailQueryService: IWorkoutDetailQueryService =
   new WorkoutDetailQueryService(workoutDetailRepository, workoutRepository);
 
-export const workoutDetailService: IWorkoutDetailService = Object.assign(
-  {},
-  workoutDetailCoreService,
-  workoutDetailSyncService,
-  workoutDetailQueryService
+export const workoutDetailService = new Proxy({} as IWorkoutDetailService, {
+  get(target, prop) {
+    if (prop in workoutDetailCoreService) {
+      return (workoutDetailCoreService as IWorkoutDetailCoreService)[prop];
+    }
+    if (prop in workoutDetailSyncService) {
+      return (workoutDetailSyncService as IWorkoutDetailSyncService)[prop];
+    }
+    if (prop in workoutDetailQueryService) {
+      return (workoutDetailQueryService as IWorkoutDetailQueryService)[prop];
+    }
+  },
+});
+export const routineDetailService = new RoutineDetailService(
+  exerciseService,
+  routineService,
+  routineDetailRepository,
+  routineDetailAdapter,
+  routineDetailApi
 );
-export const routineDetailService = routineDetailServiceObj;

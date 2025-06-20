@@ -1,6 +1,6 @@
 import useExericseFilters from "@/hooks/exercises/useExericseFilters";
 import useSelectedExercises from "@/hooks/exercises/useSelectedExercises";
-import { exerciseService } from "@/services/exercise.service";
+import { exerciseService } from "@/lib/di";
 
 import {
   LocalExercise,

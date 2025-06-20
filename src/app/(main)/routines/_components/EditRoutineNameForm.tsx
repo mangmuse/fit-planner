@@ -1,7 +1,7 @@
 "use client";
 
+import { routineService } from "@/lib/di";
 import { useModal } from "@/providers/contexts/ModalContext";
-import { routineService } from "@/services/routine.service";
 import { ChangeEventHandler, useEffect, useState } from "react";
 
 type EditRoutineNameFormProps = {

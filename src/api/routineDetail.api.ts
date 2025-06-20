@@ -1,6 +1,7 @@
 import { FETCH_ROUTINE_DETAILS_ERROR } from "./../constants/errorMessage";
 import { BASE_URL } from "@/constants";
 import { POST_ROUTINE_DETAILS_ERROR } from "@/constants/errorMessage";
+import { IRoutineDetailApi } from "@/types/apis";
 import {
   ClientRoutineDetail,
   clientRoutineDetailSchema,
@@ -34,40 +35,44 @@ export type FetchRoutineDetailsResponse = z.infer<
   typeof fetchRoutineDetailsSchema
 >;
 
-export const fetchRoutineDetailsFromServer = async (
-  userId: string
-): Promise<ClientRoutineDetail[]> => {
-  const res = await fetch(`${BASE_URL}/api/routine/detail/${userId}`);
-  if (!res.ok) {
-    throw new Error(FETCH_ROUTINE_DETAILS_ERROR);
+export class RoutineDetailApi implements IRoutineDetailApi {
+  constructor() {}
+
+  async fetchRoutineDetailsFromServer(
+    userId: string
+  ): Promise<ClientRoutineDetail[]> {
+    const res = await fetch(`${BASE_URL}/api/routine/detail/${userId}`);
+    if (!res.ok) {
+      throw new Error(FETCH_ROUTINE_DETAILS_ERROR);
+    }
+    const data = await res.json();
+
+    const parsedData = validateData<FetchRoutineDetailsResponse>(
+      fetchRoutineDetailsSchema,
+      data
+    );
+    const serverRoutineDetails = parsedData.routineDetails;
+    return serverRoutineDetails;
   }
-  const data = await res.json();
 
-  const parsedData = validateData<FetchRoutineDetailsResponse>(
-    fetchRoutineDetailsSchema,
-    data
-  );
-  const serverRoutineDetails = parsedData.routineDetails;
-  return serverRoutineDetails;
-};
+  async postRoutineDetailsToServer(
+    mappedUnsynced: LocalRoutineDetailWithServerRoutineId[]
+  ): Promise<SyncRoutineDetailsToServerResponse> {
+    const res = await fetch(`${BASE_URL}/api/routine/detail/sync`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mappedUnsynced }),
+    });
 
-export const postRoutineDetailsToServer = async (
-  mappedUnsynced: LocalRoutineDetailWithServerRoutineId[]
-): Promise<SyncRoutineDetailsToServerResponse> => {
-  const res = await fetch(`${BASE_URL}/api/routine/detail/sync`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ mappedUnsynced }),
-  });
+    if (!res.ok) throw new Error(POST_ROUTINE_DETAILS_ERROR);
 
-  if (!res.ok) throw new Error(POST_ROUTINE_DETAILS_ERROR);
+    const data = await res.json();
 
-  const data = await res.json();
+    const parsedData = validateData<SyncRoutineDetailsToServerResponse>(
+      syncRoutineDetailsToServerResponseSchema,
+      data
+    );
 
-  const parsedData = validateData<SyncRoutineDetailsToServerResponse>(
-    syncRoutineDetailsToServerResponseSchema,
-    data
-  );
-
-  return parsedData;
-};
+    return parsedData;
+  }
+}

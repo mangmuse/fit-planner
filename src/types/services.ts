@@ -1,4 +1,5 @@
 import {
+  LocalRoutine,
   LocalRoutineDetail,
   LocalWorkout,
   LocalWorkoutDetail,
@@ -58,7 +59,7 @@ export interface IWorkoutDetailService
     IWorkoutDetailSyncService,
     IWorkoutDetailQueryService {}
 
-// --- Workout ---
+// === Workout ===
 export interface IWorkoutService {
   // --- Core Service ---
   getAllWorkouts: (userId: string) => Promise<LocalWorkout[]>;
@@ -83,7 +84,7 @@ export interface IWorkoutService {
   ) => Promise<LocalWorkout[]>;
 }
 
-// --- Exercise ---
+// ==== Exercise ====
 export interface IExerciseService {
   // --- Core Service ---
   getExerciseWithServerId: (serverId: number) => Promise<LocalExercise | void>;
@@ -101,4 +102,49 @@ export interface IExerciseService {
   overwriteWithServerExercises: (userId: string) => Promise<void>;
   syncExercisesFromServerLocalFirst: (userId: string) => Promise<void>;
   syncToServerExercises: (userId: string) => Promise<void>;
+}
+
+// ==== Routine ====
+export interface IRoutineService {
+  // --- Core Service ---
+  getAllLocalRoutines: (userId: string) => Promise<LocalRoutine[]>;
+  getRoutineByServerId: (serverId: string) => Promise<LocalRoutine | void>;
+  getRoutineByLocalId: (localId: number) => Promise<LocalRoutine | void>;
+  addLocalRoutine: (args: {
+    userId: string;
+    name: string;
+    description?: string;
+  }) => Promise<number>;
+  updateLocalRoutine: (routine: Partial<LocalRoutine>) => Promise<void>;
+  deleteLocalRoutine: (routineId: number) => Promise<void>;
+
+  // --- Sync Service ---
+  syncToServerRoutines: () => Promise<void>;
+  overwriteWithServerRoutines: (userId: string) => Promise<void>;
+}
+
+// --- RoutineDetail Service Interface ---
+export interface IRoutineDetailService {
+  // --- Core Service ---
+  getLocalRoutineDetails: (routineId: number) => Promise<LocalRoutineDetail[]>;
+  addLocalRoutineDetail: (detailInput: LocalRoutineDetail) => Promise<void>;
+  addSetToRoutine: (lastSet: LocalRoutineDetail) => Promise<number>;
+  addLocalRoutineDetailsByWorkoutId: (
+    routineId: number,
+    startOrder: number,
+    selectedExercises: { id: number; name: string }[]
+  ) => Promise<number>;
+  cloneRoutineDetailWithNewRoutineId: (
+    originalDetail: LocalRoutineDetail,
+    newRoutineId: number
+  ) => Promise<void>;
+  updateLocalRoutineDetail: (
+    updateInput: Partial<LocalRoutineDetail>
+  ) => Promise<void>;
+  deleteRoutineDetail: (detailId: number) => Promise<void>;
+  deleteRoutineDetails: (details: LocalRoutineDetail[]) => Promise<void>;
+
+  // --- Sync Service ---
+  syncToServerRoutineDetails: () => Promise<void>;
+  overwriteWithServerRoutineDetails: (userId: string) => Promise<void>;
 }

@@ -1,4 +1,4 @@
-import { workoutApi } from "@/api/workout.api";
+import { IWorkoutApi } from "@/types/apis";
 import { ClientWorkout, LocalWorkout } from "@/types/models";
 import { IWorkoutRepository } from "@/types/repositories";
 import { IWorkoutService } from "@/types/services";
@@ -7,7 +7,7 @@ import { getFormattedDateYMD } from "@/util/formatDate";
 export class WorkoutService implements IWorkoutService {
   constructor(
     private readonly repository: IWorkoutRepository, //
-    private readonly api: typeof workoutApi // private readonly
+    private readonly api: IWorkoutApi // private readonly
   ) {}
 
   // ---- Core ---- //

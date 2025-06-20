@@ -1,5 +1,4 @@
-import { workoutDetailAdapter } from "@/adapter/workoutDetail.adapter";
-import { workoutDetailRepository } from "@/repositories/workoutDetail.repository";
+import { IWorkoutDetailAdapter } from "./../types/adapters";
 import { LocalWorkoutDetail } from "@/types/models";
 import { IWorkoutDetailRepository } from "@/types/repositories";
 import { IWorkoutDetailCoreService, IWorkoutService } from "@/types/services";
@@ -7,7 +6,7 @@ import { IWorkoutDetailCoreService, IWorkoutService } from "@/types/services";
 export class WorkoutDetailCoreService implements IWorkoutDetailCoreService {
   constructor(
     private readonly repository: IWorkoutDetailRepository,
-    private readonly adapter: typeof workoutDetailAdapter,
+    private readonly adapter: IWorkoutDetailAdapter,
     private readonly workoutService: IWorkoutService
   ) {}
 

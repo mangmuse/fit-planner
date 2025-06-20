@@ -1,6 +1,5 @@
-import { workoutDetailAdapter } from "@/adapter/workoutDetail.adapter";
-import { workoutDetailRepository } from "@/repositories/workoutDetail.repository";
-import { IWorkoutDetaeilApi } from "@/types/apis";
+import { IWorkoutDetailAdapter } from "@/types/adapters";
+import { IWorkoutDetailApi } from "@/types/apis";
 import { ClientWorkoutDetail } from "@/types/models";
 import { IWorkoutDetailRepository } from "@/types/repositories";
 import {
@@ -12,8 +11,8 @@ import {
 export class WorkoutDetailSyncService implements IWorkoutDetailSyncService {
   constructor(
     private readonly repository: IWorkoutDetailRepository,
-    private readonly adapter: typeof workoutDetailAdapter,
-    private readonly api: IWorkoutDetaeilApi,
+    private readonly adapter: IWorkoutDetailAdapter,
+    private readonly api: IWorkoutDetailApi,
     private readonly exerciseService: IExerciseService,
     private readonly workoutService: IWorkoutService
   ) {}

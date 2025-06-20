@@ -1,8 +1,8 @@
 import DailyMemoContent from "@/app/(main)/workout/_components/ExerciseMemo/DailyMemoContent";
 import ExerciseMemoTab from "@/app/(main)/workout/_components/ExerciseMemo/ExerciseMemoTab";
 import FixedMemoContent from "@/app/(main)/workout/_components/ExerciseMemo/FixedMemoContent";
+import { exerciseService } from "@/lib/di";
 import { useModal } from "@/providers/contexts/ModalContext";
-import { exerciseService } from "@/services/exercise.service";
 import { LocalExercise } from "@/types/models";
 import { getFormattedDateYMD } from "@/util/formatDate";
 import dayjs from "dayjs";

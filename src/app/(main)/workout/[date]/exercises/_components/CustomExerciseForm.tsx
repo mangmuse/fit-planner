@@ -1,7 +1,7 @@
 import TypeFilter from "@/app/(main)/workout/[date]/exercises/_components/TypeFilter";
 import { CATEGORY_OPTIONS } from "@/constants/filters";
+import { exerciseService } from "@/lib/di";
 import { useModal } from "@/providers/contexts/ModalContext";
-import { exerciseService } from "@/services/exercise.service";
 import { trim } from "lodash";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
