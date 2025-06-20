@@ -2,6 +2,45 @@ import { ClientWorkout } from "../types/models";
 import { SyncWorkoutsToServerResponse } from "@/api/workout.api";
 import { mockUserId } from "@/__mocks__/src/api";
 import { LocalWorkout } from "@/types/models";
+import { getFormattedDateYMD } from "@/util/formatDate";
+
+const createBaseWorkoutMock = (
+  overrides?: Partial<LocalWorkout>
+): LocalWorkout => ({
+  id: Math.floor(Math.random() * 1000),
+  userId: "mockUserId",
+  date: getFormattedDateYMD(new Date()), // 오늘 날짜
+  status: "EMPTY",
+  isSynced: true,
+  serverId: `server-id-${Math.random()}`,
+  createdAt: new Date().toISOString(),
+  updatedAt: null,
+
+  ...overrides,
+});
+
+export const mockWorkout = {
+  empty: createBaseWorkoutMock({
+    id: 1,
+    status: "EMPTY",
+    isSynced: false,
+    serverId: null,
+  }),
+  planned: createBaseWorkoutMock({
+    id: 2,
+    status: "PLANNED",
+    isSynced: false,
+    serverId: null,
+  }),
+
+  synced: createBaseWorkoutMock({
+    id: 3,
+    status: "COMPLETED",
+    isSynced: true,
+    serverId: "server-workout-xyz",
+  }),
+};
+// ----
 
 export const mockWorkoutServerId = "a11fe018-2dfc-456b-8dfb-4656c1d4be12";
 

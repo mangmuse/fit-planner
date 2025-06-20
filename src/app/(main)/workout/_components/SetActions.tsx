@@ -4,16 +4,8 @@ import {
   isWorkoutDetail,
   isWorkoutDetails,
 } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
-import {
-  addSetToRoutine,
-  deleteRoutineDetail,
-  updateLocalRoutineDetail,
-} from "@/services/routineDetail.service";
-import {
-  addSetToWorkout,
-  deleteWorkoutDetail,
-  updateLocalWorkoutDetail,
-} from "@/services/workoutDetail.service";
+import { routineDetailService, workoutDetailService } from "@/lib/di";
+
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 
 type SetActionsProps = {
@@ -29,18 +21,18 @@ const SetActions = ({
 }: SetActionsProps) => {
   const handleAddSet = async () => {
     if (isWorkoutDetail(lastValue)) {
-      await addSetToWorkout(lastValue);
+      await workoutDetailService.addSetToWorkout(lastValue);
     } else {
-      await addSetToRoutine(lastValue);
+      await routineDetailService.addSetToRoutine(lastValue);
     }
     reload();
   };
 
   const handleDeleteSet = async () => {
     if (isWorkoutDetail(lastValue)) {
-      await deleteWorkoutDetail(lastValue.id ?? 0);
+      await workoutDetailService.deleteWorkoutDetail(lastValue.id ?? 0);
     } else {
-      await deleteRoutineDetail(lastValue.id ?? 0);
+      await routineDetailService.deleteRoutineDetail(lastValue.id ?? 0);
     }
     await reorderAfterDelete(lastValue.exerciseOrder);
     reload();

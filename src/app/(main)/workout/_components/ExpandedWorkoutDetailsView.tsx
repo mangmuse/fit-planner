@@ -1,14 +1,10 @@
 import { useSelectedWorkoutGroups } from "@/store/useSelectedWorkoutGroups";
 import ExpandedWorkoutGroup from "@/app/(main)/workout/_components/ExpandedWorkoutGroup";
 import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
-import { WorkoutGroup } from "@/hooks/useLoadDetails";
-import { getExerciseWithLocalId } from "@/services/exercise.service";
-import {
-  getLocalWorkoutDetails,
-  getLocalWorkoutDetailsByWorkoutId,
-} from "@/services/workoutDetail.service";
+
 import { LocalWorkoutDetail } from "@/types/models";
 import { useEffect, useState } from "react";
+import { workoutDetailService } from "@/lib/di";
 
 type ExpandedWorkoutDetailsViewProps = {
   onToggle: () => void;
@@ -37,7 +33,8 @@ const ExpandedWorkoutDetailsView = ({
 
   useEffect(() => {
     (async () => {
-      const details = await getLocalWorkoutDetailsByWorkoutId(workoutId);
+      const details =
+        await workoutDetailService.getLocalWorkoutDetailsByWorkoutId(workoutId);
       const groupedDetails = getGroupedDetails(details);
 
       setExpandedDetails(groupedDetails);

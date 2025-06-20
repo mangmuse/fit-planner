@@ -1,7 +1,7 @@
-import { updateLocalWorkoutDetail } from "@/services/workoutDetail.service";
 import { useState } from "react";
 import Image from "next/image";
 import checkIcon from "public/check.svg";
+import { workoutDetailService } from "@/lib/di";
 
 export type WorkoutCheckboxProps = {
   prevIsDone?: boolean;
@@ -16,7 +16,10 @@ const WorkoutCheckbox = ({ prevIsDone, id, reload }: WorkoutCheckboxProps) => {
     if (!id) return;
     const newValue = !isDone;
     setIsDone(newValue);
-    await updateLocalWorkoutDetail({ isDone: newValue, id });
+    await workoutDetailService.updateLocalWorkoutDetail({
+      isDone: newValue,
+      id,
+    });
     if (reload) reload();
   };
   return (

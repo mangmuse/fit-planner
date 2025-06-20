@@ -3,11 +3,6 @@ import deletIcon from "public/delete.svg";
 import WorkoutCheckbox from "@/app/(main)/workout/_components/WorkoutCheckbox";
 import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import {
-  deleteRoutineDetail,
-  updateLocalRoutineDetail,
-} from "@/services/routineDetail.service";
-import { updateLocalWorkoutDetail } from "@/services/workoutDetail.service";
-import {
   LocalExercise,
   LocalRoutineDetail,
   LocalWorkoutDetail,
@@ -15,6 +10,7 @@ import {
 import Image from "next/image";
 import { ChangeEventHandler, useRef, useState } from "react";
 import SetOrderCell from "@/app/(main)/workout/_components/SetOrderCell";
+import { routineDetailService, workoutDetailService } from "@/lib/di";
 
 type WorkoutItemProps = {
   exercise: LocalExercise;
@@ -52,16 +48,16 @@ const WorkoutItem = ({
       id,
     };
     if (isWorkoutDetail(workoutDetail)) {
-      await updateLocalWorkoutDetail(updateWorkoutInput);
+      await workoutDetailService.updateLocalWorkoutDetail(updateWorkoutInput);
     } else {
-      await updateLocalRoutineDetail(updateWorkoutInput);
+      await routineDetailService.updateLocalRoutineDetail(updateWorkoutInput);
     }
     await reload();
   };
 
   const handleDelete = async () => {
     if (!isWorkoutDetail(workoutDetail) && workoutDetail.id) {
-      await deleteRoutineDetail(workoutDetail.id);
+      await routineDetailService.deleteRoutineDetail(workoutDetail.id);
       await reorderAfterDelete(workoutDetail.exerciseOrder);
 
       await reload();

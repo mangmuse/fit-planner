@@ -1,7 +1,7 @@
 "use client";
 import { TEMP_ROUTINE_ID } from "@/app/(main)/routines/constants";
 import WorkoutPlaceholder from "@/app/(main)/workout/_components/WorkoutPlaceholder";
-import { getLocalRoutineDetails } from "@/services/routineDetail.service";
+import { routineDetailService } from "@/lib/di";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -19,7 +19,7 @@ const RoutineDetailContainer = ({
   const { routineId } = useParams();
   const getDetails = async () => {
     const id = routineId ?? TEMP_ROUTINE_ID;
-    const good = await getLocalRoutineDetails(Number(id));
+    const good = await routineDetailService.getLocalRoutineDetails(Number(id));
   };
 
   useEffect(() => {

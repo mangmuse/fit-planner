@@ -3,6 +3,7 @@ import {
   FETCH_ROUTINES_ERROR,
   POST_ROUTINES_ERROR,
 } from "@/constants/errorMessage";
+import { IRoutineApi } from "@/types/apis";
 import {
   ClientRoutine,
   clientRoutineSchema,
@@ -32,37 +33,39 @@ export type SyncRoutinesToServerResponse = z.infer<
 
 export type FetchRoutinesResponse = z.infer<typeof fetchRoutineSchema>;
 
-export const fetchRoutinesFromServer = async (
-  userId: string
-): Promise<ClientRoutine[]> => {
-  const res = await fetch(`${BASE_URL}/api/routine/${userId}`);
-  if (!res.ok) throw new Error(FETCH_ROUTINES_ERROR);
-  const data = await res.json();
-  const parsedData = validateData<FetchRoutinesResponse>(
-    fetchRoutineSchema,
-    data
-  );
-  const serverRoutines = parsedData.routines;
-  return serverRoutines;
-};
+export class RoutineApi implements IRoutineApi {
+  constructor() {}
 
-export async function postRoutinesToServer(
-  unsynced: LocalRoutine[]
-): Promise<SyncRoutinesToServerResponse> {
-  const res = await fetch(`${BASE_URL}/api/routine/sync`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ unsynced }),
-  });
+  async fetchRoutinesFromServer(userId: string): Promise<ClientRoutine[]> {
+    const res = await fetch(`${BASE_URL}/api/routine/${userId}`);
+    if (!res.ok) throw new Error(FETCH_ROUTINES_ERROR);
+    const data = await res.json();
+    const parsedData = validateData<FetchRoutinesResponse>(
+      fetchRoutineSchema,
+      data
+    );
+    const serverRoutines = parsedData.routines;
+    return serverRoutines;
+  }
 
-  if (!res.ok) throw new Error(POST_ROUTINES_ERROR);
+  async postRoutinesToServer(
+    unsynced: LocalRoutine[]
+  ): Promise<SyncRoutinesToServerResponse> {
+    const res = await fetch(`${BASE_URL}/api/routine/sync`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ unsynced }),
+    });
 
-  const data = await res.json();
+    if (!res.ok) throw new Error(POST_ROUTINES_ERROR);
 
-  const parsedData = validateData<SyncRoutinesToServerResponse>(
-    syncRoutinesToServerResponseSchema,
-    data
-  );
+    const data = await res.json();
 
-  return parsedData;
+    const parsedData = validateData<SyncRoutinesToServerResponse>(
+      syncRoutinesToServerResponseSchema,
+      data
+    );
+
+    return parsedData;
+  }
 }

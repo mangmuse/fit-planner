@@ -2,13 +2,9 @@ import SetActions from "@/app/(main)/workout/_components/SetActions";
 import WorkoutDetailGroupOptions from "@/app/(main)/workout/_components/WorkoutDetailGroupOptions";
 import WorkoutItem from "@/app/(main)/workout/_components/WorkoutItem";
 import WorkoutTableHeader from "@/app/(main)/workout/_components/WorkoutTableHeader";
+import { exerciseService, workoutDetailService } from "@/lib/di";
 
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
-import { getExerciseWithLocalId } from "@/services/exercise.service";
-import {
-  getLatestWorkoutDetailByExerciseId,
-  getWorkoutGroupByWorkoutDetail,
-} from "@/services/workoutDetail.service";
 import {
   LocalExercise,
   LocalRoutineDetail,
@@ -38,15 +34,19 @@ const WorkoutExerciseGroup = ({
   const { openBottomSheet } = useBottomSheet();
   const lastDetail = details[details.length - 1];
   const fetchAndSetExerciseData = async () => {
-    const exerciseData = await getExerciseWithLocalId(details[0].exerciseId);
+    const exerciseData = await exerciseService.getExerciseWithLocalId(
+      details[0].exerciseId
+    );
     setExercise(exerciseData || null);
   };
 
   const getPrevious = async () => {
-    const detail = await getLatestWorkoutDetailByExerciseId(details);
+    const detail =
+      await workoutDetailService.getLatestWorkoutDetailByExerciseId(details);
     if (!detail) return [];
 
-    const workoutDetails = await getWorkoutGroupByWorkoutDetail(detail);
+    const workoutDetails =
+      await workoutDetailService.getWorkoutGroupByWorkoutDetail(detail);
     const completedDetails = workoutDetails
       .filter((detail) => detail.isDone)
       .map((detail, idx) => ({ ...detail, setOrder: idx + 1 }));

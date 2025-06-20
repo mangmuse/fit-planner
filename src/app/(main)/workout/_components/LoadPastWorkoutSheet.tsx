@@ -1,26 +1,9 @@
 "use client;";
 
 import { useSelectedWorkoutGroups } from "@/store/useSelectedWorkoutGroups";
-import {
-  getInitialRoutineDetail,
-  mapPastWorkoutToRoutineDetail,
-} from "@/adapter/routineDetail.adapter";
-import {
-  getInitialWorkoutDetail,
-  mapPastWorkoutToWorkoutDetail,
-} from "@/adapter/workoutDetail.adapter";
 import PastWorkoutList from "@/app/(main)/workout/_components/PastWorkoutList";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
-import { getRoutineByLocalId } from "@/services/routine.service";
-import { addLocalRoutineDetail } from "@/services/routineDetail.service";
-import {
-  getAllWorkouts,
-  getWorkoutByUserIdAndDate,
-} from "@/services/workout.service";
-import {
-  addLocalWorkoutDetail,
-  getLocalWorkoutDetailsByWorkoutIdAndExerciseOrder,
-} from "@/services/workoutDetail.service";
+
 import {
   LocalRoutineDetail,
   LocalWorkout,
@@ -29,6 +12,14 @@ import {
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import {
+  routineDetailAdapter,
+  routineDetailService,
+  routineService,
+  workoutDetailAdapter,
+  workoutDetailService,
+  workoutService,
+} from "@/lib/di";
 
 type LoadPastWorkoutSheetProps = {
   type: "ROUTINE" | "RECORD";
@@ -60,10 +51,11 @@ const LoadPastWorkoutSheet = ({
     // 배치 처리나 JOIN 쿼리로 최적화 필요
     await Promise.all(
       selectedGroups.map(async (group, index) => {
-        const details = await getLocalWorkoutDetailsByWorkoutIdAndExerciseOrder(
-          group.workoutId,
-          group.exerciseOrder
-        );
+        const details =
+          await workoutDetailService.getLocalWorkoutDetailsByWorkoutIdAndExerciseOrder(
+            group.workoutId,
+            group.exerciseOrder
+          );
 
         await Promise.all(
           details.map(async (detail) => {
@@ -74,32 +66,38 @@ const LoadPastWorkoutSheet = ({
                 console.error("userId 또는 date가 없습니다");
                 return;
               }
-              const workout = await getWorkoutByUserIdAndDate(userId, date);
+              const workout = await workoutService.getWorkoutByUserIdAndDate(
+                userId,
+                date
+              );
               if (!workout || !workout.id) {
                 console.error("workout ID가 없습니다");
                 return;
               }
 
-              const newDetail = mapPastWorkoutToWorkoutDetail(
-                detail,
-                workout.id,
-                newExerciseOrder
-              );
-              await addLocalWorkoutDetail(newDetail);
+              const newDetail =
+                workoutDetailAdapter.mapPastWorkoutToWorkoutDetail(
+                  detail,
+                  workout.id,
+                  newExerciseOrder
+                );
+              await workoutDetailService.addLocalWorkoutDetail(newDetail);
             } else if (type === "ROUTINE") {
               if (!routineId) return;
-              const routine = await getRoutineByLocalId(routineId);
+              const routine =
+                await routineService.getRoutineByLocalId(routineId);
               if (!routine || !routine.id) {
                 console.error("루틴 ID가 없습니다");
                 return;
               }
 
-              const newDetail = mapPastWorkoutToRoutineDetail(
-                detail,
-                routine.id,
-                newExerciseOrder
-              );
-              await addLocalRoutineDetail(newDetail);
+              const newDetail =
+                routineDetailAdapter.mapPastWorkoutToRoutineDetail(
+                  detail,
+                  routine.id,
+                  newExerciseOrder
+                );
+              await routineDetailService.addLocalRoutineDetail(newDetail);
             }
           })
         );
@@ -111,7 +109,7 @@ const LoadPastWorkoutSheet = ({
 
   useEffect(() => {
     (async () => {
-      const workouts = await getAllWorkouts(userId ?? "");
+      const workouts = await workoutService.getAllWorkouts(userId ?? "");
 
       const filteredWorkouts = workouts
         .filter((workout) => workout.status !== "EMPTY")

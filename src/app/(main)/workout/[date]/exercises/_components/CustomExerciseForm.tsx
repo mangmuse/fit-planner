@@ -1,7 +1,7 @@
 import TypeFilter from "@/app/(main)/workout/[date]/exercises/_components/TypeFilter";
 import { CATEGORY_OPTIONS } from "@/constants/filters";
+import { exerciseService } from "@/lib/di";
 import { useModal } from "@/providers/contexts/ModalContext";
-import { addLocalExercise } from "@/services/exercise.service";
 import { trim } from "lodash";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
@@ -17,7 +17,7 @@ const CustomExerciseForm = ({ reload }: CustomExerciseFormProps) => {
   const [category, setCategory] = useState<string>(CATEGORY_OPTIONS[0]);
   const handleAddExercise = async () => {
     if (!trim(name) || !category || !userId) return;
-    await addLocalExercise({
+    await exerciseService.addLocalExercise({
       userId,
       name,
       category,

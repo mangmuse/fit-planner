@@ -1,26 +1,8 @@
-import { createWorkoutDetail } from "@/adapter/workoutDetail.adapter";
-import { mockInvalidFetchWorkoutDetailsResponse } from "./../__mocks__/workoutDetail.mock";
 import {
   isWorkoutDetail,
   isWorkoutDetails,
 } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
-import {
-  deleteRoutineDetails,
-  getLocalRoutineDetails,
-  updateLocalRoutineDetail,
-} from "@/services/routineDetail.service";
-import {
-  deleteLocalWorkout,
-  getWorkoutByUserIdAndDate,
-  updateLocalWorkout,
-} from "@/services/workout.service";
-import {
-  addLocalWorkoutDetail,
-  deleteWorkoutDetails,
-  getLocalWorkoutDetails,
-  updateLocalWorkoutDetail,
-} from "@/services/workoutDetail.service";
 import {
   LocalRoutineDetail,
   LocalWorkout,
@@ -29,7 +11,12 @@ import {
 import { use, useEffect, useState } from "react";
 import { useModal } from "@/providers/contexts/ModalContext";
 import { useRouter } from "next/navigation";
-import { deleteLocalRoutine } from "@/services/routine.service";
+import {
+  routineDetailService,
+  routineService,
+  workoutDetailService,
+  workoutService,
+} from "@/lib/di";
 
 type UseLoadDetailsProps = {
   type: "RECORD" | "ROUTINE";
@@ -65,19 +52,24 @@ const useLoadDetails = ({
       setIsInitialLoading(true);
       if (type === "RECORD") {
         if (!userId || !date) return;
-        const details = await getLocalWorkoutDetails(userId, date);
+        const details = await workoutDetailService.getLocalWorkoutDetails(
+          userId,
+          date
+        );
         setAllDetails(details);
         const adjustedGroups = getGroupedDetails(details);
 
         setWorkoutGroups(adjustedGroups);
       } else if (type === "ROUTINE") {
         if (!userId || !routineId) return;
-        const details = await getLocalRoutineDetails(routineId);
+        const details =
+          await routineDetailService.getLocalRoutineDetails(routineId);
         setAllDetails(details);
         const adjustedGroups = getGroupedDetails(details);
         setWorkoutGroups(adjustedGroups);
       }
     } catch (e) {
+      console.error(e);
       setError("운동 세부 정보를 불러오는데 실패했습니다");
     } finally {
       setIsInitialLoading(false);
@@ -90,7 +82,10 @@ const useLoadDetails = ({
 
       let currentWorkout = workout;
       if (!currentWorkout) {
-        const fetchedWorkout = await getWorkoutByUserIdAndDate(userId, date);
+        const fetchedWorkout = await workoutService.getWorkoutByUserIdAndDate(
+          userId,
+          date
+        );
         currentWorkout = fetchedWorkout || null;
         if (!currentWorkout) {
           // 최초 렌더링이나 workout이 아직 생성되지 않은 경우
@@ -100,7 +95,10 @@ const useLoadDetails = ({
       }
       if (!currentWorkout?.id || currentWorkout.status === "COMPLETED") return;
       const newStatus = workoutGroups.length === 0 ? "EMPTY" : "PLANNED";
-      await updateLocalWorkout({ ...currentWorkout, status: newStatus });
+      await workoutService.updateLocalWorkout({
+        ...currentWorkout,
+        status: newStatus,
+      });
     } catch (e) {
       openModal({
         type: "alert",
@@ -126,9 +124,9 @@ const useLoadDetails = ({
             exerciseOrder: detail.exerciseOrder - 1,
           };
           if (isWorkoutDetail(detail)) {
-            return updateLocalWorkoutDetail(updated);
+            return workoutDetailService.updateLocalWorkoutDetail(updated);
           } else {
-            return updateLocalRoutineDetail(updated);
+            return routineDetailService.updateLocalRoutineDetail(updated);
           }
         })
       );
@@ -146,8 +144,8 @@ const useLoadDetails = ({
       async function deleteAll() {
         if (type === "RECORD" && isWorkoutDetails(allDetails) && workout?.id) {
           if (allDetails.length === 0) return;
-          await deleteWorkoutDetails(allDetails);
-          await deleteLocalWorkout(workout.id);
+          await workoutDetailService.deleteWorkoutDetails(allDetails);
+          await workoutService.deleteLocalWorkout(workout.id);
         } else if (
           type === "ROUTINE" &&
           !isWorkoutDetails(allDetails) &&
@@ -158,8 +156,8 @@ const useLoadDetails = ({
             console.error("루틴 ID를 찾을 수 없습니다");
             return;
           }
-          await deleteRoutineDetails(allDetails);
-          await deleteLocalRoutine(routineId);
+          await routineDetailService.deleteRoutineDetails(allDetails);
+          await routineService.deleteLocalRoutine(routineId);
         }
         router.push("/");
         setWorkout(null);
@@ -191,7 +189,7 @@ const useLoadDetails = ({
         id: workout.id,
         status: "COMPLETED",
       };
-      await updateLocalWorkout(updatedWorkout);
+      await workoutService.updateLocalWorkout(updatedWorkout);
 
       // 메인메이지로 이동
       router.push("/");

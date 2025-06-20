@@ -1,16 +1,7 @@
 import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
+import { routineDetailService, workoutDetailService } from "@/lib/di";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { useModal } from "@/providers/contexts/ModalContext";
-import {
-  addLocalRoutineDetailsByWorkoutId,
-  deleteRoutineDetails,
-  getLocalRoutineDetails,
-} from "@/services/routineDetail.service";
-import {
-  addLocalWorkoutDetailsByUserDate,
-  addLocalWorkoutDetailsByWorkoutId,
-  deleteWorkoutDetails,
-} from "@/services/workoutDetail.service";
 import {
   LocalExercise,
   LocalRoutineDetail,
@@ -68,16 +59,22 @@ const useSelectedExercises = ({
   const handleAddDetail = async () => {
     try {
       if (type === "RECORD" && userId && date) {
-        await addLocalWorkoutDetailsByUserDate(userId, date, selectedExercises);
+        await workoutDetailService.addLocalWorkoutDetailsByUserDate(
+          userId,
+          date,
+          selectedExercises
+        );
         router.replace(`/workout/${date}`);
       } else {
         if (!routineId) return;
 
         // routineId로 맞는 detail찾아서 몇개인지 확인해서 startOrder 가져오기
-        const details = await getLocalRoutineDetails(Number(routineId));
+        const details = await routineDetailService.getLocalRoutineDetails(
+          Number(routineId)
+        );
         const startOrder = details.length + 1;
 
-        await addLocalRoutineDetailsByWorkoutId(
+        await routineDetailService.addLocalRoutineDetailsByWorkoutId(
           Number(routineId),
           startOrder,
           selectedExercises
@@ -94,22 +91,22 @@ const useSelectedExercises = ({
       if (!currentDetails || currentDetails.length === 0) return;
       if (isWorkoutDetails(currentDetails)) {
         const { exerciseOrder: startOrder, workoutId } = currentDetails[0];
-        await addLocalWorkoutDetailsByWorkoutId(
+        await workoutDetailService.addLocalWorkoutDetailsByWorkoutId(
           workoutId,
           startOrder,
           selectedExercises
         );
 
-        await deleteWorkoutDetails(currentDetails);
+        await workoutDetailService.deleteWorkoutDetails(currentDetails);
       } else {
         const { exerciseOrder: startOrder, routineId } = currentDetails[0];
-        await addLocalRoutineDetailsByWorkoutId(
+        await routineDetailService.addLocalRoutineDetailsByWorkoutId(
           routineId,
           startOrder,
           selectedExercises
         );
 
-        await deleteRoutineDetails(currentDetails);
+        await routineDetailService.deleteRoutineDetails(currentDetails);
       }
       await reloadDetails?.();
       closeBottomSheet();

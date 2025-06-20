@@ -2,16 +2,10 @@
 import swapIcon from "public/swap.svg";
 import memoIcon from "public/memo.svg";
 import deleteIcon from "public/delete.svg";
-import Image from "next/image";
 import GroupOptionItem from "@/app/(main)/workout/_components/GroupOptionItem";
-import arrowIcon from "public/right-arrow.svg";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
-import {
-  getExerciseWithLocalId,
-  updateLocalExercise,
-} from "@/services/exercise.service";
 import {
   LocalExercise,
   LocalRoutineDetail,
@@ -20,17 +14,13 @@ import {
 import { useModal } from "@/providers/contexts/ModalContext";
 import ExerciseMemo from "@/app/(main)/workout/_components/ExerciseMemo";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
-import {
-  addLocalWorkoutDetailsByUserDate,
-  deleteWorkoutDetail,
-  deleteWorkoutDetails,
-} from "@/services/workoutDetail.service";
 import ExercisesContainer from "@/app/(main)/workout/[date]/exercises/_components/ExercisesContainer";
 import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import {
-  deleteRoutineDetail,
-  deleteRoutineDetails,
-} from "@/services/routineDetail.service";
+  exerciseService,
+  routineDetailService,
+  workoutDetailService,
+} from "@/lib/di";
 
 type WorkoutDetailGroupOptions = {
   exercise: LocalExercise;
@@ -75,9 +65,9 @@ const WorkoutDetailGroupOptions = ({
   };
   const deleteAndLoadDetails = async () => {
     if (isWorkoutDetails(details)) {
-      await deleteWorkoutDetails(details);
+      await workoutDetailService.deleteWorkoutDetails(details);
     } else {
-      await deleteRoutineDetails(details);
+      await routineDetailService.deleteRoutineDetails(details);
     }
     await reorderAfterDelete(details[0].exerciseOrder);
     await reload();
@@ -121,7 +111,7 @@ const WorkoutDetailGroupOptions = ({
   useEffect(() => {
     if (!loadExercises) return;
     const updateUnit = async () => {
-      await updateLocalExercise({ ...exercise, unit });
+      await exerciseService.updateLocalExercise({ ...exercise, unit });
       await loadExercises();
     };
     updateUnit();

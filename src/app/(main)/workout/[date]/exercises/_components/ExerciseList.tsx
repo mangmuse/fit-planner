@@ -1,5 +1,4 @@
 import ExerciseItem from "@/app/(main)/workout/[date]/exercises/_components/ExerciseItem";
-import { ExerciseQueryParams } from "@/types/dto/exercise.dto";
 import { ClientExercise, ClientUser, LocalExercise } from "@/types/models";
 
 type ExerciseListProps = {

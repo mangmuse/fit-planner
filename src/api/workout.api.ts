@@ -10,6 +10,7 @@ import {
   clientWorkoutSchema,
 } from "@/types/models";
 import { validateData } from "@/util/validateData";
+import { IWorkoutApi } from "@/types/apis";
 
 export const syncWorkoutsToServerResponseSchema = z.object({
   success: z.boolean(),
@@ -36,37 +37,38 @@ export type SyncWorkoutsToServerResponse = z.infer<
 
 export type FetchWorkoutsResponse = z.infer<typeof fetchWorkoutSchema>;
 
-export const fetchWorkoutsFromServer = async (
-  userId: string
-): Promise<ClientWorkout[]> => {
-  const res = await fetch(`${BASE_URL}/api/workout/${userId}`);
-  if (!res.ok) throw new Error(FETCH_WORKOUTS_ERROR);
-  const data = await res.json();
-  const parsedData = validateData<FetchWorkoutsResponse>(
-    fetchWorkoutSchema,
-    data
-  );
-  const serverWorkouts = parsedData.workouts;
-  return serverWorkouts;
-};
+export class WorkoutApi implements IWorkoutApi {
+  constructor() {}
+  async fetchWorkoutsFromServer(userId: string): Promise<ClientWorkout[]> {
+    const res = await fetch(`${BASE_URL}/api/workout/${userId}`);
+    if (!res.ok) throw new Error(FETCH_WORKOUTS_ERROR);
+    const data = await res.json();
+    const parsedData = validateData<FetchWorkoutsResponse>(
+      fetchWorkoutSchema,
+      data
+    );
+    const serverWorkouts = parsedData.workouts;
+    return serverWorkouts;
+  }
 
-export async function postWorkoutsToServer(
-  unsynced: LocalWorkout[]
-): Promise<SyncWorkoutsToServerResponse> {
-  const res = await fetch(`${BASE_URL}/api/workout/sync`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ unsynced }),
-  });
+  async postWorkoutsToServer(
+    unsynced: LocalWorkout[]
+  ): Promise<SyncWorkoutsToServerResponse> {
+    const res = await fetch(`${BASE_URL}/api/workout/sync`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ unsynced }),
+    });
 
-  if (!res.ok) throw new Error(POST_WORKOUTS_ERROR);
+    if (!res.ok) throw new Error(POST_WORKOUTS_ERROR);
 
-  const data = await res.json();
+    const data = await res.json();
 
-  const parsedData = validateData<SyncWorkoutsToServerResponse>(
-    syncWorkoutsToServerResponseSchema,
-    data
-  );
+    const parsedData = validateData<SyncWorkoutsToServerResponse>(
+      syncWorkoutsToServerResponseSchema,
+      data
+    );
 
-  return parsedData;
+    return parsedData;
+  }
 }

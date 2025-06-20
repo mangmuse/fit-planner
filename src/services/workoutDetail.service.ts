@@ -1,348 +1,125 @@
-import { WorkoutDetail } from "@prisma/client";
-import { LocalWorkout, LocalWorkoutDetail } from "./../types/models";
+import { IWorkoutDetailAdapter } from "@/types/adapters";
+import { IWorkoutDetailApi } from "@/types/apis";
+import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 import {
-  fetchWorkoutDetailsFromServer,
-  postWorkoutDetailsToServer,
-} from "@/api/workoutDetail.api";
-import { db } from "@/lib/db";
+  IWorkoutDetailRepository,
+  IWorkoutRepository,
+} from "@/types/repositories";
 import {
-  convertLocalWorkoutDetailToServer,
-  getAddSetToWorkoutByLastSet,
-  getNewWorkoutDetails,
-  getStartExerciseOrder,
-} from "@/adapter/workoutDetail.adapter";
-import { getExerciseWithServerId } from "@/services/exercise.service";
-import {
-  addLocalWorkout,
-  getWorkoutByUserIdAndDate,
-  getWorkoutWithServerId,
-} from "@/services/workout.service";
-import { ClientWorkoutDetail, LocalRoutineDetail } from "@/types/models";
-import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
+  IExerciseService,
+  IWorkoutDetailCoreService,
+  IWorkoutDetailQueryService,
+  IWorkoutDetailService,
+  IWorkoutDetailSyncService,
+} from "@/types/services";
 
-export type NewWorkoutDetailInput = {
-  workoutId: number;
-  startOrder: number;
-};
+export class WorkoutDetailService implements IWorkoutDetailService {
+  constructor(
+    private readonly core: IWorkoutDetailCoreService,
+    private readonly query: IWorkoutDetailQueryService,
+    private readonly sync: IWorkoutDetailSyncService
+  ) {}
 
-type AddWorkoutDetailsOptions = {
-  workoutId?: number;
-  startOrder?: number;
-};
+  // --- Core ---
 
-export const overwriteWithServerWorkoutDetails = async (
-  userId: string
-): Promise<void> => {
-  const serverData: ClientWorkoutDetail[] =
-    await fetchWorkoutDetailsFromServer(userId);
+  getLocalWorkoutDetails(
+    userId: string,
+    date: string
+  ): Promise<LocalWorkoutDetail[]> {
+    return this.core.getLocalWorkoutDetails(userId, date);
+  }
 
-  const toInsert = await Promise.all(
-    serverData.map(async (data) => {
-      const exercise = await getExerciseWithServerId(data.exerciseId);
+  getLocalWorkoutDetailsByWorkoutId(
+    workoutId: number
+  ): Promise<LocalWorkoutDetail[]> {
+    return this.core.getLocalWorkoutDetailsByWorkoutId(workoutId);
+  }
 
-      const workout = await getWorkoutWithServerId(data.workoutId);
+  getStartExerciseOrder(workoutId: number): Promise<number> {
+    return this.core.getStartExerciseOrder(workoutId);
+  }
 
-      if (!exercise?.id || !workout?.id)
-        throw new Error("exerciseId 또는 workoutId가 없습니다");
-      return {
-        ...data,
-        id: undefined,
-        serverId: data.id,
-        isSynced: true,
-        exerciseId: exercise.id,
-        workoutId: workout.id,
-      };
-    })
-  );
-  await db.workoutDetails.clear();
-  await db.workoutDetails.bulkAdd(toInsert);
-};
-export async function addLocalWorkoutDetailsByUserDate(
-  userId: string,
-  date: string,
-  selectedExercises: { id: number | undefined; name: string }[]
-): Promise<number> {
-  try {
-    const workout = await addLocalWorkout(userId, date);
-    const workoutId = workout.id!;
+  addLocalWorkoutDetail(detailInput: LocalWorkoutDetail): Promise<void> {
+    return this.core.addLocalWorkoutDetail(detailInput);
+  }
 
-    const startOrder = await getStartExerciseOrder(workoutId);
-
-    const newDetails = getNewWorkoutDetails(selectedExercises, {
+  addLocalWorkoutDetailsByWorkoutId(
+    workoutId: number,
+    startOrder: number,
+    selectedExercises: { id: number; name: string }[]
+  ): Promise<number> {
+    return this.core.addLocalWorkoutDetailsByWorkoutId(
       workoutId,
       startOrder,
-    });
-
-    const workoutDetails = await db.workoutDetails.bulkAdd(newDetails);
-    return workoutDetails;
-  } catch (e) {
-    throw new Error("WorkoutDetails 추가에 실패했습니다");
+      selectedExercises
+    );
   }
-}
 
-export const addLocalWorkoutDetail = async (
-  detailInput: LocalWorkoutDetail
-): Promise<void> => {
-  try {
-    await db.workoutDetails.add(detailInput);
-  } catch (e) {
-    throw new Error("WorkoutDetail 추가에 실패했습니다");
+  addSetToWorkout(lastSet: LocalWorkoutDetail): Promise<number> {
+    return this.core.addSetToWorkout(lastSet);
   }
-};
 
-export async function addLocalWorkoutDetailsByWorkoutId(
-  workoutId: number,
-  startOrder: number,
-  selectedExercises: { id: number; name: string }[]
-): Promise<number> {
-  try {
-    if (startOrder == null) {
-      startOrder = await getStartExerciseOrder(workoutId);
-    }
-    const newDetails = getNewWorkoutDetails(selectedExercises, {
+  addLocalWorkoutDetailsByUserDate(
+    userId: string,
+    date: string,
+    selectedExercises: { id: number | undefined; name: string }[]
+  ): Promise<number> {
+    return this.core.addLocalWorkoutDetailsByUserDate(
+      userId,
+      date,
+      selectedExercises
+    );
+  }
+
+  updateLocalWorkoutDetail(
+    updateWorkoutInput: Partial<LocalWorkoutDetail>
+  ): Promise<void> {
+    return this.core.updateLocalWorkoutDetail(updateWorkoutInput);
+  }
+
+  updateWorkoutDetails(updatedDetails: LocalWorkoutDetail[]): Promise<void> {
+    return this.core.updateWorkoutDetails(updatedDetails);
+  }
+
+  deleteWorkoutDetail(lastSetId: number): Promise<void> {
+    return this.core.deleteWorkoutDetail(lastSetId);
+  }
+
+  deleteWorkoutDetails(details: LocalWorkoutDetail[]): Promise<void> {
+    return this.core.deleteWorkoutDetails(details);
+  }
+
+  // --- Query ---
+
+  getWorkoutGroupByWorkoutDetail(
+    detail: LocalWorkoutDetail
+  ): Promise<LocalWorkoutDetail[]> {
+    return this.query.getWorkoutGroupByWorkoutDetail(detail);
+  }
+
+  getLocalWorkoutDetailsByWorkoutIdAndExerciseOrder(
+    workoutId: number,
+    exerciseOrder: number
+  ): Promise<LocalWorkoutDetail[]> {
+    return this.query.getLocalWorkoutDetailsByWorkoutIdAndExerciseOrder(
       workoutId,
-      startOrder,
-    });
-    const workoutDetails = await db.workoutDetails.bulkAdd(newDetails);
+      exerciseOrder
+    );
+  }
 
-    return workoutDetails;
-  } catch (e) {
-    throw new Error("WorkoutDetails 추가에 실패했습니다");
+  getLatestWorkoutDetailByExerciseId(
+    details: LocalWorkoutDetail[] | LocalRoutineDetail[]
+  ): Promise<LocalWorkoutDetail | void> {
+    return this.query.getLatestWorkoutDetailByExerciseId(details);
+  }
+
+  // --- Sync Service ---
+
+  overwriteWithServerWorkoutDetails(userId: string): Promise<void> {
+    return this.sync.overwriteWithServerWorkoutDetails(userId);
+  }
+
+  syncToServerWorkoutDetails(): Promise<void> {
+    return this.sync.syncToServerWorkoutDetails();
   }
 }
-
-export const getLocalWorkoutDetails = async (
-  userId: string,
-  date: string
-): Promise<LocalWorkoutDetail[]> => {
-  try {
-    let workout = await getWorkoutByUserIdAndDate(userId, date);
-
-    if (!workout) {
-      workout = await addLocalWorkout(userId, date);
-    }
-
-    if (!workout?.id) throw new Error("workoutId를 가져오지 못했습니다");
-
-    const details = await db.workoutDetails
-      .where("workoutId")
-      .equals(workout.id)
-      .toArray();
-
-    return details;
-  } catch (e) {
-    throw new Error("WorkoutDetails를 불러오는 데 실패했습니다");
-  }
-};
-
-export const getLocalWorkoutDetailsByWorkoutId = async (
-  workoutId: number
-): Promise<LocalWorkoutDetail[]> => {
-  if (!workoutId) throw new Error("workoutId가 없습니다");
-  try {
-    const details = await db.workoutDetails
-      .where("workoutId")
-      .equals(workoutId)
-      .toArray();
-    return details;
-  } catch (e) {
-    throw new Error("WorkoutDetails를 불러오는 데 실패했습니다");
-  }
-};
-
-export const getLocalWorkoutDetailsByWorkoutIdAndExerciseOrder = async (
-  workoutId: number,
-  exerciseOrder: number
-): Promise<LocalWorkoutDetail[]> => {
-  try {
-    return db.workoutDetails
-      .where("workoutId")
-      .equals(workoutId)
-      .and((detail) => detail.exerciseOrder === exerciseOrder)
-      .toArray();
-  } catch (e) {
-    throw new Error("WorkoutDetails를 불러오는 데 실패했습니다");
-  }
-};
-export const updateLocalWorkoutDetail = async (
-  updateWorkoutInput: Partial<LocalWorkoutDetail>
-): Promise<void> => {
-  if (!updateWorkoutInput.id) throw new Error("id가 없습니다");
-  try {
-    await db.workoutDetails.update(updateWorkoutInput.id, updateWorkoutInput);
-  } catch (e) {
-    throw new Error("WorkoutDetail 업데이트에 실패했습니다");
-  }
-};
-
-export const addSetToWorkout = async (
-  lastSet: LocalWorkoutDetail
-): Promise<number> => {
-  try {
-    const addSetInput = getAddSetToWorkoutByLastSet(lastSet);
-    const newSet = await db.workoutDetails.add(addSetInput);
-    return newSet;
-  } catch (e) {
-    throw new Error("WorkoutDetail 추가에 실패했습니다");
-  }
-};
-
-export const deleteWorkoutDetail = async (lastSetId: number): Promise<void> => {
-  try {
-    await db.workoutDetails.delete(lastSetId);
-  } catch (e) {
-    throw new Error("WorkoutDetail 삭제에 실패했습니다");
-  }
-};
-
-export const deleteWorkoutDetails = async (
-  details: LocalWorkoutDetail[]
-): Promise<void> => {
-  try {
-    await Promise.all(
-      details.map(async (detail) => {
-        if (!detail.id) throw new Error("id가 없습니다");
-        await db.workoutDetails.delete(detail.id);
-      })
-    );
-  } catch (e) {
-    throw new Error("WorkoutDetails 삭제에 실패했습니다");
-  }
-};
-
-export const syncToServerWorkoutDetails = async (): Promise<void> => {
-  const all = await db.workoutDetails.toArray();
-
-  const unsynced = all.filter((detail) => !detail.isSynced);
-  const mappedUnsynced = await convertLocalWorkoutDetailToServer(unsynced);
-  const data = await postWorkoutDetailsToServer(mappedUnsynced);
-
-  if (data.updated.length === 0) return;
-
-  if (data.updated) {
-    for (const updated of data.updated) {
-      const exercise = await getExerciseWithServerId(updated.exerciseId);
-      const workout = await getWorkoutWithServerId(updated.workoutId);
-      await db.workoutDetails.update(updated.localId, {
-        serverId: updated.serverId,
-        isSynced: true,
-        exerciseId: exercise?.id,
-        workoutId: workout?.id,
-      });
-    }
-  }
-};
-
-const getAllDoneDetailsExceptCurrent = async (
-  details: LocalWorkoutDetail[] | LocalRoutineDetail[]
-): Promise<LocalWorkoutDetail[]> => {
-  try {
-    const isWorkout = isWorkoutDetails(details);
-    let candidates = await db.workoutDetails
-      .where("exerciseId")
-      .equals(details[0].exerciseId)
-      .and((detail) => detail.isDone === true)
-      .toArray();
-    if (isWorkout) {
-      const currentWorkoutId = details[0].workoutId;
-      candidates = candidates.filter((d) => d.workoutId !== currentWorkoutId);
-    }
-    return candidates;
-  } catch (e) {
-    throw new Error("WorkoutDetails를 불러오는 데 실패했습니다");
-  }
-};
-
-const pickMostRecentDetailBeforeDate = async (
-  candidates: LocalWorkoutDetail[],
-  referenceDate?: Date
-): Promise<LocalWorkoutDetail | undefined> => {
-  if (!candidates.length) return undefined;
-
-  try {
-    const workoutIdToDateMap = new Map<number, string>();
-    for (const detail of candidates) {
-      if (!workoutIdToDateMap.has(detail.workoutId)) {
-        const w = await db.workouts.get(detail.workoutId);
-        if (w?.date) {
-          workoutIdToDateMap.set(detail.workoutId, w.date);
-        }
-      }
-    }
-
-    let filtered = candidates;
-    if (referenceDate) {
-      filtered = filtered.filter((d) => {
-        const dateString = workoutIdToDateMap.get(d.workoutId);
-        if (!dateString) return false;
-        const workoutDate = new Date(dateString);
-        return workoutDate <= referenceDate;
-      });
-    }
-    if (!filtered.length) return undefined;
-    filtered.sort((a, b) => {
-      const dateA = workoutIdToDateMap.get(a.workoutId) || "";
-      const dateB = workoutIdToDateMap.get(b.workoutId) || "";
-      return dateB.localeCompare(dateA);
-    });
-    return filtered[0];
-  } catch (e) {
-    throw new Error("가장 최근 WorkoutDetail을 찾는 데 실패했습니다");
-  }
-};
-
-/**
- * 주어진 details(현재 워크아웃 또는 루틴 디테일 배열)에서
- *   1. exerciseId가 같고 isDone이 true인 모든 LocalWorkoutDetail을 가져온 뒤,
- *   2. “현재 디테일이 속한 워크아웃의 날짜” 이전(혹은 같음)의 것만 남긴 다음,
- *   3. 그중 가장 최근 날짜(내림차순 정렬)인 하나를 반환
- *
- * @param details 현재 화면에 표시된 디테일 그룹 (LocalWorkoutDetail[] or LocalRoutineDetail[])
- * @returns 가장 최신인 LocalWorkoutDetail 혹은, 없으면 undefined
- */
-export const getLatestWorkoutDetailByExerciseId = async (
-  details: LocalWorkoutDetail[] | LocalRoutineDetail[]
-): Promise<LocalWorkoutDetail | void> => {
-  try {
-    const isWorkout = isWorkoutDetails(details);
-    const candidates = await getAllDoneDetailsExceptCurrent(details);
-    if (!candidates.length) return;
-    let referenceDate: Date | undefined = undefined;
-    if (isWorkout) {
-      const currentWorkout = await db.workouts.get(details[0].workoutId);
-      if (!currentWorkout?.date) return;
-      referenceDate = new Date(currentWorkout.date);
-    }
-    const mostRecent = await pickMostRecentDetailBeforeDate(
-      candidates,
-      referenceDate
-    );
-    return mostRecent;
-  } catch (e) {
-    throw new Error("가장 최근 WorkoutDetail을 찾는 데 실패했습니다");
-  }
-};
-
-export const getWorkoutGroupByWorkoutDetail = async (
-  detail: LocalWorkoutDetail
-): Promise<LocalWorkoutDetail[]> => {
-  try {
-    return db.workoutDetails
-      .where("workoutId")
-      .equals(detail.workoutId)
-      .and((d) => d.exerciseOrder === detail.exerciseOrder)
-      .toArray();
-  } catch (e) {
-    throw new Error("WorkoutDetails를 불러오는 데 실패했습니다");
-  }
-};
-
-export const updateWorkoutDetails = async (
-  updatedDetails: LocalWorkoutDetail[]
-) => {
-  try {
-    await db.workoutDetails.bulkPut(updatedDetails);
-  } catch (e) {
-    throw new Error("WorkoutDetails 업데이트에 실패했습니다");
-  }
-};

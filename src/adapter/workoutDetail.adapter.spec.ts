@@ -1,336 +1,369 @@
-jest.mock("@/services/exercise.service", () => ({
-  getExerciseWithServerId: jest.fn().mockImplementation((serverId: number) => {
-    const exercise = mockServerResponseExercises.find(
-      (ex) => ex.id === serverId
-    );
-    return exercise ? { ...exercise, id: exercise.id - 100 } : undefined;
-  }),
-  getExerciseWithLocalId: jest.fn().mockImplementation((localId: number) => {
-    return mockLocalExercises
-      .map((ex) => ({ ...ex, serverId: ex.id ? +ex.id + 100 : null }))
-      .find((ex) => ex.id === localId);
-  }),
-}));
-
-jest.mock("@/services/workout.service", () => ({
-  getWorkoutWithServerId: jest.fn().mockImplementation((serverId: string) => {
-    return mockLocalWorkouts.find((w) => w.serverId === serverId);
-  }),
-  getWorkoutWithLocalId: jest.fn().mockImplementation((localId: number) => {
-    return mockLocalWorkouts.find((w) => w.id === localId);
-  }),
-}));
-
-jest.mock("@/lib/db");
+// jest.mock("@/services/exercise.service.ts");
+// jest.mock("@/services/workout.service.ts");
+import { createMockExercise, mockExercise } from "@/__mocks__/exercise.mock";
+import { mockRoutineDetail } from "@/__mocks__/routineDetail.mock";
+import { mockWorkout } from "@/__mocks__/workout.mock";
+import {
+  createBaseWorkoutDetailMock,
+  mockWorkoutDetail,
+} from "@/__mocks__/workoutDetail.mock";
 
 import {
-  mockLocalExercises,
-  mockServerResponseExercises,
-} from "@/__mocks__/exercise.mock";
-import { mockLocalWorkouts } from "@/__mocks__/workout.mock";
-import { mockLocalWorkoutDetails } from "@/__mocks__/workoutDetail.mock";
+  LocalExercise,
+  LocalRoutineDetail,
+  LocalWorkout,
+  LocalWorkoutDetail,
+} from "@/types/models";
 import {
-  convertLocalWorkoutDetailToServer,
-  convertServerWorkoutDetailToLocal,
-  createWorkoutDetail,
-  getAddSetToWorkoutByLastSet,
-  getNewWorkoutDetails,
-  getStartExerciseOrder,
-} from "@/adapter/workoutDetail.adapter";
-import { db } from "@/lib/db";
+  exerciseService,
+  workoutDetailAdapter,
+  workoutService,
+} from "@/lib/di";
 
-import { LocalWorkoutDetail } from "@/types/models";
+describe("getInitialWorkoutDetail", () => {
+  it("초기 workout detail 객체를 반환한다", () => {
+    const result = workoutDetailAdapter.getInitialWorkoutDetail();
 
-const lastSet = {
-  id: 1,
-  exerciseId: 3,
-  exerciseName: "스쿼트",
-  exerciseOrder: 1,
-  isDone: true,
-  isSynced: true,
-  reps: 0,
-  weight: 0,
-  rpe: 7,
-  setOrder: 1,
-  setType: "NORMAL",
-  serverId: "mock-id",
-  workoutId: 1,
-  createdAt: "2025-02-11T02:50:05.917Z",
-};
-
-describe("createDetail", () => {
-  const { exerciseName, exerciseId, exerciseOrder, setOrder, workoutId } =
-    lastSet;
-  const errorMessage =
-    "exerciseName, exerciseId, exerciseOrder, setOrder, workoutId 는 필수 입력사항입니다.";
-
-  describe("입력된 모든 필드가 반환 객체에 포함된다", () => {
-    it("모든 필드를 입력한 경우", () => {
-      const newDetail = createWorkoutDetail(lastSet);
-      expect(newDetail).toEqual(lastSet);
+    expect(result).toEqual({
+      serverId: null,
+      weight: 0,
+      rpe: null,
+      reps: 0,
+      isDone: false,
+      isSynced: false,
+      setOrder: 1,
+      exerciseOrder: 1,
+      setType: "NORMAL",
+      exerciseName: "",
+      exerciseId: 0,
+      workoutId: 0,
+      createdAt: expect.any(String),
     });
-
-    it("필수 항목만 입력한 경우", () => {
-      const newDetail = createWorkoutDetail({
-        exerciseName,
-        exerciseId,
-        exerciseOrder,
-        setOrder,
-        workoutId,
-      });
-
-      expect(newDetail).not.toEqual(lastSet);
-      expect(newDetail).toMatchObject({
-        exerciseName,
-        exerciseId,
-        exerciseOrder,
-        setOrder,
-        workoutId,
-      });
-    });
-  });
-
-  it("exerciseName, exerciseId, exerciseOrder, setOrder, workoutId 를 입력하지 않으면 에러를 던진다", () => {
-    // exerciseName X
-    expect(() =>
-      createWorkoutDetail({
-        exerciseName,
-        exerciseId,
-        exerciseOrder,
-        workoutId,
-      })
-    ).toThrow(errorMessage);
-
-    // exerciseId X
-    expect(() =>
-      createWorkoutDetail({
-        exerciseName,
-        exerciseId,
-        setOrder,
-        workoutId,
-      })
-    ).toThrow(errorMessage);
-
-    // exerciseOrder X
-    expect(() =>
-      createWorkoutDetail({
-        exerciseName,
-        exerciseOrder,
-        setOrder,
-        workoutId,
-      })
-    ).toThrow(errorMessage);
-
-    // setOrder X
-    expect(() =>
-      createWorkoutDetail({
-        exerciseId,
-        exerciseOrder,
-        setOrder,
-        workoutId,
-      })
-    ).toThrow(errorMessage);
-
-    // workoutId X
-    expect(() =>
-      createWorkoutDetail({
-        exerciseName,
-        exerciseId,
-        exerciseOrder,
-        setOrder,
-      })
-    ).toThrow(errorMessage);
-  });
-
-  describe("입력하지 않은 필드의 기본값", () => {
-    const detail = createWorkoutDetail({
-      exerciseName,
-      exerciseId,
-      exerciseOrder,
-      setOrder,
-      workoutId,
-    });
-
-    it("serverId", () => expect(detail.serverId).toBe(null));
-
-    it("weight", () => expect(detail.weight).toBe(0));
-
-    it("rpe", () => expect(detail.rpe).toBe(null));
-
-    it("reps", () => expect(detail.reps).toBe(0));
-
-    it("isDone", () => expect(detail.isDone).toBe(false));
-
-    it("isSynced", () => expect(detail.isSynced).toBe(false));
-
-    it("setOrder", () => expect(detail.setOrder).toBe(1));
-
-    it("exerciseOrder", () => expect(detail.exerciseOrder).toBe(1));
-
-    it("createdAt", () => expect(typeof detail.createdAt).toBe("string"));
   });
 });
 
-describe("getAddSetInputByLastSet", () => {
-  it("반환값의 isSynced는 false이다", () => {
-    const result = getAddSetToWorkoutByLastSet(lastSet);
+describe("createWorkoutDetail", () => {
+  const override: Partial<LocalWorkoutDetail> = {
+    exerciseName: "테스트 운동",
+    exerciseId: 2,
+    exerciseOrder: 2,
+    setOrder: 2,
+    workoutId: 2,
+  };
+  it("초기 workoutDetail 객체에 필요한 부분만 override 하여 반환한다", () => {
+    const initialDetailMock = createBaseWorkoutDetailMock();
+    jest
+      .spyOn(workoutDetailAdapter, "getInitialWorkoutDetail")
+      .mockReturnValue(initialDetailMock);
+    const result = workoutDetailAdapter.createWorkoutDetail(override);
+    const expected = { ...initialDetailMock, ...override };
 
-    expect(lastSet.isSynced).toBe(true);
-    expect(result.isSynced).toBe(false);
+    expect(result).toEqual(expected);
   });
-  it("반환값의 isDone은 false이다", () => {
-    const result = getAddSetToWorkoutByLastSet(lastSet);
 
-    expect(lastSet.isDone).toBe(true);
-    expect(result.isDone).toBe(false);
-  });
-  it("반환값의 setOrder는 입력값의 setOrder + 1 이다", () => {
-    const result = getAddSetToWorkoutByLastSet(lastSet);
-
-    expect(lastSet.setOrder).toBe(1);
-    expect(result.setOrder).toBe(2);
-  });
-  it("반환값의 id는 undefined, serverId는 null이다", () => {
-    const result = getAddSetToWorkoutByLastSet(lastSet);
-
-    // id
-    expect(lastSet.id).toBe(1);
-    expect(result.id).toBe(undefined);
-
-    // serverId
-    expect(lastSet.serverId).toBe("mock-id");
-    expect(result.serverId).toBe(null);
-  });
-  it("반환값의 rpe는 0이다", () => {
-    const result = getAddSetToWorkoutByLastSet(lastSet);
-
-    expect(lastSet.rpe).toBe(7);
-    expect(result.rpe).toBe(0);
-  });
-  it("반환값의 weight, reps, exerciseOrder, exerciseName, exerciseId 프로퍼티는 입력값과 동일하다", () => {
-    const result = getAddSetToWorkoutByLastSet(lastSet);
-
-    //weight
-    expect(result.weight).toBe(lastSet.weight);
-
-    //reps
-    expect(result.reps).toBe(lastSet.reps);
-
-    //exerciseOrder
-    expect(result.exerciseOrder).toBe(lastSet.exerciseOrder);
-
-    //exerciseName
-    expect(result.exerciseName).toBe(lastSet.exerciseName);
-
-    //exerciseId
-    expect(result.exerciseId).toBe(lastSet.exerciseId);
-  });
-});
-
-describe("getNewDetails", () => {
-  const selectedExercises = [
-    { id: 1, name: "푸시업" },
-    { id: 2, name: "플랭크" },
-    { id: 3, name: "스쿼트" },
+  const missingPropertyCases = [
+    { propertyName: "exerciseName" }, //
+    { propertyName: "exerciseId" },
+    { propertyName: "exerciseOrder" },
+    { propertyName: "setOrder" },
+    { propertyName: "workoutId" },
   ];
 
-  it("반환받는 배열 내부의 각 아이템의 exerciseOrder 는 startOrder + index 이다", () => {
-    const startOrder = 1;
-    const newDetails = getNewWorkoutDetails(selectedExercises, {
-      workoutId: 1,
-      startOrder,
-    });
-    newDetails.map((detail, idx) => {
-      expect(detail.exerciseOrder).toBe(startOrder + idx);
-    });
+  it.each(missingPropertyCases)(
+    "$PropertyName 속성이 없으면 에러를 던져야 한다",
+    ({ propertyName }) => {
+      const invalidOverride = { ...override };
+      delete invalidOverride[propertyName as keyof typeof invalidOverride];
+      expect(() => {
+        workoutDetailAdapter.createWorkoutDetail(invalidOverride);
+      }).toThrow(
+        "exerciseName, exerciseId, exerciseOrder, setOrder, workoutId 는 필수 입력사항입니다."
+      );
+    }
+  );
+});
+
+describe("mapPastWorkoutToWorkoutDetail", () => {
+  let pastDetail: LocalWorkoutDetail;
+  let targetWorkoutId: number;
+  let newExerciseOrder: number;
+  let initialDetail: LocalWorkoutDetail;
+  beforeEach(() => {
+    pastDetail = { ...mockWorkoutDetail.past };
+    targetWorkoutId = 999;
+    newExerciseOrder = 10;
+    initialDetail = mockWorkoutDetail.createInput();
+
+    jest
+      .spyOn(workoutDetailAdapter, "getInitialWorkoutDetail")
+      .mockReturnValue(initialDetail);
+  });
+  it("초기 workoutDetail 객체에 pastWorkoutDetail을 덮어씌워 반환한다", () => {
+    const result = workoutDetailAdapter.mapPastWorkoutToWorkoutDetail(
+      pastDetail,
+      targetWorkoutId,
+      newExerciseOrder
+    );
+
+    // 과거 디테일이 잘 복사 됐는지
+    expect(result.exerciseId).toBe(pastDetail.exerciseId);
+    expect(result.exerciseName).toBe(pastDetail.exerciseName);
+    expect(result.weight).toBe(pastDetail.weight);
+    expect(result.reps).toBe(pastDetail.reps);
+    expect(result.rpe).toBe(pastDetail.rpe);
+    expect(result.setType).toBe(pastDetail.setType);
+    expect(result.setOrder).toBe(pastDetail.setOrder);
+
+    // 초기화 되어야하는 속성이 제대로 초기화 됐는지
+    expect(result.isDone).toBe(false);
+    expect(result.isSynced).toBe(false);
+    expect(result.serverId).toBeNull();
+    expect(result.id).toBeUndefined();
+    expect(result.createdAt).toBe(initialDetail.createdAt);
+  });
+
+  it("weight 또는 reps가 0인경우 결과에도 0이 올바르게 복사된다", () => {
+    const mappedPast = { ...pastDetail, weight: 0, reps: 0 };
+    const result = workoutDetailAdapter.mapPastWorkoutToWorkoutDetail(
+      mappedPast,
+      targetWorkoutId,
+      newExerciseOrder
+    );
+    expect(result.reps).toBe(0);
+    expect(result.weight).toBe(0);
   });
 });
 
-describe("convertLocalWorkoutDetailToServer", () => {
-  it("should ", async () => {
-    const localDetails: LocalWorkoutDetail[] = mockLocalWorkoutDetails
-      .filter(
-        (detail): detail is typeof detail & { id: number } =>
-          detail.id !== undefined
-      )
-      .map((detail) => ({
-        ...detail,
-        workoutId: detail.id,
-        exerciseId: detail.exerciseId - 100,
-      }));
+describe("getAddSetToWorkoutByLastSet", () => {
+  it("초기 workoutDetail 객체에 인자로 받은 디테일의 일부를 올바르게 덮어씌워 반환한다", () => {
+    const lastSet = { ...mockWorkoutDetail.past };
+    const createDetailSpy = jest.spyOn(
+      workoutDetailAdapter,
+      "createWorkoutDetail"
+    );
+    workoutDetailAdapter.getAddSetToWorkoutByLastSet(lastSet);
 
-    const serverDetails = await convertLocalWorkoutDetailToServer(localDetails);
+    expect(createDetailSpy).toHaveBeenCalledTimes(1);
 
-    serverDetails.forEach((converted, i) => {
-      const {
-        exerciseId: localExerciseId,
-        workoutId: localWorkoutId,
-        ...restLocalDetail
-      } = localDetails[i];
-      const {
-        exerciseId: convertedExerciseId,
-        workoutId: convertedworkoutId,
-        ...restConvertedDetail
-      } = converted;
+    expect(createDetailSpy).toHaveBeenCalledWith({
+      // 복사되어야 하는 속성
+      exerciseId: lastSet.exerciseId,
+      exerciseName: lastSet.exerciseName,
+      exerciseOrder: lastSet.exerciseOrder,
+      setType: lastSet.setType,
+      weight: lastSet.weight,
+      reps: lastSet.reps,
+      workoutId: lastSet.workoutId,
 
-      expect(convertedExerciseId).not.toBe(localExerciseId);
-
-      expect(convertedworkoutId).not.toBe(localWorkoutId);
-
-      // 그 외의 데이터는 변동이 없다
-      expect({ ...restLocalDetail }).toMatchObject({ ...restConvertedDetail });
+      // 초기화 되어야하는 속성
+      rpe: 0,
+      serverId: null,
+      isSynced: false,
+      isDone: false,
+      setOrder: lastSet.setOrder + 1,
+      createdAt: expect.any(String),
     });
+  });
+
+  it("lastSet의 createdAt이 아닌, 함수 호출 시점의 새로운 createdAt 값으로 덮어쓴다", () => {
+    const lastSet = {
+      ...mockWorkoutDetail.past,
+      createdAt: "2024-01-01T00:00:00.000Z",
+    };
+    const MOCK_NOW = new Date("2025-06-18T10:30:00.000Z");
+
+    const dateSpy = jest
+      .spyOn(global, "Date")
+      .mockImplementation(() => MOCK_NOW);
+
+    const createDetailSpy = jest.spyOn(
+      workoutDetailAdapter,
+      "createWorkoutDetail"
+    );
+
+    workoutDetailAdapter.getAddSetToWorkoutByLastSet(lastSet);
+
+    expect(createDetailSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        createdAt: MOCK_NOW.toISOString(),
+      })
+    );
+
+    dateSpy.mockRestore();
+  });
+});
+describe("getNewWorkoutDetails", () => {
+  it("선택된 운동 목록만큼 createWokroutDetail을 올바른 인자와 함께 호출해야 한다", () => {
+    const selectedExercises = [
+      { id: 1, name: "벤치프레스" },
+      { id: 2, name: "스쿼트" },
+    ];
+    const newWorkoutInput = { workoutId: 100, startOrder: 10 };
+
+    const createDetailSpy = jest
+      .spyOn(workoutDetailAdapter, "createWorkoutDetail")
+      .mockImplementation((input: Partial<LocalWorkoutDetail>) =>
+        createBaseWorkoutDetailMock(input)
+      );
+
+    const result = workoutDetailAdapter.getNewWorkoutDetails(
+      selectedExercises,
+      newWorkoutInput
+    );
+
+    expect(result).toHaveLength(2);
+    expect(result[0].isDone).toBe(false);
+    expect(result[0].exerciseName).toBe("벤치프레스");
+    expect(result[0].exerciseOrder).toBe(10);
+    expect(result[1].exerciseName).toBe("스쿼트");
+    expect(result[1].exerciseOrder).toBe(11);
+    expect(createDetailSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        workoutId: 100,
+        exerciseName: "벤치프레스",
+        exerciseOrder: 10,
+      })
+    );
+    expect(createDetailSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        workoutId: 100,
+        exerciseName: "스쿼트",
+        exerciseOrder: 11,
+      })
+    );
+  });
+  it("선택된 운동이 없으면 빈 배열을 반환하고 createWorkoutDetail을 호출하지 않는다", () => {
+    const createDetailSpy = jest.spyOn(
+      workoutDetailAdapter,
+      "createWorkoutDetail"
+    );
+
+    const result = workoutDetailAdapter.getNewWorkoutDetails([], {
+      workoutId: 1,
+      startOrder: 1,
+    });
+
+    expect(result).toEqual([]);
+    expect(createDetailSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe("mapLocalWorkoutDetailToServer", () => {
+  it("전달받은 workoutDetail의 exerciseId와 workoutId 속성을 서버아이디로 매핑한다 ", async () => {
+    const exerciseMock = mockExercise.synced;
+    const workoutMock = mockWorkout.synced;
+
+    const localDetail = mockWorkoutDetail.new({
+      exerciseId: exerciseMock.id,
+      workoutId: workoutMock.id,
+    });
+
+    const result = workoutDetailAdapter.mapLocalWorkoutDetailToServer(
+      localDetail,
+      exerciseMock,
+      workoutMock
+    );
+
+    expect(result.exerciseId).toBe(exerciseMock.serverId);
+    expect(result.workoutId).toBe(workoutMock.serverId);
+  });
+
+  it("의존 함수가 반환한 값에 serverId가 없는경우 에러를 던진다", async () => {
+    const exerciseMock = { ...mockExercise.synced, serverId: null };
+    const workoutMock = { ...mockWorkout.synced, serverId: null };
+    const localDetail = mockWorkoutDetail.new({
+      exerciseId: exerciseMock.id,
+      workoutId: workoutMock.id,
+    });
+
+    // workoutDetailAdapter.mapLocalWorkoutDetailToServer(...)를
+    // 화살표 함수로 감싸서 expect에 전달합니다.
+    expect(() =>
+      workoutDetailAdapter.mapLocalWorkoutDetailToServer(
+        localDetail,
+        exerciseMock,
+        workoutMock
+      )
+    ).toThrow("exerciseId 또는 workoutId가 없습니다");
   });
 });
 
 describe("convertServerWorkoutDetailToLocal", () => {
-  const serverDetails = mockLocalWorkoutDetails;
-  it("should ", async () => {
-    const localDetails = await convertServerWorkoutDetailToLocal(
-      mockLocalWorkoutDetails
-    );
-    serverDetails.forEach((converted, i) => {
-      const {
-        exerciseId: localExerciseId,
-        workoutId: localWorkoutId,
-        ...restLocalDetail
-      } = localDetails[i];
-      const {
-        exerciseId: convertedExerciseId,
-        workoutId: convertedworkoutId,
-        ...restConvertedDetail
-      } = converted;
+  it("의존 함수들이 반환한 localId로 데이터를 올바르게 변환한다", () => {
+    const exerciseMock = mockExercise.synced;
+    const workoutMock = mockWorkout.synced;
 
-      expect(convertedExerciseId).not.toBe(localExerciseId);
-      expect(convertedworkoutId).not.toBe(localWorkoutId);
-      // 그 외의 데이터는 변동이 없다
-      expect({ ...restLocalDetail }).toMatchObject({ ...restConvertedDetail });
+    const localDetail = mockWorkoutDetail.fromServer({
+      exerciseId: exerciseMock.serverId!,
+      workoutId: workoutMock.serverId!,
     });
+
+    const result = workoutDetailAdapter.createOverwriteWorkoutDetailPayload(
+      localDetail,
+      exerciseMock,
+      workoutMock
+    );
+
+    expect(result.exerciseId).toBe(exerciseMock.id);
+    expect(result.workoutId).toBe(workoutMock.id);
+  });
+  it("의존 함수가 반환한 값에 localId가 없는경우 에러를 던진다", () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const exerciseMock = { ...mockExercise.synced, id: null } as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const workoutMock = { ...mockWorkout.synced, id: null } as any;
+
+    const localDetail = mockWorkoutDetail.fromServer({
+      exerciseId: exerciseMock.serverId!,
+      workoutId: workoutMock.serverId!,
+    });
+
+    expect(() =>
+      workoutDetailAdapter.createOverwriteWorkoutDetailPayload(
+        localDetail,
+        exerciseMock,
+        workoutMock
+      )
+    ).toThrow("exerciseId 또는 workoutId가 없습니다");
   });
 });
-describe("getStartExerciseOrder", () => {
-  it("상세 내역이 없으면 1을 반환한다", async () => {
-    (db.workoutDetails.where as jest.Mock).mockReturnValue({
-      equals: jest.fn().mockReturnValue({
-        sortBy: jest.fn().mockResolvedValue([]),
-      }),
-    });
-    const result = await getStartExerciseOrder(123);
-    expect(result).toBe(1);
-  });
-  it("상세 내역이 있는경우 마지막 값(exerciseOrder) + 1 을 반환한다  ", async () => {
-    (db.workoutDetails.where as jest.Mock).mockReturnValue({
-      equals: jest.fn().mockReturnValue({
-        sortBy: jest
-          .fn()
-          .mockResolvedValue([
-            { exerciseOrder: 1 },
-            { exerciseOrder: 2 },
-            { exerciseOrder: 3 },
-          ]),
-      }),
-    });
-    const result = await getStartExerciseOrder(123);
-    expect(result).toBe(4);
+
+describe("convertRoutineDetailToWorkoutDetailInput", () => {
+  it("routineDetail과 workoutId를 전달받아 올바르게 새로운 workoutDetail로 반환한다", () => {
+    const createDetailSpy = jest
+      .spyOn(workoutDetailAdapter, "createWorkoutDetail")
+      .mockImplementation((input) => createBaseWorkoutDetailMock(input));
+
+    const routineDetail: LocalRoutineDetail = mockRoutineDetail.past;
+    const workoutId = 100;
+
+    workoutDetailAdapter.convertRoutineDetailToWorkoutDetailInput(
+      routineDetail,
+      workoutId
+    );
+
+    expect(createDetailSpy).toHaveBeenCalledTimes(1);
+
+    expect(createDetailSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        // routineDetail에서 그대로 복사되어야 할 속성
+        exerciseId: routineDetail.exerciseId,
+        exerciseName: routineDetail.exerciseName,
+        weight: routineDetail.weight,
+        reps: routineDetail.reps,
+        rpe: routineDetail.rpe,
+        setType: routineDetail.setType,
+        setOrder: routineDetail.setOrder,
+        exerciseOrder: routineDetail.exerciseOrder,
+
+        // 새로 추가/변경되는 속성
+        isDone: false,
+        workoutId: workoutId,
+      })
+    );
+    const actualArg = createDetailSpy.mock.calls[0][0];
+    expect(actualArg).not.toHaveProperty("id");
+    expect(actualArg).not.toHaveProperty("routineId");
+    expect(actualArg).not.toHaveProperty("isSynced");
   });
 });

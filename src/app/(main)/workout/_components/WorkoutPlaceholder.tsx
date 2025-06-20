@@ -1,14 +1,14 @@
 "use client";
 
-import { convertRoutineDetailToWorkoutDetailInput } from "@/adapter/workoutDetail.adapter";
 import RoutineList from "@/app/(main)/routines/_components/RoutineList";
-import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import {
-  cloneRoutineDetailWithNewRoutineId,
-  getLocalRoutineDetails,
-} from "@/services/routineDetail.service";
-import { getWorkoutByUserIdAndDate } from "@/services/workout.service";
-import { addLocalWorkoutDetail } from "@/services/workoutDetail.service";
+  routineDetailService,
+  workoutDetailAdapter,
+  workoutDetailService,
+  workoutService,
+} from "@/lib/di";
+import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
+
 import {
   LocalRoutineDetail,
   LocalWorkout,
@@ -45,7 +45,10 @@ function WorkoutPlaceholder({
     routineDetails: LocalRoutineDetail[]
   ) => {
     if (!userId || !date) return;
-    const workoutResult = await getWorkoutByUserIdAndDate(userId, date);
+    const workoutResult = await workoutService.getWorkoutByUserIdAndDate(
+      userId,
+      date
+    );
     if (!workoutResult) throw new Error("Workout 을 찾을 수 없습니다.");
     const workout: LocalWorkout = workoutResult;
     const workoutId = workout.id;
@@ -54,8 +57,11 @@ function WorkoutPlaceholder({
       routineDetails.map(async (detail) => {
         if (!workoutId) throw new Error("workoutId가 없습니다");
         const workoutDetail: LocalWorkoutDetail =
-          convertRoutineDetailToWorkoutDetailInput(detail, workoutId);
-        addLocalWorkoutDetail(workoutDetail);
+          workoutDetailAdapter.convertRoutineDetailToWorkoutDetailInput(
+            detail,
+            workoutId
+          );
+        workoutDetailService.addLocalWorkoutDetail(workoutDetail);
       })
     );
   };
@@ -66,14 +72,17 @@ function WorkoutPlaceholder({
     if (!routineId) throw new Error("routineId가 없습니다");
     await Promise.all(
       routineDetails.map(async (detail) => {
-        await cloneRoutineDetailWithNewRoutineId(detail, Number(routineId));
+        await routineDetailService.cloneRoutineDetailWithNewRoutineId(
+          detail,
+          Number(routineId)
+        );
       })
     );
   };
 
   const handlePickRoutine = async (targetRoutineId: number) => {
     const routineDetails: LocalRoutineDetail[] =
-      await getLocalRoutineDetails(targetRoutineId);
+      await routineDetailService.getLocalRoutineDetails(targetRoutineId);
     if (type === "RECORD") {
       await handlePickRoutineForWorkout(routineDetails);
     } else {

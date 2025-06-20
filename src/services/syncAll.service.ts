@@ -1,40 +1,27 @@
 import {
-  overwriteWithServerExercises,
-  syncToServerExercises,
-} from "@/services/exercise.service";
-import {
-  overwriteWithServerRoutines,
-  syncToServerRoutines,
-} from "@/services/routine.service";
-import {
-  overwriteWithServerRoutineDetails,
-  syncToServerRoutineDetails,
-} from "@/services/routineDetail.service";
-import {
-  overwriteWithServerWorkouts,
-  syncToServerWorkouts,
-} from "@/services/workout.service";
-import {
-  overwriteWithServerWorkoutDetails,
-  syncToServerWorkoutDetails,
-} from "@/services/workoutDetail.service";
+  exerciseService,
+  routineDetailService,
+  routineService,
+  workoutDetailService,
+  workoutService,
+} from "@/lib/di";
 
 export const overWriteAllWithServerData = async (userId: string) => {
-  await overwriteWithServerExercises(userId);
+  await exerciseService.overwriteWithServerExercises(userId);
 
-  await overwriteWithServerWorkouts(userId);
-  await overwriteWithServerRoutines(userId);
+  await workoutService.overwriteWithServerWorkouts(userId);
+  await routineService.overwriteWithServerRoutines(userId);
 
-  await overwriteWithServerWorkoutDetails(userId);
-  await overwriteWithServerRoutineDetails(userId);
+  await workoutDetailService.overwriteWithServerWorkoutDetails(userId);
+  await routineDetailService.overwriteWithServerRoutineDetails(userId);
 };
 
 export const syncToServer = async (userId: string) => {
-  await syncToServerExercises(userId);
+  await exerciseService.syncToServerExercises(userId);
 
-  await syncToServerWorkouts();
-  await syncToServerRoutines();
+  await workoutService.syncToServerWorkouts();
+  await routineService.syncToServerRoutines();
 
-  await syncToServerWorkoutDetails();
-  await syncToServerRoutineDetails();
+  await workoutDetailService.syncToServerWorkoutDetails();
+  await routineDetailService.syncToServerRoutineDetails();
 };

@@ -1,14 +1,7 @@
 "use client";
 
-import { fetchRoutinesFromServer } from "@/api/routine.api";
-import {
-  overwriteWithServerRoutines,
-  syncToServerRoutines,
-} from "@/services/routine.service";
-import {
-  overwriteWithServerRoutineDetails,
-  syncToServerRoutineDetails,
-} from "@/services/routineDetail.service";
+import { routineDetailService, routineService } from "@/lib/di";
+
 import {
   overWriteAllWithServerData,
   syncToServer,
@@ -56,8 +49,10 @@ const AuthTest = () => {
       <button
         className="px-2 py-1 bg-bg-secondary text-xs rounded"
         onClick={async () => {
-          await overwriteWithServerRoutines(userId ?? "");
-          await overwriteWithServerRoutineDetails(userId ?? "");
+          await routineService.overwriteWithServerRoutines(userId ?? "");
+          await routineDetailService.overwriteWithServerRoutineDetails(
+            userId ?? ""
+          );
         }}
       >
         루틴만체크
