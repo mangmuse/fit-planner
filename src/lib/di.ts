@@ -21,6 +21,7 @@ import { RoutineDetailService } from "@/services/routineDetail.service";
 import { WorkoutService } from "@/services/workout.service";
 import { WorkoutDetailCoreService } from "@/services/workoutDetail.core.service";
 import { WorkoutDetailQueryService } from "@/services/workoutDetail.query.service";
+import { WorkoutDetailService } from "@/services/workoutDetail.service";
 import { WorkoutDetailSyncService } from "@/services/workoutDetail.sync.service";
 import {
   IWorkoutDetailCoreService,
@@ -80,19 +81,18 @@ const workoutDetailSyncService: IWorkoutDetailSyncService =
 const workoutDetailQueryService: IWorkoutDetailQueryService =
   new WorkoutDetailQueryService(workoutDetailRepository, workoutRepository);
 
-export const workoutDetailService = new Proxy({} as IWorkoutDetailService, {
-  get(target, prop) {
-    if (prop in workoutDetailCoreService) {
-      return (workoutDetailCoreService as IWorkoutDetailCoreService)[prop];
-    }
-    if (prop in workoutDetailSyncService) {
-      return (workoutDetailSyncService as IWorkoutDetailSyncService)[prop];
-    }
-    if (prop in workoutDetailQueryService) {
-      return (workoutDetailQueryService as IWorkoutDetailQueryService)[prop];
-    }
-  },
-});
+// export const workoutDetailService: IWorkoutDetailService = {
+//   ...workoutDetailCoreService,
+//   ...workoutDetailSyncService,
+//   ...workoutDetailQueryService,
+// };
+
+export const workoutDetailService = new WorkoutDetailService(
+  workoutDetailCoreService,
+  workoutDetailQueryService,
+  workoutDetailSyncService
+);
+
 export const routineDetailService = new RoutineDetailService(
   exerciseService,
   routineService,
