@@ -2,13 +2,10 @@
 import swapIcon from "public/swap.svg";
 import memoIcon from "public/memo.svg";
 import deleteIcon from "public/delete.svg";
-import Image from "next/image";
 import GroupOptionItem from "@/app/(main)/workout/_components/GroupOptionItem";
-import arrowIcon from "public/right-arrow.svg";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
-import { exerciseService } from "@/services/exercise.service";
 import {
   LocalExercise,
   LocalRoutineDetail,
@@ -19,8 +16,11 @@ import ExerciseMemo from "@/app/(main)/workout/_components/ExerciseMemo";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import ExercisesContainer from "@/app/(main)/workout/[date]/exercises/_components/ExercisesContainer";
 import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
-import { routineDetailService } from "@/services/routineDetail.service";
-import { workoutDetailService } from "@/lib/di";
+import {
+  exerciseService,
+  routineDetailService,
+  workoutDetailService,
+} from "@/lib/di";
 
 type WorkoutDetailGroupOptions = {
   exercise: LocalExercise;

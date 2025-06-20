@@ -1,14 +1,15 @@
-import { workoutDetailAdapter } from "@/adapter/workoutDetail.adapter";
 import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
-import { workoutRepository } from "@/repositories/workout.repository";
 import { workoutDetailRepository } from "@/repositories/workoutDetail.repository";
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
-import { IWorkoutRepository } from "@/types/repositories";
+import {
+  IWorkoutDetailRepository,
+  IWorkoutRepository,
+} from "@/types/repositories";
 import { IWorkoutDetailQueryService } from "@/types/services";
 
 export class WorkoutDetailQueryService implements IWorkoutDetailQueryService {
   constructor(
-    private readonly repository: typeof workoutDetailRepository,
+    private readonly repository: IWorkoutDetailRepository,
     private readonly workoutRepository: IWorkoutRepository
   ) {}
 

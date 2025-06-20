@@ -2,6 +2,7 @@ import { workoutDetailAdapter } from "@/adapter/workoutDetail.adapter";
 import { workoutDetailRepository } from "@/repositories/workoutDetail.repository";
 import { IWorkoutDetaeilApi } from "@/types/apis";
 import { ClientWorkoutDetail } from "@/types/models";
+import { IWorkoutDetailRepository } from "@/types/repositories";
 import {
   IExerciseService,
   IWorkoutDetailSyncService,
@@ -10,7 +11,7 @@ import {
 
 export class WorkoutDetailSyncService implements IWorkoutDetailSyncService {
   constructor(
-    private readonly repository: typeof workoutDetailRepository,
+    private readonly repository: IWorkoutDetailRepository,
     private readonly adapter: typeof workoutDetailAdapter,
     private readonly api: IWorkoutDetaeilApi,
     private readonly exerciseService: IExerciseService,
@@ -35,25 +36,40 @@ export class WorkoutDetailSyncService implements IWorkoutDetailSyncService {
 
         if (!exercise?.id || !workout?.id)
           throw new Error("exerciseId 또는 workoutId가 없습니다");
-        return {
-          ...data,
-          id: undefined,
-          serverId: data.id,
-          isSynced: true,
-          exerciseId: exercise.id,
-          workoutId: workout.id,
-        };
+        return this.adapter.createOverwriteWorkoutDetailPayload(
+          data,
+          exercise,
+          workout
+        );
       })
     );
     await this.repository.clear();
     await this.repository.bulkAdd(toInsert);
   }
+
   public async syncToServerWorkoutDetails(): Promise<void> {
     const all = await this.repository.findAll();
 
     const unsynced = all.filter((detail) => !detail.isSynced);
-    const mappedUnsynced =
-      await this.adapter.convertLocalWorkoutDetailToServer(unsynced);
+    const mappedUnsynced = await Promise.all(
+      unsynced.map(async (detail) => {
+        const exercise = await this.exerciseService.getExerciseWithLocalId(
+          detail.exerciseId
+        );
+        const workout = await this.workoutService.getWorkoutWithLocalId(
+          detail.workoutId
+        );
+
+        if (!exercise?.serverId || !workout?.serverId) {
+          throw new Error("exercise 또는 workout의 serverId가 없습니다.");
+        }
+        return this.adapter.mapLocalWorkoutDetailToServer(
+          detail,
+          exercise,
+          workout
+        );
+      })
+    );
     const data = await this.api.postWorkoutDetailsToServer(mappedUnsynced);
 
     if (data.updated.length === 0) return;

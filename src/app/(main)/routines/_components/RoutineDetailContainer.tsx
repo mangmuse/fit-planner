@@ -1,7 +1,7 @@
 "use client";
 import { TEMP_ROUTINE_ID } from "@/app/(main)/routines/constants";
 import WorkoutPlaceholder from "@/app/(main)/workout/_components/WorkoutPlaceholder";
-import { routineDetailService } from "@/services/routineDetail.service";
+import { routineDetailService } from "@/lib/di";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 

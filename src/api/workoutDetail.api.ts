@@ -3,6 +3,7 @@ import {
   FETCH_WORKOUT_DETAILS_ERROR,
   POST_WORKOUT_DETAILS_ERROR,
 } from "@/constants/errorMessage";
+import { IWorkoutDetailApi } from "@/types/apis";
 import {
   ClientWorkoutDetail,
   clientWorkoutDetailSchema,
@@ -43,7 +44,9 @@ export type FetchWorkoutDetailsResponse = z.infer<
   typeof fetchWorkoutDetailsSchema
 >;
 
-export const workoutDetailApi = {
+export class WorkoutDetailApi implements IWorkoutDetailApi {
+  constructor() {}
+
   async fetchWorkoutDetailsFromServer(
     userId: string
   ): Promise<ClientWorkoutDetail[]> {
@@ -61,7 +64,7 @@ export const workoutDetailApi = {
     const serverWorkoutDetails = parsedData.workoutDetails;
 
     return serverWorkoutDetails;
-  },
+  }
 
   async postWorkoutDetailsToServer(
     mappedUnsynced: LocalWorkoutDetailWithServerWorkoutId[]
@@ -81,5 +84,5 @@ export const workoutDetailApi = {
     );
 
     return parsedData;
-  },
-};
+  }
+}

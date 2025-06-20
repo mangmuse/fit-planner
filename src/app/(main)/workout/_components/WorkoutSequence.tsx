@@ -22,8 +22,7 @@ import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { reorderDetailGroups } from "@/app/(main)/workout/_utils/getGroupedDetails";
 import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
-import { routineDetailService } from "@/services/routineDetail.service";
-import { workoutDetailService } from "@/lib/di";
+import { routineDetailService, workoutDetailService } from "@/lib/di";
 
 export type DetailGroup = {
   exerciseOrder: number;

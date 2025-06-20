@@ -6,9 +6,6 @@ import { workoutDetailAdapter } from "@/adapter/workoutDetail.adapter";
 import PastWorkoutList from "@/app/(main)/workout/_components/PastWorkoutList";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 
-import { routineDetailService } from "@/services/routineDetail.service";
-import { workoutService } from "@/services/workout.service";
-
 import {
   LocalRoutineDetail,
   LocalWorkout,
@@ -18,7 +15,11 @@ import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { routineService } from "@/services/routine.service";
-import { workoutDetailService } from "@/lib/di";
+import {
+  routineDetailService,
+  workoutDetailService,
+  workoutService,
+} from "@/lib/di";
 
 type LoadPastWorkoutSheetProps = {
   type: "ROUTINE" | "RECORD";

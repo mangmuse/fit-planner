@@ -2,10 +2,13 @@
 
 import { workoutDetailAdapter } from "@/adapter/workoutDetail.adapter";
 import RoutineList from "@/app/(main)/routines/_components/RoutineList";
-import { workoutDetailService } from "@/lib/di";
+import {
+  routineDetailService,
+  workoutDetailService,
+  workoutService,
+} from "@/lib/di";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
-import { routineDetailService } from "@/services/routineDetail.service";
-import { workoutService } from "@/services/workout.service";
+
 import {
   LocalRoutineDetail,
   LocalWorkout,

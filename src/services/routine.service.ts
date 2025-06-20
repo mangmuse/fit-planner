@@ -2,8 +2,8 @@ import {
   fetchRoutinesFromServer,
   postRoutinesToServer,
 } from "@/api/routine.api";
-import { db } from "@/lib/db";
-import { routineRepository } from "@/repositories/routine.repository";
+import { routineRepository } from "@/lib/di";
+
 import { ClientRoutine, LocalRoutine } from "@/types/models";
 
 type AddLocalRoutineInput = {

@@ -5,8 +5,7 @@ import { useState, useEffect } from "react";
 
 import { WorkoutSetType } from "@/app/(main)/workout/constants";
 import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
-import { routineDetailService } from "@/services/routineDetail.service";
-import { workoutDetailService } from "@/lib/di";
+import { routineDetailService, workoutDetailService } from "@/lib/di";
 
 type SetOptionSheetProps = {
   workoutDetail: LocalWorkoutDetail | LocalRoutineDetail;

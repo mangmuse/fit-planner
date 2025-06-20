@@ -1,13 +1,15 @@
-import { exerciseService } from "@/services/exercise.service";
-import { routineService } from "@/services/routine.service";
-import { NewRoutineDetailInput } from "@/services/routineDetail.service";
+import { IRoutineDetailAdapter, RD_NewInput } from "@/types/adapters";
 import {
+  LocalExercise,
+  LocalRoutine,
   LocalRoutineDetail,
   LocalRoutineDetailWithServerRoutineId,
   LocalWorkoutDetail,
 } from "@/types/models";
 
-export const routineDetailAdapter = {
+export class RoutineDetailAdapter implements IRoutineDetailAdapter {
+  constructor() {}
+
   getInitialRoutineDetail(): LocalRoutineDetail {
     return {
       serverId: null,
@@ -23,7 +25,7 @@ export const routineDetailAdapter = {
       routineId: -9999,
       createdAt: new Date().toISOString(),
     };
-  },
+  }
 
   createRoutineDetail(
     override: Partial<LocalRoutineDetail>
@@ -45,11 +47,11 @@ export const routineDetailAdapter = {
       ...defaultValue,
       ...override,
     };
-  },
+  }
 
   getNewRoutineDetails(
     selectedExercises: { id: number | undefined; name: string }[],
-    { routineId, startOrder }: NewRoutineDetailInput
+    { routineId, startOrder }: RD_NewInput
   ): LocalRoutineDetail[] {
     const newDetails: LocalRoutineDetail[] = selectedExercises.map(
       ({ id, name }, idx) => {
@@ -69,7 +71,7 @@ export const routineDetailAdapter = {
     );
 
     return newDetails;
-  },
+  }
 
   getAddSetToRoutineByLastSet(lastSet: LocalRoutineDetail): LocalRoutineDetail {
     const { id, rpe, setOrder, isSynced, updatedAt, ...rest } = lastSet;
@@ -83,7 +85,7 @@ export const routineDetailAdapter = {
     };
 
     return this.createRoutineDetail(addSetInput);
-  },
+  }
 
   mapPastWorkoutToRoutineDetail(
     pastWorkoutDetail: LocalWorkoutDetail,
@@ -105,28 +107,22 @@ export const routineDetailAdapter = {
       rpe: pastWorkoutDetail.rpe,
       setType: pastWorkoutDetail.setType,
     };
-  },
+  }
 
-  async convertLocalRoutineDetailsToServer(
-    routineDetails: LocalRoutineDetail[]
-  ): Promise<LocalRoutineDetailWithServerRoutineId[]> {
-    return await Promise.all(
-      routineDetails.map(async (detail) => {
-        const exercise = await exerciseService.getExerciseWithLocalId(
-          detail.exerciseId
-        );
-        const routine = await routineService.getRoutineByLocalId(
-          detail.routineId
-        );
-        if (!exercise?.serverId || !routine?.serverId) {
-          throw new Error("exerciseId 또는 workoutId가 없습니다");
-        }
-        return {
-          ...detail,
-          exerciseId: exercise.serverId,
-          routineId: routine.serverId,
-        };
-      })
-    );
-  },
-};
+  mapLocalRoutineDetailToServer(
+    detail: LocalRoutineDetail,
+    exercise: LocalExercise,
+    routine: LocalRoutine
+  ): LocalRoutineDetailWithServerRoutineId {
+    if (!exercise?.serverId || !routine?.serverId) {
+      throw new Error("exerciseId 또는 routineId가 없습니다");
+    }
+    return {
+      ...detail,
+      exerciseId: exercise.serverId,
+      routineId: routine.serverId,
+    };
+  }
+}
+
+export const routineDetailAdapter = {};

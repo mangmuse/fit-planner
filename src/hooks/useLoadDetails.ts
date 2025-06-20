@@ -3,8 +3,6 @@ import {
   isWorkoutDetails,
 } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
-import { routineDetailService } from "@/services/routineDetail.service";
-import { workoutService } from "@/services/workout.service";
 import {
   LocalRoutineDetail,
   LocalWorkout,
@@ -13,8 +11,12 @@ import {
 import { use, useEffect, useState } from "react";
 import { useModal } from "@/providers/contexts/ModalContext";
 import { useRouter } from "next/navigation";
-import { routineService } from "@/services/routine.service";
-import { workoutDetailService } from "@/lib/di";
+import {
+  routineDetailService,
+  routineService,
+  workoutDetailService,
+  workoutService,
+} from "@/lib/di";
 
 type UseLoadDetailsProps = {
   type: "RECORD" | "ROUTINE";
@@ -67,6 +69,7 @@ const useLoadDetails = ({
         setWorkoutGroups(adjustedGroups);
       }
     } catch (e) {
+      console.error(e);
       setError("운동 세부 정보를 불러오는데 실패했습니다");
     } finally {
       setIsInitialLoading(false);

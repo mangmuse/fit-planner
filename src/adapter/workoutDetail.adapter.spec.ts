@@ -9,7 +9,6 @@ import {
   mockWorkoutDetail,
 } from "@/__mocks__/workoutDetail.mock";
 import { workoutDetailAdapter } from "@/adapter/workoutDetail.adapter";
-import { workoutService } from "@/services/workout.service";
 
 import {
   LocalExercise,
@@ -17,6 +16,7 @@ import {
   LocalWorkout,
   LocalWorkoutDetail,
 } from "@/types/models";
+import { workoutService } from "@/lib/di";
 
 describe("getInitialWorkoutDetail", () => {
   it("초기 workout detail 객체를 반환한다", () => {
@@ -266,9 +266,7 @@ describe("convertLocalWorkoutDetailToServer", () => {
     ];
 
     const result =
-      await workoutDetailAdapter.convertLocalWorkoutDetailToServer(
-        localDetails
-      );
+      await workoutDetailAdapter.mapLocalWorkoutDetailToServer(localDetails);
 
     expect(result[0].exerciseId).toBe(exerciseMock.serverId);
     expect(result[0].workoutId).toBe(workoutMock.serverId);
@@ -291,7 +289,7 @@ describe("convertLocalWorkoutDetailToServer", () => {
       .mockResolvedValueOnce(workoutMock);
 
     const promise =
-      workoutDetailAdapter.convertLocalWorkoutDetailToServer(localDetails);
+      workoutDetailAdapter.mapLocalWorkoutDetailToServer(localDetails);
 
     await expect(promise).rejects.toThrow(
       "exerciseId 또는 workoutId가 없습니다"
@@ -319,7 +317,7 @@ describe("convertServerWorkoutDetailToLocal", () => {
     ];
 
     const result =
-      await workoutDetailAdapter.convertServerWorkoutDetailToLocal(
+      await workoutDetailAdapter.createOverwriteWorkoutDetailPayload(
         localDetails
       );
 
@@ -346,7 +344,7 @@ describe("convertServerWorkoutDetailToLocal", () => {
     ];
 
     const promise =
-      workoutDetailAdapter.convertServerWorkoutDetailToLocal(localDetails);
+      workoutDetailAdapter.createOverwriteWorkoutDetailPayload(localDetails);
 
     await expect(promise).rejects.toThrow(
       "exerciseId 또는 workoutId가 없습니다."

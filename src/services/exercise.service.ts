@@ -1,10 +1,10 @@
-import { exerciseAdapter } from "@/adapter/exercise.adapter";
+import { ExerciseAdapter } from "@/adapter/exercise.adapter";
 import {
   fetchExercisesFromServer,
   postExercisesToServer,
 } from "@/api/exercise.api";
-import { db } from "@/lib/db";
 import { exerciseRepository } from "@/repositories/exercise.repository";
+
 import { ClientExercise, LocalExercise } from "@/types/models";
 
 const coreService = {
@@ -121,7 +121,7 @@ const syncService = {
     const serverData: ClientExercise[] = await fetchExercisesFromServer(userId);
     const localAll = await exerciseRepository.findAll();
 
-    const merged = exerciseAdapter.mergeServerExerciseData(
+    const merged = ExerciseAdapter.mergeServerExerciseData(
       serverData,
       localAll
     );

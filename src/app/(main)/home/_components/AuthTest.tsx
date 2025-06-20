@@ -1,7 +1,7 @@
 "use client";
 
+import { routineDetailService } from "@/lib/di";
 import { routineService } from "@/services/routine.service";
-import { routineDetailService } from "@/services/routineDetail.service";
 import {
   overWriteAllWithServerData,
   syncToServer,

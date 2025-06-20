@@ -3,16 +3,11 @@ import {
   fetchRoutineDetailsFromServer,
   postRoutineDetailsToServer,
 } from "@/api/routineDetail.api";
-import { db } from "@/lib/db";
 import { routineDetailRepository } from "@/repositories/routineDetail.repository";
 import { exerciseService } from "@/services/exercise.service";
 import { routineService } from "@/services/routine.service";
-import { ClientRoutineDetail, LocalRoutineDetail } from "@/types/models";
 
-export type NewRoutineDetailInput = {
-  routineId: number;
-  startOrder: number;
-};
+import { ClientRoutineDetail, LocalRoutineDetail } from "@/types/models";
 
 const coreService = {
   async getLocalRoutineDetails(
@@ -142,8 +137,26 @@ const syncService = {
     const all = await routineDetailRepository.findAll();
 
     const unsynced = all.filter((detail) => !detail.isSynced);
-    const mappedUnsynced =
-      await routineDetailAdapter.convertLocalRoutineDetailsToServer(unsynced);
+    const mappedUnsynced = await Promise.all(
+      unsynced.map(async (detail) => {
+        const exercise = await exerciseService.getExerciseWithLocalId(
+          detail.exerciseId
+        );
+        const routine = await routineService.getRoutineByLocalId(
+          detail.routineId
+        );
+
+        if (!exercise || !routine) {
+          throw new Error("exercise 또는 routine을 찾을 수 없습니다.");
+        }
+
+        return routineDetailAdapter.mapLocalRoutineDetailToServer(
+          detail,
+          exercise,
+          routine
+        );
+      })
+    );
 
     const data = await postRoutineDetailsToServer(mappedUnsynced);
 

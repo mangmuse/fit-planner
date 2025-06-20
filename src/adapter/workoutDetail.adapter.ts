@@ -1,19 +1,14 @@
-import { db } from "@/lib/db";
-import { exerciseService } from "@/services/exercise.service";
-import { workoutService } from "@/services/workout.service";
-
+import { IWorkoutDetailAdapter, WD_NewInput } from "@/types/adapters";
 import {
+  ClientWorkoutDetail,
+  LocalExercise,
   LocalRoutineDetail,
+  LocalWorkout,
   LocalWorkoutDetail,
   LocalWorkoutDetailWithServerWorkoutId,
 } from "@/types/models";
 
-export type NewWorkoutDetailInput = {
-  workoutId: number;
-  startOrder: number;
-};
-
-export const workoutDetailAdapter = {
+export class WorkoutdetailAdapter implements IWorkoutDetailAdapter {
   getInitialWorkoutDetail(): LocalWorkoutDetail {
     return {
       serverId: null,
@@ -30,7 +25,7 @@ export const workoutDetailAdapter = {
       workoutId: 0,
       createdAt: new Date().toISOString(),
     };
-  },
+  }
 
   createWorkoutDetail(
     override: Partial<LocalWorkoutDetail>
@@ -54,7 +49,7 @@ export const workoutDetailAdapter = {
       ...defaultValue,
       ...override,
     };
-  },
+  }
 
   mapPastWorkoutToWorkoutDetail(
     pastWorkoutDetail: LocalWorkoutDetail,
@@ -76,7 +71,7 @@ export const workoutDetailAdapter = {
       rpe: pastWorkoutDetail.rpe,
       setType: pastWorkoutDetail.setType,
     };
-  },
+  }
 
   getAddSetToWorkoutByLastSet(lastSet: LocalWorkoutDetail): LocalWorkoutDetail {
     const { id, rpe, setOrder, isSynced, isDone, updatedAt, ...rest } = lastSet;
@@ -92,11 +87,11 @@ export const workoutDetailAdapter = {
 
     // 같은 객체의 다른 메소드를 호출하도록 변경
     return this.createWorkoutDetail(addSetInput);
-  },
+  }
 
   getNewWorkoutDetails(
     selectedExercises: { id: number | undefined; name: string }[],
-    { workoutId, startOrder }: NewWorkoutDetailInput
+    { workoutId, startOrder }: WD_NewInput
   ): LocalWorkoutDetail[] {
     const newDetails: LocalWorkoutDetail[] = selectedExercises.map(
       ({ id, name }, idx) => {
@@ -117,56 +112,41 @@ export const workoutDetailAdapter = {
     );
 
     return newDetails;
-  },
+  }
 
-  async convertLocalWorkoutDetailToServer(
-    workoutDetails: LocalWorkoutDetail[]
-  ): Promise<LocalWorkoutDetailWithServerWorkoutId[]> {
-    return await Promise.all(
-      workoutDetails.map(async (detail) => {
-        // 외부 의존성은 그대로 사용
-        const exercise = await exerciseService.getExerciseWithLocalId(
-          detail.exerciseId
-        );
-        const workout = await workoutService.getWorkoutWithLocalId(
-          detail.workoutId
-        );
+  mapLocalWorkoutDetailToServer(
+    detail: LocalWorkoutDetail,
+    relatedExercise: LocalExercise,
+    relatedWorkout: LocalWorkout
+  ): LocalWorkoutDetailWithServerWorkoutId {
+    if (!relatedExercise?.serverId || !relatedWorkout?.serverId) {
+      throw new Error("exerciseId 또는 workoutId가 없습니다");
+    }
+    return {
+      ...detail,
+      exerciseId: relatedExercise.serverId,
+      workoutId: relatedWorkout.serverId,
+    };
+  }
 
-        if (!exercise?.serverId || !workout?.serverId) {
-          throw new Error("exerciseId 또는 workoutId가 없습니다");
-        }
-        return {
-          ...detail,
-          exerciseId: exercise.serverId,
-          workoutId: workout.serverId,
-        };
-      })
-    );
-  },
-
-  async convertServerWorkoutDetailToLocal(
-    workoutDetails: LocalWorkoutDetailWithServerWorkoutId[]
-  ): Promise<LocalWorkoutDetail[]> {
-    return await Promise.all(
-      workoutDetails.map(async (detail) => {
-        const exercise = await exerciseService.getExerciseWithServerId(
-          detail.exerciseId
-        );
-        const workout = await workoutService.getWorkoutWithServerId(
-          detail.workoutId
-        );
-
-        if (!exercise?.id || !workout?.id) {
-          throw new Error("exerciseId 또는 workoutId가 없습니다.");
-        }
-        return {
-          ...detail,
-          exerciseId: exercise.id,
-          workoutId: workout.id,
-        };
-      })
-    );
-  },
+  createOverwriteWorkoutDetailPayload(
+    detail: ClientWorkoutDetail,
+    exercise: LocalExercise,
+    workout: LocalWorkout
+  ): LocalWorkoutDetail {
+    if (!exercise?.id || !workout?.id) {
+      throw new Error("exerciseId 또는 workoutId가 없습니다");
+    }
+    const { id, ...rest } = detail;
+    return {
+      ...rest,
+      id: undefined,
+      serverId: id,
+      isSynced: true,
+      exerciseId: exercise.id,
+      workoutId: workout.id,
+    };
+  }
 
   convertRoutineDetailToWorkoutDetailInput(
     routineDetail: LocalRoutineDetail,
@@ -181,5 +161,7 @@ export const workoutDetailAdapter = {
     };
     // 같은 객체의 다른 메소드를 호출하도록 변경
     return this.createWorkoutDetail(workoutDetail);
-  },
-};
+  }
+}
+
+export const workoutDetailAdapter = {};

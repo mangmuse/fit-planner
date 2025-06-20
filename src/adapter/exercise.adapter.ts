@@ -1,6 +1,8 @@
+import { IExerciseAdapter } from "@/types/adapters";
 import { ClientExercise, LocalExercise } from "@/types/models";
 
-export const exerciseAdapter = {
+export class ExerciseAdapter implements IExerciseAdapter {
+  constructor() {}
   mergeServerExerciseData(
     serverData: ClientExercise[],
     localData: LocalExercise[]
@@ -41,5 +43,5 @@ export const exerciseAdapter = {
     }
 
     return merged;
-  },
-};
+  }
+}
