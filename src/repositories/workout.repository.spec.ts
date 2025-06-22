@@ -94,8 +94,8 @@ describe("WorkoutRepository", () => {
     const resultArray = [workoutCompleted, workoutPlanned];
 
     const mockToArray = jest.fn().mockResolvedValue(resultArray);
-    const mockFilter = jest.fn().mockReturnValue({ toArray: mockToArray }); // mockFilter is the filter method itself
-    const mockBetween = jest.fn().mockReturnValue({ filter: mockFilter }); // mockBetween is the between method itself
+    const mockFilter = jest.fn().mockReturnValue({ toArray: mockToArray });
+    const mockBetween = jest.fn().mockReturnValue({ filter: mockFilter });
 
     (mockTable.where as jest.Mock).mockReturnValueOnce({
       between: mockBetween,
