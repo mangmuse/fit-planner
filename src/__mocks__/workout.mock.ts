@@ -20,6 +20,8 @@ const createBaseWorkoutMock = (
 });
 
 export const mockWorkout = {
+  default: createBaseWorkoutMock(),
+
   empty: createBaseWorkoutMock({
     id: 1,
     status: "EMPTY",

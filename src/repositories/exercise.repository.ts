@@ -1,46 +1,23 @@
-import { db } from "@/lib/db";
+import { BaseRepository } from "@/repositories/base.repository";
 import { LocalExercise } from "@/types/models";
+import { IExerciseRepository } from "@/types/repositories";
+import { Table } from "dexie";
 
-export const exerciseRepository = {
-  async clear(): Promise<void> {
-    await db.exercises.clear();
-  },
-
-  async findOneById(id: number): Promise<LocalExercise | undefined> {
-    return db.exercises.where("id").equals(id).first();
-  },
+export class ExerciseRepository
+  extends BaseRepository<LocalExercise, number>
+  implements IExerciseRepository
+{
+  constructor(table: Table<LocalExercise, number>) {
+    super(table);
+  }
 
   async findOneByServerId(
     serverId: number
   ): Promise<LocalExercise | undefined> {
-    return db.exercises.where("serverId").equals(serverId).first();
-  },
-
-  async findAll(): Promise<LocalExercise[]> {
-    return db.exercises.toArray();
-  },
+    return this.table.where("serverId").equals(serverId).first();
+  }
 
   async findAllUnsynced(): Promise<LocalExercise[]> {
-    return db.exercises.filter((ex) => !ex.isSynced).toArray();
-  },
-
-  async add(toInsert: LocalExercise): Promise<number> {
-    return db.exercises.add(toInsert);
-  },
-
-  async bulkAdd(toInsert: LocalExercise[]): Promise<number> {
-    return db.exercises.bulkAdd(toInsert);
-  },
-
-  async update(id: number, toUpdate: Partial<LocalExercise>): Promise<number> {
-    return db.exercises.update(id, toUpdate);
-  },
-
-  async bulkPut(toUpdate: LocalExercise[]): Promise<number> {
-    return db.exercises.bulkPut(toUpdate);
-  },
-
-  async delete(id: number): Promise<void> {
-    await db.exercises.delete(id);
-  },
-};
+    return this.table.filter((ex) => !ex.isSynced).toArray();
+  }
+}
