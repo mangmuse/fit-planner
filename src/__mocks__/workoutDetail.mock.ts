@@ -1,3 +1,4 @@
+import { INITIAL_WORKOUT_DETAIL_BASE } from "@/adapter/workoutDetail.adapter";
 import {
   ClientWorkoutDetail,
   LocalWorkoutDetail,
@@ -7,18 +8,7 @@ import {
 export const createBaseWorkoutDetailMock = (
   overrides?: Partial<LocalWorkoutDetail>
 ): LocalWorkoutDetail => ({
-  serverId: null,
-  weight: 0,
-  rpe: null,
-  reps: 0,
-  isDone: false,
-  isSynced: false,
-  setOrder: 1,
-  exerciseOrder: 1,
-  setType: "NORMAL",
-  exerciseName: "벤치프레스",
-  exerciseId: 1,
-  workoutId: 1,
+  ...INITIAL_WORKOUT_DETAIL_BASE,
   createdAt: new Date().toISOString(),
   ...overrides,
 });

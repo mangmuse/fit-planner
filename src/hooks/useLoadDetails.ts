@@ -8,7 +8,7 @@ import {
   LocalWorkout,
   LocalWorkoutDetail,
 } from "@/types/models";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useModal } from "@/providers/contexts/ModalContext";
 import { useRouter } from "next/navigation";
 import {
