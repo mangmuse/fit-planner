@@ -1,106 +1,92 @@
+import { exerciseAdapter } from "@/lib/di";
 import {
-  mockLocalExercises,
-  mockServerResponseExercises,
+  createMockExercise,
+  createMockServerExercise,
 } from "@/__mocks__/exercise.mock";
-import { mergeServerExerciseData } from "@/adapter/exercise.adapter";
-import { click } from "@testing-library/user-event/dist/cjs/convenience/click.js";
+import { ClientExercise, LocalExercise } from "@/types/models";
 
 describe("mergeServerExerciseData", () => {
-  it("로컬 데이터 중 serverId가 없는 항목은 리턴값에 포함된다", () => {
-    const localExerciseWithoutServerId = mockLocalExercises[0];
+  it("로컬에만 있는 데이터(serverId=null)는 결과에 그대로 포함되어야 한다", () => {
+    const localOnlyItem = createMockExercise({ id: 1, serverId: null });
+    const localExercises: LocalExercise[] = [localOnlyItem];
+    const serverExercises: ClientExercise[] = [];
 
-    const merged = mergeServerExerciseData(
-      mockServerResponseExercises,
-      mockLocalExercises
+    const merged = exerciseAdapter.mergeServerExerciseData(
+      serverExercises,
+      localExercises
     );
 
-    const found = merged.find(
-      (item) => item.id === localExerciseWithoutServerId.id
-    );
-
-    expect(found).toBeDefined();
-    expect(found?.serverId).toBeNull();
+    expect(merged).toHaveLength(1);
+    expect(merged).toContainEqual(localOnlyItem);
   });
-  it("서버 데이터 중 로컬과 serverId가 매칭되지 않는 항목은 리턴값에 포함된다", () => {
-    const unmatchedServerExercise = mockServerResponseExercises.find(
-      (ex) => ex.id === 105
+
+  it("서버에만 있는 데이터는 결과에 새로 추가되어야 한다", () => {
+    const serverOnlyItem = createMockServerExercise({ id: 101 });
+    const localExercises: LocalExercise[] = [];
+    const serverExercises: ClientExercise[] = [serverOnlyItem];
+
+    const merged = exerciseAdapter.mergeServerExerciseData(
+      serverExercises,
+      localExercises
     );
 
-    const merged = mergeServerExerciseData(
-      mockServerResponseExercises,
-      mockLocalExercises
-    );
-    const found = merged.find(
-      (item) => item.serverId === unmatchedServerExercise?.id
-    );
-    expect(found).toBeDefined();
-    expect(found).toMatchObject({
-      name: unmatchedServerExercise?.name,
-      serverId: unmatchedServerExercise?.id,
-    });
+    expect(merged).toHaveLength(1);
+    const found = merged[0];
+    expect(found.serverId).toBe(serverOnlyItem.id);
+    expect(found.name).toBe(serverOnlyItem.name);
+    expect(found.isSynced).toBe(true);
   });
-  it("서버 데이터와 로컬 데이터가 serverId로 매칭되며, 로컬데이터의 isSynced === false 인 경우 로컬데이터만 리턴값에 포함된다", () => {
-    const local = mockLocalExercises.find((ex) => ex.serverId === 103);
-    const server = mockServerResponseExercises.find((ex) => ex.id === 103);
 
-    expect(local?.isSynced).toBe(false);
+  describe("로컬과 서버에 모두 데이터가 있을 때 (ID로 매칭)", () => {
+    it("로컬 데이터가 동기화되지 않았다면(isSynced=false), 로컬 데이터를 유지해야 한다 (Local First)", () => {
+      const unsyncedLocal = createMockExercise({
+        id: 1,
+        serverId: 101,
+        isSynced: false,
+        name: "로컬에서 이름 수정",
+      });
+      const serverOriginal = createMockServerExercise({
+        id: 101,
+        name: "서버 원본 이름",
+      });
 
-    const merged = mergeServerExerciseData(
-      mockServerResponseExercises,
-      mockLocalExercises
-    );
+      const localExercises = [unsyncedLocal];
+      const serverExercises = [serverOriginal];
 
-    const found = merged.find((ex) => ex.serverId === 103);
+      const merged = exerciseAdapter.mergeServerExerciseData(
+        serverExercises,
+        localExercises
+      );
 
-    expect(found).toBe(local);
-    expect(found).not.toBe(server);
-  });
-  it("복합 시나리오: 로컬과 서버가 여러 항목을 동시에 가지고 있을 때 올바르게 머지된다", () => {
-    const merged = mergeServerExerciseData(
-      mockServerResponseExercises,
-      mockLocalExercises
-    );
-
-    // 1) 로컬에만 존재하는 항목(serverId=null)이 포함되는지
-    const localNoServerId = mockLocalExercises[0];
-    const foundNoServerId = merged.find(
-      (item) => item.id === localNoServerId.id
-    );
-    expect(foundNoServerId).toBeDefined();
-    expect(foundNoServerId?.serverId).toBeNull();
-
-    // 2) 서버에만 존재(id=5)하는 항목이 새로 추가되는지
-    const unmatchedServerExercise = mockServerResponseExercises.find(
-      (ex) => ex.id === 105
-    );
-    const foundUnmatchedServer = merged.find(
-      (item) => item.serverId === unmatchedServerExercise?.id
-    );
-    expect(foundUnmatchedServer).toBeDefined();
-    expect(foundUnmatchedServer).toMatchObject({
-      name: unmatchedServerExercise?.name,
-      serverId: unmatchedServerExercise?.id,
+      expect(merged).toHaveLength(1);
+      expect(merged[0]).toEqual(unsyncedLocal);
     });
 
-    // 3) 로컬 isSynced=false 이고 serverId 일치하면 로컬 데이터가 우선
+    it("로컬 데이터가 이미 동기화되었다면(isSynced=true), 서버 데이터로 덮어쓰되 로컬 id는 유지해야 한다 (Server First)", () => {
+      const syncedLocal = createMockExercise({
+        id: 1,
+        serverId: 101,
+        isSynced: true,
+        name: "덮어쓰기 전 로컬 이름",
+      });
+      const serverUpdate = createMockServerExercise({
+        id: 101,
+        name: "서버에서 내린 새 이름",
+      });
 
-    const localFalse = mockLocalExercises.find(
-      (ex) => ex.serverId === 103 && ex.isSynced === false
-    );
-    expect(localFalse).toBeDefined();
-    const foundFalse = merged.find((item) => item.serverId === 103);
-    expect(foundFalse).toBe(localFalse);
+      const localExercises = [syncedLocal];
+      const serverExercises = [serverUpdate];
 
-    // 4) 로컬 isSynced=true 이고 serverId 일치하면 서버 데이터로 덮어쓰되, 로컬 id는 유지
-    const localTrue = mockLocalExercises.find(
-      (ex) => ex.serverId === 102 && ex.isSynced === true
-    );
-    expect(localTrue).toBeDefined();
+      const merged = exerciseAdapter.mergeServerExerciseData(
+        serverExercises,
+        localExercises
+      );
 
-    const foundTrue = merged.find((item) => item.serverId === 102);
-
-    expect(foundTrue).not.toBe(localTrue);
-    expect(foundTrue?.id).toBe(localTrue?.id);
-    expect(foundTrue?.serverId).toBe(102);
+      expect(merged).toHaveLength(1);
+      const found = merged[0];
+      expect(found.name).toBe(serverUpdate.name);
+      expect(found.id).toBe(syncedLocal.id);
+      expect(found.isSynced).toBe(true);
+    });
   });
 });
