@@ -7,6 +7,7 @@ import {
   clientRoutineDetailSchema,
   LocalRoutineDetailWithServerRoutineId,
 } from "@/types/models";
+import { safeRequest } from "@/util/api-helpers";
 import { validateData } from "@/util/validateData";
 import { z } from "zod";
 
@@ -41,38 +42,29 @@ export class RoutineDetailApi implements IRoutineDetailApi {
   async fetchRoutineDetailsFromServer(
     userId: string
   ): Promise<ClientRoutineDetail[]> {
-    const res = await fetch(`${BASE_URL}/api/routine/detail/${userId}`);
-    if (!res.ok) {
-      throw new Error(FETCH_ROUTINE_DETAILS_ERROR);
-    }
-    const data = await res.json();
-
-    const parsedData = validateData<FetchRoutineDetailsResponse>(
-      fetchRoutineDetailsSchema,
-      data
+    const data = await safeRequest(
+      `${BASE_URL}/api/routine/detail/${userId}`,
+      {},
+      fetchRoutineDetailsSchema
     );
-    const serverRoutineDetails = parsedData.routineDetails;
+
+    const serverRoutineDetails = data.routineDetails;
     return serverRoutineDetails;
   }
 
   async postRoutineDetailsToServer(
     mappedUnsynced: LocalRoutineDetailWithServerRoutineId[]
   ): Promise<SyncRoutineDetailsToServerResponse> {
-    const res = await fetch(`${BASE_URL}/api/routine/detail/sync`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mappedUnsynced }),
-    });
-
-    if (!res.ok) throw new Error(POST_ROUTINE_DETAILS_ERROR);
-
-    const data = await res.json();
-
-    const parsedData = validateData<SyncRoutineDetailsToServerResponse>(
-      syncRoutineDetailsToServerResponseSchema,
-      data
+    const data = await safeRequest(
+      `${BASE_URL}/api/routine/detail/sync`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mappedUnsynced }),
+      },
+      syncRoutineDetailsToServerResponseSchema
     );
 
-    return parsedData;
+    return data;
   }
 }

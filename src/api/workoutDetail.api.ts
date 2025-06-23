@@ -10,6 +10,7 @@ import {
   LocalWorkoutDetail,
   LocalWorkoutDetailWithServerWorkoutId,
 } from "@/types/models";
+import { safeRequest } from "@/util/api-helpers";
 import { validateData } from "@/util/validateData";
 import { z } from "zod";
 
@@ -50,18 +51,13 @@ export class WorkoutDetailApi implements IWorkoutDetailApi {
   async fetchWorkoutDetailsFromServer(
     userId: string
   ): Promise<ClientWorkoutDetail[]> {
-    const res = await fetch(`${BASE_URL}/api/workout/detail/${userId}`);
-    if (!res.ok) {
-      throw new Error(FETCH_WORKOUT_DETAILS_ERROR);
-    }
-    const data = await res.json();
-
-    const parsedData = validateData<FetchWorkoutDetailsResponse>(
-      fetchWorkoutDetailsSchema,
-      data
+    const data = await safeRequest(
+      `${BASE_URL}/api/workout/detail/${userId}`,
+      {},
+      fetchWorkoutDetailsSchema
     );
 
-    const serverWorkoutDetails = parsedData.workoutDetails;
+    const serverWorkoutDetails = data.workoutDetails;
 
     return serverWorkoutDetails;
   }
@@ -69,20 +65,16 @@ export class WorkoutDetailApi implements IWorkoutDetailApi {
   async postWorkoutDetailsToServer(
     mappedUnsynced: LocalWorkoutDetailWithServerWorkoutId[]
   ): Promise<SyncWorkoutDetailsToServerResponse> {
-    const res = await fetch(`${BASE_URL}/api/workout/detail/sync`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mappedUnsynced }),
-    });
-
-    if (!res.ok) throw new Error(POST_WORKOUT_DETAILS_ERROR);
-
-    const data = await res.json();
-    const parsedData = validateData<SyncWorkoutDetailsToServerResponse>(
-      syncWorkoutDetailsToServerResponseSchema,
-      data
+    const data = await safeRequest(
+      `${BASE_URL}/api/workout/detail/sync`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mappedUnsynced }),
+      },
+      syncWorkoutDetailsToServerResponseSchema
     );
 
-    return parsedData;
+    return data;
   }
 }

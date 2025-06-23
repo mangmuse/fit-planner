@@ -11,6 +11,8 @@ import {
 } from "@/types/models";
 import { validateData } from "@/util/validateData";
 import { IWorkoutApi } from "@/types/apis";
+import { safeRequest } from "@/util/api-helpers";
+import { s } from "node_modules/msw/lib/core/HttpResponse-I457nh8V.mjs";
 
 export const syncWorkoutsToServerResponseSchema = z.object({
   success: z.boolean(),
@@ -40,35 +42,29 @@ export type FetchWorkoutsResponse = z.infer<typeof fetchWorkoutSchema>;
 export class WorkoutApi implements IWorkoutApi {
   constructor() {}
   async fetchWorkoutsFromServer(userId: string): Promise<ClientWorkout[]> {
-    const res = await fetch(`${BASE_URL}/api/workout/${userId}`);
-    if (!res.ok) throw new Error(FETCH_WORKOUTS_ERROR);
-    const data = await res.json();
-    const parsedData = validateData<FetchWorkoutsResponse>(
-      fetchWorkoutSchema,
-      data
+    const data = await safeRequest(
+      `${BASE_URL}/api/workout/${userId}`,
+      {},
+      fetchWorkoutSchema
     );
-    const serverWorkouts = parsedData.workouts;
+
+    const serverWorkouts = data.workouts;
     return serverWorkouts;
   }
 
   async postWorkoutsToServer(
     unsynced: LocalWorkout[]
   ): Promise<SyncWorkoutsToServerResponse> {
-    const res = await fetch(`${BASE_URL}/api/workout/sync`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ unsynced }),
-    });
-
-    if (!res.ok) throw new Error(POST_WORKOUTS_ERROR);
-
-    const data = await res.json();
-
-    const parsedData = validateData<SyncWorkoutsToServerResponse>(
-      syncWorkoutsToServerResponseSchema,
-      data
+    const data = await safeRequest(
+      `${BASE_URL}/api/workout/sync`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ unsynced }),
+      },
+      syncWorkoutsToServerResponseSchema
     );
 
-    return parsedData;
+    return data;
   }
 }

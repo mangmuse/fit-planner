@@ -9,6 +9,7 @@ import {
   clientRoutineSchema,
   LocalRoutine,
 } from "@/types/models";
+import { safeRequest } from "@/util/api-helpers";
 import { validateData } from "@/util/validateData";
 import { z } from "zod";
 
@@ -37,35 +38,29 @@ export class RoutineApi implements IRoutineApi {
   constructor() {}
 
   async fetchRoutinesFromServer(userId: string): Promise<ClientRoutine[]> {
-    const res = await fetch(`${BASE_URL}/api/routine/${userId}`);
-    if (!res.ok) throw new Error(FETCH_ROUTINES_ERROR);
-    const data = await res.json();
-    const parsedData = validateData<FetchRoutinesResponse>(
-      fetchRoutineSchema,
-      data
+    const data = await safeRequest(
+      `${BASE_URL}/api/routine/${userId}`,
+      {},
+      fetchRoutineSchema
     );
-    const serverRoutines = parsedData.routines;
+
+    const serverRoutines = data.routines;
     return serverRoutines;
   }
 
   async postRoutinesToServer(
     unsynced: LocalRoutine[]
   ): Promise<SyncRoutinesToServerResponse> {
-    const res = await fetch(`${BASE_URL}/api/routine/sync`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ unsynced }),
-    });
-
-    if (!res.ok) throw new Error(POST_ROUTINES_ERROR);
-
-    const data = await res.json();
-
-    const parsedData = validateData<SyncRoutinesToServerResponse>(
-      syncRoutinesToServerResponseSchema,
-      data
+    const data = await safeRequest(
+      `${BASE_URL}/api/routine/sync`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ unsynced }),
+      },
+      syncRoutinesToServerResponseSchema
     );
 
-    return parsedData;
+    return data;
   }
 }
