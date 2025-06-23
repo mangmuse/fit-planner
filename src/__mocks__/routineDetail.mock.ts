@@ -1,35 +1,75 @@
-import { LocalRoutineDetail } from "@/types/models";
+import { INITIAL_ROUTINE_DETAIL_BASE } from "./../adapter/routineDetail.adapter";
+import { ClientRoutineDetail, LocalRoutineDetail } from "@/types/models";
+import {
+  FetchRoutineDetailsResponse,
+  SyncRoutineDetailsToServerResponse,
+} from "@/api/routineDetail.api";
 
-export const createBaseWorkoutDetailMock = (
+export const createBaseRoutineDetailMock = (
   overrides?: Partial<LocalRoutineDetail>
 ): LocalRoutineDetail => ({
-  serverId: null,
-  weight: 0,
-  rpe: null,
-  reps: 0,
-  isSynced: false,
+  ...INITIAL_ROUTINE_DETAIL_BASE,
+  createdAt: new Date().toISOString(),
+  ...overrides,
+});
+
+export const createServerRoutineDetailMock = (
+  overrides?: Partial<ClientRoutineDetail>
+): ClientRoutineDetail => ({
+  id: `server-detail-${Math.random()}`,
+  routineId: "server-routine-123",
+  exerciseId: 100,
+  exerciseName: "Mock Exercise",
   setOrder: 1,
   exerciseOrder: 1,
+  weight: 50,
+  reps: 10,
+  rpe: 0,
   setType: "NORMAL",
-  exerciseName: "벤치프레스",
-  exerciseId: 1,
-  routineId: 1,
   createdAt: new Date().toISOString(),
+  updatedAt: null,
   ...overrides,
 });
 
 export const mockRoutineDetail = {
   createInput: (overrides?: Partial<LocalRoutineDetail>) =>
-    createBaseWorkoutDetailMock(overrides),
+    createBaseRoutineDetailMock(overrides),
 
   new: (overrides?: Partial<LocalRoutineDetail>) =>
-    createBaseWorkoutDetailMock(overrides),
+    createBaseRoutineDetailMock(overrides),
 
-  past: createBaseWorkoutDetailMock({
+  past: createBaseRoutineDetailMock({
     id: 123,
     reps: 5,
     weight: 60,
 
     updatedAt: "2025-06-17T10:00:00.000Z",
   }),
+  
+  server: createServerRoutineDetailMock(),
+};
+
+// ======== Mock Server Response ========
+
+export const mockFetchRoutineDetailsResponse: FetchRoutineDetailsResponse = {
+  success: true,
+  routineDetails: [mockRoutineDetail.server],
+};
+
+export const mockPostRoutineDetailsToServerResponse: SyncRoutineDetailsToServerResponse = {
+  success: true,
+  updated: [
+    { 
+      localId: 1, 
+      serverId: "mock-server-detail-1",
+      exerciseId: 100,
+      routineId: "server-routine-123"
+    },
+    { 
+      localId: 2, 
+      serverId: "mock-server-detail-2",
+      exerciseId: 101,
+      routineId: "server-routine-456"
+    },
+  ],
 };

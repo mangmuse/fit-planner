@@ -1,10 +1,13 @@
-import { SyncExercisesToServerResponse } from "@/api/exercise.api";
+import {
+  FetchExercisesResponse,
+  SyncExercisesToServerResponse,
+} from "@/api/exercise.api";
 import { ClientExercise, LocalExercise } from "@/types/models";
 
 export const createMockExercise = (
   overrides?: Partial<LocalExercise>
 ): LocalExercise => ({
-  id: Math.floor(Math.random() * 1000), // 임의의 ID
+  id: Math.floor(Math.random() * 1000),
   name: "기본 운동",
   category: "가슴",
   imageUrl: "https://example.com/default.png",
@@ -17,6 +20,22 @@ export const createMockExercise = (
   createdAt: "2025-01-01T00:00:00.000Z",
   updatedAt: null,
   userId: "mockUserId",
+  ...overrides,
+});
+
+export const createMockServerExercise = (
+  overrides?: Partial<ClientExercise>
+): ClientExercise => ({
+  id: Math.floor(Math.random() * 1000),
+  name: "서버 운동",
+  category: "가슴",
+  isCustom: false,
+  isBookmarked: false,
+  unit: "kg",
+  exerciseMemo: null,
+  createdAt: new Date().toISOString(),
+  userId: null,
+  imageUrl: "https://example.com/server.png",
   ...overrides,
 });
 
@@ -33,6 +52,8 @@ export const mockExercise = {
     isSynced: true,
     serverId: 200,
   }),
+
+  server: createMockServerExercise(),
 
   list: [
     createMockExercise({
@@ -71,168 +92,24 @@ export const mockExercise = {
 };
 
 // ----
-export const mockExerciseMemo = {
-  content: "zz",
-  createdAt: "2023-01-01T00:00:00Z",
-  updatedAt: "2023-01-01T00:00:00Z",
-};
 
-export const mockServerResponseExercises: ClientExercise[] = [
-  {
-    id: 101,
-    name: "벤치프레스",
-    category: "가슴",
-    isCustom: false,
-    isBookmarked: true,
-    unit: "kg",
-    exerciseMemo: mockExerciseMemo,
-    createdAt: "2023-01-01T00:00:00Z",
-    userId: null,
-    imageUrl: "https://example.com/push-up.png",
-  },
-  {
-    id: 102,
-    name: "스쿼트",
-    category: "하체",
-    isCustom: false,
-    isBookmarked: false,
-    unit: "kg",
-    exerciseMemo: null,
-    createdAt: "2023-01-02T00:00:00Z",
-    userId: null,
-    imageUrl: "https://example.com/push-up.png",
-  },
-  {
-    id: 103,
-    name: "데드리프트",
-    category: "하체",
-    isCustom: false,
-    isBookmarked: true,
-    unit: "kg",
-    exerciseMemo: mockExerciseMemo,
-    createdAt: "2023-01-03T00:00:00Z",
-    userId: null,
-    imageUrl: "https://example.com/push-up.png",
-  },
-  {
-    id: 104,
-    name: "랫풀다운",
-    category: "등",
-    isCustom: false,
-    isBookmarked: true,
-    unit: "kg",
-    exerciseMemo: mockExerciseMemo,
-    createdAt: "2023-01-03T00:00:00Z",
-    userId: null,
-    imageUrl: "https://example.com/push-up.png",
-  },
-  {
-    id: 105,
-    name: "레그 익스텐션",
-    category: "하체",
-    isCustom: false,
-    unit: "kg",
-    exerciseMemo: mockExerciseMemo,
-    isBookmarked: false,
-    createdAt: "2023-01-03T00:00:00Z",
-    userId: null,
-    imageUrl: "https://example.com/push-up.png",
-  },
-];
+// ======== Mock Server Response ========
 
-export const mockLocalExercises: LocalExercise[] = [
-  {
-    category: "가슴",
-    createdAt: "2023-01-01T00:00:00Z",
-    id: 1,
-    unit: "kg",
-    imageUrl: "https://example.com/push-up.png",
-    isBookmarked: true,
-    isCustom: false,
-    isSynced: false,
-    name: "벤치프레스",
-    exerciseMemo: mockExerciseMemo,
-    serverId: null,
-    updatedAt: null,
-    userId: null,
-  },
-  {
-    category: "하체",
-    createdAt: "2023-01-02T00:00:00Z",
-    id: 2,
-    unit: "kg",
-    imageUrl: "https://example.com/push-up.png",
-    isBookmarked: false,
-    isCustom: false,
-    isSynced: true,
-    name: "스쿼트",
-    exerciseMemo: mockExerciseMemo,
-    serverId: 102,
-    updatedAt: null,
-    userId: null,
-  },
-  {
-    category: "하체",
-    createdAt: "2023-01-03T00:00:00Z",
-    id: 3,
-    unit: "kg",
-    imageUrl: "https://example.com/push-up.png",
-    isBookmarked: true,
-    isCustom: false,
-    isSynced: false,
-    name: "데드리프트",
-    exerciseMemo: mockExerciseMemo,
-    serverId: 103,
-    updatedAt: null,
-    userId: null,
-  },
-  {
-    category: "등",
-    createdAt: "2023-01-03T00:00:00Z",
-    id: 4,
-    unit: "kg",
-    imageUrl: "https://example.com/push-up.png",
-    isBookmarked: true,
-    isCustom: false,
-    isSynced: true,
-    name: "랫풀다운",
-    exerciseMemo: mockExerciseMemo,
-    serverId: null,
-    updatedAt: null,
-    userId: null,
-  },
-];
-
-export const mockFetchExercisesResponse = {
+/**
+ * GET /api/exercises/all
+ */
+export const mockFetchExercisesResponse: FetchExercisesResponse = {
   success: true,
-  exercises: mockServerResponseExercises,
+  exercises: [mockExercise.server],
 };
 
-export const mockInvalidFetchExercisesResponse = {
-  success: "true",
-  exercises: mockServerResponseExercises,
-};
-
-export const mockPostExercisesToServerResponse: SyncExercisesToServerResponse =
-  {
-    success: true,
-    updated: [
-      { localId: 1, serverId: 1 },
-      { localId: 2, serverId: 2 },
-      { localId: 3, serverId: 3 },
-    ],
-  };
-export const mockInvalidPostExercisesToServerResponse = {
+/**
+ * POST /api/exercises/sync
+ */
+export const mockpostExercisesResponse: SyncExercisesToServerResponse = {
   success: true,
   updated: [
-    { localId: 1, serverId: "1" },
-    { localId: 2, serverId: 2 },
-    { localId: 3, serverId: 3 },
+    { localId: 1, serverId: mockExercise.server.id },
+    { localId: 2, serverId: mockExercise.server.id },
   ],
-};
-
-export const createMockExercises = (
-  overrides?: Partial<LocalExercise>
-): LocalExercise[] => {
-  return mockLocalExercises.map((ex) => ({ ...ex, ...overrides }));
 };

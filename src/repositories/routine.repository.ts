@@ -1,40 +1,24 @@
 import { db } from "@/lib/db";
+import { BaseRepository } from "@/repositories/base.repository";
 import { LocalRoutine } from "@/types/models";
+import { IRoutineRepository } from "@/types/repositories";
+import { Table } from "dexie";
 
-export const routineRepository = {
-  async clear(): Promise<void> {
-    await db.routines.clear();
-  },
-
-  async findOneById(id: number): Promise<LocalRoutine | undefined> {
-    return db.routines.get(id);
-  },
+export class RoutineRepository
+  extends BaseRepository<LocalRoutine, number>
+  implements IRoutineRepository
+{
+  constructor(
+    table: Table<LocalRoutine, number> //
+  ) {
+    super(table);
+  }
 
   async findOneByServerId(serverId: string): Promise<LocalRoutine | undefined> {
-    return db.routines.where("serverId").equals(serverId).first();
-  },
-
-  async findAll(): Promise<LocalRoutine[]> {
-    return db.routines.toArray();
-  },
+    return this.table.where("serverId").equals(serverId).first();
+  }
 
   async findAllByUserId(userId: string) {
-    return db.routines.where("userId").equals(userId).toArray();
-  },
-
-  async add(toInsert: LocalRoutine): Promise<number> {
-    return db.routines.add(toInsert);
-  },
-
-  async bulkAdd(toInsert: LocalRoutine[]): Promise<number> {
-    return db.routines.bulkAdd(toInsert);
-  },
-
-  async update(id: number, toUpdate: Partial<LocalRoutine>): Promise<number> {
-    return db.routines.update(id, toUpdate);
-  },
-
-  async delete(id: number): Promise<void> {
-    await db.routines.delete(id);
-  },
-};
+    return this.table.where("userId").equals(userId).toArray();
+  }
+}

@@ -1,69 +1,48 @@
 import { db } from "@/lib/db";
+import { BaseRepository } from "@/repositories/base.repository";
 import { LocalWorkoutDetail } from "@/types/models";
+import { IWorkoutDetailRepository } from "@/types/repositories";
+import { Table } from "dexie";
 
-export const workoutDetailRepository = {
-  async clear(): Promise<void> {
-    await db.workoutDetails.clear();
-  },
-
-  async findAll(): Promise<LocalWorkoutDetail[]> {
-    return db.workoutDetails.toArray();
-  },
+export class WorkoutDetailRepository
+  extends BaseRepository<LocalWorkoutDetail, number>
+  implements IWorkoutDetailRepository
+{
+  constructor(table: Table<LocalWorkoutDetail, number>) {
+    super(table);
+  }
 
   async findAllByWorkoutId(workoutId: number): Promise<LocalWorkoutDetail[]> {
-    return db.workoutDetails.where("workoutId").equals(workoutId).toArray();
-  },
+    return this.table.where("workoutId").equals(workoutId).toArray();
+  }
 
   async findAllByWorkoutIdOrderByExerciseOrder(
     workoutId: number
   ): Promise<LocalWorkoutDetail[]> {
-    return db.workoutDetails
+    return this.table
       .where("workoutId")
       .equals(workoutId)
       .sortBy("exerciseOrder");
-  },
+  }
 
   async findAllByWorkoutIdAndExerciseOrder(
     workoutId: number,
     exerciseOrder: number
   ): Promise<LocalWorkoutDetail[]> {
-    return db.workoutDetails
+    return this.table
       .where("workoutId")
       .equals(workoutId)
       .and((detail) => detail.exerciseOrder === exerciseOrder)
       .toArray();
-  },
+  }
 
   async findAllDoneByExerciseId(
     exerciseId: number
   ): Promise<LocalWorkoutDetail[]> {
-    return db.workoutDetails
+    return this.table
       .where("exerciseId")
       .equals(exerciseId)
       .and((detail) => detail.isDone === true)
       .toArray();
-  },
-
-  async add(toInsert: LocalWorkoutDetail): Promise<number> {
-    return db.workoutDetails.add(toInsert);
-  },
-
-  async bulkAdd(toInsert: LocalWorkoutDetail[]): Promise<number> {
-    return db.workoutDetails.bulkAdd(toInsert);
-  },
-
-  async update(
-    detailId: number,
-    toUpdate: Partial<LocalWorkoutDetail>
-  ): Promise<number> {
-    return db.workoutDetails.update(detailId, toUpdate);
-  },
-
-  async bulkPut(toUpdate: LocalWorkoutDetail[]): Promise<number> {
-    return db.workoutDetails.bulkPut(toUpdate);
-  },
-
-  async delete(detailId: number) {
-    return db.workoutDetails.delete(detailId);
-  },
-};
+  }
+}

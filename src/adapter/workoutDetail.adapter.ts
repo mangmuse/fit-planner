@@ -8,21 +8,27 @@ import {
   LocalWorkoutDetailWithServerWorkoutId,
 } from "@/types/models";
 
+export const INITIAL_WORKOUT_DETAIL_BASE: Omit<
+  LocalWorkoutDetail,
+  "createdAt"
+> = {
+  serverId: null,
+  weight: 0,
+  rpe: null,
+  reps: 0,
+  isDone: false,
+  isSynced: false,
+  setOrder: 1,
+  exerciseOrder: 1,
+  setType: "NORMAL",
+  exerciseName: "",
+  exerciseId: 0,
+  workoutId: 0,
+};
 export class WorkoutdetailAdapter implements IWorkoutDetailAdapter {
   getInitialWorkoutDetail(): LocalWorkoutDetail {
     return {
-      serverId: null,
-      weight: 0,
-      rpe: null,
-      reps: 0,
-      isDone: false,
-      isSynced: false,
-      setOrder: 1,
-      exerciseOrder: 1,
-      setType: "NORMAL",
-      exerciseName: "",
-      exerciseId: 0,
-      workoutId: 0,
+      ...INITIAL_WORKOUT_DETAIL_BASE,
       createdAt: new Date().toISOString(),
     };
   }

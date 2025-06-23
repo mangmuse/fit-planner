@@ -6,23 +6,28 @@ import {
   LocalRoutineDetailWithServerRoutineId,
   LocalWorkoutDetail,
 } from "@/types/models";
-
+export const INITIAL_ROUTINE_DETAIL_BASE: Omit<
+  LocalRoutineDetail,
+  "createdAt"
+> = {
+  serverId: null,
+  weight: 0,
+  rpe: null,
+  reps: 0,
+  isSynced: false,
+  setOrder: 1,
+  exerciseOrder: 1,
+  setType: "NORMAL",
+  exerciseName: "",
+  exerciseId: 0,
+  routineId: -9999,
+};
 export class RoutineDetailAdapter implements IRoutineDetailAdapter {
   constructor() {}
 
   getInitialRoutineDetail(): LocalRoutineDetail {
     return {
-      serverId: null,
-      weight: 0,
-      rpe: null,
-      reps: 0,
-      isSynced: false,
-      setOrder: 1,
-      exerciseOrder: 1,
-      setType: "NORMAL",
-      exerciseName: "",
-      exerciseId: 0,
-      routineId: -9999,
+      ...INITIAL_ROUTINE_DETAIL_BASE,
       createdAt: new Date().toISOString(),
     };
   }
@@ -39,7 +44,9 @@ export class RoutineDetailAdapter implements IRoutineDetailAdapter {
       !setOrder ||
       !routineId
     )
-      throw new Error("...");
+      throw new Error(
+        "exerciseName, exerciseId, exerciseOrder, setOrder, routineId 는 필수 입력사항입니다."
+      );
 
     const defaultValue = this.getInitialRoutineDetail();
 

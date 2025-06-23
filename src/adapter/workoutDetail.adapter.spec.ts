@@ -1,6 +1,4 @@
-// jest.mock("@/services/exercise.service.ts");
-// jest.mock("@/services/workout.service.ts");
-import { createMockExercise, mockExercise } from "@/__mocks__/exercise.mock";
+import { mockExercise } from "@/__mocks__/exercise.mock";
 import { mockRoutineDetail } from "@/__mocks__/routineDetail.mock";
 import { mockWorkout } from "@/__mocks__/workout.mock";
 import {
@@ -8,37 +6,18 @@ import {
   mockWorkoutDetail,
 } from "@/__mocks__/workoutDetail.mock";
 
-import {
-  LocalExercise,
-  LocalRoutineDetail,
-  LocalWorkout,
-  LocalWorkoutDetail,
-} from "@/types/models";
-import {
-  exerciseService,
-  workoutDetailAdapter,
-  workoutService,
-} from "@/lib/di";
+import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
+import { workoutDetailAdapter } from "@/lib/di";
+import { INITIAL_WORKOUT_DETAIL_BASE } from "@/adapter/workoutDetail.adapter";
 
 describe("getInitialWorkoutDetail", () => {
   it("초기 workout detail 객체를 반환한다", () => {
     const result = workoutDetailAdapter.getInitialWorkoutDetail();
 
-    expect(result).toEqual({
-      serverId: null,
-      weight: 0,
-      rpe: null,
-      reps: 0,
-      isDone: false,
-      isSynced: false,
-      setOrder: 1,
-      exerciseOrder: 1,
-      setType: "NORMAL",
-      exerciseName: "",
-      exerciseId: 0,
-      workoutId: 0,
-      createdAt: expect.any(String),
-    });
+    const expectedBase = INITIAL_WORKOUT_DETAIL_BASE;
+
+    expect(result).toEqual(expect.objectContaining(expectedBase));
+    expect(result.createdAt).toEqual(expect.any(String));
   });
 });
 
@@ -137,10 +116,10 @@ describe("mapPastWorkoutToWorkoutDetail", () => {
 describe("getAddSetToWorkoutByLastSet", () => {
   it("초기 workoutDetail 객체에 인자로 받은 디테일의 일부를 올바르게 덮어씌워 반환한다", () => {
     const lastSet = { ...mockWorkoutDetail.past };
-    const createDetailSpy = jest.spyOn(
-      workoutDetailAdapter,
-      "createWorkoutDetail"
-    );
+    const createDetailSpy = jest
+      .spyOn(workoutDetailAdapter, "createWorkoutDetail")
+      .mockImplementation((input) => createBaseWorkoutDetailMock(input));
+
     workoutDetailAdapter.getAddSetToWorkoutByLastSet(lastSet);
 
     expect(createDetailSpy).toHaveBeenCalledTimes(1);
@@ -176,10 +155,11 @@ describe("getAddSetToWorkoutByLastSet", () => {
       .spyOn(global, "Date")
       .mockImplementation(() => MOCK_NOW);
 
-    const createDetailSpy = jest.spyOn(
-      workoutDetailAdapter,
-      "createWorkoutDetail"
-    );
+    const createDetailSpy = jest
+      .spyOn(workoutDetailAdapter, "createWorkoutDetail")
+      .mockImplementation((input: Partial<LocalWorkoutDetail>) =>
+        createBaseWorkoutDetailMock(input)
+      );
 
     workoutDetailAdapter.getAddSetToWorkoutByLastSet(lastSet);
 

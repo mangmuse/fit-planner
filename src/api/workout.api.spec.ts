@@ -1,138 +1,96 @@
-import { mockUserId } from "@/__mocks__/src/api";
 import {
   mockFetchWorkoutsResponse,
-  mockInvalidFetchWorkoutsResponse,
-  mockInvalidPostWorkoutsToServerResponse,
   mockPostWorkoutsToServerResponse,
-  mockLocalWorkouts,
-  mockServerWorkouts,
+  mockWorkout,
 } from "@/__mocks__/workout.mock";
-import {
-  fetchWorkoutsFromServer,
-  postWorkoutsToServer,
-} from "@/api/workout.api";
+import { WorkoutApi } from "@/api/workout.api";
 import { BASE_URL } from "@/constants";
-import {
-  FETCH_WORKOUTS_ERROR,
-  POST_WORKOUTS_ERROR,
-} from "@/constants/errorMessage";
-import { VALIDATION_FAILED } from "@/util/validateData";
-import { server } from "jest.setup";
-import { http } from "msw";
+import { IWorkoutApi } from "@/types/apis";
+import { ApiError, safeRequest } from "@/util/apiHelpers";
+import { isSymbol } from "lodash";
+import { mock } from "node:test";
+import { a } from "node_modules/framer-motion/dist/types.d-B_QPEvFK";
 
-const targetUrl = `${BASE_URL}/api/workout`;
+jest.mock("@/util/apiHelpers", () => ({
+  __esModule: true,
+  ...jest.requireActual("@/util/apiHelpers"),
+  safeRequest: jest.fn(),
+}));
 
-describe("fetchWorkoutFromServer", () => {
-  it("올바른 api url로 fetch를 호출한다", async () => {
-    let capturedUrl = "";
-    server.use(
-      http.get(`${targetUrl}/${mockUserId}`, ({ request }) => {
-        capturedUrl = request.url;
-        return new Response(JSON.stringify(mockFetchWorkoutsResponse), {
-          status: 200,
-        });
-      })
-    );
-    await fetchWorkoutsFromServer(mockUserId);
-    expect(capturedUrl).toBe(`${targetUrl}/${mockUserId}`);
+const mockedSafeRequest = safeRequest as jest.Mock;
+
+describe("WorkoutApi", () => {
+  let api: IWorkoutApi;
+  beforeEach(() => {
+    api = new WorkoutApi();
+    mockedSafeRequest.mockClear();
+  });
+  describe("fetchWorkoutsFromServer", () => {
+    it("서버 응답이 성공할 경우 예상된 데이터를 반환한다", async () => {
+      const userId = "user-123";
+      const serverRes = mockFetchWorkoutsResponse;
+
+      mockedSafeRequest.mockResolvedValue(serverRes);
+
+      const result = await api.fetchWorkoutsFromServer(userId);
+
+      expect(result).toEqual(serverRes.workouts);
+    });
+
+    it("인자를 URL과 함께 safeRequest를 호출한다", async () => {
+      const userId = "user-123";
+      const serverRes = mockFetchWorkoutsResponse;
+
+      mockedSafeRequest.mockResolvedValue(serverRes);
+
+      await api.fetchWorkoutsFromServer(userId);
+
+      expect(mockedSafeRequest).toHaveBeenCalledWith(
+        expect.stringContaining(`/api/workout/${userId}`),
+        expect.anything(),
+        expect.anything()
+      );
+    });
+
+    it("실패시 safeRequest가 던진 에러를 그대로 전달한다", () => {
+      const userId = "user-123";
+      const mockError = new ApiError(500, "서버 터짐");
+      mockedSafeRequest.mockRejectedValue(mockError);
+
+      expect(api.fetchWorkoutsFromServer(userId)).rejects.toThrow(mockError);
+    });
   });
 
-  it("서버 응답이 성공할 경우 예상된 데이터를 반환한다", async () => {
-    server.use(
-      http.get(`${targetUrl}/${mockUserId}`, () => {
-        return new Response(JSON.stringify(mockFetchWorkoutsResponse), {
-          status: 200,
-        });
-      })
-    );
-    const result = await fetchWorkoutsFromServer(mockUserId);
-    expect(result).toEqual(mockServerWorkouts);
-  });
+  describe("postWorkoutsToServer", () => {
+    it("서버 응답이 성공할 경우 예상된 데이터를 반환한다", async () => {
+      const serverRes = mockPostWorkoutsToServerResponse;
+      const unsynced = [mockWorkout.unsynced];
+      mockedSafeRequest.mockResolvedValue(serverRes);
+      const result = await api.postWorkoutsToServer(unsynced);
+      expect(result).toEqual(serverRes);
+    });
+    it("올바른 URL과 인자로 safeRequest를 호출한다", async () => {
+      const unsynced = [mockWorkout.unsynced];
+      const serverRes = mockPostWorkoutsToServerResponse;
+      mockedSafeRequest.mockResolvedValue(serverRes);
 
-  it("서버 응답이 기대한 값과 다를 경우 validation error를 던진다", async () => {
-    server.use(
-      http.get(`${targetUrl}/${mockUserId}`, () => {
-        return new Response(JSON.stringify(mockInvalidFetchWorkoutsResponse), {
-          status: 200,
-        });
-      })
-    );
+      await api.postWorkoutsToServer(unsynced);
 
-    await expect(fetchWorkoutsFromServer(mockUserId)).rejects.toThrow(
-      VALIDATION_FAILED
-    );
-  });
+      expect(mockedSafeRequest).toHaveBeenCalledWith(
+        expect.stringContaining(`${BASE_URL}/api/workout/sync`),
+        expect.objectContaining({
+          method: "POST",
+          body: JSON.stringify({ unsynced }),
+        }),
+        expect.anything()
+      );
+    });
+    it("실패시 safeRequest가 던진 에러를 그대로 전달한다", () => {
+      const unsynced = [mockWorkout.unsynced];
+      const mockError = new ApiError(500, "서버 터짐");
+      mockedSafeRequest.mockRejectedValue(mockError);
 
-  it("서버 응답이 실패할 경우 에러를 던진다", async () => {
-    server.use(
-      http.get(`${targetUrl}/${mockUserId}`, () => {
-        return new Response(
-          JSON.stringify({ success: false, message: ";ㅅ;" }),
-          {
-            status: 500,
-          }
-        );
-      })
-    );
-
-    await expect(fetchWorkoutsFromServer(mockUserId)).rejects.toThrow(
-      FETCH_WORKOUTS_ERROR
-    );
-  });
-});
-
-describe("postWorkoutsToServer", () => {
-  it("올바른 api url로 fetch를 호출한다", async () => {
-    let capturedUrl = "";
-    server.use(
-      http.post(`${targetUrl}/sync`, ({ request }) => {
-        capturedUrl = request.url;
-        return new Response(JSON.stringify(mockPostWorkoutsToServerResponse), {
-          status: 200,
-        });
-      })
-    );
-    await postWorkoutsToServer(mockLocalWorkouts);
-    expect(capturedUrl).toBe(`${targetUrl}/sync`);
-  });
-  it("서버 응답이 성공할 경우 예상된 데이터를 반환한다", async () => {
-    server.use(
-      http.post(`${targetUrl}/sync`, () => {
-        return new Response(JSON.stringify(mockPostWorkoutsToServerResponse), {
-          status: 200,
-        });
-      })
-    );
-    const result = await postWorkoutsToServer(mockLocalWorkouts);
-    expect(result).toEqual(mockPostWorkoutsToServerResponse);
-  });
-  it("서버 응답이 기대한 값과 다를 경우 validation error를 던진다", async () => {
-    server.use(
-      http.post(`${targetUrl}/sync`, () => {
-        return new Response(
-          JSON.stringify(mockInvalidPostWorkoutsToServerResponse),
-          {
-            status: 200,
-          }
-        );
-      })
-    );
-
-    await expect(postWorkoutsToServer(mockLocalWorkouts)).rejects.toThrow(
-      VALIDATION_FAILED
-    );
-  });
-  it("서버 응답이 실패할 경우 에러를 던진다", async () => {
-    server.use(
-      http.post(`${targetUrl}/sync`, () => {
-        return new Response(JSON.stringify({ success: false }), {
-          status: 500,
-        });
-      })
-    );
-
-    await expect(postWorkoutsToServer(mockLocalWorkouts)).rejects.toThrow(
-      POST_WORKOUTS_ERROR
-    );
+      expect(api.postWorkoutsToServer(unsynced)).rejects.toThrow(mockError);
+    });
   });
 });

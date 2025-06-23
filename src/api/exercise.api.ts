@@ -1,3 +1,4 @@
+import { safeRequest } from "@/util/apiHelpers";
 import { BASE_URL } from "@/constants";
 import {
   FETCH_EXERCISES_ERROR,
@@ -11,7 +12,6 @@ import {
   ClientUser,
   LocalExercise,
 } from "@/types/models";
-import { validateData } from "@/util/validateData";
 import { z } from "zod";
 
 export const fetchExercisesSchema = z.object({
@@ -39,39 +39,31 @@ export class ExerciseApi implements IExerciseApi {
     userId: ClientUser["id"]
   ): Promise<ClientExercise[]> {
     const queryParams = new URLSearchParams({ userId: userId ?? "" });
-    const res = await fetch(`${BASE_URL}/api/exercises/all?${queryParams}`);
 
-    if (!res.ok) {
-      throw new Error(FETCH_EXERCISES_ERROR);
-    }
-    const serverData = await res.json();
-    const parsedExercises = validateData<FetchExercisesResponse>(
-      fetchExercisesSchema,
-      serverData
+    const serverData = await safeRequest(
+      `${BASE_URL}/api/exercises/all?${queryParams}`,
+      {},
+      fetchExercisesSchema
     );
-    const serverWorkouts = parsedExercises.exercises;
-    return serverWorkouts;
+
+    const serverExercises = serverData.exercises;
+    return serverExercises;
   }
 
   async postExercisesToServer(
     unsynced: LocalExercise[],
     userId: string
   ): Promise<SyncExercisesToServerResponse> {
-    const res = await fetch(`${BASE_URL}/api/exercises/sync`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ unsynced, userId }),
-    });
-    if (!res.ok) {
-      throw new Error(POST_EXERCISES_ERROR);
-    }
-
-    const data = await res.json();
-    const parsedData = validateData<SyncExercisesToServerResponse>(
-      syncExercisesToServerResponseSchema,
-      data
+    const data = await safeRequest(
+      `${BASE_URL}/api/exercises/sync`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ unsynced, userId }),
+      },
+      syncExercisesToServerResponseSchema
     );
 
-    return parsedData;
+    return data;
   }
 }

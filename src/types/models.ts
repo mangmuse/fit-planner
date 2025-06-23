@@ -192,13 +192,14 @@ export type LocalExercise = z.infer<typeof localExerciseSchema>;
 export type LocalWorkout = z.infer<typeof localWorkoutSchema>;
 export type LocalRoutine = z.infer<typeof localRoutineSchema>;
 export type LocalWorkoutDetail = z.infer<typeof localWorkoutDetailSchema>;
+export type LocalRoutineDetail = z.infer<typeof localRoutineDetailSchema>;
+
 export type LocalWorkoutDetailWithServerWorkoutId = Omit<
   LocalWorkoutDetail,
   "workoutId"
 > & {
   workoutId: string;
 };
-export type LocalRoutineDetail = z.infer<typeof localRoutineDetailSchema>;
 export type LocalRoutineDetailWithServerRoutineId = Omit<
   LocalRoutineDetail,
   "routineId"
@@ -213,3 +214,7 @@ export type AddLocalWorkoutDetailInput = {
   exerciseName: string;
   setOrder: number;
 };
+
+export interface LocalBase {
+  id?: number;
+}

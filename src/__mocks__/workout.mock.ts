@@ -1,5 +1,8 @@
 import { ClientWorkout } from "../types/models";
-import { SyncWorkoutsToServerResponse } from "@/api/workout.api";
+import {
+  FetchWorkoutsResponse,
+  SyncWorkoutsToServerResponse,
+} from "@/api/workout.api";
 import { mockUserId } from "@/__mocks__/src/api";
 import { LocalWorkout } from "@/types/models";
 import { getFormattedDateYMD } from "@/util/formatDate";
@@ -19,7 +22,21 @@ const createBaseWorkoutMock = (
   ...overrides,
 });
 
+export const createServerWorkoutMock = (
+  overrides?: Partial<ClientWorkout>
+): ClientWorkout => ({
+  id: `server-id-${Math.random()}`,
+  date: new Date().toISOString(),
+  userId: "mockUserId",
+  status: "EMPTY",
+  createdAt: new Date().toISOString(),
+  updatedAt: null,
+  ...overrides,
+});
+
 export const mockWorkout = {
+  default: createBaseWorkoutMock(),
+
   empty: createBaseWorkoutMock({
     id: 1,
     status: "EMPTY",
@@ -32,6 +49,12 @@ export const mockWorkout = {
     isSynced: false,
     serverId: null,
   }),
+  unsynced: createBaseWorkoutMock({
+    id: 3,
+    status: "COMPLETED",
+    isSynced: false,
+    serverId: "server-workout-xyz",
+  }),
 
   synced: createBaseWorkoutMock({
     id: 3,
@@ -39,8 +62,26 @@ export const mockWorkout = {
     isSynced: true,
     serverId: "server-workout-xyz",
   }),
+
+  server: createServerWorkoutMock(),
 };
-// ----
+// ======== Mock Server Response ========
+
+export const mockFetchWorkoutsResponse: FetchWorkoutsResponse = {
+  success: true,
+  workouts: [mockWorkout.server],
+};
+
+export const mockPostWorkoutsToServerResponse: SyncWorkoutsToServerResponse = {
+  success: true,
+  updated: [
+    { localId: 1, serverId: "mock-server-id-1" },
+    { localId: 2, serverId: "mock-server-id-2" },
+    { localId: 3, serverId: "mock-server-id-3" },
+  ],
+};
+
+// ---------
 
 export const mockWorkoutServerId = "a11fe018-2dfc-456b-8dfb-4656c1d4be12";
 
@@ -98,24 +139,11 @@ export const mockServerWorkouts: ClientWorkout[] = [
   },
 ];
 
-export const mockFetchWorkoutsResponse = {
-  success: true,
-  workouts: mockServerWorkouts,
-};
-
 export const mockInvalidFetchWorkoutsResponse = {
   success: "true",
   workouts: mockServerWorkouts,
 };
 
-export const mockPostWorkoutsToServerResponse: SyncWorkoutsToServerResponse = {
-  success: true,
-  updated: [
-    { localId: 1, serverId: mockWorkoutServerId },
-    { localId: 2, serverId: `${mockWorkoutServerId}2` },
-    { localId: 3, serverId: `${mockWorkoutServerId}3` },
-  ],
-};
 export const mockInvalidPostWorkoutsToServerResponse = {
   success: true,
   updated: [

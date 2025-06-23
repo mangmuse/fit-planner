@@ -7,12 +7,14 @@ import { RoutineApi } from "@/api/routine.api";
 import { RoutineDetailApi } from "@/api/routineDetail.api";
 import { WorkoutApi } from "@/api/workout.api";
 import { WorkoutDetailApi } from "@/api/workoutDetail.api";
+import { db } from "@/lib/db";
+import { ExerciseRepository } from "@/repositories/exercise.repository";
+import { RoutineRepository } from "@/repositories/routine.repository";
 
-import { exerciseRepository as exerciseRepositoryObj } from "@/repositories/exercise.repository";
-import { routineRepository as routineRepositoryObj } from "@/repositories/routine.repository";
-import { routineDetailRepository as routineDetailRepositoryObj } from "@/repositories/routineDetail.repository";
-import { workoutRepository as workoutRepositoryObj } from "@/repositories/workout.repository";
-import { workoutDetailRepository as workoutDetailRepositoryObj } from "@/repositories/workoutDetail.repository";
+import { RoutineDetailRepository } from "@/repositories/routineDetail.repository";
+import { WorkoutRepository } from "@/repositories/workout.repository";
+import { WorkoutDetailRepository } from "@/repositories/workoutDetail.repository";
+
 import { ExerciseService } from "@/services/exercise.service";
 import { RoutineService } from "@/services/routine.service";
 
@@ -40,11 +42,15 @@ export const routineDetailApi = new RoutineDetailApi();
 
 // ------ Repository ----- //
 
-export const exerciseRepository = exerciseRepositoryObj;
-export const routineRepository = routineRepositoryObj;
-export const routineDetailRepository = routineDetailRepositoryObj;
-export const workoutRepository = workoutRepositoryObj;
-export const workoutDetailRepository = workoutDetailRepositoryObj;
+export const exerciseRepository = new ExerciseRepository(db.exercises);
+export const routineRepository = new RoutineRepository(db.routines);
+export const routineDetailRepository = new RoutineDetailRepository(
+  db.routineDetails
+);
+export const workoutRepository = new WorkoutRepository(db.workouts);
+export const workoutDetailRepository = new WorkoutDetailRepository(
+  db.workoutDetails
+);
 
 // ------ Adapter ----- //
 export const exerciseAdapter = new ExerciseAdapter();

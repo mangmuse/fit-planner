@@ -1,8 +1,18 @@
 import { BASE_URL } from "@/constants";
-import { http } from "msw";
+import { http, HttpResponse } from "msw";
 import dayjs from "dayjs";
 import { PatchBookmarkInput } from "@/types/dto/exercise.dto";
-import { mockServerResponseExercises } from "@/__mocks__/exercise.mock";
+import {
+  mockExercise,
+  mockFetchExercisesResponse,
+  mockpostExercisesResponse,
+} from "@/__mocks__/exercise.mock";
+import {
+  FetchExercisesResponse,
+  SyncExercisesToServerResponse,
+} from "@/api/exercise.api";
+import { FetchWorkoutsResponse } from "@/api/workout.api";
+import { mockFetchWorkoutsResponse } from "@/__mocks__/workout.mock";
 
 const mockSession = {
   expires: dayjs().add(2, "day").toISOString(),
@@ -15,40 +25,38 @@ const mockSession = {
   },
 };
 
-jest.mock("next-auth/react", () => {
-  const originalModule = jest.requireActual("next-auth/react");
+// jest.mock("next-auth/react", () => {
+//   const originalModule = jest.requireActual("next-auth/react");
 
-  return {
-    __esModule: true, // ES 모듈 호환을 위함
-    ...originalModule, // 기존 모듈의 내보내기를 보존하면서 리턴한다.
-    useSession: jest.fn(() => {
-      return { data: mockSession, status: "authenticated" };
-    }),
-  };
-});
+//   return {
+//     __esModule: true, // ES 모듈 호환을 위함
+//     ...originalModule, // 기존 모듈의 내보내기를 보존하면서 리턴한다.
+//     useSession: jest.fn(() => {
+//       return { data: mockSession, status: "authenticated" };
+//     }),
+//   };
+// });
 
 export const handlers = [
-  http.patch(`${BASE_URL}/api/exercises/bookmark`, async ({ request }) => {
-    const body = await request.json();
+  // ======== Exercise API ========
 
-    const { userId, exerciseId } = body as PatchBookmarkInput;
-
-    const exercise = mockServerResponseExercises.find(
-      (e) => e.id === exerciseId
-    );
-
-    if (exercise) {
-      exercise.isBookmarked = !exercise.isBookmarked;
-    }
-
-    return new Response(JSON.stringify(exercise), {
-      status: 200,
-    });
+  http.get(`${BASE_URL}/api/exercises/all`, () => {
+    const res: FetchExercisesResponse = mockFetchExercisesResponse;
+    return HttpResponse.json(res, { status: 200 });
   }),
 
-  http.post(`${BASE_URL}/api/workout/detail`, async () => {
-    return new Response(JSON.stringify({ success: true }));
+  http.post(`${BASE_URL}/api/exercises/sync`, () => {
+    const res: SyncExercisesToServerResponse = mockpostExercisesResponse;
+    return HttpResponse.json(res, { status: 201 });
   }),
+
+  // ======== Workout API ========
+  // http.get(`${BASE_URL}/api/workout`, () => {
+  //   const res: FetchWorkoutsResponse = mockFetchWorkoutsResponse;
+  //   return HttpResponse.json(res, { status: 200 });
+  // }),
+
+  // ========
 
   http.get(`/api/auth/session`, ({ request }) => {
     const isAuthenticated =
