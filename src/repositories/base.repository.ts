@@ -37,4 +37,8 @@ export abstract class BaseRepository<
   async delete(id: TKey): Promise<void> {
     await this.table.delete(id);
   }
+
+  async bulkDelete(ids: TKey[]): Promise<void> {
+    await this.table.bulkDelete(ids);
+  }
 }
