@@ -1,145 +1,97 @@
-import { mockUserId } from "@/__mocks__/src/api";
+jest.mock("@/util/api-helpers", () => ({
+  __esModule: true,
+  ...jest.requireActual("@/util/api-helpers"),
+  safeRequest: jest.fn(),
+}));
+
 import {
-  mockLocalExercises,
-  mockServerResponseExercises,
-  mockPostExercisesToServerResponse,
-  mockInvalidPostExercisesToServerResponse,
-  mockInvalidFetchExercisesResponse,
+  createMockExercise,
+  mockExercise,
   mockFetchExercisesResponse,
+  mockpostExercisesResponse,
 } from "@/__mocks__/exercise.mock";
-import {
-  fetchExercisesFromServer,
-  postExercisesToServer,
-} from "@/api/exercise.api";
+import { ExerciseApi } from "@/api/exercise.api";
+
 import { BASE_URL } from "@/constants";
-import {
-  FETCH_EXERCISES_ERROR,
-  POST_EXERCISES_ERROR,
-} from "@/constants/errorMessage";
-import { VALIDATION_FAILED } from "@/util/validateData";
-import { server } from "jest.setup";
-import { http } from "msw";
 
-describe("fetchExercisesFromServer", () => {
-  const targetUrl = `${BASE_URL}/api/exercises/all`;
-  it("올바른 api url로 fetch를 호출한다", async () => {
-    let capturedUrl = "";
-    server.use(
-      http.get(targetUrl, ({ request }) => {
-        capturedUrl = request.url;
-        return new Response(
-          JSON.stringify({
-            success: true,
-            exercises: mockServerResponseExercises,
-          }),
-          { status: 200 }
-        );
-      })
-    );
+import { IExerciseApi } from "@/types/apis";
+import { ApiError, safeRequest } from "@/util/api-helpers";
 
-    await fetchExercisesFromServer(mockUserId);
-    expect(capturedUrl).toBe(`${targetUrl}?userId=${mockUserId}`);
+const mockedSafeRequest = safeRequest as jest.Mock;
+describe("ExerciseApi", () => {
+  let api: IExerciseApi;
+
+  beforeEach(() => {
+    api = new ExerciseApi();
+    mockedSafeRequest.mockClear();
   });
 
-  it("서버 응답이 성공할 경우 예상된 데이터를 반환한다", async () => {
-    server.use(
-      http.get(targetUrl, () => {
-        return new Response(JSON.stringify(mockFetchExercisesResponse), {
-          status: 200,
-        });
-      })
-    );
-    const result = await fetchExercisesFromServer(mockUserId);
-    expect(result).toEqual(mockServerResponseExercises);
+  describe("fetchExercisesFromServer", () => {
+    it("서버 응답이 성공할 경우 예상된 데이터를 반환한다", async () => {
+      const userId = "12345";
+      mockedSafeRequest.mockResolvedValue(mockFetchExercisesResponse); // Ensure safeRequest returns the full response object
+      const result = await api.fetchExercisesFromServer(userId);
+      expect(result).toEqual(mockFetchExercisesResponse.exercises); // The method should extract and return the exercises
+    });
+
+    it("올바른 URL 인자를 사용한다", async () => {
+      const userId = "user-123";
+      mockedSafeRequest.mockResolvedValue({ exercises: [] });
+
+      await api.fetchExercisesFromServer(userId);
+
+      expect(mockedSafeRequest).toHaveBeenCalledWith(
+        expect.stringContaining(`userId=${userId}`),
+        expect.anything(),
+        expect.anything()
+      );
+    });
+
+    it("실패시 safeRequest가 던진 에러를 그대로 전달한다", async () => {
+      const mockError = new ApiError(500, "서버터짐");
+      mockedSafeRequest.mockRejectedValue(mockError);
+
+      await expect(api.fetchExercisesFromServer("user-123")).rejects.toThrow(
+        mockError
+      );
+    });
   });
 
-  it("서버 응답이 기대한 값과 다를 경우 validation error를 던진다", async () => {
-    server.use(
-      http.get(targetUrl, () => {
-        return new Response(JSON.stringify(mockInvalidFetchExercisesResponse), {
-          status: 200,
-        });
-      })
-    );
+  describe("postExercisesToServer", () => {
+    it("서버 응답이 성공할 경우 예상된 데이터를 반환한다", async () => {
+      const unSynced = [createMockExercise({ isSynced: false })];
+      const userId = "user-123";
+      mockedSafeRequest.mockResolvedValue(mockpostExercisesResponse);
+      const result = await api.postExercisesToServer(unSynced, userId);
+      expect(result).toBe(mockpostExercisesResponse);
+    });
 
-    await expect(fetchExercisesFromServer(mockUserId)).rejects.toThrow();
-  });
+    it("올바른 URL과 인자를 사용하여 safeRequest를 호출한다", async () => {
+      const unsynced = [createMockExercise({ isSynced: false })];
+      const userId = "user-123";
 
-  it("서버 응답이 실패할 경우 에러를 던진다", async () => {
-    server.use(
-      http.get(targetUrl, () => {
-        return new Response(
-          JSON.stringify({ success: false, message: ";ㅅ;" }),
-          {
-            status: 500,
-          }
-        );
-      })
-    );
+      mockedSafeRequest.mockResolvedValue(mockpostExercisesResponse);
 
-    await expect(fetchExercisesFromServer(mockUserId)).rejects.toThrow(
-      FETCH_EXERCISES_ERROR
-    );
-  });
-});
+      await api.postExercisesToServer(unsynced, userId);
 
-describe("postExercisesToServer", () => {
-  const targetUrl = `${BASE_URL}/api/exercises/sync`;
-  it("올바른 api url로 fetch를 호출한다", async () => {
-    let capturedUrl = "";
-    server.use(
-      http.post(targetUrl, ({ request }) => {
-        capturedUrl = request.url;
-        return new Response(JSON.stringify(mockPostExercisesToServerResponse), {
-          status: 200,
-        });
-      })
-    );
+      expect(mockedSafeRequest).toHaveBeenCalledWith(
+        expect.stringContaining(`${BASE_URL}/api/exercises/sync`),
+        expect.objectContaining({
+          body: JSON.stringify({ unsynced, userId }),
+        }),
+        expect.anything()
+      );
+    });
+    it("실패시 safeRequest가 던진 에러를 그대로 전달한다", async () => {
+      const unsynced = [createMockExercise({ isSynced: false })];
+      const userId = "user-123";
+      const mockError = new ApiError(422, "데이터 이상함");
 
-    await postExercisesToServer(mockLocalExercises, mockUserId);
-    expect(capturedUrl).toBe(targetUrl);
-  });
-  it("서버 응답이 성공할 경우 예상된 데이터를 반환한다", async () => {
-    server.use(
-      http.post(targetUrl, () => {
-        return new Response(JSON.stringify(mockPostExercisesToServerResponse), {
-          status: 200,
-        });
-      })
-    );
-    const result = await postExercisesToServer(mockLocalExercises, mockUserId);
-    expect(result).toEqual(mockPostExercisesToServerResponse);
-  });
-  it("서버 응답이 기대한 값과 다를 경우 validation error를 던진다", async () => {
-    server.use(
-      http.post(targetUrl, () => {
-        return new Response(
-          JSON.stringify(mockInvalidPostExercisesToServerResponse),
-          {
-            status: 200,
-          }
-        );
-      })
-    );
+      mockedSafeRequest.mockRejectedValue(mockError);
 
-    await expect(
-      postExercisesToServer(mockLocalExercises, mockUserId)
-    ).rejects.toThrow(VALIDATION_FAILED);
-  });
-  it("서버 응답이 실패할 경우 에러를 던진다", async () => {
-    server.use(
-      http.post(targetUrl, () => {
-        return new Response(
-          JSON.stringify({ success: false, message: ";ㅅ;" }),
-          {
-            status: 500,
-          }
-        );
-      })
-    );
-
-    await expect(
-      postExercisesToServer(mockLocalExercises, mockUserId)
-    ).rejects.toThrow(POST_EXERCISES_ERROR);
+      await expect(api.postExercisesToServer(unsynced, userId)).rejects.toThrow(
+        mockError
+      );
+    });
   });
 });

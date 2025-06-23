@@ -1,4 +1,7 @@
-import { SyncExercisesToServerResponse } from "@/api/exercise.api";
+import {
+  FetchExercisesResponse,
+  SyncExercisesToServerResponse,
+} from "@/api/exercise.api";
 import { ClientExercise, LocalExercise } from "@/types/models";
 
 export const createMockExercise = (
@@ -89,3 +92,24 @@ export const mockExercise = {
 };
 
 // ----
+
+// ======== Mock Server Response ========
+
+/**
+ * GET /api/exercises/all
+ */
+export const mockFetchExercisesResponse: FetchExercisesResponse = {
+  success: true,
+  exercises: [mockExercise.server],
+};
+
+/**
+ * POST /api/exercises/sync
+ */
+export const mockpostExercisesResponse: SyncExercisesToServerResponse = {
+  success: true,
+  updated: [
+    { localId: 1, serverId: mockExercise.server.id },
+    { localId: 2, serverId: mockExercise.server.id },
+  ],
+};
