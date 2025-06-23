@@ -1,7 +1,12 @@
+import { SyncRoutineDetailsToServerResponse } from "@/api/routineDetail.api";
 import { IRoutineDetailAdapter } from "@/types/adapters";
 import { IRoutineDetailApi } from "@/types/apis";
 
-import { ClientRoutineDetail, LocalRoutineDetail } from "@/types/models";
+import {
+  ClientRoutineDetail,
+  LocalRoutineDetail,
+  LocalRoutineDetailWithServerRoutineId,
+} from "@/types/models";
 import { IRoutineDetailRepository } from "@/types/repositories";
 import {
   IExerciseService,
@@ -131,14 +136,11 @@ export class RoutineDetailService implements IRoutineDetailService {
   }
 
   // ===== SYNC ===== //
-  async syncToServerRoutineDetails(): Promise<void> {
-    // syncToServerRoutine 가 완료된 후에 호출되어야 함
-
-    const all = await this.repository.findAll();
-
-    const unsynced = all.filter((detail) => !detail.isSynced);
-    const mappedUnsynced = await Promise.all(
-      unsynced.map(async (detail) => {
+  private async mapDetailsToPayload(
+    details: LocalRoutineDetail[]
+  ): Promise<LocalRoutineDetailWithServerRoutineId[]> {
+    return Promise.all(
+      details.map(async (detail) => {
         const exercise = await this.exerciseService.getExerciseWithLocalId(
           detail.exerciseId
         );
@@ -146,8 +148,8 @@ export class RoutineDetailService implements IRoutineDetailService {
           detail.routineId
         );
 
-        if (!exercise || !routine) {
-          throw new Error("exercise 또는 routine을 찾을 수 없습니다.");
+        if (!exercise?.serverId || !routine?.serverId) {
+          throw new Error("exercise 또는 routine의 serverId가 없습니다.");
         }
 
         return this.adapter.mapLocalRoutineDetailToServer(
@@ -157,24 +159,24 @@ export class RoutineDetailService implements IRoutineDetailService {
         );
       })
     );
+  }
 
-    const data = await this.api.postRoutineDetailsToServer(mappedUnsynced);
-
-    if (data.updated) {
-      for (const updated of data.updated) {
-        const exercise = await this.exerciseService.getExerciseWithServerId(
-          updated.exerciseId
-        );
-        const routine = await this.routineService.getRoutineByServerId(
-          updated.routineId
-        );
-        await this.repository.update(updated.localId, {
-          serverId: updated.serverId,
-          isSynced: true,
-          exerciseId: exercise?.id,
-          routineId: routine?.id,
-        });
-      }
+  private async updateLocalRoutineDetailWithApiResponse(
+    updatedDetails: SyncRoutineDetailsToServerResponse["updated"]
+  ): Promise<void> {
+    for (const updated of updatedDetails) {
+      const exercise = await this.exerciseService.getExerciseWithServerId(
+        updated.exerciseId
+      );
+      const routine = await this.routineService.getRoutineByServerId(
+        updated.routineId
+      );
+      await this.repository.update(updated.localId, {
+        serverId: updated.serverId,
+        isSynced: true,
+        exerciseId: exercise?.id,
+        routineId: routine?.id,
+      });
     }
   }
 
@@ -209,5 +211,19 @@ export class RoutineDetailService implements IRoutineDetailService {
     );
     await this.repository.clear();
     await this.repository.bulkAdd(toInsert);
+  }
+
+  async syncToServerRoutineDetails(): Promise<void> {
+    const all = await this.repository.findAll();
+
+    const unsynced = all.filter((detail) => !detail.isSynced);
+    const mappedUnsynced = await this.mapDetailsToPayload(unsynced);
+    const data = await this.api.postRoutineDetailsToServer(mappedUnsynced);
+
+    if (data.updated.length === 0) return;
+
+    if (data.updated) {
+      await this.updateLocalRoutineDetailWithApiResponse(data.updated);
+    }
   }
 }

@@ -50,7 +50,7 @@ export interface IWorkoutDetailQueryService {
     exerciseOrder: number
   ) => Promise<LocalWorkoutDetail[]>;
   getLatestWorkoutDetailByExerciseId: (
-    details: LocalWorkoutDetail[] | LocalRoutineDetail[]
+    detail: LocalWorkoutDetail | LocalRoutineDetail
   ) => Promise<LocalWorkoutDetail | void>;
 }
 

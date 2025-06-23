@@ -45,6 +45,12 @@ export const mockRoutineDetail = {
 
     updatedAt: "2025-06-17T10:00:00.000Z",
   }),
+
+  unsynced: createBaseRoutineDetailMock({
+    id: 3,
+    isSynced: false,
+    serverId: null,
+  }),
   
   server: createServerRoutineDetailMock(),
 };

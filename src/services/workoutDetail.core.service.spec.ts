@@ -9,46 +9,13 @@ import { IWorkoutDetailAdapter } from "@/types/adapters";
 import { LocalWorkoutDetail } from "@/types/models";
 import { IWorkoutDetailRepository } from "@/types/repositories";
 import { IWorkoutDetailCoreService, IWorkoutService } from "@/types/services";
-import { create, last } from "lodash";
+import { createMockWorkoutService } from "@/__mocks__/services/workout.service.mock";
+import { createMockWorkoutDetailAdapter } from "@/__mocks__/adapters/workoutDetail.adapter.mock";
+import { createMockWorkoutDetailRepository } from "@/__mocks__/repositories/workoutDetail.repository.mock";
 
-const mockRepository: jest.Mocked<IWorkoutDetailRepository> = {
-  add: jest.fn(),
-  clear: jest.fn(),
-  update: jest.fn(),
-  bulkAdd: jest.fn(),
-  bulkPut: jest.fn(),
-  delete: jest.fn(),
-  bulkDelete: jest.fn(),
-  findAll: jest.fn(),
-  findAllByWorkoutId: jest.fn(),
-  findAllByWorkoutIdAndExerciseOrder: jest.fn(),
-  findAllByWorkoutIdOrderByExerciseOrder: jest.fn(),
-  findAllDoneByExerciseId: jest.fn(),
-};
-
-const mockAdapter: jest.Mocked<IWorkoutDetailAdapter> = {
-  convertRoutineDetailToWorkoutDetailInput: jest.fn(),
-  createOverwriteWorkoutDetailPayload: jest.fn(),
-  createWorkoutDetail: jest.fn(),
-  getAddSetToWorkoutByLastSet: jest.fn(),
-  getInitialWorkoutDetail: jest.fn(),
-  getNewWorkoutDetails: jest.fn(),
-  mapLocalWorkoutDetailToServer: jest.fn(),
-  mapPastWorkoutToWorkoutDetail: jest.fn(),
-};
-
-const mockWorkoutService: jest.Mocked<IWorkoutService> = {
-  addLocalWorkout: jest.fn(),
-  deleteLocalWorkout: jest.fn(),
-  getAllWorkouts: jest.fn(),
-  getWorkoutByUserIdAndDate: jest.fn(),
-  getWorkoutWithLocalId: jest.fn(),
-  getWorkoutWithServerId: jest.fn(),
-  getThisMonthWorkouts: jest.fn(),
-  syncToServerWorkouts: jest.fn(),
-  updateLocalWorkout: jest.fn(),
-  overwriteWithServerWorkouts: jest.fn(),
-};
+const mockRepository = createMockWorkoutDetailRepository();
+const mockAdapter = createMockWorkoutDetailAdapter();
+const mockWorkoutService = createMockWorkoutService();
 
 describe("WorkoutDetailCoreService", () => {
   let service: IWorkoutDetailCoreService;

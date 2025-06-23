@@ -42,7 +42,7 @@ const WorkoutExerciseGroup = ({
 
   const getPrevious = async () => {
     const detail =
-      await workoutDetailService.getLatestWorkoutDetailByExerciseId(details);
+      await workoutDetailService.getLatestWorkoutDetailByExerciseId(details[0]);
     if (!detail) return [];
 
     const workoutDetails =
