@@ -11,7 +11,7 @@ import {
 } from "@/types/models";
 import { validateData } from "@/util/validateData";
 import { IWorkoutApi } from "@/types/apis";
-import { safeRequest } from "@/util/api-helpers";
+import { safeRequest } from "@/util/apiHelpers";
 import { s } from "node_modules/msw/lib/core/HttpResponse-I457nh8V.mjs";
 
 export const syncWorkoutsToServerResponseSchema = z.object({

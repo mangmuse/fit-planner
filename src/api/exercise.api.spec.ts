@@ -1,6 +1,6 @@
-jest.mock("@/util/api-helpers", () => ({
+jest.mock("@/util/apiHelpers", () => ({
   __esModule: true,
-  ...jest.requireActual("@/util/api-helpers"),
+  ...jest.requireActual("@/util/apiHelpers"),
   safeRequest: jest.fn(),
 }));
 
@@ -15,7 +15,7 @@ import { ExerciseApi } from "@/api/exercise.api";
 import { BASE_URL } from "@/constants";
 
 import { IExerciseApi } from "@/types/apis";
-import { ApiError, safeRequest } from "@/util/api-helpers";
+import { ApiError, safeRequest } from "@/util/apiHelpers";
 
 const mockedSafeRequest = safeRequest as jest.Mock;
 describe("ExerciseApi", () => {
@@ -29,9 +29,9 @@ describe("ExerciseApi", () => {
   describe("fetchExercisesFromServer", () => {
     it("서버 응답이 성공할 경우 예상된 데이터를 반환한다", async () => {
       const userId = "12345";
-      mockedSafeRequest.mockResolvedValue(mockFetchExercisesResponse); // Ensure safeRequest returns the full response object
+      mockedSafeRequest.mockResolvedValue(mockFetchExercisesResponse);
       const result = await api.fetchExercisesFromServer(userId);
-      expect(result).toEqual(mockFetchExercisesResponse.exercises); // The method should extract and return the exercises
+      expect(result).toEqual(mockFetchExercisesResponse.exercises);
     });
 
     it("올바른 URL 인자를 사용한다", async () => {

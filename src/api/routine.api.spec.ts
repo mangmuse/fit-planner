@@ -1,6 +1,6 @@
-jest.mock("@/util/api-helpers", () => ({
+jest.mock("@/util/apiHelpers", () => ({
   __esModule: true,
-  ...jest.requireActual("@/util/api-helpers"),
+  ...jest.requireActual("@/util/apiHelpers"),
   safeRequest: jest.fn(),
 }));
 
@@ -14,7 +14,7 @@ import { RoutineApi } from "@/api/routine.api";
 import { BASE_URL } from "@/constants";
 
 import { IRoutineApi } from "@/types/apis";
-import { ApiError, safeRequest } from "@/util/api-helpers";
+import { ApiError, safeRequest } from "@/util/apiHelpers";
 
 const mockedSafeRequest = safeRequest as jest.Mock;
 describe("RoutineApi", () => {

@@ -12,8 +12,8 @@ export class ApiError extends Error {
 
 export async function safeRequest<T>(
   url: string,
-  options?: RequestInit,
-  schema?: z.ZodSchema<T>
+  options: RequestInit,
+  schema: z.ZodSchema<T>
 ): Promise<T> {
   const res = await fetch(url, options);
 

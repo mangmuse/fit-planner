@@ -6,14 +6,14 @@ import {
 import { WorkoutApi } from "@/api/workout.api";
 import { BASE_URL } from "@/constants";
 import { IWorkoutApi } from "@/types/apis";
-import { ApiError, safeRequest } from "@/util/api-helpers";
+import { ApiError, safeRequest } from "@/util/apiHelpers";
 import { isSymbol } from "lodash";
 import { mock } from "node:test";
 import { a } from "node_modules/framer-motion/dist/types.d-B_QPEvFK";
 
-jest.mock("@/util/api-helpers", () => ({
+jest.mock("@/util/apiHelpers", () => ({
   __esModule: true,
-  ...jest.requireActual("@/util/api-helpers"),
+  ...jest.requireActual("@/util/apiHelpers"),
   safeRequest: jest.fn(),
 }));
 

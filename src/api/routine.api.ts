@@ -9,7 +9,7 @@ import {
   clientRoutineSchema,
   LocalRoutine,
 } from "@/types/models";
-import { safeRequest } from "@/util/api-helpers";
+import { safeRequest } from "@/util/apiHelpers";
 import { validateData } from "@/util/validateData";
 import { z } from "zod";
 

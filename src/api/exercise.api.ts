@@ -1,4 +1,4 @@
-import { safeRequest } from "@/util/api-helpers";
+import { safeRequest } from "@/util/apiHelpers";
 import { BASE_URL } from "@/constants";
 import {
   FETCH_EXERCISES_ERROR,
