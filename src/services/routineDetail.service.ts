@@ -1,7 +1,12 @@
+import { SyncRoutineDetailsToServerResponse } from "@/api/routineDetail.api";
 import { IRoutineDetailAdapter } from "@/types/adapters";
 import { IRoutineDetailApi } from "@/types/apis";
 
-import { ClientRoutineDetail, LocalRoutineDetail } from "@/types/models";
+import {
+  ClientRoutineDetail,
+  LocalRoutineDetail,
+  LocalRoutineDetailWithServerRoutineId,
+} from "@/types/models";
 import { IRoutineDetailRepository } from "@/types/repositories";
 import {
   IExerciseService,
@@ -19,126 +24,74 @@ export class RoutineDetailService implements IRoutineDetailService {
   ) {}
 
   // ===== CORE =====
-  async getLocalRoutineDetails(
+  public async getLocalRoutineDetails(
     routineId: number
   ): Promise<LocalRoutineDetail[]> {
-    try {
-      const details = await this.repository.findAllByRoutineId(routineId);
-      return details;
-    } catch (e) {
-      throw new Error("RoutineDetails를 불러오는 데 실패했습니다");
-    }
+    const details = await this.repository.findAllByRoutineId(routineId);
+    return details;
   }
 
-  async addLocalRoutineDetail(
+  public async addLocalRoutineDetail(
     routineDetailInput: LocalRoutineDetail
   ): Promise<void> {
-    try {
-      await this.repository.add(routineDetailInput);
-    } catch (e) {
-      throw new Error("RoutineDetails를 추가하는 데 실패했습니다");
-    }
+    await this.repository.add(routineDetailInput);
   }
 
-  async addSetToRoutine(lastSet: LocalRoutineDetail): Promise<number> {
-    try {
-      const addSetInput = this.adapter.getAddSetToRoutineByLastSet(lastSet);
-      const newSet = await this.repository.add(addSetInput);
-      return newSet;
-    } catch (e) {
-      throw new Error("RoutineDetail을 추가하는 데 실패했습니다");
-    }
+  public async addSetToRoutine(lastSet: LocalRoutineDetail): Promise<number> {
+    const addSetInput = this.adapter.getAddSetToRoutineByLastSet(lastSet);
+    const newSet = await this.repository.add(addSetInput);
+    return newSet;
   }
 
-  async addLocalRoutineDetailsByWorkoutId(
+  public async addLocalRoutineDetailsByWorkoutId(
     routineId: number,
     startOrder: number,
     selectedExercises: { id: number; name: string }[]
-  ): Promise<number> {
-    try {
-      if (startOrder === null) {
-        // startOrder = await getStartExerciseOrder(workoutId); // workoutId가 temp인경우 startOrder는 1
-      }
-      const newDetails = this.adapter.getNewRoutineDetails(selectedExercises, {
-        routineId,
-        startOrder,
-      });
-      const routineDetails = await this.repository.bulkAdd(newDetails);
-
-      return routineDetails;
-    } catch (e) {
-      throw new Error("RoutineDetails를 추가하는 데 실패했습니다");
-    }
+  ): Promise<void> {
+    const newDetails = this.adapter.getNewRoutineDetails(selectedExercises, {
+      routineId,
+      startOrder,
+    });
+    await this.repository.bulkAdd(newDetails);
   }
-  async cloneRoutineDetailWithNewRoutineId(
+  public async cloneRoutineDetailWithNewRoutineId(
     originalDetail: LocalRoutineDetail,
     newRoutineId: number
   ) {
-    try {
-      const {
-        id,
-        createdAt,
-        updatedAt,
-        serverId,
-        isSynced,
-        routineId,
-        ...rest
-      } = originalDetail;
-      const newDetailInput: LocalRoutineDetail = {
-        ...rest,
-        routineId: newRoutineId,
-        serverId: null,
-        isSynced: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      await this.repository.add(newDetailInput);
-    } catch (e) {
-      throw new Error("RoutineDetail을 복제하는 데 실패했습니다");
-    }
+    const newDetailInput = this.adapter.cloneToCreateInput(
+      originalDetail,
+      newRoutineId
+    );
+    await this.repository.add(newDetailInput);
   }
 
-  async updateLocalRoutineDetail(
+  public async updateLocalRoutineDetail(
     updateWorkoutInput: Partial<LocalRoutineDetail>
   ): Promise<void> {
-    try {
-      if (!updateWorkoutInput.id) throw new Error("id가 없습니다");
-      await this.repository.update(updateWorkoutInput.id, updateWorkoutInput);
-    } catch (e) {
-      throw new Error("RoutineDetails를 업데이트하는 데 실패했습니다");
-    }
+    if (!updateWorkoutInput.id) throw new Error("id가 없습니다");
+    await this.repository.update(updateWorkoutInput.id, updateWorkoutInput);
   }
 
-  async deleteRoutineDetail(detailId: number): Promise<void> {
-    try {
-      await this.repository.delete(detailId);
-    } catch (e) {
-      throw new Error("RoutineDetail을 삭제하는 데 실패했습니다");
-    }
+  public async deleteRoutineDetail(detailId: number): Promise<void> {
+    await this.repository.delete(detailId);
   }
 
-  async deleteRoutineDetails(details: LocalRoutineDetail[]): Promise<void> {
-    try {
-      await Promise.all(
-        details.map(async (detail) => {
-          if (!detail.id) throw new Error("id가 없습니다");
-          await this.repository.delete(detail.id);
-        })
-      );
-    } catch (e) {
-      throw new Error("RoutineDetails를 삭제하는 데 실패했습니다");
-    }
+  public async deleteRoutineDetails(
+    details: LocalRoutineDetail[]
+  ): Promise<void> {
+    const ids = details.map((detail) => {
+      if (!detail.id) throw new Error("id가 없습니다");
+      return detail.id;
+    });
+    await this.repository.bulkDelete(ids);
   }
 
   // ===== SYNC ===== //
-  async syncToServerRoutineDetails(): Promise<void> {
-    // syncToServerRoutine 가 완료된 후에 호출되어야 함
-
-    const all = await this.repository.findAll();
-
-    const unsynced = all.filter((detail) => !detail.isSynced);
-    const mappedUnsynced = await Promise.all(
-      unsynced.map(async (detail) => {
+  private async mapDetailsToPayload(
+    details: LocalRoutineDetail[]
+  ): Promise<LocalRoutineDetailWithServerRoutineId[]> {
+    return Promise.all(
+      details.map(async (detail) => {
         const exercise = await this.exerciseService.getExerciseWithLocalId(
           detail.exerciseId
         );
@@ -146,8 +99,8 @@ export class RoutineDetailService implements IRoutineDetailService {
           detail.routineId
         );
 
-        if (!exercise || !routine) {
-          throw new Error("exercise 또는 routine을 찾을 수 없습니다.");
+        if (!exercise?.serverId || !routine?.serverId) {
+          throw new Error("exercise 또는 routine의 serverId가 없습니다.");
         }
 
         return this.adapter.mapLocalRoutineDetailToServer(
@@ -157,28 +110,30 @@ export class RoutineDetailService implements IRoutineDetailService {
         );
       })
     );
+  }
 
-    const data = await this.api.postRoutineDetailsToServer(mappedUnsynced);
-
-    if (data.updated) {
-      for (const updated of data.updated) {
-        const exercise = await this.exerciseService.getExerciseWithServerId(
-          updated.exerciseId
-        );
-        const routine = await this.routineService.getRoutineByServerId(
-          updated.routineId
-        );
-        await this.repository.update(updated.localId, {
-          serverId: updated.serverId,
-          isSynced: true,
-          exerciseId: exercise?.id,
-          routineId: routine?.id,
-        });
-      }
+  private async updateLocalRoutineDetailWithApiResponse(
+    updatedDetails: SyncRoutineDetailsToServerResponse["updated"]
+  ): Promise<void> {
+    for (const updated of updatedDetails) {
+      const exercise = await this.exerciseService.getExerciseWithServerId(
+        updated.exerciseId
+      );
+      const routine = await this.routineService.getRoutineByServerId(
+        updated.routineId
+      );
+      await this.repository.update(updated.localId, {
+        serverId: updated.serverId,
+        isSynced: true,
+        exerciseId: exercise?.id,
+        routineId: routine?.id,
+      });
     }
   }
 
-  async overwriteWithServerRoutineDetails(userId: string): Promise<void> {
+  public async overwriteWithServerRoutineDetails(
+    userId: string
+  ): Promise<void> {
     const serverData: ClientRoutineDetail[] =
       await this.api.fetchRoutineDetailsFromServer(userId);
 
@@ -209,5 +164,19 @@ export class RoutineDetailService implements IRoutineDetailService {
     );
     await this.repository.clear();
     await this.repository.bulkAdd(toInsert);
+  }
+
+  async syncToServerRoutineDetails(): Promise<void> {
+    const all = await this.repository.findAll();
+
+    const unsynced = all.filter((detail) => !detail.isSynced);
+    const mappedUnsynced = await this.mapDetailsToPayload(unsynced);
+    const data = await this.api.postRoutineDetailsToServer(mappedUnsynced);
+
+    if (data.updated.length === 0) return;
+
+    if (data.updated) {
+      await this.updateLocalRoutineDetailWithApiResponse(data.updated);
+    }
   }
 }

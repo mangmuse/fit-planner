@@ -1,12 +1,6 @@
-import { IWorkoutDetailAdapter } from "@/types/adapters";
-import { IWorkoutDetailApi } from "@/types/apis";
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
+
 import {
-  IWorkoutDetailRepository,
-  IWorkoutRepository,
-} from "@/types/repositories";
-import {
-  IExerciseService,
   IWorkoutDetailCoreService,
   IWorkoutDetailQueryService,
   IWorkoutDetailService,
@@ -108,9 +102,9 @@ export class WorkoutDetailService implements IWorkoutDetailService {
   }
 
   getLatestWorkoutDetailByExerciseId(
-    details: LocalWorkoutDetail[] | LocalRoutineDetail[]
+    detail: LocalWorkoutDetail | LocalRoutineDetail
   ): Promise<LocalWorkoutDetail | void> {
-    return this.query.getLatestWorkoutDetailByExerciseId(details);
+    return this.query.getLatestWorkoutDetailByExerciseId(detail);
   }
 
   // --- Sync Service ---

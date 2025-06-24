@@ -14,36 +14,24 @@ export class WorkoutDetailCoreService implements IWorkoutDetailCoreService {
     userId: string,
     date: string
   ): Promise<LocalWorkoutDetail[]> {
-    try {
-      let workout = await this.workoutService.getWorkoutByUserIdAndDate(
-        userId,
-        date
-      );
+    const workout = await this.workoutService.getWorkoutByUserIdAndDate(
+      userId,
+      date
+    );
 
-      if (!workout) {
-        workout = await this.workoutService.addLocalWorkout(userId, date);
-      }
-
-      if (!workout?.id) throw new Error("workoutId를 가져오지 못했습니다");
-
-      const details = await this.repository.findAllByWorkoutId(workout.id);
-
-      return details;
-    } catch (e) {
-      throw new Error("WorkoutDetails를 불러오는 데 실패했습니다");
+    if (workout?.id) {
+      return this.repository.findAllByWorkoutId(workout.id);
     }
+
+    await this.workoutService.addLocalWorkout(userId, date);
+    return [];
   }
 
   async getLocalWorkoutDetailsByWorkoutId(
     workoutId: number
   ): Promise<LocalWorkoutDetail[]> {
-    if (!workoutId) throw new Error("workoutId가 없습니다");
-    try {
-      const details = await this.repository.findAllByWorkoutId(workoutId);
-      return details;
-    } catch (e) {
-      throw new Error("WorkoutDetails를 불러오는 데 실패했습니다");
-    }
+    const details = await this.repository.findAllByWorkoutId(workoutId);
+    return details;
   }
 
   async getStartExerciseOrder(workoutId: number): Promise<number> {
@@ -58,11 +46,7 @@ export class WorkoutDetailCoreService implements IWorkoutDetailCoreService {
   public async addLocalWorkoutDetail(
     detailInput: LocalWorkoutDetail
   ): Promise<void> {
-    try {
-      await this.repository.add(detailInput);
-    } catch (e) {
-      throw new Error("WorkoutDetail 추가에 실패했습니다");
-    }
+    await this.repository.add(detailInput);
   }
 
   public async addLocalWorkoutDetailsByWorkoutId(
@@ -70,30 +54,19 @@ export class WorkoutDetailCoreService implements IWorkoutDetailCoreService {
     startOrder: number,
     selectedExercises: { id: number; name: string }[]
   ): Promise<number> {
-    try {
-      if (startOrder == null) {
-        startOrder = await this.getStartExerciseOrder(workoutId);
-      }
-      const newDetails = this.adapter.getNewWorkoutDetails(selectedExercises, {
-        workoutId,
-        startOrder,
-      });
-      const workoutDetails = await this.repository.bulkAdd(newDetails);
+    const newDetails = this.adapter.getNewWorkoutDetails(selectedExercises, {
+      workoutId,
+      startOrder,
+    });
+    const workoutDetails = await this.repository.bulkAdd(newDetails);
 
-      return workoutDetails;
-    } catch (e) {
-      throw new Error("WorkoutDetails 추가에 실패했습니다");
-    }
+    return workoutDetails;
   }
 
   public async addSetToWorkout(lastSet: LocalWorkoutDetail): Promise<number> {
-    try {
-      const addSetInput = this.adapter.getAddSetToWorkoutByLastSet(lastSet);
-      const newSet = await this.repository.add(addSetInput);
-      return newSet;
-    } catch (e) {
-      throw new Error("WorkoutDetail 추가에 실패했습니다");
-    }
+    const addSetInput = this.adapter.getAddSetToWorkoutByLastSet(lastSet);
+    const newSet = await this.repository.add(addSetInput);
+    return newSet;
   }
 
   public async addLocalWorkoutDetailsByUserDate(
@@ -101,22 +74,21 @@ export class WorkoutDetailCoreService implements IWorkoutDetailCoreService {
     date: string,
     selectedExercises: { id: number | undefined; name: string }[]
   ): Promise<number> {
-    try {
-      const workout = await this.workoutService.addLocalWorkout(userId, date);
-      const workoutId = workout.id!;
-
-      const startOrder = await this.getStartExerciseOrder(workoutId);
-
-      const newDetails = this.adapter.getNewWorkoutDetails(selectedExercises, {
-        workoutId,
-        startOrder,
-      });
-
-      const workoutDetails = await this.repository.bulkAdd(newDetails);
-      return workoutDetails;
-    } catch (e) {
-      throw new Error("WorkoutDetails 추가에 실패했습니다");
+    if (selectedExercises.length === 0) {
+      return 0;
     }
+    const workout = await this.workoutService.addLocalWorkout(userId, date);
+    const workoutId = workout.id!;
+
+    const startOrder = await this.getStartExerciseOrder(workoutId);
+
+    const newDetails = this.adapter.getNewWorkoutDetails(selectedExercises, {
+      workoutId,
+      startOrder,
+    });
+
+    const workoutDetails = await this.repository.bulkAdd(newDetails);
+    return workoutDetails;
   }
 
   // update
@@ -125,42 +97,27 @@ export class WorkoutDetailCoreService implements IWorkoutDetailCoreService {
     updateWorkoutInput: Partial<LocalWorkoutDetail>
   ): Promise<void> {
     if (!updateWorkoutInput.id) throw new Error("id가 없습니다");
-    try {
-      await this.repository.update(updateWorkoutInput.id, updateWorkoutInput);
-    } catch (e) {
-      throw new Error("WorkoutDetail 업데이트에 실패했습니다");
-    }
+    await this.repository.update(updateWorkoutInput.id, updateWorkoutInput);
   }
 
   public async updateWorkoutDetails(updatedDetails: LocalWorkoutDetail[]) {
-    try {
-      await this.repository.bulkPut(updatedDetails);
-    } catch (e) {
-      throw new Error("WorkoutDetails 업데이트에 실패했습니다");
-    }
+    await this.repository.bulkPut(updatedDetails);
   }
 
   // delete
   public async deleteWorkoutDetail(lastSetId: number): Promise<void> {
-    try {
-      await this.repository.delete(lastSetId);
-    } catch (e) {
-      throw new Error("WorkoutDetail 삭제에 실패했습니다");
-    }
+    await this.repository.delete(lastSetId);
   }
 
   public async deleteWorkoutDetails(
     details: LocalWorkoutDetail[]
   ): Promise<void> {
-    try {
-      await Promise.all(
-        details.map(async (detail) => {
-          if (!detail.id) throw new Error("id가 없습니다");
-          await this.repository.delete(detail.id);
-        })
-      );
-    } catch (e) {
-      throw new Error("WorkoutDetails 삭제에 실패했습니다");
-    }
+    if (details.length === 0) return;
+    const ids = details.map((detail) => {
+      if (!detail.id) throw new Error("id가 없습니다");
+      return detail.id;
+    });
+
+    await this.repository.bulkDelete(ids);
   }
 }

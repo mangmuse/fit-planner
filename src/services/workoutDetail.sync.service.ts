@@ -1,6 +1,11 @@
+import { SyncWorkoutDetailsToServerResponse } from "@/api/workoutDetail.api";
 import { IWorkoutDetailAdapter } from "@/types/adapters";
 import { IWorkoutDetailApi } from "@/types/apis";
-import { ClientWorkoutDetail } from "@/types/models";
+import {
+  ClientWorkoutDetail,
+  LocalWorkoutDetail,
+  LocalWorkoutDetailWithServerWorkoutId,
+} from "@/types/models";
 import { IWorkoutDetailRepository } from "@/types/repositories";
 import {
   IExerciseService,
@@ -46,12 +51,11 @@ export class WorkoutDetailSyncService implements IWorkoutDetailSyncService {
     await this.repository.bulkAdd(toInsert);
   }
 
-  public async syncToServerWorkoutDetails(): Promise<void> {
-    const all = await this.repository.findAll();
-
-    const unsynced = all.filter((detail) => !detail.isSynced);
-    const mappedUnsynced = await Promise.all(
-      unsynced.map(async (detail) => {
+  private async mapDetailsToPayload(
+    details: LocalWorkoutDetail[]
+  ): Promise<LocalWorkoutDetailWithServerWorkoutId[]> {
+    return Promise.all(
+      details.map(async (detail) => {
         const exercise = await this.exerciseService.getExerciseWithLocalId(
           detail.exerciseId
         );
@@ -69,25 +73,38 @@ export class WorkoutDetailSyncService implements IWorkoutDetailSyncService {
         );
       })
     );
+  }
+
+  private async updateLocalWorkoutDetailWithApiResponse(
+    updatedDetails: SyncWorkoutDetailsToServerResponse["updated"]
+  ): Promise<void> {
+    for (const updated of updatedDetails) {
+      const exercise = await this.exerciseService.getExerciseWithServerId(
+        updated.exerciseId
+      );
+      const workout = await this.workoutService.getWorkoutWithServerId(
+        updated.workoutId
+      );
+      await this.repository.update(updated.localId, {
+        serverId: updated.serverId,
+        isSynced: true,
+        exerciseId: exercise?.id,
+        workoutId: workout?.id,
+      });
+    }
+  }
+
+  public async syncToServerWorkoutDetails(): Promise<void> {
+    const all = await this.repository.findAll();
+
+    const unsynced = all.filter((detail) => !detail.isSynced);
+    const mappedUnsynced = await this.mapDetailsToPayload(unsynced);
     const data = await this.api.postWorkoutDetailsToServer(mappedUnsynced);
 
     if (data.updated.length === 0) return;
 
     if (data.updated) {
-      for (const updated of data.updated) {
-        const exercise = await this.exerciseService.getExerciseWithServerId(
-          updated.exerciseId
-        );
-        const workout = await this.workoutService.getWorkoutWithServerId(
-          updated.workoutId
-        );
-        await this.repository.update(updated.localId, {
-          serverId: updated.serverId,
-          isSynced: true,
-          exerciseId: exercise?.id,
-          workoutId: workout?.id,
-        });
-      }
+      await this.updateLocalWorkoutDetailWithApiResponse(data.updated);
     }
   }
 }

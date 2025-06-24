@@ -269,3 +269,71 @@ describe("mapLocalRoutineDetailToServer", () => {
     ).toThrow("exerciseId 또는 routineId가 없습니다");
   });
 });
+
+describe("cloneToCreateInput", () => {
+  it("전달받은 detail을 기반으로 createInput을 생성한다", () => {
+    const mockDetail = mockRoutineDetail.past;
+    const result = routineDetailAdapter.cloneToCreateInput(mockDetail, 200);
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        exerciseId: mockDetail.exerciseId,
+        exerciseName: mockDetail.exerciseName,
+        exerciseOrder: mockDetail.exerciseOrder,
+        setOrder: mockDetail.setOrder,
+        weight: mockDetail.weight,
+        reps: mockDetail.reps,
+        rpe: mockDetail.rpe,
+        setType: mockDetail.setType,
+        routineId: 200,
+        createdAt: expect.any(String),
+        serverId: null,
+        isSynced: false,
+      })
+    );
+    expect(result).not.toHaveProperty("id");
+  });
+});
+
+describe("cloneToCreateInput", () => {
+  it("기존 detail에서 불필요한 속성을 제거하고, 복제에 필요한 값들을 새로 설정하여 반환한다", () => {
+    const originalDetail: LocalRoutineDetail = {
+      ...mockRoutineDetail.past,
+      id: 10,
+      routineId: 100,
+      serverId: "server-abc",
+      isSynced: true,
+      createdAt: "2025-01-01T00:00:00.000Z",
+      updatedAt: "2025-01-01T00:00:00.000Z",
+    };
+    const newRoutineId = 200;
+
+    const result = routineDetailAdapter.cloneToCreateInput(
+      originalDetail,
+      newRoutineId
+    );
+
+    expect(result).not.toHaveProperty("id");
+
+    const {
+      id,
+      routineId,
+      serverId,
+      isSynced,
+      createdAt,
+      updatedAt,
+      ...restOfOriginal
+    } = originalDetail;
+
+    const expectedObject = {
+      ...restOfOriginal,
+      routineId: newRoutineId,
+      serverId: null,
+      isSynced: false,
+      updatedAt: null,
+      createdAt: expect.any(String),
+    };
+
+    expect(result).toMatchObject(expectedObject);
+  });
+});

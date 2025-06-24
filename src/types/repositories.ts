@@ -23,7 +23,9 @@ export interface IWorkoutRepository {
   add: (toInsert: Omit<LocalWorkout, "id">) => Promise<number>;
   bulkAdd: (toInsert: Omit<LocalWorkout, "id">[]) => Promise<number>;
   update: (id: number, toUpdate: Partial<LocalWorkout>) => Promise<number>;
+  bulkPut: (toUpdate: LocalWorkout[]) => Promise<number>;
   delete: (id: number) => Promise<void>;
+  bulkDelete: (ids: number[]) => Promise<void>;
 }
 
 export interface IRoutineRepository {
@@ -35,7 +37,9 @@ export interface IRoutineRepository {
   add: (toInsert: Omit<LocalRoutine, "id">) => Promise<number>;
   bulkAdd: (toInsert: Omit<LocalRoutine, "id">[]) => Promise<number>;
   update: (id: number, toUpdate: Partial<LocalRoutine>) => Promise<number>;
+  bulkPut: (toUpdate: LocalRoutine[]) => Promise<number>;
   delete: (id: number) => Promise<void>;
+  bulkDelete: (ids: number[]) => Promise<void>;
 }
 
 export interface IExerciseRepository {
@@ -49,6 +53,7 @@ export interface IExerciseRepository {
   update: (id: number, toUpdate: Partial<LocalExercise>) => Promise<number>;
   bulkPut: (toUpdate: LocalExercise[]) => Promise<number>;
   delete: (id: number) => Promise<void>;
+  bulkDelete: (ids: number[]) => Promise<void>;
 }
 
 export interface IRoutineDetailRepository {
@@ -61,7 +66,9 @@ export interface IRoutineDetailRepository {
     id: number,
     toUpdate: Partial<LocalRoutineDetail>
   ) => Promise<number>;
+  bulkPut: (toUpdate: LocalRoutineDetail[]) => Promise<number>;
   delete: (id: number) => Promise<void>;
+  bulkDelete: (ids: number[]) => Promise<void>;
 }
 
 export interface IWorkoutDetailRepository {
@@ -86,4 +93,5 @@ export interface IWorkoutDetailRepository {
   ) => Promise<number>;
   bulkPut: (toUpdate: LocalWorkoutDetail[]) => Promise<number>;
   delete: (detailId: number) => Promise<void>;
+  bulkDelete: (ids: number[]) => Promise<void>;
 }

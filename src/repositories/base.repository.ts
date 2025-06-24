@@ -6,35 +6,39 @@ export abstract class BaseRepository<
 > {
   constructor(protected table: Table<T, TKey>) {}
 
-  async clear(): Promise<void> {
+  public async clear(): Promise<void> {
     await this.table.clear();
   }
 
-  async findAll(): Promise<T[]> {
+  public async findAll(): Promise<T[]> {
     return this.table.toArray();
   }
 
-  async findOneById(id: TKey): Promise<T | undefined> {
+  public async findOneById(id: TKey): Promise<T | undefined> {
     return this.table.get(id);
   }
 
-  async add(toInsert: T): Promise<TKey> {
+  public async add(toInsert: T): Promise<TKey> {
     return this.table.add(toInsert) as Promise<TKey>;
   }
 
-  async bulkAdd(toInsert: T[]): Promise<TKey> {
+  public async bulkAdd(toInsert: T[]): Promise<TKey> {
     return this.table.bulkAdd(toInsert) as Promise<TKey>;
   }
 
-  async bulkPut(toInsert: T[]): Promise<TKey> {
+  public async bulkPut(toInsert: T[]): Promise<TKey> {
     return this.table.bulkPut(toInsert) as Promise<TKey>;
   }
 
-  async update(id: TKey, toUpdate: Partial<T>): Promise<number> {
+  public async update(id: TKey, toUpdate: Partial<T>): Promise<number> {
     return this.table.update(id, toUpdate as UpdateSpec<T>);
   }
 
-  async delete(id: TKey): Promise<void> {
+  public async delete(id: TKey): Promise<void> {
     await this.table.delete(id);
+  }
+
+  public async bulkDelete(ids: TKey[]): Promise<void> {
+    await this.table.bulkDelete(ids);
   }
 }

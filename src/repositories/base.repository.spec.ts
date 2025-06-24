@@ -22,6 +22,7 @@ const mockTable = {
   bulkPut: jest.fn(),
   update: jest.fn(),
   delete: jest.fn(),
+  bulkDelete: jest.fn(),
 } as unknown as Table<TestEntity, number>;
 
 describe("BaseRepository", () => {
@@ -114,5 +115,14 @@ describe("BaseRepository", () => {
 
     expect(mockTable.delete).toHaveBeenCalledTimes(1);
     expect(mockTable.delete).toHaveBeenCalledWith(mockId);
+  });
+
+  it("bulkDelete 메서드는 전달받은 ids와 함께 table.bulkDelete를 호출한다", async () => {
+    const mockIds = [1, 2, 3];
+
+    await repository.bulkDelete(mockIds);
+
+    expect(mockTable.bulkDelete).toHaveBeenCalledTimes(1);
+    expect(mockTable.bulkDelete).toHaveBeenCalledWith(mockIds);
   });
 });

@@ -1,224 +1,299 @@
-import {
-  updateLocalWorkout,
-  getWorkoutByUserIdAndDate,
-} from "./workout.service";
-jest.mock("@/lib/db");
+import { createMockWorkoutApi } from "@/__mocks__/api/workout.api.mock";
+import { createMockWorkoutRepository } from "@/__mocks__/repositories/workout.repository.mock";
+import { mockWorkout } from "@/__mocks__/workout.mock";
+import { WorkoutService } from "@/services/workout.service";
+import { IWorkoutService } from "@/types/services";
 
-jest.mock("@/api/workout.api", () => ({
-  postWorkoutsToServer: jest
-    .fn()
-    .mockImplementation(async () => mockPostWorkoutsToServerResponse),
-  fetchWorkoutFromServer: jest.fn(),
-}));
-import {
-  mockLocalWorkouts,
-  mockPostWorkoutsToServerResponse,
-  mockServerWorkouts,
-} from "@/__mocks__/workout.mock";
-import {
-  fetchWorkoutsFromServer,
-  postWorkoutsToServer,
-} from "@/api/workout.api";
-import { db } from "@/lib/db";
-import {
-  addLocalWorkout,
-  getWorkoutWithServerId,
-  overwriteWithServerWorkouts,
-  syncToServerWorkouts,
-} from "@/services/workout.service";
-import { mockWhereEqualsFirst } from "@/util/dbMockUtils";
+const mockRepository = createMockWorkoutRepository();
+const mockApi = createMockWorkoutApi();
 
-describe("workout.service", () => {
-  const userId = "testUserId";
+describe("WorkoutService", () => {
+  let service: IWorkoutService;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    service = new WorkoutService(mockRepository, mockApi);
   });
 
-  describe("getWorkoutByUserIdAndDate", () => {
-    it("userId와 date 가 일치하는 workout을 반환한다", async () => {
-      const mockWorkout = mockLocalWorkouts[0];
-      mockWhereEqualsFirst("workouts", mockWorkout);
-
-      const workout = await getWorkoutByUserIdAndDate(userId, "testDate");
-
-      expect(workout).toEqual(mockWorkout);
-    });
-
-    it("일치하는 workout이 없으면 undefined를 반환한다", async () => {
-      mockWhereEqualsFirst("workouts", undefined);
-      const result = await getWorkoutByUserIdAndDate(userId, "testDate");
-      expect(result).toBe(undefined);
-    });
-  });
-
-  describe("getWorktoutWithServerId", () => {
-    const localWorkout = mockLocalWorkouts[0];
-    const serverId = "testServerId";
-    it("해당되는 workout이 있을경우 해당 workout을 반환한다", async () => {
-      (db.workouts.where as jest.Mock).mockReturnValue({
-        equals: jest.fn().mockReturnValue({
-          first: jest.fn().mockResolvedValue(localWorkout),
-        }),
-      });
-      const workout = await getWorkoutWithServerId(serverId);
-
-      expect(workout).toEqual(localWorkout);
-    });
-    it("해당되는 workout이 없을경우 에러를 던진다", async () => {
-      (db.workouts.where as jest.Mock).mockReturnValue({
-        equals: jest.fn().mockReturnValue({
-          first: jest.fn().mockResolvedValue(undefined),
-        }),
-      });
-      await expect(getWorkoutWithServerId(serverId)).rejects.toThrow(
-        "일치하는 workout이 없습니다"
-      );
-    });
-  });
-  describe("getWorkoutWithLocalId", () => {
-    const localWorkout = mockLocalWorkouts[0];
-    const localId = "testServerId";
-    it("해당되는 workout이 있을경우 해당 workout을 반환한다", async () => {
-      mockWhereEqualsFirst("workouts", localWorkout);
-      const workout = await getWorkoutWithServerId(localId);
-
-      expect(workout).toEqual(localWorkout);
-    });
-    it("해당되는 workout이 없을경우 에러를 던진다", async () => {
-      (db.workouts.where as jest.Mock).mockReturnValue({
-        equals: jest.fn().mockReturnValue({
-          first: jest.fn().mockResolvedValue(undefined),
-        }),
-      });
-      await expect(getWorkoutWithServerId(localId)).rejects.toThrow(
-        "일치하는 workout이 없습니다"
-      );
-    });
-  });
-  describe("syncToServerWorkouts", () => {
-    (db.workouts.toArray as jest.Mock).mockReturnValue(mockLocalWorkouts);
-
-    const unsynced = mockLocalWorkouts.map((workout) => ({
-      ...workout,
-      isSynced: false,
-    }));
-    it("DB에서 isSynced가 false인 workout들을 postWorkoutToServer에 전달하며 호출한다", async () => {
-      await syncToServerWorkouts();
-      expect(postWorkoutsToServer).toHaveBeenCalledWith(unsynced);
-    });
-
-    it("postWorkoutsToServer 의 반환값을 기반으로 serverId와 isSynced를 업데이트한다", async () => {
-      await syncToServerWorkouts();
-      mockPostWorkoutsToServerResponse.updated.map((workout) => {
-        const { serverId, localId } = workout;
-        expect(db.workouts.update).toHaveBeenCalledWith(localId, {
-          serverId,
-          isSynced: true,
-        });
+  describe("core service", () => {
+    // ---- Core ---- //
+    describe("getAllWorkouts", () => {
+      const userId = "user-123";
+      const mockWorkouts = [mockWorkout.planned];
+      it("전달받은 유저의 모든 workouts를 가져온다", async () => {
+        mockRepository.findAllByUserIdOrderByDate.mockResolvedValue(
+          mockWorkouts
+        );
+        const result = await service.getAllWorkouts(userId);
+        expect(result).toEqual(mockWorkouts);
+        expect(mockRepository.findAllByUserIdOrderByDate).toHaveBeenCalledWith(
+          userId
+        );
       });
     });
-    it("db 반환값이 없을경우 빈배열과 함께 postWorkoutsToServer 를 호출해 서버와 통신하며 빈배열을 반환하기 때문에 update는 호출되지 않는다", async () => {
-      (db.workouts.toArray as jest.Mock).mockReturnValue([]);
-      (postWorkoutsToServer as jest.Mock).mockResolvedValueOnce({
-        success: true,
-        updated: [],
+
+    describe("getWorkoutWithServerId", () => {
+      const mockW = mockWorkout.synced;
+      const serverId = mockW.serverId;
+      if (!serverId) {
+        throw new Error("테스트용 serverId가 정의되어 있지 않습니다.");
+      }
+
+      it("serverId에 해당하는 workout을 반환한다", async () => {
+        mockRepository.findOneByServerId.mockResolvedValueOnce(mockW);
+        const result = await service.getWorkoutWithServerId(serverId);
+        expect(result).toEqual(mockW);
+        expect(mockRepository.findOneByServerId).toHaveBeenCalledWith(serverId);
       });
-      await syncToServerWorkouts();
-      expect(postWorkoutsToServer).toHaveBeenCalledWith([]);
-      expect(db.workouts.update).not.toHaveBeenCalled();
     });
-  });
+    describe("getWorkoutWithLocalId", () => {
+      const mockW = mockWorkout.synced;
+      const mockId = mockW.id;
+      if (!mockId) {
+        throw new Error("테스트용 id가 정의되어 있지 않습니다.");
+      }
 
-  describe("overwriteWithServerWorkouts", () => {
-    it("fetchWorkoutFromServer 의 반환값을 로컬데이터 형식으로 변환하여 workouts를 덮어씌운다", async () => {
-      (fetchWorkoutsFromServer as jest.Mock).mockResolvedValueOnce(
-        mockServerWorkouts
-      );
-
-      const toInsert = mockServerWorkouts.map((workout) => ({
-        id: undefined,
-        userId: workout.userId,
-        serverId: workout.id,
-        date: workout.date,
-        isSynced: true,
-        status: "EMPTY",
-
-        createdAt: workout.createdAt,
-        updatedAt: workout.updatedAt,
-      }));
-
-      await overwriteWithServerWorkouts(userId);
-
-      expect(db.workouts.clear).toHaveBeenCalledTimes(1);
-      expect(db.workouts.bulkAdd).toHaveBeenCalledWith(toInsert);
+      it("serverId에 해당하는 workout을 반환한다", async () => {
+        mockRepository.findOneById.mockResolvedValueOnce(mockW);
+        const result = await service.getWorkoutWithLocalId(mockId);
+        expect(result).toEqual(mockW);
+        expect(mockRepository.findOneById).toHaveBeenCalledWith(mockId);
+      });
     });
 
-    it("fetchWorkoutFromServer이 빈 배열을 반환할 경우에는 clear와 bulkAdd를 호출하지 않고 함수를 종료한다, ", async () => {
-      (fetchWorkoutsFromServer as jest.Mock).mockResolvedValueOnce([]);
-      await overwriteWithServerWorkouts(userId);
-
-      expect(db.workouts.clear).not.toHaveBeenCalled();
-      expect(db.workouts.bulkAdd).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("addLocalWorkout", () => {
-    const date = "testDate";
-    it("조건에 해당되는 workout이 있다면 그 workout을 반환한다", async () => {
-      const mockworkout = mockLocalWorkouts[0];
-      (db.workouts.where as jest.Mock).mockReturnValueOnce({
-        equals: jest.fn().mockReturnValueOnce({
-          first: jest.fn().mockReturnValueOnce(mockworkout),
-        }),
+    describe("getWorkoutByUserIdAndDate", () => {
+      const mockUserId = "user-123";
+      const mockDate = "2023-10-01";
+      const mockW = { ...mockWorkout.planned, date: mockDate };
+      it("유저ID와 날짜에 해당하는 workout을 반환한다", async () => {
+        mockRepository.findOneByUserIdAndDate.mockResolvedValueOnce(mockW);
+        const result = await service.getWorkoutByUserIdAndDate(
+          mockUserId,
+          mockDate
+        );
+        expect(result).toEqual(mockW);
+        expect(mockRepository.findOneByUserIdAndDate).toHaveBeenCalledWith(
+          mockUserId,
+          mockDate
+        );
       });
-      const result = await addLocalWorkout(userId, date);
-      expect(db.workouts.add).not.toHaveBeenCalled();
-      expect(result).toEqual(mockworkout);
     });
 
-    it("조건에 해당되는 workout이 없다면 입력받은 userId와 date를 기반으로 workout을 생성하며 해당 workout을 반환한다", async () => {
-      const mockWorkout = mockLocalWorkouts[0];
-      (db.workouts.where as jest.Mock).mockReturnValueOnce({
-        equals: jest.fn().mockReturnValueOnce({
-          first: jest.fn().mockReturnValueOnce(undefined),
-        }),
-      });
-      (db.workouts.where as jest.Mock).mockReturnValueOnce({
-        equals: jest.fn().mockReturnValueOnce({
-          first: jest.fn().mockReturnValueOnce({ ...mockWorkout }),
-        }),
-      });
-
-      (db.workouts.add as jest.Mock).mockResolvedValueOnce(mockWorkout.id);
-
-      const result = await addLocalWorkout(userId, date);
-      expect(db.workouts.add).toHaveBeenCalledWith({
+    describe("addLocalWorkout", () => {
+      const mockW = mockWorkout.planned;
+      const userId = mockW.userId;
+      const date = mockW.date;
+      const addInput = {
         userId,
         date,
-        status: "EMPTY" as const,
         createdAt: expect.any(String),
         isSynced: false,
+        status: "EMPTY",
         serverId: null,
+      };
+      it("userId와 date에 해당하는 workout이 있을경우 그 workout을 바로 리턴한다", async () => {
+        mockRepository.findOneByUserIdAndDate.mockResolvedValueOnce(mockW);
+        const result = await service.addLocalWorkout(userId, date);
+        expect(result).toEqual(mockW);
+        expect(mockRepository.findOneByUserIdAndDate).toHaveBeenCalledWith(
+          userId,
+          date
+        );
       });
-      expect(result).toEqual(mockWorkout);
+
+      it("해당하는 workout이 없을경우 새로운 workout을 생성하고 리턴한다", async () => {
+        const mockId = 3;
+
+        mockRepository.add.mockResolvedValueOnce(mockId);
+        const mockGetWorkoutWithLocalId = jest
+          .spyOn(service, "getWorkoutWithLocalId")
+          .mockResolvedValueOnce(mockW);
+        const mockGetWorkout = jest
+          .spyOn(service, "getWorkoutByUserIdAndDate")
+          .mockResolvedValueOnce(undefined);
+
+        const result = await service.addLocalWorkout(userId, date);
+
+        expect(result).toEqual(mockW);
+        expect(mockGetWorkout).toHaveBeenCalledWith(userId, date);
+        expect(mockRepository.add).toHaveBeenCalledWith(addInput);
+        expect(mockGetWorkoutWithLocalId).toHaveBeenCalledWith(mockId);
+      });
+
+      it("생성한 workout을 조회하지 못한경우 에러를 던진다", async () => {
+        const mockError = new Error("Workout을 불러오지 못했습니다");
+
+        jest
+          .spyOn(service, "getWorkoutWithLocalId")
+          .mockResolvedValueOnce(undefined);
+        jest
+          .spyOn(service, "getWorkoutByUserIdAndDate")
+          .mockResolvedValueOnce(undefined);
+
+        await expect(service.addLocalWorkout(userId, date)).rejects.toThrow(
+          mockError
+        );
+        expect(mockRepository.add).toHaveBeenCalledWith(addInput);
+      });
+    });
+
+    describe("updateLocalWorkout", () => {
+      const mockW = { ...mockWorkout.planned, id: 1 };
+      it("workout을 업데이트한다", async () => {
+        const mockUpdateInput = {
+          ...mockW,
+          updatedAt: expect.any(String),
+          isSynced: false,
+        };
+        mockRepository.update.mockResolvedValueOnce(1);
+        await service.updateLocalWorkout(mockW);
+        expect(mockRepository.update).toHaveBeenCalledWith(
+          mockW.id,
+          mockUpdateInput
+        );
+      });
+      it("workout에 id가 없는경우 에러를 던진다", async () => {
+        const mockW = { ...mockWorkout.planned, id: undefined };
+        const mockError = new Error("workout id는 필수입니다");
+        await expect(service.updateLocalWorkout(mockW)).rejects.toThrow(
+          mockError
+        );
+        expect(mockRepository.update).not.toHaveBeenCalled();
+      });
+
+      it("업데이트 도중 에러가 발생한경우 전파한다", async () => {
+        const mockError = new Error("업데이트 실패");
+        mockRepository.update.mockRejectedValueOnce(mockError);
+        await expect(service.updateLocalWorkout(mockW)).rejects.toThrow(
+          mockError
+        );
+      });
+    });
+
+    describe("deleteLocalWorkout", () => {
+      const mockId = 1;
+      it("workout을 삭제한다", async () => {
+        await service.deleteLocalWorkout(mockId);
+        expect(mockRepository.delete).toHaveBeenCalledWith(mockId);
+      });
+
+      it("삭제 도중 에러가 발생한경우 전파한다", async () => {
+        const mockError = new Error("삭제 실패");
+        mockRepository.delete.mockRejectedValueOnce(mockError);
+        await expect(service.deleteLocalWorkout(mockId)).rejects.toThrow(
+          mockError
+        );
+      });
     });
   });
 
-  describe("deleteLocalWorkout", () => {
-    it("id가 일치하는 workout을 업데이트한다", async () => {
-      await updateLocalWorkout({ id: 1, status: "PLANNED" });
+  describe("sync service", () => {
+    describe("syncToServerWorkouts", () => {
+      const mockAllWorkouts = [mockWorkout.planned, mockWorkout.synced];
+      it("모든 local workouts를 서버에 동기화한다", async () => {
+        mockRepository.findAll.mockResolvedValue(mockAllWorkouts);
+        mockApi.postWorkoutsToServer.mockResolvedValue({
+          success: true,
+          updated: [
+            { localId: mockWorkout.planned.id!, serverId: "server-123" },
+          ],
+        });
+        await service.syncToServerWorkouts();
 
-      expect(db.workouts.update).toHaveBeenCalledWith(1, {
-        id: 1,
-        status: "PLANNED",
+        expect(mockRepository.findAll).toHaveBeenCalled();
+        expect(mockApi.postWorkoutsToServer).toHaveBeenCalledWith([
+          mockWorkout.planned,
+        ]);
+        expect(mockRepository.update).toHaveBeenCalledWith(
+          mockWorkout.planned.id!,
+          {
+            serverId: "server-123",
+            isSynced: true,
+          }
+        );
+      });
+
+      it("local workouts이 없을경우 api 호출은 하지만 update는 하지않는다", async () => {
+        mockRepository.findAll.mockResolvedValue([]);
+        mockApi.postWorkoutsToServer.mockResolvedValue({
+          success: true,
+          updated: [],
+        });
+
+        await service.syncToServerWorkouts();
+
+        expect(mockRepository.findAll).toHaveBeenCalled();
+        expect(mockApi.postWorkoutsToServer).toHaveBeenCalledWith([]);
+        expect(mockRepository.update).not.toHaveBeenCalled();
       });
     });
 
-    it("업데이트에 실패할 경우 에러를 던진다", async () => {
-      (db.workouts.update as jest.Mock).mockRejectedValueOnce(new Error());
-      await expect(
-        updateLocalWorkout({ id: 1, status: "PLANNED" })
-      ).rejects.toThrow("Workout 업데이트에 실패했습니다");
+    describe("overwriteWithServerWorkouts", () => {
+      const userId = "user-123";
+      it("서버의 데이터로 덮어씌운다", async () => {
+        const serverData = [{ ...mockWorkout.server, date: "2025-10-01" }];
+        mockApi.fetchWorkoutsFromServer.mockResolvedValue(serverData);
+
+        mockRepository.bulkAdd.mockResolvedValue(serverData.length);
+        await service.overwriteWithServerWorkouts(userId);
+        expect(mockApi.fetchWorkoutsFromServer).toHaveBeenCalledWith(userId);
+        expect(mockRepository.clear).toHaveBeenCalled();
+        expect(mockRepository.bulkAdd).toHaveBeenCalledWith(
+          serverData.map((workout) => ({
+            id: undefined,
+            userId: workout.userId,
+            serverId: workout.id,
+            date: "2025-10-01",
+            isSynced: true,
+            status: "EMPTY",
+            createdAt: expect.any(String),
+            updatedAt: null,
+          }))
+        );
+      });
+
+      it("서버 데이터가 빈배열인경우 clear를 하지않고 리턴한다", async () => {
+        mockApi.fetchWorkoutsFromServer.mockResolvedValue([]);
+        await service.overwriteWithServerWorkouts(userId);
+        expect(mockApi.fetchWorkoutsFromServer).toHaveBeenCalledWith(userId);
+        expect(mockRepository.clear).not.toHaveBeenCalled();
+        expect(mockRepository.bulkAdd).not.toHaveBeenCalled();
+      });
+
+      it("서버에서 데이터를 가져오는 도중 에러가 발생할경우 해당 에러를 전파한다", async () => {
+        const mockError = new Error("서버 에러");
+        mockApi.fetchWorkoutsFromServer.mockRejectedValue(mockError);
+        await expect(
+          service.overwriteWithServerWorkouts(userId)
+        ).rejects.toThrow(mockError);
+        expect(mockApi.fetchWorkoutsFromServer).toHaveBeenCalledWith(userId);
+        expect(mockRepository.clear).not.toHaveBeenCalled();
+        expect(mockRepository.bulkAdd).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe("query service", () => {
+    describe("getThisMonthWorkouts", () => {
+      it("전달받은 날짜 사이의 workout들을 반환한다", async () => {
+        const startDate = "2025-10-01";
+        const endDate = "2025-10-31";
+        const mockWorkouts = [
+          { ...mockWorkout.planned, date: "2025-10-10" },
+          { ...mockWorkout.planned, date: "2025-10-20" },
+        ];
+
+        mockRepository.findAllByDateRangeExcludeEmpty.mockResolvedValue(
+          mockWorkouts
+        );
+
+        const result = await service.getThisMonthWorkouts(startDate, endDate);
+
+        expect(result).toEqual(mockWorkouts);
+        expect(
+          mockRepository.findAllByDateRangeExcludeEmpty
+        ).toHaveBeenCalledWith(startDate, endDate);
+      });
     });
   });
 });
