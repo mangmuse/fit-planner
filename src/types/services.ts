@@ -133,7 +133,7 @@ export interface IRoutineDetailService {
     routineId: number,
     startOrder: number,
     selectedExercises: { id: number; name: string }[]
-  ) => Promise<number>;
+  ) => Promise<void>;
   cloneRoutineDetailWithNewRoutineId: (
     originalDetail: LocalRoutineDetail,
     newRoutineId: number

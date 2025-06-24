@@ -116,7 +116,7 @@ export class RoutineDetailAdapter implements IRoutineDetailAdapter {
     };
   }
 
-  mapLocalRoutineDetailToServer(
+  public mapLocalRoutineDetailToServer(
     detail: LocalRoutineDetail,
     exercise: LocalExercise,
     routine: LocalRoutine
@@ -128,6 +128,21 @@ export class RoutineDetailAdapter implements IRoutineDetailAdapter {
       ...detail,
       exerciseId: exercise.serverId,
       routineId: routine.serverId,
+    };
+  }
+
+  public cloneToCreateInput(
+    inputDetail: LocalRoutineDetail,
+    newRoutineId: number
+  ): LocalRoutineDetail {
+    const { id, createdAt, updatedAt, ...rest } = inputDetail;
+    return {
+      ...rest,
+      routineId: newRoutineId,
+      serverId: null,
+      isSynced: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: null,
     };
   }
 }

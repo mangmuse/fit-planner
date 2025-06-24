@@ -11,7 +11,7 @@ export class WorkoutService implements IWorkoutService {
   ) {}
 
   // ---- Core ---- //
-  async getAllWorkouts(userId: string): Promise<LocalWorkout[]> {
+  public async getAllWorkouts(userId: string): Promise<LocalWorkout[]> {
     try {
       const workouts = await this.repository.findAllByUserIdOrderByDate(userId);
 
@@ -21,7 +21,9 @@ export class WorkoutService implements IWorkoutService {
     }
   }
 
-  async getWorkoutWithServerId(serverId: string): Promise<LocalWorkout | void> {
+  public async getWorkoutWithServerId(
+    serverId: string
+  ): Promise<LocalWorkout | void> {
     try {
       const workout = await this.repository.findOneByServerId(serverId);
       return workout;
@@ -29,7 +31,7 @@ export class WorkoutService implements IWorkoutService {
       throw new Error("workout을 불러오는 데 실패했습니다");
     }
   }
-  async getWorkoutWithLocalId(id: number): Promise<LocalWorkout | void> {
+  public async getWorkoutWithLocalId(id: number): Promise<LocalWorkout | void> {
     try {
       const workout = await this.repository.findOneById(id);
       return workout;
@@ -37,7 +39,7 @@ export class WorkoutService implements IWorkoutService {
       throw new Error("workout을 불러오는 데 실패했습니다");
     }
   }
-  async getWorkoutByUserIdAndDate(
+  public async getWorkoutByUserIdAndDate(
     userId: string,
     date: string
   ): Promise<LocalWorkout | void> {
@@ -52,7 +54,10 @@ export class WorkoutService implements IWorkoutService {
       throw new Error("workout을 불러오는 데 실패했습니다");
     }
   }
-  async addLocalWorkout(userId: string, date: string): Promise<LocalWorkout> {
+  public async addLocalWorkout(
+    userId: string,
+    date: string
+  ): Promise<LocalWorkout> {
     try {
       const existing = await this.getWorkoutByUserIdAndDate(userId, date);
       if (existing) {
@@ -77,7 +82,9 @@ export class WorkoutService implements IWorkoutService {
     }
   }
 
-  async updateLocalWorkout(workout: Partial<LocalWorkout>): Promise<void> {
+  public async updateLocalWorkout(
+    workout: Partial<LocalWorkout>
+  ): Promise<void> {
     if (!workout.id) throw new Error("workout id는 필수입니다");
     try {
       await this.repository.update(workout.id, {
@@ -90,7 +97,7 @@ export class WorkoutService implements IWorkoutService {
     }
   }
 
-  async deleteLocalWorkout(workoutId: number) {
+  public async deleteLocalWorkout(workoutId: number) {
     try {
       await this.repository.delete(workoutId);
     } catch (e) {
@@ -99,7 +106,7 @@ export class WorkoutService implements IWorkoutService {
   }
 
   // ---- Sync ---- //
-  async syncToServerWorkouts(): Promise<void> {
+  public async syncToServerWorkouts(): Promise<void> {
     const all = await this.repository.findAll();
 
     const unsynced = all.filter((workout) => !workout.isSynced);
@@ -115,7 +122,7 @@ export class WorkoutService implements IWorkoutService {
     }
   }
 
-  async overwriteWithServerWorkouts(userId: string): Promise<void> {
+  public async overwriteWithServerWorkouts(userId: string): Promise<void> {
     const serverData: ClientWorkout[] =
       await this.api.fetchWorkoutsFromServer(userId);
     if (!serverData) throw new Error("데이터 받아오기를 실패했습니다");
@@ -136,7 +143,7 @@ export class WorkoutService implements IWorkoutService {
   }
 
   // ---- Query ---- //
-  async getThisMonthWorkouts(
+  public async getThisMonthWorkouts(
     startDate: string,
     endDate: string
   ): Promise<LocalWorkout[]> {

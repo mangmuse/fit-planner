@@ -52,6 +52,11 @@ export interface IRoutineDetailAdapter {
     exercise: LocalExercise,
     routine: LocalRoutine
   ): LocalRoutineDetailWithServerRoutineId;
+
+  cloneToCreateInput(
+    input: LocalRoutineDetail,
+    newRoutineId: number
+  ): LocalRoutineDetail;
 }
 
 // --- WorkoutDetail Adapter Interface ---
