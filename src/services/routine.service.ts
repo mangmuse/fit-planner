@@ -17,69 +17,41 @@ export class RoutineService implements IRoutineService {
   ) {}
   // ----- CORE ----- //
   async getAllLocalRoutines(userId: string): Promise<LocalRoutine[]> {
-    try {
-      const routines = await this.repository.findAllByUserId(userId);
-
-      return routines;
-    } catch (e) {
-      throw new Error("루틴 목록을 불러오는 데 실패했습니다");
-    }
+    return this.repository.findAllByUserId(userId);
   }
 
   async getRoutineByServerId(serverId: string): Promise<LocalRoutine | void> {
-    try {
-      const routine = await this.repository.findOneByServerId(serverId);
-      return routine;
-    } catch (e) {
-      throw new Error("routine을 불러오는 데 실패했습니다");
-    }
+    return this.repository.findOneByServerId(serverId);
   }
 
   async getRoutineByLocalId(localId: number): Promise<LocalRoutine | void> {
-    try {
-      const routine = await this.repository.findOneById(localId);
-      return routine;
-    } catch (e) {
-      throw new Error("routine을 불러오는 데 실패했습니다");
-    }
+    return this.repository.findOneById(localId);
   }
 
   async addLocalRoutine(
     addLocalRoutineInput: AddLocalRoutineInput
   ): Promise<number> {
-    try {
-      const localId = await this.repository.add({
-        ...addLocalRoutineInput,
-        createdAt: new Date().toISOString(),
-        isSynced: false,
-        serverId: null,
-        description: addLocalRoutineInput.description || "",
-      });
-      return localId;
-    } catch (e) {
-      throw new Error("루틴 추가에 실패했습니다");
-    }
+    const localId = await this.repository.add({
+      ...addLocalRoutineInput,
+      createdAt: new Date().toISOString(),
+      isSynced: false,
+      serverId: null,
+      description: addLocalRoutineInput.description || "",
+    });
+    return localId;
   }
 
   async updateLocalRoutine(routine: Partial<LocalRoutine>): Promise<void> {
-    try {
-      if (!routine.id) throw new Error("routine id는 꼭 전달해주세요");
-      await this.repository.update(routine.id, {
-        ...routine,
-        updatedAt: new Date().toISOString(),
-        isSynced: false,
-      });
-    } catch (e) {
-      throw new Error("루틴 업데이트에 실패했습니다");
-    }
+    if (!routine.id) throw new Error("routine id는 꼭 전달해주세요");
+    await this.repository.update(routine.id, {
+      ...routine,
+      updatedAt: new Date().toISOString(),
+      isSynced: false,
+    });
   }
 
   async deleteLocalRoutine(routineId: number) {
-    try {
-      await this.repository.delete(routineId);
-    } catch (e) {
-      throw new Error("루틴 삭제에 실패했습니다");
-    }
+    await this.repository.delete(routineId);
   }
 
   // ===== SYNC ===== //

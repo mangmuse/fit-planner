@@ -3,9 +3,6 @@ import { createMockWorkoutRepository } from "@/__mocks__/repositories/workout.re
 import { mockWorkout } from "@/__mocks__/workout.mock";
 import { WorkoutService } from "@/services/workout.service";
 import { IWorkoutService } from "@/types/services";
-import { server } from "jest.setup";
-import { create } from "lodash";
-import { mock } from "node:test";
 
 const mockRepository = createMockWorkoutRepository();
 const mockApi = createMockWorkoutApi();
@@ -190,7 +187,6 @@ describe("WorkoutService", () => {
     });
   });
 
-  // ---- Sync ---- //
   describe("sync service", () => {
     describe("syncToServerWorkouts", () => {
       const mockAllWorkouts = [mockWorkout.planned, mockWorkout.synced];
