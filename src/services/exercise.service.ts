@@ -14,27 +14,15 @@ export class ExerciseService implements IExerciseService {
   async getExerciseWithServerId(
     serverId: number
   ): Promise<LocalExercise | void> {
-    try {
-      return await this.repository.findOneByServerId(serverId);
-    } catch (e) {
-      throw new Error("exercise 를 불러오는 데 실패했습니다");
-    }
+    return await this.repository.findOneByServerId(serverId);
   }
 
   async getAllLocalExercises(): Promise<LocalExercise[]> {
-    try {
-      return this.repository.findAll();
-    } catch (e) {
-      throw new Error("로컬 운동 목록을 불러오는 데 실패했습니다");
-    }
+    return this.repository.findAll();
   }
 
   async getExerciseWithLocalId(id: number): Promise<LocalExercise | void> {
-    try {
-      return await this.repository.findOneById(id);
-    } catch (e) {
-      throw new Error("exercise 를 불러오는 데 실패했습니다");
-    }
+    return await this.repository.findOneById(id);
   }
 
   async addLocalExercise({
@@ -57,74 +45,61 @@ export class ExerciseService implements IExerciseService {
       serverId: null,
       unit: "kg",
       exerciseMemo: null,
-      id: undefined, // id는 자동 생성됨
+      id: undefined,
       userId,
       isSynced: false,
     };
-    try {
-      await this.repository.add(newExercise);
-    } catch (e) {
-      throw new Error("운동 추가에 실패했습니다");
-    }
+    await this.repository.add(newExercise);
   }
 
   async updateLocalExercise(
     updateInput: Partial<LocalExercise>
   ): Promise<number> {
     if (!updateInput.id) throw new Error("id가 없습니다");
-    try {
-      return this.repository.update(updateInput.id, {
-        ...updateInput,
-        isSynced: false,
-      });
-    } catch (e) {
-      throw new Error("운동 업데이트에 실패했습니다");
-    }
+    return this.repository.update(updateInput.id, {
+      ...updateInput,
+      isSynced: false,
+    });
   }
 
   async toggleLocalBookmark(
     localId: number,
     nextValue: boolean
   ): Promise<void> {
-    try {
-      await this.repository.update(localId, {
-        isBookmarked: nextValue,
-        isSynced: false,
-        updatedAt: new Date().toISOString(),
-      });
-    } catch (e) {
-      throw new Error("북마크 토글에 실패했습니다");
-    }
+    await this.repository.update(localId, {
+      isBookmarked: nextValue,
+      isSynced: false,
+      updatedAt: new Date().toISOString(),
+    });
   }
 
   // ----- Sync ----- //
 
   private async getUnsyncedExercises(): Promise<LocalExercise[]> {
-    try {
-      return this.repository.findAllUnsynced();
-    } catch (e) {
-      throw new Error("UnsyncedExercises를 불러올 수 없습니다");
-    }
+    return this.repository.findAllUnsynced();
   }
 
   async overwriteWithServerExercises(userId: string) {
     const serverData: ClientExercise[] =
       await this.api.fetchExercisesFromServer(userId);
-    if (!serverData) {
-      throw new Error("데이터 받아오기를 실패했습니다");
-    }
-    await this.repository.clear();
+
+    if (serverData.length === 0) return;
+
     const toInsert = serverData.map((ex) => ({
       ...ex,
       serverId: ex.id,
       isSynced: true,
     }));
+    await this.repository.clear();
     await this.repository.bulkAdd(toInsert);
   }
 
   async syncExercisesFromServerLocalFirst(userId: string) {
     const serverData: ClientExercise[] =
       await this.api.fetchExercisesFromServer(userId);
+
+    if (serverData.length === 0) return;
+
     const localAll = await this.repository.findAll();
 
     const merged = this.adapter.mergeServerExerciseData(serverData, localAll);
@@ -132,9 +107,12 @@ export class ExerciseService implements IExerciseService {
     await this.repository.clear();
     await this.repository.bulkPut(merged);
   }
+
   async syncToServerExercises(userId: string): Promise<void> {
     const unsynced = await this.getUnsyncedExercises();
     const data = await this.api.postExercisesToServer(unsynced, userId);
+
+    if (data.updated.length === 0) return;
 
     for (const updated of data.updated) {
       await this.repository.update(updated.localId, {
