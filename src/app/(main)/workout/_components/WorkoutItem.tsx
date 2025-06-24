@@ -72,7 +72,7 @@ const WorkoutItem = ({
       />
       <td className="text-center">
         {prevWorkoutDetail
-          ? `${prevWorkoutDetail.weight} ${exercise.unit} x ${prevWorkoutDetail.reps} 회`
+          ? `${prevWorkoutDetail.weight} ${exercise.unit || 'kg'} x ${prevWorkoutDetail.reps} 회`
           : "-"}
       </td>
       <td className="text-center">

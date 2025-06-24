@@ -79,10 +79,7 @@ const WorkoutContainer = ({
       : { type: "RECORD" as const, date: date!, userId: userId! };
 
   useEffect(() => {
-    console.log(pathname, "qwdoihwqodhqw");
     const handlePopState = () => {
-      console.log("hello");
-
       // 모달이 열려있으면 모달 핸들러가 처리하도록 놔둠
       if (isModalOpen || isBottomSheetOpen) return;
 

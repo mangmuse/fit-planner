@@ -1,12 +1,6 @@
-import { IWorkoutDetailAdapter } from "@/types/adapters";
-import { IWorkoutDetailApi } from "@/types/apis";
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
+
 import {
-  IWorkoutDetailRepository,
-  IWorkoutRepository,
-} from "@/types/repositories";
-import {
-  IExerciseService,
   IWorkoutDetailCoreService,
   IWorkoutDetailQueryService,
   IWorkoutDetailService,

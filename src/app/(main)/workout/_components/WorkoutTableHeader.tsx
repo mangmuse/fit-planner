@@ -52,7 +52,7 @@ const WorkoutTableHeader = ({
         >
           Previous
         </th>
-        <th className="w-[17%]">{exercise.unit}</th>
+        <th className="w-[17%]">{exercise.unit || 'kg'}</th>
         <th className="w-[17%]">Reps</th>
         <th className="w-[14%]">
           <div className="flex justify-center items-center">
