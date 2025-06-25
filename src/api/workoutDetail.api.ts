@@ -11,7 +11,6 @@ import {
   LocalWorkoutDetailWithServerWorkoutId,
 } from "@/types/models";
 import { safeRequest } from "@/util/apiHelpers";
-import { validateData } from "@/util/validateData";
 import { z } from "zod";
 
 export const syncWorkoutDetailsToServerResponseSchema = z.object({
