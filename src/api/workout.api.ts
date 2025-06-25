@@ -43,7 +43,7 @@ export class WorkoutApi implements IWorkoutApi {
   constructor() {}
   async fetchWorkoutsFromServer(userId: string): Promise<ClientWorkout[]> {
     const data = await safeRequest(
-      `${BASE_URL}/api/workout/${userId}`,
+      `${BASE_URL}/api/workout?userId=${userId}`,
       {},
       fetchWorkoutSchema
     );
