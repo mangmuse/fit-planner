@@ -22,7 +22,6 @@ export const POST = async (req: NextRequest) => {
     await pMap(
       unsynced,
       async (routine) => {
-        let routineRecord;
         if (routine.serverId) {
           const updatedRecord = await prisma.routine.update({
             where: {
@@ -30,7 +29,7 @@ export const POST = async (req: NextRequest) => {
             },
             data: {
               name: routine.name,
-              description: routine.description || "",
+              description: routine.description,
               updatedAt: routine.updatedAt,
             },
           });
@@ -45,7 +44,7 @@ export const POST = async (req: NextRequest) => {
             data: {
               userId: routine.userId,
               name: routine.name,
-              description: routine.description || "",
+              description: routine.description,
               createdAt: routine.createdAt,
             },
           });

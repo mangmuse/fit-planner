@@ -26,8 +26,13 @@ afterAll(() => {
 jest.mock("@/lib/prisma", () => ({
   prisma: {
     exercise: { findMany: jest.fn() },
-    routine: { findMany: jest.fn(), findUnique: jest.fn() },
-    workout: { findMany: jest.fn() },
+    routine: {
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+    },
+    workout: { findMany: jest.fn(), upsert: jest.fn() },
     workoutDetail: { findMany: jest.fn() },
     routineDetail: { findMany: jest.fn() },
   },

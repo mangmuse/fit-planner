@@ -28,7 +28,7 @@ export const createServerRoutineMock = (
   id: `server-id-${Math.random()}`,
   userId: "mockUserId",
   name: "새루틴",
-  description: null,
+  description: "",
   createdAt: new Date().toISOString(),
   updatedAt: null,
   ...overrides,

@@ -1,4 +1,3 @@
-import { SyncWorkoutsPayload } from "@/api/workout.api";
 import { handleServerError } from "@/app/api/_utils/handleError";
 import { prisma } from "@/lib/prisma";
 import { LocalWorkout, localWorkoutSchema } from "@/types/models";
