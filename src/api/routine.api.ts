@@ -39,7 +39,7 @@ export class RoutineApi implements IRoutineApi {
 
   async fetchRoutinesFromServer(userId: string): Promise<ClientRoutine[]> {
     const data = await safeRequest(
-      `${BASE_URL}/api/routine/${userId}`,
+      `${BASE_URL}/api/routine?userId=${userId}`,
       {},
       fetchRoutineSchema
     );

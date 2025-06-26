@@ -63,7 +63,7 @@ function transformExerciseToClient(
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get("userId");
-  if (!userId) {
+  if (!userId || typeof userId !== "string") {
     return NextResponse.json(
       { success: false, message: "userId 파라미터가 없습니다" },
       { status: 400 }

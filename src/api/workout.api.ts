@@ -1,18 +1,13 @@
 import { BASE_URL } from "@/constants";
 import { z } from "zod";
-import {
-  FETCH_WORKOUTS_ERROR,
-  POST_WORKOUTS_ERROR,
-} from "@/constants/errorMessage";
+
 import {
   ClientWorkout,
   LocalWorkout,
   clientWorkoutSchema,
 } from "@/types/models";
-import { validateData } from "@/util/validateData";
 import { IWorkoutApi } from "@/types/apis";
 import { safeRequest } from "@/util/apiHelpers";
-import { s } from "node_modules/msw/lib/core/HttpResponse-I457nh8V.mjs";
 
 export const syncWorkoutsToServerResponseSchema = z.object({
   success: z.boolean(),
