@@ -10,7 +10,6 @@ import { ApiErrorResponse, ApiSuccessResponse } from "@/types/apiResponse";
 import { ClientRoutine } from "@/types/models";
 import { validateData } from "@/util/validateData";
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
 
 describe("GET /api/routine", () => {
   const mockedGetRoutines = getRoutines as jest.Mock;

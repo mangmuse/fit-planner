@@ -51,7 +51,7 @@ export class WorkoutDetailApi implements IWorkoutDetailApi {
     userId: string
   ): Promise<ClientWorkoutDetail[]> {
     const data = await safeRequest(
-      `${BASE_URL}/api/workout/detail/${userId}`,
+      `${BASE_URL}/api/workout/detail?userId=${userId}`,
       {},
       fetchWorkoutDetailsSchema
     );
