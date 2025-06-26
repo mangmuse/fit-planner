@@ -1,0 +1,48 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`GET /api/routine/detail routineDetail 목록을 200 상태코드와 함께 반환한다 1`] = `
+[
+  {
+    "createdAt": "2024-01-01T10:00:00.000Z",
+    "exerciseId": 123,
+    "exerciseName": "벤치프레스",
+    "exerciseOrder": 1,
+    "id": "routine-detail-1",
+    "reps": 10,
+    "routineId": "routine-1",
+    "rpe": 10,
+    "setOrder": 1,
+    "setType": "NORMAL",
+    "updatedAt": "2024-01-02T10:00:00.000Z",
+    "weight": 100,
+  },
+  {
+    "createdAt": "2024-01-01T10:00:00.000Z",
+    "exerciseId": 123,
+    "exerciseName": "벤치프레스",
+    "exerciseOrder": 1,
+    "id": "routine-detail-1",
+    "reps": 10,
+    "routineId": "routine-2",
+    "rpe": 10,
+    "setOrder": 1,
+    "setType": "NORMAL",
+    "updatedAt": "2024-01-02T10:00:00.000Z",
+    "weight": 100,
+  },
+  {
+    "createdAt": "2024-01-01T10:00:00.000Z",
+    "exerciseId": 123,
+    "exerciseName": "벤치프레스",
+    "exerciseOrder": 1,
+    "id": "routine-detail-1",
+    "reps": 10,
+    "routineId": "routine-3",
+    "rpe": 10,
+    "setOrder": 1,
+    "setType": "NORMAL",
+    "updatedAt": "2024-01-02T10:00:00.000Z",
+    "weight": 100,
+  },
+]
+`;

@@ -1,0 +1,24 @@
+import { createMock, DeepPartial } from "@/lib/test/createMock";
+import { RoutineDetailWithIncludes } from "@/app/api/routine/detail/route";
+
+export const createPrismaRoutineDetailResponse = (
+  overrides?: DeepPartial<RoutineDetailWithIncludes>
+): RoutineDetailWithIncludes => {
+  const defaultEx: RoutineDetailWithIncludes = {
+    id: "routine-detail-1",
+    routineId: "routine-1",
+    exerciseId: 123,
+    weight: 100,
+    rpe: 10,
+    exerciseOrder: 1,
+    setOrder: 1,
+    createdAt: new Date("2024-01-01T10:00:00Z"),
+    updatedAt: new Date("2024-01-02T10:00:00Z"),
+    exercise: {
+      name: "벤치프레스",
+    },
+    reps: 10,
+    setType: "NORMAL",
+  };
+  return createMock(defaultEx, overrides);
+};

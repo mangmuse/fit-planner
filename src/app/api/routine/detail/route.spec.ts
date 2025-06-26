@@ -1,49 +1,48 @@
-jest.mock("@/app/api/_utils/getWorkouts");
+jest.mock("@/app/api/_utils/getRoutines");
 jest.mock("@/app/api/_utils/handleError");
 jest.mock("@/util/validateData");
-
-import { createPrismaWorkoutDetailResponse } from "@/__mocks__/app/api/workout/detail/mockData";
-import { getWorkoutIds } from "@/app/api/_utils/getWorkouts";
-import { handleServerError, HttpError } from "@/app/api/_utils/handleError";
-import { GET, WorkoutDetailWithIncludes } from "@/app/api/workout/detail/route";
+import { createPrismaRoutineDetailResponse } from "@/__mocks__/app/api/routine/detail/mockData";
+import { getRoutineIds } from "@/app/api/_utils/getRoutines";
+import { handleServerError } from "@/app/api/_utils/handleError";
+import { GET, RoutineDetailWithIncludes } from "@/app/api/routine/detail/route";
 import { prisma } from "@/lib/prisma";
 import { ApiErrorResponse, ApiSuccessResponse } from "@/types/apiResponse";
-import { ClientWorkoutDetail } from "@/types/models";
+import { ClientRoutineDetail } from "@/types/models";
 import { validateData } from "@/util/validateData";
 import { NextRequest, NextResponse } from "next/server";
 
-describe("GET /api/workout/detail", () => {
-  const mockedGetWorkoutIds = getWorkoutIds as jest.Mock;
+describe("GET /api/routine/detail", () => {
+  const mockedGetRoutineIds = getRoutineIds as jest.Mock;
   const mockedValidateData = validateData as jest.Mock;
   const mockedHandleServerError = handleServerError as jest.Mock;
-  const mockedPrismaFindMany = prisma.workoutDetail.findMany as jest.Mock;
+  const mockedPrismaFindMany = prisma.routineDetail.findMany as jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  const targetUrl = "http://localhost/api/workout/detail";
+  const targetUrl = "http://localhost/api/routine/detail";
   const mockUserId = "user-123";
-  const mockFindManyResponse: WorkoutDetailWithIncludes[] = [
-    createPrismaWorkoutDetailResponse({ workoutId: "workout-1" }),
-    createPrismaWorkoutDetailResponse({ workoutId: "workout-2" }),
-    createPrismaWorkoutDetailResponse({ workoutId: "workout-3" }),
+  const mockFindManyResponse: RoutineDetailWithIncludes[] = [
+    createPrismaRoutineDetailResponse({ routineId: "routine-1" }),
+    createPrismaRoutineDetailResponse({ routineId: "routine-2" }),
+    createPrismaRoutineDetailResponse({ routineId: "routine-3" }),
   ];
 
-  it("workoutDetail이 없는경우 200 상태코드와 함께 빈 배열을 반환한다", async () => {
+  it("routineDetail이 없는경우 200 상태코드와 함께 빈 배열을 반환한다", async () => {
     const req = new NextRequest(`${targetUrl}?userId=${mockUserId}`);
 
     mockedValidateData.mockReturnValue(mockUserId);
-    mockedGetWorkoutIds.mockResolvedValue([]);
+    mockedGetRoutineIds.mockResolvedValue([]);
     mockedPrismaFindMany.mockResolvedValue([]);
 
     const res = await GET(req);
     const body = (await res.json()) as ApiSuccessResponse<{
-      workoutDetails: ClientWorkoutDetail[];
+      routineDetails: ClientRoutineDetail[];
     }>;
 
     expect(res.status).toBe(200);
-    expect(body.workoutDetails).toEqual([]);
+    expect(body.routineDetails).toEqual([]);
   });
 
   it("userId가 없거나 올바르지 않은 타입이면 400 상태코드와 함께 에러 메시지를 반환한다", async () => {
@@ -55,8 +54,7 @@ describe("GET /api/workout/detail", () => {
     expect(res.status).toBe(400);
     expect(body.message).toBe("userId가 없거나 타입이 올바르지 않습니다");
 
-    expect(mockedGetWorkoutIds).not.toHaveBeenCalled();
-    expect(prisma.workoutDetail.findMany).not.toHaveBeenCalled();
+    expect(mockedGetRoutineIds).not.toHaveBeenCalled();
     expect(mockedHandleServerError).not.toHaveBeenCalled();
   });
 
@@ -65,22 +63,17 @@ describe("GET /api/workout/detail", () => {
     const mockError = new Error("DB 조회 중 오류");
 
     mockedValidateData.mockReturnValue(mockUserId);
-    mockedGetWorkoutIds.mockResolvedValue([
-      "workout-1",
-      "workout-2",
-      "workout-3",
+    mockedGetRoutineIds.mockResolvedValue([
+      "routine-1",
+      "routine-2",
+      "routine-3",
     ]);
 
     mockedPrismaFindMany.mockRejectedValue(mockError);
     mockedHandleServerError.mockResolvedValue(
       NextResponse.json(
-        {
-          success: false,
-          message: mockError.message,
-        },
-        {
-          status: 500,
-        }
+        { success: false, message: mockError.message },
+        { status: 500 }
       )
     );
 
@@ -88,33 +81,28 @@ describe("GET /api/workout/detail", () => {
     const body = (await res.json()) as ApiErrorResponse;
 
     expect(res.status).toBe(500);
-    expect(body.message).toBe("DB 조회 중 오류");
-
-    expect(mockedGetWorkoutIds).toHaveBeenCalledWith(mockUserId);
-    expect(mockedHandleServerError).toHaveBeenCalled();
+    expect(body.message).toBe(mockError.message);
   });
 
-  it("userId가 올바른 타입이면 200 상태코드와 함께 운동 상세 목록을 반환한다", async () => {
+  it("routineDetail 목록을 200 상태코드와 함께 반환한다", async () => {
     const req = new NextRequest(`${targetUrl}?userId=${mockUserId}`);
 
     mockedValidateData.mockReturnValue(mockUserId);
-    mockedGetWorkoutIds.mockResolvedValue([
-      "workout-1",
-      "workout-2",
-      "workout-3",
+    mockedGetRoutineIds.mockResolvedValue([
+      "routine-1",
+      "routine-2",
+      "routine-3",
     ]);
-
     mockedPrismaFindMany.mockResolvedValue(mockFindManyResponse);
 
     const res = await GET(req);
     const body = (await res.json()) as ApiSuccessResponse<{
-      workoutDetails: ClientWorkoutDetail[];
+      routineDetails: ClientRoutineDetail[];
     }>;
 
     expect(res.status).toBe(200);
-    expect(body.success).toBe(true);
-    expect(body.workoutDetails).toMatchSnapshot();
-    expect(mockedGetWorkoutIds).toHaveBeenCalledWith(mockUserId);
-    expect(mockedHandleServerError).not.toHaveBeenCalled();
+    expect(body.routineDetails).toMatchSnapshot();
+
+    expect(mockedGetRoutineIds).toHaveBeenCalledWith(mockUserId);
   });
 });

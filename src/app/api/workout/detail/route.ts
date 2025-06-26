@@ -8,7 +8,7 @@ import { WorkoutDetail, Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
-export type WorkoutDetailWithExercise = Prisma.WorkoutDetailGetPayload<{
+export type WorkoutDetailWithIncludes = Prisma.WorkoutDetailGetPayload<{
   include: {
     exercise: {
       select: {
@@ -46,7 +46,7 @@ export const GET = async (req: NextRequest) => {
       },
     });
     const transformedDetails: ClientWorkoutDetail[] = workoutDetails.map(
-      (detail: WorkoutDetailWithExercise) => {
+      (detail: WorkoutDetailWithIncludes) => {
         const { exercise, ...rest } = detail;
         return {
           ...rest,

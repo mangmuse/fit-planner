@@ -1,10 +1,10 @@
-import { WorkoutDetailWithExercise } from "@/app/api/workout/detail/route";
+import { WorkoutDetailWithIncludes } from "@/app/api/workout/detail/route";
 import { createMock, DeepPartial } from "@/lib/test/createMock";
 
 export const createPrismaWorkoutDetailResponse = (
-  overrides?: DeepPartial<WorkoutDetailWithExercise>
-): WorkoutDetailWithExercise => {
-  const defaultWorkoutDetail: WorkoutDetailWithExercise = {
+  overrides?: DeepPartial<WorkoutDetailWithIncludes>
+): WorkoutDetailWithIncludes => {
+  const defaultWorkoutDetail: WorkoutDetailWithIncludes = {
     id: "workout-detail-1",
     workoutId: "workout-1",
     exerciseId: 1,
@@ -26,8 +26,8 @@ export const createPrismaWorkoutDetailResponse = (
 
 export const createPrismaWorkoutDetailListResponse = (
   count: number = 3,
-  overrides?: DeepPartial<WorkoutDetailWithExercise>
-): WorkoutDetailWithExercise[] => {
+  overrides?: DeepPartial<WorkoutDetailWithIncludes>
+): WorkoutDetailWithIncludes[] => {
   return Array.from({ length: count }, (_, index) =>
     createPrismaWorkoutDetailResponse({
       ...overrides,
