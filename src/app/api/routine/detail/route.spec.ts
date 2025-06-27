@@ -23,7 +23,7 @@ describe("GET /api/routine/detail", () => {
 
   const targetUrl = "http://localhost/api/routine/detail";
   const mockUserId = "user-123";
-  const mockFindManyResponse: RoutineDetailWithIncludes[] = [
+  const getMockFindManyResponse = (): RoutineDetailWithIncludes[] => [
     createPrismaRoutineDetailResponse({ routineId: "routine-1" }),
     createPrismaRoutineDetailResponse({ routineId: "routine-2" }),
     createPrismaRoutineDetailResponse({ routineId: "routine-3" }),
@@ -93,7 +93,7 @@ describe("GET /api/routine/detail", () => {
       "routine-2",
       "routine-3",
     ]);
-    mockedPrismaFindMany.mockResolvedValue(mockFindManyResponse);
+    mockedPrismaFindMany.mockResolvedValue(getMockFindManyResponse());
 
     const res = await GET(req);
     const body = (await res.json()) as ApiSuccessResponse<{
