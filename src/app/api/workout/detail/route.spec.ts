@@ -24,7 +24,7 @@ describe("GET /api/workout/detail", () => {
 
   const targetUrl = "http://localhost/api/workout/detail";
   const mockUserId = "user-123";
-  const mockFindManyResponse: WorkoutDetailWithIncludes[] = [
+  const getMockFindManyResponse = (): WorkoutDetailWithIncludes[] => [
     createPrismaWorkoutDetailResponse({ workoutId: "workout-1" }),
     createPrismaWorkoutDetailResponse({ workoutId: "workout-2" }),
     createPrismaWorkoutDetailResponse({ workoutId: "workout-3" }),
@@ -104,7 +104,7 @@ describe("GET /api/workout/detail", () => {
       "workout-3",
     ]);
 
-    mockedPrismaFindMany.mockResolvedValue(mockFindManyResponse);
+    mockedPrismaFindMany.mockResolvedValue(getMockFindManyResponse());
 
     const res = await GET(req);
     const body = (await res.json()) as ApiSuccessResponse<{

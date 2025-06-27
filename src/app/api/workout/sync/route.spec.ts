@@ -1,4 +1,7 @@
-jest.mock("@/app/api/_utils/handleError");
+jest.mock("@/app/api/_utils/handleError", () => ({
+  ...jest.requireActual("@/app/api/_utils/handleError"),
+  handleServerError: jest.fn(),
+}));
 jest.mock("@/util/validateData");
 
 import { mockWorkout } from "@/__mocks__/workout.mock";

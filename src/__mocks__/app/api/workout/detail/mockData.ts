@@ -1,5 +1,5 @@
-import { WorkoutDetailWithIncludes } from "@/app/api/workout/detail/route";
 import { createMock, DeepPartial } from "@/lib/test/createMock";
+import { WorkoutDetailWithIncludes } from "@/app/api/workout/detail/route";
 
 export const createPrismaWorkoutDetailResponse = (
   overrides?: DeepPartial<WorkoutDetailWithIncludes>
@@ -8,31 +8,18 @@ export const createPrismaWorkoutDetailResponse = (
     id: "workout-detail-1",
     workoutId: "workout-1",
     exerciseId: 1,
-    exerciseOrder: 1,
-    setOrder: 1,
     weight: 60,
-    reps: 10,
     rpe: null,
-    setType: "NORMAL",
+    exerciseOrder: 1,
+    reps: 10,
+    setOrder: 1,
     isDone: false,
     createdAt: new Date("2024-01-01T10:00:00Z"),
     updatedAt: new Date("2024-01-01T10:00:00Z"),
+    setType: "NORMAL",
     exercise: {
       name: "벤치프레스",
     },
   };
   return createMock(defaultWorkoutDetail, overrides);
-};
-
-export const createPrismaWorkoutDetailListResponse = (
-  count: number = 3,
-  overrides?: DeepPartial<WorkoutDetailWithIncludes>
-): WorkoutDetailWithIncludes[] => {
-  return Array.from({ length: count }, (_, index) =>
-    createPrismaWorkoutDetailResponse({
-      ...overrides,
-      id: `workout-detail-${index + 1}`,
-      setOrder: index + 1,
-    })
-  );
 };
