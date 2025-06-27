@@ -17,6 +17,9 @@ export const overWriteAllWithServerData = async (userId: string) => {
 };
 
 export const syncToServer = async (userId: string) => {
+  // 반드시 exercise
+  // => workout => routine
+  // => workoutDetail => routineDetail
   await exerciseService.syncToServerExercises(userId);
 
   await workoutService.syncToServerWorkouts();
