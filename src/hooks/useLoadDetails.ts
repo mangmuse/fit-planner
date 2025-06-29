@@ -9,11 +9,8 @@ import {
   LocalWorkoutDetail,
 } from "@/types/models";
 import { useEffect, useState } from "react";
-import { useModal } from "@/providers/contexts/ModalContext";
-import { useRouter } from "next/navigation";
 import {
   routineDetailService,
-  routineService,
   workoutDetailService,
   workoutService,
 } from "@/lib/di";
