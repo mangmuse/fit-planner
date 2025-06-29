@@ -1,82 +1,53 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import FilterButton from "./FilterButton";
-const renderFilterButton = ({
-  label = "test",
-  isSelected = false,
-  onClick = jest.fn(),
-}: {
-  label?: string;
-  isSelected?: boolean;
-  onClick?: () => void;
-}) => {
-  return render(
-    <FilterButton label={label} isSelected={isSelected} onClick={onClick} />
-  );
-};
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import FilterButton, { FilterButtonProps } from "./FilterButton";
+
 describe("FilterButton", () => {
-  it("버튼 클릭시 props로 전달받은 label과 함께 onClick을 호출한다", () => {
-    const mockOnClick = jest.fn();
-    const label = "test";
+  const mockOnClick = jest.fn();
 
-    renderFilterButton({ label, onClick: mockOnClick });
-
-    const button = screen.getByText(label);
-    fireEvent.click(button);
-
-    expect(mockOnClick).toHaveBeenCalledWith(label);
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  it("props로 전달받은 label이 버튼에 렌더링된다", () => {
-    const label = "test";
+  const renderFilterButton = (
+    overrides: Partial<FilterButtonProps<string>> = {}
+  ) => {
+    const props = {
+      label: "테스트",
+      onClick: mockOnClick,
+      isSelected: false,
+      ...overrides,
+    };
+    return render(<FilterButton {...props} />);
+  };
 
-    renderFilterButton({ label });
+  it("주어진 label을 올바르게 렌더링해야 한다", () => {
+    renderFilterButton();
 
-    expect(screen.getByText(label)).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "테스트" })).toBeInTheDocument();
   });
 
-  it("props로 전달받은 isSelected가 true일 경우 버튼에 bg-primary, text-text-black 클래스명이 추가된다", () => {
-    const label = "test";
+  it("isSelected가 true일 때, data-is-selected 속성이 true여야 한다", () => {
+    renderFilterButton({ isSelected: true });
 
-    const { container } = renderFilterButton({ label, isSelected: true });
-
-    const button = container.firstChild as HTMLElement;
-    expect(button).toHaveClass("bg-primary", "text-text-black");
+    const button = screen.getByRole("tab", { name: "테스트" });
+    expect(button).toHaveAttribute("aria-selected", "true");
   });
 
-  it("props로 전달받은 isSelected가 false일 경우 bg-[#212121] 클래스명이 추가된다", () => {
-    const label = "test";
+  it("isSelected가 false일 때, data-is-selected 속성이 false여야 한다", () => {
+    renderFilterButton();
 
-    const { container } = renderFilterButton({ label, isSelected: false });
-
-    const button = container.firstChild as HTMLElement;
-    expect(button).toHaveClass("bg-[#212121]");
+    const button = screen.getByRole("tab", { name: "테스트" });
+    expect(button).toHaveAttribute("aria-selected", "false");
   });
 
-  it("기본 클래스명이 올바르게 적용된다", () => {
-    const label = "test";
+  it("버튼을 클릭하면 onClick 핸들러가 올바른 label과 함께 호출되어야 한다", async () => {
+    const user = userEvent.setup();
+    renderFilterButton();
 
-    const { container } = renderFilterButton({ label });
+    await user.click(screen.getByRole("tab", { name: "테스트" }));
 
-    const button = container.firstChild as HTMLElement;
-    expect(button).toHaveClass(
-      "text-[10px]",
-      "rounded-md",
-      "w-12",
-      "min-w-12",
-      "max-w-12",
-      "h-[28px]",
-      "px-1"
-    );
-  });
-});
-
-describe("snapshot", () => {
-  it("isSelected가 true일 때 렌더링 결과가 스냅샷과 일치하는지 확인한다", () => {
-    const { asFragment } = renderFilterButton({ isSelected: true });
-    expect(asFragment()).toMatchSnapshot();
-  });
-  it("isSelected가 false일 때 렌더링 결과가 스냅샷과 일치하는지 확인한다", () => {
-    const { asFragment } = renderFilterButton({ isSelected: false });
-    expect(asFragment()).toMatchSnapshot();
+    expect(mockOnClick).toHaveBeenCalledWith("테스트");
+    expect(mockOnClick).toHaveBeenCalledTimes(1);
   });
 });
