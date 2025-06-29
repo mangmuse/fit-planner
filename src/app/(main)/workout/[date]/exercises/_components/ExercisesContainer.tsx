@@ -17,7 +17,7 @@ import useSelectedExercises from "@/hooks/exercises/useSelectedExercises";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { routineDetailService, workoutDetailService } from "@/lib/di";
 import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
-import useExericseFilters from "@/hooks/exercises/useExericseFilters";
+import useExerciseFilters from "@/hooks/exercises/useExerciseFilters";
 import { ceil } from "lodash";
 
 type ExercisesContainerProps = {
@@ -59,7 +59,7 @@ export default function ExercisesContainer({
       handleChangeSelectedExerciseType,
       handleChangeSelectedCategory,
     },
-  } = useExericseFilters({ exercises });
+  } = useExerciseFilters({ exercises });
 
   const { handleSelectExercise, handleUnselectExercise, selectedExercises } =
     useSelectedExercises({ allowMultipleSelection });
