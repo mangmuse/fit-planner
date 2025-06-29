@@ -30,14 +30,17 @@ const WorkoutExerciseGroup = ({
 }: WorkoutExerciseGroupProps) => {
   const { openBottomSheet } = useBottomSheet();
   const lastDetail = details[details.length - 1];
+
+  const exerciseId = details[0]?.exerciseId;
+
   const {
     data: exercise,
     isLoading: isExerciseLoading,
     error: exerciseError,
     execute: reloadExercise,
   } = useAsync(
-    () => exerciseService.getExerciseWithLocalId(details[0].exerciseId),
-    [details[0].exerciseId]
+    () => exerciseService.getExerciseWithLocalId(exerciseId),
+    [exerciseId]
   );
 
   const { data: prevWorkoutDetails } = useAsync(async () => {
@@ -49,7 +52,7 @@ const WorkoutExerciseGroup = ({
     return workoutDetails
       .filter((d) => d.isDone)
       .map((d, i) => ({ ...d, setOrder: i + 1 }));
-  }, [details.map((d) => d.isDone).join(",")]);
+  }, [exerciseId]);
 
   if (isExerciseLoading) return <div>Loading...</div>;
   if (exerciseError)
