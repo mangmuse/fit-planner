@@ -1,12 +1,12 @@
 import SearchBar from "@/app/(main)/workout/[date]/exercises/_components/SearchBar";
-import { customRender } from "@/test-utils/test-utils";
+import { render } from "@/test-utils/test-utils";
 import userEvent from "@testing-library/user-event";
 
 describe("SearchBar", () => {
   const renderSearchBar = (keyword: string = "") => {
     const onChangeMock = jest.fn();
 
-    const utils = customRender(
+    const utils = render(
       <SearchBar keyword={keyword} onChange={onChangeMock} />
     );
     return { ...utils, onChangeMock };
