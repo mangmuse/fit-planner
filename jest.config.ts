@@ -12,7 +12,9 @@ const customJestConfig = {
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
   clearMocks: true,
   testEnvironment: "jest-fixed-jsdom",
-
+  transformIgnorePatterns: [
+    "/node_modules/(?!(p-map|aggregate-error|p-limit|yocto-queue)/)",
+  ],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
     "^next/image$": "<rootDir>/src/__mocks__/next/Image.tsx",

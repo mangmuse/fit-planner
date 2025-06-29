@@ -14,6 +14,9 @@ export const GET = async (
     const { userId } = await Promise.resolve(params);
     const parsedUserId = validateData<string>(z.string(), userId);
     const workoutIds = await getWorkoutIds(parsedUserId);
+    if (workoutIds.length === 0) {
+      return NextResponse.json({ success: true, workoutDetails: [] });
+    }
     const workoutDetails = await prisma.workoutDetail.findMany({
       where: {
         workoutId: {

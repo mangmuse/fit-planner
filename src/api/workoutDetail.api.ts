@@ -11,7 +11,6 @@ import {
   LocalWorkoutDetailWithServerWorkoutId,
 } from "@/types/models";
 import { safeRequest } from "@/util/apiHelpers";
-import { validateData } from "@/util/validateData";
 import { z } from "zod";
 
 export const syncWorkoutDetailsToServerResponseSchema = z.object({
@@ -52,7 +51,7 @@ export class WorkoutDetailApi implements IWorkoutDetailApi {
     userId: string
   ): Promise<ClientWorkoutDetail[]> {
     const data = await safeRequest(
-      `${BASE_URL}/api/workout/detail/${userId}`,
+      `${BASE_URL}/api/workout/detail?userId=${userId}`,
       {},
       fetchWorkoutDetailsSchema
     );

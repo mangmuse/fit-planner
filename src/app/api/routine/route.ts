@@ -4,12 +4,18 @@ import { validateData } from "@/util/validateData";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
-export const GET = async (
-  req: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
-) => {
+export const GET = async (req: NextRequest) => {
   try {
-    const { userId } = await Promise.resolve(params);
+    const userId = req.nextUrl.searchParams.get("userId");
+    if (!userId || typeof userId !== "string") {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "userId가 없거나 타입이 올바르지 않습니다",
+        },
+        { status: 400 }
+      );
+    }
     const parsedUserId = validateData<string>(z.string(), userId);
     const routines = await getRoutines(parsedUserId);
 

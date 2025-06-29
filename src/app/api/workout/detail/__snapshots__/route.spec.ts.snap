@@ -1,0 +1,51 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`GET /api/workout/detail userId가 올바른 타입이면 200 상태코드와 함께 운동 상세 목록을 반환한다 1`] = `
+[
+  {
+    "createdAt": "2024-01-01T10:00:00.000Z",
+    "exerciseId": 1,
+    "exerciseName": "벤치프레스",
+    "exerciseOrder": 1,
+    "id": "workout-detail-1",
+    "isDone": false,
+    "reps": 10,
+    "rpe": null,
+    "setOrder": 1,
+    "setType": "NORMAL",
+    "updatedAt": "2024-01-01T10:00:00.000Z",
+    "weight": 60,
+    "workoutId": "workout-1",
+  },
+  {
+    "createdAt": "2024-01-01T10:00:00.000Z",
+    "exerciseId": 1,
+    "exerciseName": "벤치프레스",
+    "exerciseOrder": 1,
+    "id": "workout-detail-1",
+    "isDone": false,
+    "reps": 10,
+    "rpe": null,
+    "setOrder": 1,
+    "setType": "NORMAL",
+    "updatedAt": "2024-01-01T10:00:00.000Z",
+    "weight": 60,
+    "workoutId": "workout-2",
+  },
+  {
+    "createdAt": "2024-01-01T10:00:00.000Z",
+    "exerciseId": 1,
+    "exerciseName": "벤치프레스",
+    "exerciseOrder": 1,
+    "id": "workout-detail-1",
+    "isDone": false,
+    "reps": 10,
+    "rpe": null,
+    "setOrder": 1,
+    "setType": "NORMAL",
+    "updatedAt": "2024-01-01T10:00:00.000Z",
+    "weight": 60,
+    "workoutId": "workout-3",
+  },
+]
+`;

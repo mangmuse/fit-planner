@@ -43,7 +43,7 @@ export class RoutineDetailApi implements IRoutineDetailApi {
     userId: string
   ): Promise<ClientRoutineDetail[]> {
     const data = await safeRequest(
-      `${BASE_URL}/api/routine/detail/${userId}`,
+      `${BASE_URL}/api/routine/detail?userId=${userId}`,
       {},
       fetchRoutineDetailsSchema
     );
