@@ -1,101 +1,161 @@
-const openModalMock = jest.fn();
-
-jest.mock("@/providers/contexts/ModalContext", () => ({
-  useModal: () => ({
-    openModal: openModalMock,
-  }),
-}));
-
-jest.mock("@/services/exercise.service");
-import { mockLocalExercises } from "@/__mocks__/exercise.mock";
-import ExerciseItem from "@/app/(main)/workout/[date]/exercises/_components/ExerciseItem";
-import { toggleLocalBookmark } from "@/services/exercise.service";
-import { render, screen } from "@testing-library/react";
+import { mockExercise } from "@/__mocks__/exercise.mock";
+import ExerciseItem, {
+  ExerciseItemProps,
+} from "@/app/(main)/workout/[date]/exercises/_components/ExerciseItem";
+import { exerciseService } from "@/lib/di";
+import { useModal } from "@/providers/contexts/ModalContext";
+import { IExerciseService } from "@/types/services";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-describe("ExerciseItem", () => {
-  const mockExercise = mockLocalExercises[0];
-  const renderExerciseItem = (
-    isBookmarked: boolean = false,
-    isSelected: boolean = false
-  ) => {
-    const onAddMock = jest.fn();
-    const onDeleteMock = jest.fn();
-    const onReloadMock = jest.fn();
+jest.mock("@/lib/di");
+jest.mock("@/providers/contexts/ModalContext");
 
-    const utils = render(
-      <ExerciseItem
-        exercise={{
-          ...mockExercise,
-          isBookmarked: isBookmarked,
-        }}
-        isSelected={isSelected}
-        onAdd={onAddMock}
-        onDelete={onDeleteMock}
-        onReload={onReloadMock}
-      />
-    );
-    return {
-      ...utils,
-      onAddMock,
-      onDeleteMock,
-      onReloadMock,
+const mockExerciseService =
+  exerciseService as unknown as jest.Mocked<IExerciseService>;
+const mockUseModal = useModal as jest.Mock;
+const mockExerciseData = mockExercise.bookmarked;
+
+describe("ExerciseItem", () => {
+  const mockOnAdd = jest.fn();
+  const mockOnDelete = jest.fn();
+  const mockOnReload = jest.fn();
+  const mockOpenModal = jest.fn();
+  const mockShowError = jest.fn();
+
+  const renderExerciseItem = (overrides: Partial<ExerciseItemProps> = {}) => {
+    const props = {
+      exercise: mockExerciseData,
+      isSelected: false,
+      onAdd: mockOnAdd,
+      onDelete: mockOnDelete,
+      onReload: mockOnReload,
+      ...overrides,
     };
+
+    return render(<ExerciseItem {...props} />);
   };
 
-  it("exercise의 name이 올바르게 렌더링된다", async () => {
-    const { getByText } = renderExerciseItem();
+  beforeEach(() => {
+    jest.clearAllMocks();
 
-    expect(getByText(mockExercise.name)).toBeInTheDocument();
-  });
-  it("isSelected가 true인 경우 name의 색상이 변경된다(test-primary 클래스가 적용된다)", () => {
-    const { getByText } = renderExerciseItem(false, true);
-    expect(getByText(mockExercise.name)).toHaveClass("text-primary");
-  });
-  it("isSelected가 false인 경우 name에 test-primary 클래스가 적용되지 않는다", () => {
-    const { getByText } = renderExerciseItem();
-    expect(getByText(mockExercise.name)).not.toHaveClass("text-primary");
-  });
-  it("isSelected가 true인 경우 아이템 클릭시 onDelete가 호출된다", async () => {
-    const { getByRole, onDeleteMock } = renderExerciseItem(false, true);
-    const item = getByRole("listitem");
-    await userEvent.click(item);
-    expect(onDeleteMock).toHaveBeenCalledWith(mockExercise.id);
-  });
-  it("isSelected가 false인 경우 아이템 클릭시 onAdd가 호출된다", async () => {
-    const { getByRole, onAddMock } = renderExerciseItem();
-    const item = getByRole("listitem");
-    await userEvent.click(item);
-    expect(onAddMock).toHaveBeenCalledWith({
-      ...mockExercise,
-      isBookmarked: false,
+    mockUseModal.mockReturnValue({
+      openModal: mockOpenModal,
+      showError: mockShowError,
     });
   });
-  it("isBookmarked가 true인 경우 북마크 해제 아이콘을 렌더링한다", () => {
-    const { getByAltText } = renderExerciseItem(true);
-    expect(getByAltText("북마크 해제")).toBeInTheDocument();
-  });
-  it("isBookmarked가 false인 경우 북마크 아이콘을 클릭하면 toggleLocalBookmark와 onReload가 호출된다", async () => {
-    const { getByAltText, onReloadMock } = renderExerciseItem();
-    const bookmarkIcon = getByAltText("북마크");
-    await userEvent.click(bookmarkIcon);
-    expect(toggleLocalBookmark).toHaveBeenCalledWith(mockExercise.id, true);
-    expect(onReloadMock).toHaveBeenCalledTimes(1);
-  });
-  it("isBookmarked가 true인 경우 북마크 해제 아이콘을 클릭하면 openModal이 호출된다", async () => {
-    const { getByAltText, onReloadMock } = renderExerciseItem(true);
-    const bookmarkIcon = getByAltText("북마크 해제");
-    await userEvent.click(bookmarkIcon);
-    expect(openModalMock).toHaveBeenCalledTimes(1);
-    const { onConfirm } = openModalMock.mock.calls[0][0];
-    await onConfirm();
 
-    expect(toggleLocalBookmark).toHaveBeenCalledWith(mockExercise.id, false);
-    expect(onReloadMock).toHaveBeenCalledTimes(1);
+  describe("렌더링", () => {
+    it("선택되지 않았을 때 aria-selected 속성이 false이어야 한다", async () => {
+      renderExerciseItem();
+
+      const listItem = screen.getByRole("option");
+
+      expect(listItem).toBeInTheDocument();
+      expect(listItem).toHaveAttribute("aria-selected", "false");
+    });
+
+    it("선택되었을 때 aria-selected 속성이 true이어야 한다", async () => {
+      renderExerciseItem({ isSelected: true });
+
+      const listItem = screen.getByRole("option");
+
+      expect(listItem).toBeInTheDocument();
+      expect(listItem).toHaveAttribute("aria-selected", "true");
+    });
   });
 
-  it("isBookmarked가 false인 경우 북마크 등록 아이콘을 렌더링한다", () => {
-    const { getByAltText } = renderExerciseItem();
-    expect(getByAltText("북마크")).toBeInTheDocument();
+  describe("상호작용", () => {
+    const user = userEvent.setup();
+    it("선택되지 않은 아이템을 클릭하면 onAdd 함수가 호출되어야 한다", async () => {
+      renderExerciseItem({ isSelected: false });
+
+      await user.click(screen.getByText(mockExerciseData.name));
+      expect(mockOnAdd).toHaveBeenCalledWith(mockExerciseData);
+      expect(mockOnDelete).not.toHaveBeenCalled();
+    });
+
+    it("선택된 아이템을 클릭하면 onDelete 함수가 호출되어야 한다", async () => {
+      renderExerciseItem({ isSelected: true });
+
+      await user.click(screen.getByText(mockExerciseData.name));
+      expect(mockOnDelete).toHaveBeenCalledWith(mockExerciseData.id);
+      expect(mockOnAdd).not.toHaveBeenCalled();
+    });
+
+    it("북마크되지 않은 아이템의 북마크 버튼을 클릭하면, 즐겨찾기에 추가되어야 한다", async () => {
+      renderExerciseItem({
+        exercise: { ...mockExerciseData, isBookmarked: false },
+      });
+      await user.click(screen.getByAltText("북마크"));
+
+      expect(mockExerciseService.toggleLocalBookmark).toHaveBeenCalledWith(
+        mockExerciseData.id,
+        true
+      );
+      expect(mockOnReload).toHaveBeenCalledTimes(1);
+      expect(mockShowError).not.toHaveBeenCalled();
+    });
+
+    it("북마크된 아이템의 북마크 버튼을 클릭하면, 확인 모달이 열려야한다.", async () => {
+      renderExerciseItem({
+        exercise: { ...mockExerciseData, isBookmarked: true },
+      });
+      await user.click(screen.getByAltText("북마크 해제"));
+
+      expect(mockOpenModal).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "confirm",
+          title: "즐겨찾기에서 제거하시겠습니까?",
+          message: mockExerciseData.name,
+        })
+      );
+      expect(mockShowError).not.toHaveBeenCalled();
+    });
+
+    it("북마크 제거 모달에서 '확인' 을 누르면 북마크에서 제거되어야 한다", async () => {
+      mockExerciseService.toggleLocalBookmark.mockResolvedValue();
+      mockOpenModal.mockImplementation(({ onConfirm }) => {
+        if (onConfirm) {
+          onConfirm();
+        }
+      });
+
+      renderExerciseItem({
+        exercise: { ...mockExerciseData, isBookmarked: true },
+      });
+      await user.click(screen.getByAltText("북마크 해제"));
+
+      expect(mockExerciseService.toggleLocalBookmark).toHaveBeenCalledWith(
+        mockExerciseData.id,
+        false
+      );
+      await waitFor(() => {
+        expect(mockOnReload).toHaveBeenCalledTimes(1);
+      });
+      expect(mockShowError).not.toHaveBeenCalled();
+    });
+
+    it("북마크 토글 도중 에러 발생시 showError가 호출된다", async () => {
+      mockExerciseService.toggleLocalBookmark.mockRejectedValue(
+        new Error("test")
+      );
+
+      renderExerciseItem({
+        exercise: { ...mockExerciseData, isBookmarked: false },
+        onReload: mockOnReload,
+      });
+      await user.click(screen.getByAltText("북마크"));
+
+      await waitFor(() => {
+        expect(mockShowError).toHaveBeenCalledWith(
+          "북마크 설정에 실패했습니다."
+        );
+      });
+
+      expect(mockOnReload).not.toHaveBeenCalled();
+    });
   });
+
+  //;
 });

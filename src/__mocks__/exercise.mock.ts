@@ -91,6 +91,8 @@ export const mockExercise = {
   ],
 };
 
+export const mockLocalExercises = mockExercise.list;
+
 // ----
 
 // ======== Mock Server Response ========

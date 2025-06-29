@@ -7,7 +7,7 @@ import favoriteIcon from "public/favorite.svg";
 import filledFavoriteIcon from "public/favorite_filled.svg";
 import { useState } from "react";
 
-type ExerciseItemProps = {
+export type ExerciseItemProps = {
   exercise: LocalExercise;
   isSelected: boolean;
   onAdd: (newExercise: LocalExercise) => void;
@@ -55,6 +55,8 @@ const ExerciseItem = ({
   };
   return (
     <li
+      role="option"
+      aria-selected={isSelected}
       aria-labelledby="name"
       onClick={handleClick}
       className={clsx(
@@ -68,7 +70,10 @@ const ExerciseItem = ({
         <div className="bg-bg-secondary w-10 h-10 rounded-lg flex items-center justify-center">
           <span className="text-text-muted text-xs">GYM</span>
         </div>
-        <span className={clsx("font-medium", { "text-primary": isSelected })}>
+        <span
+          aria-selected={isSelected}
+          className={clsx("font-medium", { "text-primary": isSelected })}
+        >
           {name}
         </span>
       </div>

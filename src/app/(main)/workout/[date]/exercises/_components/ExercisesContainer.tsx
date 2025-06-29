@@ -18,7 +18,6 @@ import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { routineDetailService, workoutDetailService } from "@/lib/di";
 import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import useExerciseFilters from "@/hooks/exercises/useExerciseFilters";
-import { ceil } from "lodash";
 
 type ExercisesContainerProps = {
   type: "ROUTINE" | "RECORD";
