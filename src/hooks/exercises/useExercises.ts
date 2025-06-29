@@ -1,9 +1,6 @@
-import useExericseFilters from "@/hooks/exercises/useExericseFilters";
-import useSelectedExercises from "@/hooks/exercises/useSelectedExercises";
 import { exerciseService } from "@/lib/di";
 
 import { LocalExercise } from "@/types/models";
-import { testError } from "@/util/testError";
 import { useEffect, useState } from "react";
 
 type UseExercisesProps = {
@@ -43,6 +40,8 @@ const useExercises = ({ userId }: UseExercisesProps) => {
       } catch (e) {
         console.error("[useExercises] Error", e);
         setError("운동목록 초기화에 실패했습니다.");
+      } finally {
+        setLoading(false);
       }
     })();
   }, [userId]);
