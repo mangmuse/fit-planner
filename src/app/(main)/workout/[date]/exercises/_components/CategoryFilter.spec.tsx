@@ -1,5 +1,5 @@
 import CategoryFilter from "@/app/(main)/workout/[date]/exercises/_components/CategoryFilter";
-import TypeFilter from "@/app/(main)/workout/[date]/exercises/_components/TypeFilter";
+import TypeFilterProps from "@/app/(main)/workout/[date]/exercises/_components/TypeFilter";
 import { CATEGORY_LIST, EXERCISETYPELIST } from "@/constants/filters";
 import { customRender, screen } from "@/test-utils/test-utils";
 

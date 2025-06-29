@@ -1,13 +1,12 @@
 import { EXERCISETYPELIST } from "@/constants/filters";
 import FilterButton from "./FilterButton";
 import { ExerciseType } from "@/types/filters";
-// TODO: CategoryFilter 와의 통합 필요성
-type TypeFilter = {
+export type TypeFilterProps = {
   selectedExerciseType: ExerciseType;
   onClick: (exerciseType: ExerciseType) => void;
 };
 
-const TypeFilter = ({ selectedExerciseType, onClick }: TypeFilter) => {
+const TypeFilter = ({ selectedExerciseType, onClick }: TypeFilterProps) => {
   return (
     <nav className="flex mb-1 gap-1.5" role="tablist">
       {EXERCISETYPELIST.map((ex, idx) => (
