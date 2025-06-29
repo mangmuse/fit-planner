@@ -4,7 +4,7 @@ import { Category, ExerciseType } from "@/types/filters";
 import { LocalExercise } from "@/types/models";
 import { useEffect, useState } from "react";
 
-const useExericseFilters = ({ exercises }: { exercises: LocalExercise[] }) => {
+const useExerciseFilters = ({ exercises }: { exercises: LocalExercise[] }) => {
   const [visibleExercises, setVisibleExercises] = useState<LocalExercise[]>([]);
 
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -46,4 +46,4 @@ const useExericseFilters = ({ exercises }: { exercises: LocalExercise[] }) => {
   return returnValue;
 };
 
-export default useExericseFilters;
+export default useExerciseFilters;

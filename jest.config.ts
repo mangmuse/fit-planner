@@ -13,7 +13,7 @@ const customJestConfig = {
   clearMocks: true,
   testEnvironment: "jest-fixed-jsdom",
   transformIgnorePatterns: [
-    "/node_modules/(?!(p-map|aggregate-error|p-limit|yocto-queue)/)",
+    "/node_modules/(?!(p-map|aggregate-error|p-limit|yocto-queue|react-error-boundary))",
   ],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",

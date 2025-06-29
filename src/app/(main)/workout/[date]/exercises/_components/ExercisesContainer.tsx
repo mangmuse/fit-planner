@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import addButton from "public/add.svg";
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
@@ -13,6 +13,11 @@ import useExercises from "@/hooks/exercises/useExercises";
 import { useModal } from "@/providers/contexts/ModalContext";
 import CustomExerciseForm from "@/app/(main)/workout/[date]/exercises/_components/CustomExerciseForm";
 import ErrorState from "@/components/ErrorState";
+import useSelectedExercises from "@/hooks/exercises/useSelectedExercises";
+import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
+import { routineDetailService, workoutDetailService } from "@/lib/di";
+import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
+import useExerciseFilters from "@/hooks/exercises/useExerciseFilters";
 
 type ExercisesContainerProps = {
   type: "ROUTINE" | "RECORD";
@@ -24,39 +29,100 @@ type ExercisesContainerProps = {
 
 export default function ExercisesContainer({
   type,
-  allowMultipleSelection,
+  allowMultipleSelection = true,
   currentDetails,
   reloadDetails,
 }: ExercisesContainerProps) {
   const { data: session } = useSession();
   const userId = session?.user?.id;
-  const { openModal } = useModal();
+  const { openModal, showError } = useModal();
+  const router = useRouter();
+  const { closeBottomSheet } = useBottomSheet();
   const { date } = useParams<{ date?: string }>();
-  const { routineId: stringRoutineId } = useParams();
+  const { routineId: stringRoutineId } = useParams<{ routineId?: string }>();
   const routineId = stringRoutineId ? Number(stringRoutineId) : undefined;
 
-  const { data, filters, handlers, error, isLoading } = useExercises({
-    type,
-    allowMultipleSelection,
+  const { error, isLoading, exercises, reloadExercises } = useExercises({
     userId,
-    reloadDetails,
-    currentDetails,
-    date,
-    routineId,
   });
 
-  const { exercises, selectedExercises, visibleExercises } = data;
-  const { searchKeyword, selectedCategory, selectedExerciseType } = filters;
   const {
-    handleAddDetail,
-    handleSelectExercise,
-    handleUnselectExercise,
-    handleChangeSelectedCategory,
-    handleChangeSelectedExerciseType,
-    handleReplaceExercise,
-    handleSearchKeyword,
-    reloadExercises,
-  } = handlers;
+    data: {
+      visibleExercises,
+      searchKeyword,
+      selectedCategory,
+      selectedExerciseType,
+    },
+    handlers: {
+      handleSearchKeyword,
+      handleChangeSelectedExerciseType,
+      handleChangeSelectedCategory,
+    },
+  } = useExerciseFilters({ exercises });
+
+  const { handleSelectExercise, handleUnselectExercise, selectedExercises } =
+    useSelectedExercises({ allowMultipleSelection });
+
+  const handleAddDetail = async () => {
+    try {
+      if (type === "RECORD" && userId && date) {
+        await workoutDetailService.addLocalWorkoutDetailsByUserDate(
+          userId,
+          date,
+          selectedExercises
+        );
+        router.replace(`/workout/${date}`);
+      } else {
+        if (!routineId) return;
+
+        // routineId로 맞는 detail찾아서 몇개인지 확인해서 startOrder 가져오기
+        const details = await routineDetailService.getLocalRoutineDetails(
+          Number(routineId)
+        );
+        const startOrder = details.length + 1;
+
+        await routineDetailService.addLocalRoutineDetailsByWorkoutId(
+          Number(routineId),
+          startOrder,
+          selectedExercises
+        );
+        router.replace(`/routines/${routineId}`);
+      }
+    } catch (e) {
+      console.error("[ExercisesContainer] Error", e);
+      showError("운동을 추가하는데 실패했습니다.");
+    }
+  };
+
+  const handleReplaceExercise = async () => {
+    try {
+      if (!currentDetails || currentDetails.length === 0) return;
+      if (isWorkoutDetails(currentDetails)) {
+        const { exerciseOrder: startOrder, workoutId } = currentDetails[0];
+        await workoutDetailService.addLocalWorkoutDetailsByWorkoutId(
+          workoutId,
+          startOrder,
+          selectedExercises
+        );
+
+        await workoutDetailService.deleteWorkoutDetails(currentDetails);
+      } else {
+        const { exerciseOrder: startOrder, routineId } = currentDetails[0];
+        await routineDetailService.addLocalRoutineDetailsByWorkoutId(
+          routineId,
+          startOrder,
+          selectedExercises
+        );
+
+        await routineDetailService.deleteRoutineDetails(currentDetails);
+      }
+      await reloadDetails?.();
+      closeBottomSheet();
+    } catch (e) {
+      console.error("[ExercisesContainer] Error", e);
+      showError("운동을 교체하는데 실패했습니다.");
+    }
+  };
 
   const handleOpenCreateExerciseModal = () =>
     openModal({
@@ -70,7 +136,6 @@ export default function ExercisesContainer({
 
   if (error) return <ErrorState error={error} onRetry={reloadExercises} />;
 
-  // 로딩 처리
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-40">Loading...</div>

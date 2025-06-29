@@ -7,7 +7,7 @@ import favoriteIcon from "public/favorite.svg";
 import filledFavoriteIcon from "public/favorite_filled.svg";
 import { useState } from "react";
 
-type ExerciseItemProps = {
+export type ExerciseItemProps = {
   exercise: LocalExercise;
   isSelected: boolean;
   onAdd: (newExercise: LocalExercise) => void;
@@ -22,7 +22,7 @@ const ExerciseItem = ({
   onReload,
 }: ExerciseItemProps) => {
   const { name, id, isBookmarked } = exercise;
-  const { openModal } = useModal();
+  const { openModal, showError } = useModal();
   const handleClick = () => {
     if (!exercise.id) return;
     return isSelected ? onDelete(exercise.id) : onAdd(exercise);
@@ -31,25 +31,32 @@ const ExerciseItem = ({
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     e.stopPropagation();
-    if (!id) return;
+    try {
+      if (!id) return;
 
-    if (isBookmarked) {
-      openModal({
-        type: "confirm",
-        title: "즐겨찾기에서 제거하시겠습니까?",
-        message: name,
-        onConfirm: async () => {
-          await exerciseService.toggleLocalBookmark(id, false);
-          onReload();
-        },
-      });
-    } else {
-      await exerciseService.toggleLocalBookmark(id, true);
-      onReload();
+      if (isBookmarked) {
+        openModal({
+          type: "confirm",
+          title: "즐겨찾기에서 제거하시겠습니까?",
+          message: name,
+          onConfirm: async () => {
+            await exerciseService.toggleLocalBookmark(id, false);
+            onReload();
+          },
+        });
+      } else {
+        await exerciseService.toggleLocalBookmark(id, true);
+        onReload();
+      }
+    } catch (e) {
+      console.error("[ExerciseItem] Error", e);
+      showError("북마크 설정에 실패했습니다.");
     }
   };
   return (
     <li
+      role="option"
+      aria-selected={isSelected}
       aria-labelledby="name"
       onClick={handleClick}
       className={clsx(
@@ -63,7 +70,10 @@ const ExerciseItem = ({
         <div className="bg-bg-secondary w-10 h-10 rounded-lg flex items-center justify-center">
           <span className="text-text-muted text-xs">GYM</span>
         </div>
-        <span className={clsx("font-medium", { "text-primary": isSelected })}>
+        <span
+          aria-selected={isSelected}
+          className={clsx("font-medium", { "text-primary": isSelected })}
+        >
           {name}
         </span>
       </div>

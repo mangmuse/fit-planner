@@ -1,10 +1,8 @@
 "use client";
 
-import {
-  isWorkoutDetail,
-  isWorkoutDetails,
-} from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
+import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import { routineDetailService, workoutDetailService } from "@/lib/di";
+import { useModal } from "@/providers/contexts/ModalContext";
 
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 
@@ -19,23 +17,34 @@ const SetActions = ({
   reload,
   reorderAfterDelete,
 }: SetActionsProps) => {
+  const { showError } = useModal();
   const handleAddSet = async () => {
-    if (isWorkoutDetail(lastValue)) {
-      await workoutDetailService.addSetToWorkout(lastValue);
-    } else {
-      await routineDetailService.addSetToRoutine(lastValue);
+    try {
+      if (isWorkoutDetail(lastValue)) {
+        await workoutDetailService.addSetToWorkout(lastValue);
+      } else {
+        await routineDetailService.addSetToRoutine(lastValue);
+      }
+      reload();
+    } catch (e) {
+      console.error("[SetActions] Error", e);
+      showError("운동 상태를 동기화하는데 실패했습니다");
     }
-    reload();
   };
 
   const handleDeleteSet = async () => {
-    if (isWorkoutDetail(lastValue)) {
-      await workoutDetailService.deleteWorkoutDetail(lastValue.id ?? 0);
-    } else {
-      await routineDetailService.deleteRoutineDetail(lastValue.id ?? 0);
+    try {
+      if (isWorkoutDetail(lastValue)) {
+        await workoutDetailService.deleteWorkoutDetail(lastValue.id ?? 0);
+      } else {
+        await routineDetailService.deleteRoutineDetail(lastValue.id ?? 0);
+      }
+      await reorderAfterDelete(lastValue.exerciseOrder);
+      reload();
+    } catch (e) {
+      console.error("[SetActions] Error", e);
+      showError("운동 상태를 동기화하는데 실패했습니다");
     }
-    await reorderAfterDelete(lastValue.exerciseOrder);
-    reload();
   };
   return (
     <div data-testid="set-actions" className="flex justify-center gap-2.5 mt-2">

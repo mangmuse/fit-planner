@@ -56,3 +56,28 @@ jest.mock("@/lib/prisma", () => ({
     },
   },
 }));
+
+jest.mock("next-auth/react");
+
+jest.mock("@/providers/contexts/BottomSheetContext", () => ({
+  useBottomSheet: jest.fn(() => ({
+    openBottomSheet: jest.fn(),
+    closeBottomSheet: jest.fn(),
+    isOpen: false,
+  })),
+}));
+
+jest.mock("@/providers/contexts/ModalContext", () => ({
+  useModal: jest.fn(() => ({
+    openModal: jest.fn(),
+    showError: jest.fn(),
+    isOpen: false,
+  })),
+}));
+
+jest.mock("react-error-boundary");
+
+jest.mock("@/providers/ErrorBoundaryProvider", () => ({
+  __esModule: true,
+  default: ({ children }: { children: React.ReactNode }) => children,
+}));

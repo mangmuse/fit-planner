@@ -8,9 +8,10 @@ import {
   LocalWorkoutDetail,
 } from "@/types/models";
 import Image from "next/image";
-import { ChangeEventHandler, useRef, useState } from "react";
+import { ChangeEventHandler, useState } from "react";
 import SetOrderCell from "@/app/(main)/workout/_components/SetOrderCell";
 import { routineDetailService, workoutDetailService } from "@/lib/di";
+import { useModal } from "@/providers/contexts/ModalContext";
 
 type WorkoutItemProps = {
   exercise: LocalExercise;
@@ -28,7 +29,8 @@ const WorkoutItem = ({
   reload,
   reorderAfterDelete,
 }: WorkoutItemProps) => {
-  const { setOrder, weight, reps, id, setType } = workoutDetail;
+  const { weight, reps, id } = workoutDetail;
+  const { showError } = useModal();
   const isDone = isWorkoutDetail(workoutDetail) ? workoutDetail.isDone : false;
   const [editedWeight, setEditedWeight] = useState<number | null>(
     weight || null
@@ -43,24 +45,33 @@ const WorkoutItem = ({
   const handleUpdate = async (
     data: Partial<LocalWorkoutDetail | LocalRoutineDetail>
   ) => {
-    const updateWorkoutInput = {
-      ...data,
-      id,
-    };
-    if (isWorkoutDetail(workoutDetail)) {
-      await workoutDetailService.updateLocalWorkoutDetail(updateWorkoutInput);
-    } else {
-      await routineDetailService.updateLocalRoutineDetail(updateWorkoutInput);
+    try {
+      const updateWorkoutInput = {
+        ...data,
+        id,
+      };
+      if (isWorkoutDetail(workoutDetail)) {
+        await workoutDetailService.updateLocalWorkoutDetail(updateWorkoutInput);
+      } else {
+        await routineDetailService.updateLocalRoutineDetail(updateWorkoutInput);
+      }
+      await reload();
+    } catch (e) {
+      console.error("[WorkoutItem] Error", e);
+      showError("운동 상태를 동기화하는데 실패했습니다");
     }
-    await reload();
   };
 
   const handleDelete = async () => {
     if (!isWorkoutDetail(workoutDetail) && workoutDetail.id) {
-      await routineDetailService.deleteRoutineDetail(workoutDetail.id);
-      await reorderAfterDelete(workoutDetail.exerciseOrder);
-
-      await reload();
+      try {
+        await routineDetailService.deleteRoutineDetail(workoutDetail.id);
+        await reorderAfterDelete(workoutDetail.exerciseOrder);
+        await reload();
+      } catch (e) {
+        console.error("[WorkoutItem] Error", e);
+        showError("운동 상태를 동기화하는데 실패했습니다");
+      }
     }
   };
 
@@ -72,7 +83,9 @@ const WorkoutItem = ({
       />
       <td className="text-center">
         {prevWorkoutDetail
-          ? `${prevWorkoutDetail.weight} ${exercise.unit || 'kg'} x ${prevWorkoutDetail.reps} 회`
+          ? `${prevWorkoutDetail.weight} ${exercise.unit || "kg"} x ${
+              prevWorkoutDetail.reps
+            } 회`
           : "-"}
       </td>
       <td className="text-center">

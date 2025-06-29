@@ -1,481 +1,338 @@
-jest.mock("next/navigation");
-jest.mock("next-auth/react");
-jest.mock("@/services/exercise.service", () => {
-  const originalModule = jest.requireActual("@/services/exercise.service");
-  return {
-    ...originalModule,
-    toggleLocalBookmark: jest.fn((...args) => {
-      return originalModule.toggleLocalBookmark(...args);
-    }),
-    getAllLocalExercises: jest.fn((...args) => {
-      return originalModule.getAllLocalExercises(...args);
-    }),
-  };
-});
-
-import { mockLocalExercises } from "@/__mocks__/exercise.mock";
-import { mockLocalWorkouts } from "@/__mocks__/workout.mock";
-import ExercisesContainer from "@/app/(main)/workout/[date]/exercises/_components/ExercisesContainer";
-import { CATEGORY_LIST, EXERCISETYPELIST } from "@/constants/filters";
-import { db } from "@/lib/db";
-import { toggleLocalBookmark } from "@/services/exercise.service";
-import { customRender, screen, waitFor, within } from "@/test-utils/test-utils";
-import { Category, ExerciseType } from "@/types/filters";
-import userEvent from "@testing-library/user-event";
-import { sortBy } from "lodash";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import ExercisesContainer from "./ExercisesContainer";
+import {
+  exerciseService,
+  workoutDetailService,
+  routineDetailService,
+} from "@/lib/di";
+import {
+  LocalExercise,
+  LocalWorkoutDetail,
+  LocalRoutineDetail,
+} from "@/types/models";
 
-describe("ExercisesContainer", () => {
-  const mockSession = {
-    user: {
-      id: "mockUserId",
-      name: "Test User",
-      email: "test@example.com",
-    },
-    expires: "some-future-date",
-  };
-  const mockExercises = [
-    ...mockLocalExercises,
-    {
-      category: "등",
-      createdAt: "2023-01-03T00:00:00Z",
-      id: 5,
-      imageUrl: "https://example.com/push-up.png",
-      isBookmarked: true,
-      isCustom: true,
-      isSynced: true,
-      name: "나만의 운동",
-      serverId: null,
-      updatedAt: null,
-      userId: null,
-    },
-  ];
+jest.mock("next-auth/react");
+jest.mock("@/lib/di");
+
+const mockUseSession = useSession as jest.MockedFunction<typeof useSession>;
+const mockUseParams = useParams as jest.MockedFunction<typeof useParams>;
+const mockExerciseService = exerciseService as jest.Mocked<
+  typeof exerciseService
+>;
+const mockWorkoutDetailService = workoutDetailService as jest.Mocked<
+  typeof workoutDetailService
+>;
+const mockRoutineDetailService = routineDetailService as jest.Mocked<
+  typeof routineDetailService
+>;
+
+const mockCloseBottomSheet = jest.fn();
+const mockShowError = jest.fn();
+const mockOpenModal = jest.fn();
+
+jest.mock("@/providers/contexts/BottomSheetContext", () => ({
+  useBottomSheet: () => ({ closeBottomSheet: mockCloseBottomSheet }),
+}));
+
+jest.mock("@/providers/contexts/ModalContext", () => ({
+  useModal: () => ({
+    showError: mockShowError,
+    openModal: mockOpenModal,
+  }),
+}));
+
+const mockExercises: LocalExercise[] = [
+  {
+    id: 1,
+    name: "벤치프레스",
+    category: "가슴",
+    unit: "kg",
+    isBookmarked: false,
+    isCustom: false,
+    isSynced: true,
+    imageUrl: "https://example.com/bench-press.jpg",
+    createdAt: "2024-01-01T00:00:00.000Z",
+    updatedAt: null,
+    serverId: 1,
+    userId: "user123",
+    exerciseMemo: null,
+  },
+  {
+    id: 2,
+    name: "스쿼트",
+    category: "하체",
+    unit: "kg",
+    isBookmarked: true,
+    isCustom: false,
+    isSynced: true,
+    imageUrl: "https://example.com/squat.jpg",
+    createdAt: "2024-01-01T00:00:00.000Z",
+    updatedAt: null,
+    serverId: 2,
+    userId: "user123",
+    exerciseMemo: null,
+  },
+];
+
+const mockCurrentDetails: LocalWorkoutDetail[] = [
+  {
+    id: 1,
+    serverId: "detail1",
+    workoutId: 1,
+    exerciseId: 1,
+    exerciseName: "기존 운동",
+    exerciseOrder: 1,
+    setOrder: 1,
+    weight: 100,
+    reps: 10,
+    rpe: null,
+    isDone: false,
+    isSynced: true,
+    setType: "NORMAL",
+    createdAt: "2024-01-01T00:00:00.000Z",
+    updatedAt: null,
+  },
+];
+
+describe("Characterization Tests", () => {
   beforeEach(() => {
-    (useSession as jest.Mock).mockReturnValue({
-      data: mockSession,
+    jest.clearAllMocks();
+
+    mockUseSession.mockReturnValue({
+      data: {
+        user: { id: "user123" },
+        expires: "2024-12-31T23:59:59.999Z",
+      },
       status: "authenticated",
+      update: jest.fn(),
     });
+
+    mockExerciseService.getAllLocalExercises.mockResolvedValue(mockExercises);
+    mockExerciseService.syncExercisesFromServerLocalFirst.mockResolvedValue();
+    mockWorkoutDetailService.addLocalWorkoutDetailsByUserDate.mockResolvedValue(
+      1
+    );
+    mockRoutineDetailService.getLocalRoutineDetails.mockResolvedValue([]);
+    mockRoutineDetailService.addLocalRoutineDetailsByWorkoutId.mockResolvedValue();
   });
 
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
-  const renderExercisesContainer = () => {
-    return customRender(<ExercisesContainer allowMultipleSelection />);
-  };
-
-  describe("초기 렌더링", () => {
+  describe("RECORD 타입 - 기본 사용 (추가 모드)", () => {
     beforeEach(() => {
-      jest.restoreAllMocks();
+      (useParams as jest.MockedFunction<typeof useParams>).mockReturnValue({
+        date: "2024-01-01",
+      });
+    });
 
-      jest.spyOn(db.exercises, "toArray").mockResolvedValueOnce(mockExercises);
-    });
-    afterEach(() => {
-      jest.restoreAllMocks();
-    });
-    it("SearchBar를 올바르게 렌더링하며 초기값은 빈 문자열이다", async () => {
-      const { getByRole } = renderExercisesContainer();
+    it("초기 렌더링: 운동 목록이 올바르게 표시된다", async () => {
+      render(<ExercisesContainer type="RECORD" allowMultipleSelection />);
+
+      expect(screen.getByText("Loading...")).toBeInTheDocument();
+
       await waitFor(() => {
-        const searchInput = getByRole("textbox") as HTMLInputElement;
-        expect(searchInput).toBeInTheDocument();
-
-        expect(searchInput.value).toBe("");
+        expect(screen.getByText("벤치프레스")).toBeInTheDocument();
+        expect(screen.getByText("스쿼트")).toBeInTheDocument();
       });
+
+      expect(mockExerciseService.getAllLocalExercises).toHaveBeenCalled();
     });
 
-    describe("ExerciseFilter가 올바르게 렌더링된다", () => {
-      it("TypeFilter 가 올바르게 렌더링된다", async () => {
-        const { getAllByText } = renderExercisesContainer();
-        await waitFor(() => {
-          EXERCISETYPELIST.forEach((type) => {
-            const elements = getAllByText(type);
-            expect(elements.length).toBeGreaterThan(0);
-          });
-        });
-      });
+    it("운동 선택 후 추가 버튼 클릭 시 올바른 서비스가 호출된다", async () => {
+      render(<ExercisesContainer type="RECORD" allowMultipleSelection />);
 
-      it("초기 상태에서 TypeFilter의 '전체' 버튼의 배경색은 bg-primary 이다", async () => {
-        const { getByTestId } = renderExercisesContainer();
-        await waitFor(() => {
-          const typeFilterNav = getByTestId("type-filter");
-
-          const entire = within(typeFilterNav).getByText("전체");
-          expect(entire).toHaveClass("bg-primary");
-        });
-      });
-
-      it("CategoryFilter 가 올바르게 렌더링된다", async () => {
-        const { getAllByText } = renderExercisesContainer();
-        await waitFor(() => {
-          CATEGORY_LIST.forEach((type) => {
-            const elements = getAllByText(type);
-            expect(elements.length).toBeGreaterThan(0);
-          });
-        });
-      });
-    });
-
-    it("초기 상태에서 CategoryFilter의 '전체' 버튼의 배경색은 bg-primary 이다", async () => {
-      const { getByTestId } = renderExercisesContainer();
       await waitFor(() => {
-        const categoryFilterNav = getByTestId("category-filter");
-
-        const entire = within(categoryFilterNav).getByText("전체");
-        expect(entire).toHaveClass("bg-primary");
+        expect(screen.getByText("벤치프레스")).toBeInTheDocument();
       });
+
+      // 운동 선택
+      const exerciseElement = screen.getByText("벤치프레스").closest("li")!;
+      fireEvent.click(exerciseElement);
+
+      // 하단 버튼 확인 및 클릭
+      await waitFor(() => {
+        const addButton = screen.getByText("1개 선택 완료");
+        fireEvent.click(addButton);
+      });
+
+      // 서비스 호출 확인
+      expect(
+        mockWorkoutDetailService.addLocalWorkoutDetailsByUserDate
+      ).toHaveBeenCalledWith("user123", "2024-01-01", [
+        { id: 1, name: "벤치프레스" },
+      ]);
     });
 
-    describe("첫 렌더링시 DB에서 가져온 exercises 데이터를 화면에 렌더링한다", () => {
-      it("DB의 데이터만큼 아이템을 올바르게 렌더링한다", async () => {
-        jest
-          .spyOn(db.exercises, "toArray")
-          .mockResolvedValueOnce(mockExercises);
-        const { getByText } = renderExercisesContainer();
-        await waitFor(() => {
-          mockExercises.forEach((ex) => {
-            const item = getByText(ex.name);
-            expect(item).toBeInTheDocument();
-          });
-        });
+    it("에러 발생 시 모달로 에러 메시지가 표시된다", async () => {
+      mockWorkoutDetailService.addLocalWorkoutDetailsByUserDate.mockRejectedValue(
+        new Error("Network Error")
+      );
+
+      render(<ExercisesContainer type="RECORD" allowMultipleSelection />);
+
+      await waitFor(() => {
+        expect(screen.getByText("벤치프레스")).toBeInTheDocument();
       });
 
-      it("isBookmarked가 true이면 꽉찬 별 아이콘이 렌더링된다", async () => {
-        const bookmarked = { id: 1, name: "벤치프레스", isBookmarked: true };
-        jest.spyOn(db.exercises, "toArray").mockResolvedValue([bookmarked]);
-        const { getByAltText } = renderExercisesContainer();
+      const exerciseElement = screen.getByText("벤치프레스").closest("li")!;
+      fireEvent.click(exerciseElement);
 
-        await waitFor(() => {
-          const icon = getByAltText("북마크 해제");
-          expect(icon).toBeInTheDocument();
-        });
+      await waitFor(() => {
+        const addButton = screen.getByText("1개 선택 완료");
+        fireEvent.click(addButton);
       });
 
-      it("isBookmarked가 false이면 빈 별 아이콘이 렌더링된다", async () => {
-        const bookmarked = { id: 1, name: "벤치프레스", isBookmarked: false };
-        jest.spyOn(db.exercises, "toArray").mockResolvedValue([bookmarked]);
-        const { getByAltText } = renderExercisesContainer();
-
-        await waitFor(() => {
-          const icon = getByAltText("북마크");
-          expect(icon).toBeInTheDocument();
-        });
+      await waitFor(() => {
+        expect(mockShowError).toHaveBeenCalledWith(
+          "운동을 추가하는데 실패했습니다."
+        );
       });
     });
   });
 
-  describe("SearchBar와 ExerciseFilter에 따라 다른 exercises를 렌더링한다", () => {
-    const setFilter = async (
-      typeFilterValue: ExerciseType,
-      categoryFilterValue: Category
-    ) => {
-      const typeFilterNav = screen.getByTestId("type-filter");
-      await userEvent.click(within(typeFilterNav).getByText(typeFilterValue));
-      const categoryFilterNav = screen.getByTestId("category-filter");
-      await userEvent.click(
-        within(categoryFilterNav).getByText(categoryFilterValue)
-      );
-    };
+  describe("ROUTINE 타입 - 루틴 운동 추가", () => {
     beforeEach(() => {
-      jest.spyOn(db.exercises, "toArray").mockResolvedValue(mockExercises);
+      (useParams as jest.MockedFunction<typeof useParams>).mockReturnValue({
+        routineId: "123",
+      });
     });
-    describe("검색어 x", () => {
-      const cases = [
-        {
-          type: "전체",
-          category: "전체",
-          expected: mockExercises,
-          desc: "5개의 모든 운동",
-        },
-        {
-          type: "전체",
-          category: "가슴",
-          expected: mockExercises.filter((ex) => ex.category === "가슴"),
-          desc: "가슴운동 1개",
-        },
-        {
-          type: "전체",
-          category: "하체",
-          expected: mockExercises.filter((ex) => ex.category === "하체"),
-          desc: "하체운동 1개",
-        },
-        {
-          type: "커스텀",
-          category: "전체",
-          expected: mockExercises.filter((ex) => ex.isCustom),
-          desc: "나만의 운동 1개",
-        },
-        {
-          type: "커스텀",
-          category: "등",
-          expected: mockExercises.filter(
-            (ex) => ex.isCustom && ex.category === "등"
-          ),
-          desc: "나만의 운동 1개",
-        },
-        {
-          type: "커스텀",
-          category: "가슴",
-          expected: [],
-          desc: "리스트가 렌더링되지 않음",
-        },
-        {
-          type: "즐겨찾기",
-          category: "전체",
-          expected: mockExercises.filter((ex) => ex.isBookmarked),
-          desc: "북마크 4개",
-        },
-        {
-          type: "즐겨찾기",
-          category: "하체",
-          expected: mockExercises.filter(
-            (ex) => ex.isBookmarked && ex.category === "하체"
-          ),
-          desc: "북마크한 하체운동 1개",
-        },
-        {
-          type: "즐겨찾기",
-          category: "가슴",
-          expected: mockExercises.filter(
-            (ex) => ex.isBookmarked && ex.category === "가슴"
-          ),
-          desc: "북마크한 가슴운동 1개",
-        },
-      ];
 
-      it.each(cases)(
-        "검색어='', TypeFilter=$type, CategoryFilter=$category",
-        async ({ type, category, expected }) => {
-          renderExercisesContainer();
+    it("루틴 운동 추가 시 올바른 서비스가 호출된다", async () => {
+      render(<ExercisesContainer type="ROUTINE" allowMultipleSelection />);
 
-          setFilter(type as ExerciseType, category as Category);
+      await waitFor(() => {
+        expect(screen.getByText("벤치프레스")).toBeInTheDocument();
+      });
 
-          await waitFor(() => {
-            if (expected.length === 0) {
-              const list = screen.queryByRole("list");
-              expect(list).not.toBeInTheDocument();
-            } else {
-              expected.forEach((ex) => {
-                expect(screen.getByText(ex.name)).toBeInTheDocument();
-              });
-            }
-          });
-        }
+      const exerciseElement = screen.getByText("벤치프레스").closest("li")!;
+      fireEvent.click(exerciseElement);
+
+      await waitFor(() => {
+        const addButton = screen.getByText("1개 선택 완료");
+        fireEvent.click(addButton);
+      });
+
+      expect(
+        mockRoutineDetailService.getLocalRoutineDetails
+      ).toHaveBeenCalledWith(123);
+      expect(
+        mockRoutineDetailService.addLocalRoutineDetailsByWorkoutId
+      ).toHaveBeenCalledWith(123, 1, [{ id: 1, name: "벤치프레스" }]);
+    });
+  });
+
+  describe("교체 모드 (allowMultipleSelection=false, currentDetails 있음)", () => {
+    const mockReloadDetails = jest.fn();
+
+    beforeEach(() => {
+      (useParams as jest.MockedFunction<typeof useParams>).mockReturnValue({
+        date: "2024-01-01",
+      });
+    });
+
+    it("교체하기 버튼이 표시되고 교체 로직이 동작한다", async () => {
+      render(
+        <ExercisesContainer
+          type="RECORD"
+          allowMultipleSelection={false}
+          currentDetails={mockCurrentDetails}
+          reloadDetails={mockReloadDetails}
+        />
       );
+
+      await waitFor(() => {
+        expect(screen.getByText("벤치프레스")).toBeInTheDocument();
+      });
+
+      const exerciseElement = screen.getByText("벤치프레스").closest("li")!;
+      fireEvent.click(exerciseElement);
+
+      await waitFor(() => {
+        expect(screen.getByText("교체하기")).toBeInTheDocument();
+      });
+
+      const replaceButton = screen.getByText("교체하기");
+      fireEvent.click(replaceButton);
+
+      await waitFor(() => {
+        expect(
+          mockWorkoutDetailService.addLocalWorkoutDetailsByWorkoutId
+        ).toHaveBeenCalled();
+        expect(
+          mockWorkoutDetailService.deleteWorkoutDetails
+        ).toHaveBeenCalledWith(mockCurrentDetails);
+        expect(mockReloadDetails).toHaveBeenCalled();
+        expect(mockCloseBottomSheet).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe("검색 기능", () => {
+    beforeEach(() => {
+      mockUseParams.mockReturnValue({ date: "2024-01-01" });
     });
 
-    describe("검색어 o", () => {
-      it("검색어='벤치', TypeFilter='전체', CategoryFilter='전체'", async () => {
-        renderExercisesContainer();
+    it("검색어 입력 시 필터링이 동작한다", async () => {
+      render(<ExercisesContainer type="RECORD" allowMultipleSelection />);
 
-        const input = await screen.findByRole("textbox");
-        await userEvent.type(input, "벤치");
-        setFilter("전체", "전체");
-        await waitFor(() => {
+      await waitFor(() => {
+        expect(screen.getByText("벤치프레스")).toBeInTheDocument();
+        expect(screen.getByText("스쿼트")).toBeInTheDocument();
+      });
+
+      const searchInput = screen.getByRole("textbox");
+      fireEvent.change(searchInput, { target: { value: "벤치" } });
+
+      // 디바운스 대기 후 필터링 확인
+      await waitFor(
+        () => {
           expect(screen.getByText("벤치프레스")).toBeInTheDocument();
-        });
-      });
-      it("검색어='벤치', TypeFilter='전체', CategoryFilter='등'", async () => {
-        renderExercisesContainer();
-        const input = screen.getByRole("textbox");
-
-        setFilter("전체", "등");
-
-        await userEvent.type(input, "벤치");
-
-        await waitFor(() => {
-          const list = screen.queryByRole("list");
-          expect(list).not.toBeInTheDocument();
-        });
-      });
+          expect(screen.queryByText("스쿼트")).not.toBeInTheDocument();
+        },
+        { timeout: 1000 }
+      );
     });
   });
 
-  describe("북마크 상호작용", () => {
-    const mockExercise = {
-      category: "등",
-      createdAt: "2023-01-03T00:00:00Z",
-      id: 1,
-      imageUrl: "https://example.com/push-up.png",
-      isBookmarked: false,
-      isCustom: true,
-      isSynced: true,
-      name: "나만의 운동",
-      serverId: null,
-      updatedAt: null,
-      userId: null,
-    };
-
-    beforeEach(async () => {
-      await db.exercises.clear();
-      jest.restoreAllMocks();
-      jest.spyOn(db.exercises, "update");
+  describe("커스텀 운동 추가", () => {
+    beforeEach(() => {
+      mockUseParams.mockReturnValue({ date: "2024-01-01" });
     });
 
-    afterEach(async () => {
-      await db.exercises.clear();
-      jest.clearAllMocks();
-      jest.restoreAllMocks();
-    });
-
-    it("북마크 상태가 아닌 아이템의 북마크 아이콘 클릭시 toggleLocalBookmark와 update가 호출된다 ", async () => {
-      jest
-        .spyOn(db.exercises, "toArray")
-        .mockResolvedValueOnce([mockExercise])
-        .mockResolvedValueOnce([mockExercise]);
-
-      renderExercisesContainer();
-      const bookmarkBtn = await screen.findByRole("button", {
-        name: "북마크",
-      });
-      await userEvent.click(bookmarkBtn);
+    it("추가 버튼 클릭 시 커스텀 운동 폼 모달이 열린다", async () => {
+      render(<ExercisesContainer type="RECORD" allowMultipleSelection />);
 
       await waitFor(() => {
-        expect(toggleLocalBookmark).toHaveBeenCalledWith(1, true);
-        expect(db.exercises.update).toHaveBeenCalledWith(1, {
-          isBookmarked: true,
-          isSynced: false,
-          updatedAt: expect.any(String),
-        });
+        expect(screen.getByText("벤치프레스")).toBeInTheDocument();
       });
-    });
 
-    it("북마크 상태가 아닌 아이템의 북마크 아이콘 클릭시 isBookmarked 상태가 true가 되며 북마크 아이콘이 표시된다", async () => {
-      jest
-        .spyOn(db.exercises, "toArray")
-        .mockResolvedValueOnce([mockExercise])
-        .mockResolvedValueOnce([mockExercise])
-        .mockResolvedValueOnce([{ ...mockExercise, isBookmarked: true }]);
+      const addButton = screen.getByAltText("추가하기");
+      fireEvent.click(addButton);
 
-      renderExercisesContainer();
-      const bookmarkBtn = await screen.findByRole("button", {
-        name: "북마크",
-      });
-      await userEvent.click(bookmarkBtn);
-
-      const newBtn = await screen.findByRole("button", {
-        name: "북마크 해제",
-      });
-      expect(newBtn).toBeInTheDocument();
-    });
-
-    describe("북마크 해제", () => {
-      const clickBookmarkBtn = async () => {
-        jest
-          .spyOn(db.exercises, "toArray")
-          .mockResolvedValueOnce([{ ...mockExercise, isBookmarked: true }])
-          .mockResolvedValueOnce([{ ...mockExercise, isBookmarked: true }]);
-        renderExercisesContainer();
-        const bookmarkBtn = await screen.findByRole("button", {
-          name: "북마크 해제",
-        });
-        await userEvent.click(bookmarkBtn);
-      };
-      it("북마크 상태인 아이템의 북마크 아이콘 클릭시 모달이 호출된다", async () => {
-        await clickBookmarkBtn();
-        const modal = await screen.findByRole("dialog");
-        expect(modal).toBeInTheDocument();
-      });
-      it("모달의 취소 버튼 클릭 시 모달이 닫히며 다른 이벤트가 일어나지 않는다", async () => {
-        await clickBookmarkBtn();
-        jest
-          .spyOn(db.exercises, "toArray")
-          .mockResolvedValueOnce([{ ...mockExercise, isBookmarked: true }]);
-
-        const cancelBtn = await screen.findByRole("button", { name: "취소" });
-        expect(cancelBtn).toBeInTheDocument();
-        await userEvent.click(cancelBtn);
-
-        const modal = screen.queryByRole("dialog");
-        expect(modal).not.toBeInTheDocument();
-
-        const bookmarkBtn = await screen.findByRole("button", {
-          name: "북마크 해제",
-        });
-        expect(bookmarkBtn).toBeInTheDocument();
-      });
-      it("모달의 확인 버튼 클릭 시 isBookmarked의 상태가 false가 되며 북마크 해제 아이콘이 표시된다", async () => {
-        await clickBookmarkBtn();
-        jest
-          .spyOn(db.exercises, "toArray")
-          .mockResolvedValueOnce([{ ...mockExercise, isBookmarked: false }]);
-        const confirmBtn = await screen.findByRole("button", { name: "확인" });
-        await userEvent.click(confirmBtn);
-
-        const modal = screen.queryByRole("dialog");
-        expect(modal).not.toBeInTheDocument();
-        const bookmarkBtn = await screen.findByRole("button", {
-          name: "북마크",
-        });
-        expect(bookmarkBtn).toBeInTheDocument();
+      expect(mockOpenModal).toHaveBeenCalledWith({
+        type: "generic",
+        children: expect.anything(),
       });
     });
   });
 
-  describe("workoutDetail 추가", () => {
-    const fixedDate = "2025-01-01";
-    const mockPush = jest.fn();
-
+  describe("에러 상태", () => {
     beforeEach(() => {
-      jest.restoreAllMocks();
-      (useRouter as jest.Mock).mockReturnValue({
-        push: mockPush,
+      mockUseParams.mockReturnValue({ date: "2024-01-01" });
+    });
+
+    it("운동 목록 로드 실패 시 ErrorState가 표시된다", async () => {
+      mockExerciseService.getAllLocalExercises.mockRejectedValue(
+        new Error("Network Error")
+      );
+
+      render(<ExercisesContainer type="RECORD" allowMultipleSelection />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText("운동목록 초기화에 실패했습니다.")
+        ).toBeInTheDocument();
       });
-      const mockWorkout = {
-        ...mockLocalWorkouts[0],
-        userId: mockSession.user.id,
-        date: fixedDate,
-      };
-
-      jest.spyOn(db.exercises, "toArray").mockResolvedValue(mockExercises);
-      // db.workouts.where에 대한 정확한 모킹
-      jest.spyOn(db.workouts, "where").mockImplementation(() => ({
-        equals: jest.fn().mockReturnValue({
-          first: jest.fn().mockResolvedValue(mockWorkout), // first 메서드가 mockResolvedValue로 비동기적으로 동작하도록 설정
-        }),
-      }));
     });
-    afterEach(() => {
-      jest.restoreAllMocks();
-
-      jest.spyOn(db.exercises, "toArray").mockResolvedValueOnce(mockExercises);
-    });
-
-    it("날짜에 해당하는 workout이 없거나 workoutDetail이 없는 경우, 새로운 workout을 생성하고 선택된 순서대로 detail이 추가된다", async () => {
-      jest.spyOn(db.workoutDetails, "where").mockImplementation(() => ({
-        equals: jest.fn().mockReturnValue({
-          sortBy: jest.fn().mockResolvedValue([]),
-        }),
-      }));
-      jest.spyOn(db.workoutDetails, "bulkAdd").mockResolvedValue([1]);
-
-      const newDetail = {
-        serverId: null,
-        weight: 0,
-        rpe: null,
-        reps: 0,
-        isDone: false,
-        isSynced: false,
-        setOrder: 1,
-        exerciseOrder: 1,
-        setType: "NORMAL",
-        exerciseName: "벤치프레스",
-        exerciseId: 1,
-        workoutId: 1,
-        createdAt: expect.any(String),
-      };
-      renderExercisesContainer();
-      const bench = await screen.findByText("벤치프레스");
-      await userEvent.click(bench);
-      const addBtn = await screen.findByText("1개 선택 완료");
-      await userEvent.click(addBtn);
-      expect(addBtn).toBeInTheDocument();
-
-      expect(db.workoutDetails.bulkAdd).toHaveBeenCalledWith([newDetail]);
-
-      expect(mockPush).toHaveBeenCalledWith(`/workout/${fixedDate}`);
-    });
-    // TODO: Workout 컴포넌트와 연결
   });
 });

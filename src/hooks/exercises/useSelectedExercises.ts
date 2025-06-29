@@ -1,39 +1,14 @@
-import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
-import { routineDetailService, workoutDetailService } from "@/lib/di";
-import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
-import { useModal } from "@/providers/contexts/ModalContext";
-import {
-  LocalExercise,
-  LocalRoutineDetail,
-  LocalWorkoutDetail,
-} from "@/types/models";
-import { useRouter } from "next/navigation";
+import { LocalExercise } from "@/types/models";
+
 import { useState } from "react";
 
 type UseSelectedExercises = {
   allowMultipleSelection?: boolean;
-  currentDetails?: LocalWorkoutDetail[] | LocalRoutineDetail[];
-  routineId?: number;
-  type: "ROUTINE" | "RECORD";
-  userId?: string;
-  date?: string;
-
-  reloadDetails?: () => Promise<void>;
 };
 
 const useSelectedExercises = ({
   allowMultipleSelection,
-  reloadDetails,
-  currentDetails,
-  routineId,
-  type,
-  userId,
-  date,
 }: UseSelectedExercises) => {
-  const router = useRouter();
-  const { closeBottomSheet } = useBottomSheet();
-  const { showError } = useModal();
-
   const [selectedExercises, setSelectedExercises] = useState<
     { id: number; name: string }[]
   >([]);
@@ -46,81 +21,22 @@ const useSelectedExercises = ({
       return;
     }
 
-    setSelectedExercises((prev) => [
-      ...prev,
-      { id: exercise.id!, name: exercise.name },
-    ]);
+    setSelectedExercises((prev) => {
+      const exists = prev.some((item) => item.id === exercise.id);
+      if (exists) return prev;
+
+      return [...prev, { id: exercise.id!, name: exercise.name }];
+    });
   };
 
   const handleUnselectExercise = (id: number) => {
     setSelectedExercises((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const handleAddDetail = async () => {
-    try {
-      if (type === "RECORD" && userId && date) {
-        await workoutDetailService.addLocalWorkoutDetailsByUserDate(
-          userId,
-          date,
-          selectedExercises
-        );
-        router.replace(`/workout/${date}`);
-      } else {
-        if (!routineId) return;
-
-        // routineId로 맞는 detail찾아서 몇개인지 확인해서 startOrder 가져오기
-        const details = await routineDetailService.getLocalRoutineDetails(
-          Number(routineId)
-        );
-        const startOrder = details.length + 1;
-
-        await routineDetailService.addLocalRoutineDetailsByWorkoutId(
-          Number(routineId),
-          startOrder,
-          selectedExercises
-        );
-        router.replace(`/routines/${routineId}`);
-      }
-    } catch (e) {
-      showError("운동을 추가하는데 실패했습니다.");
-    }
-  };
-
-  const handleReplaceExercise = async () => {
-    try {
-      if (!currentDetails || currentDetails.length === 0) return;
-      if (isWorkoutDetails(currentDetails)) {
-        const { exerciseOrder: startOrder, workoutId } = currentDetails[0];
-        await workoutDetailService.addLocalWorkoutDetailsByWorkoutId(
-          workoutId,
-          startOrder,
-          selectedExercises
-        );
-
-        await workoutDetailService.deleteWorkoutDetails(currentDetails);
-      } else {
-        const { exerciseOrder: startOrder, routineId } = currentDetails[0];
-        await routineDetailService.addLocalRoutineDetailsByWorkoutId(
-          routineId,
-          startOrder,
-          selectedExercises
-        );
-
-        await routineDetailService.deleteRoutineDetails(currentDetails);
-      }
-      await reloadDetails?.();
-      closeBottomSheet();
-    } catch (e) {
-      showError("운동을 교체하는데 실패했습니다.");
-    }
-  };
-
   return {
     selectedExercises,
     handleSelectExercise,
     handleUnselectExercise,
-    handleAddDetail,
-    handleReplaceExercise,
   };
 };
 
