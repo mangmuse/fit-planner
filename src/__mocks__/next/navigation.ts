@@ -10,3 +10,5 @@ export const useRouter = jest.fn(() => ({
 export const useParams = jest.fn().mockReturnValue({
   date: "2025-01-01",
 });
+
+export const usePathname = jest.fn().mockReturnValue("/workout/2025-01-01");

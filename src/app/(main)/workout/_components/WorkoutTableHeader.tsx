@@ -26,7 +26,6 @@ const WorkoutTableHeader = ({
   isRoutine = false,
 }: WorkoutTableHeaderProps) => {
   const { openModal } = useModal();
-  const [allDone, setAllDone] = useState<boolean>(false);
   const handleDisplayPrevDetailsModal = () => {
     if (prevDetails.length === 0) return;
     openModal({
@@ -35,12 +34,6 @@ const WorkoutTableHeader = ({
       children: <PrevWorkoutDetails prevDetails={prevDetails} />,
     });
   };
-
-  useEffect(() => {
-    const isallDone =
-      !isRoutine && details.every((d) => (d as LocalWorkoutDetail).isDone);
-    setAllDone(isallDone);
-  }, [details]);
 
   return (
     <thead data-testid="workout-table-header">
@@ -52,7 +45,7 @@ const WorkoutTableHeader = ({
         >
           Previous
         </th>
-        <th className="w-[17%]">{exercise.unit || 'kg'}</th>
+        <th className="w-[17%]">{exercise.unit || "kg"}</th>
         <th className="w-[17%]">Reps</th>
         <th className="w-[14%]">
           <div className="flex justify-center items-center">

@@ -2,6 +2,7 @@ import { useState } from "react";
 import Image from "next/image";
 import checkIcon from "public/check.svg";
 import { workoutDetailService } from "@/lib/di";
+import { useModal } from "@/providers/contexts/ModalContext";
 
 export type WorkoutCheckboxProps = {
   prevIsDone?: boolean;
@@ -11,16 +12,21 @@ export type WorkoutCheckboxProps = {
 
 const WorkoutCheckbox = ({ prevIsDone, id, reload }: WorkoutCheckboxProps) => {
   const [isDone, setIsDone] = useState<boolean>(prevIsDone ?? false);
-
+  const { showError } = useModal();
   const handleChange = async () => {
-    if (!id) return;
-    const newValue = !isDone;
-    setIsDone(newValue);
-    await workoutDetailService.updateLocalWorkoutDetail({
-      isDone: newValue,
-      id,
-    });
-    if (reload) reload();
+    try {
+      if (!id) return;
+      const newValue = !isDone;
+      setIsDone(newValue);
+      await workoutDetailService.updateLocalWorkoutDetail({
+        isDone: newValue,
+        id,
+      });
+      if (reload) reload();
+    } catch (e) {
+      console.error("[WorkoutCheckbox] Error", e);
+      showError("운동 상태를 동기화하는데 실패했습니다");
+    }
   };
   return (
     <label className="inline-flex items-center cursor-pointer">
