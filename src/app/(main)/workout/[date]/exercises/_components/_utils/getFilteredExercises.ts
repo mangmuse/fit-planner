@@ -1,5 +1,5 @@
 import { Category, ExerciseType } from "@/types/filters";
-import { ClientExercise, LocalExercise } from "@/types/models";
+import { LocalExercise } from "@/types/models";
 
 export const getFilteredExercises = (
   exercises: LocalExercise[],

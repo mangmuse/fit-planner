@@ -1,0 +1,128 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`getFilteredExercises with Snapshots exerciseType이 "즐겨찾기"일 때, isBookmarked가 true인 운동만 반환해야 한다 1`] = `
+[
+  {
+    "category": "하체",
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "exerciseMemo": null,
+    "id": 3,
+    "imageUrl": "https://example.com/default.png",
+    "isBookmarked": true,
+    "isCustom": false,
+    "isSynced": true,
+    "name": "스쿼트",
+    "serverId": 300,
+    "unit": "kg",
+    "updatedAt": null,
+    "userId": "mockUserId",
+  },
+  {
+    "category": "하체",
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "exerciseMemo": null,
+    "id": 4,
+    "imageUrl": "https://example.com/default.png",
+    "isBookmarked": true,
+    "isCustom": true,
+    "isSynced": true,
+    "name": "커스텀 스쿼트",
+    "serverId": 400,
+    "unit": "kg",
+    "updatedAt": null,
+    "userId": "mockUserId",
+  },
+]
+`;
+
+exports[`getFilteredExercises with Snapshots exerciseType이 "커스텀"일 때, isCustom이 true인 운동만 반환해야 한다 1`] = `
+[
+  {
+    "category": "가슴",
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "exerciseMemo": null,
+    "id": 2,
+    "imageUrl": "https://example.com/default.png",
+    "isBookmarked": false,
+    "isCustom": true,
+    "isSynced": true,
+    "name": "인클라인 벤치프레스",
+    "serverId": 200,
+    "unit": "kg",
+    "updatedAt": null,
+    "userId": "mockUserId",
+  },
+  {
+    "category": "하체",
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "exerciseMemo": null,
+    "id": 4,
+    "imageUrl": "https://example.com/default.png",
+    "isBookmarked": true,
+    "isCustom": true,
+    "isSynced": true,
+    "name": "커스텀 스쿼트",
+    "serverId": 400,
+    "unit": "kg",
+    "updatedAt": null,
+    "userId": "mockUserId",
+  },
+]
+`;
+
+exports[`getFilteredExercises with Snapshots 여러 필터가 조합되었을 때, 모든 조건을 만족하는 운동만 반환해야 한다 1`] = `
+[
+  {
+    "category": "하체",
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "exerciseMemo": null,
+    "id": 4,
+    "imageUrl": "https://example.com/default.png",
+    "isBookmarked": true,
+    "isCustom": true,
+    "isSynced": true,
+    "name": "커스텀 스쿼트",
+    "serverId": 400,
+    "unit": "kg",
+    "updatedAt": null,
+    "userId": "mockUserId",
+  },
+]
+`;
+
+exports[`getFilteredExercises with Snapshots 키워드가 포함된 운동만 반환해야 한다 1`] = `
+[
+  {
+    "category": "가슴",
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "exerciseMemo": null,
+    "id": 1,
+    "imageUrl": "https://example.com/default.png",
+    "isBookmarked": false,
+    "isCustom": false,
+    "isSynced": true,
+    "name": "벤치프레스",
+    "serverId": 100,
+    "unit": "kg",
+    "updatedAt": null,
+    "userId": "mockUserId",
+  },
+  {
+    "category": "가슴",
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "exerciseMemo": null,
+    "id": 2,
+    "imageUrl": "https://example.com/default.png",
+    "isBookmarked": false,
+    "isCustom": true,
+    "isSynced": true,
+    "name": "인클라인 벤치프레스",
+    "serverId": 200,
+    "unit": "kg",
+    "updatedAt": null,
+    "userId": "mockUserId",
+  },
+]
+`;
+
+exports[`getFilteredExercises with Snapshots 필터 조건을 만족하는 운동이 없으면, 빈 배열을 반환해야 한다 1`] = `[]`;
