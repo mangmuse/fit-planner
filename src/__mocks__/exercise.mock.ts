@@ -47,7 +47,7 @@ export const mockExercise = {
   }),
 
   synced: createMockExercise({
-    id: 100,
+    id: 101,
     name: "동기화된 벤치프레스",
     isSynced: true,
     serverId: 200,

@@ -21,10 +21,12 @@ const useSelectedExercises = ({
       return;
     }
 
-    setSelectedExercises((prev) => [
-      ...prev,
-      { id: exercise.id!, name: exercise.name },
-    ]);
+    setSelectedExercises((prev) => {
+      const exists = prev.some((item) => item.id === exercise.id);
+      if (exists) return prev;
+
+      return [...prev, { id: exercise.id!, name: exercise.name }];
+    });
   };
 
   const handleUnselectExercise = (id: number) => {
