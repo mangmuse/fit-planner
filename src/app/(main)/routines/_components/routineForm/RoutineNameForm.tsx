@@ -1,5 +1,4 @@
 "use client";
-import WorkoutContainer from "@/app/(main)/workout/_components/WorkoutContainer";
 import { routineService } from "@/lib/di";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";

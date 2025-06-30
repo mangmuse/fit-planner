@@ -1,4 +1,4 @@
-import WorkoutContainer from "@/app/(main)/workout/_components/WorkoutContainer";
+import SessionContainer from "@/app/(main)/_shared/session/SessionContainer";
 import { authOptions } from "@/app/api/_utils/authOption";
 import { getFormattedDateWithoutDay } from "@/util/formatDate";
 import { getServerSession } from "next-auth";
@@ -17,7 +17,7 @@ const WorkoutPage = async ({ params }: WorkoutPageProps) => {
   const formattedDate = getFormattedDateWithoutDay(date);
   return (
     <main className="px-4 pt-12 pb-20 scrollbar-none">
-      <WorkoutContainer
+      <SessionContainer
         type="RECORD"
         date={date}
         formattedDate={formattedDate}

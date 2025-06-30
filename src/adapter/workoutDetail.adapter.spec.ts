@@ -7,8 +7,12 @@ import {
 } from "@/__mocks__/workoutDetail.mock";
 
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
-import { workoutDetailAdapter } from "@/lib/di";
-import { INITIAL_WORKOUT_DETAIL_BASE } from "@/adapter/workoutDetail.adapter";
+import {
+  WorkoutdetailAdapter,
+  INITIAL_WORKOUT_DETAIL_BASE,
+} from "@/adapter/workoutDetail.adapter";
+
+const workoutDetailAdapter = new WorkoutdetailAdapter();
 
 describe("getInitialWorkoutDetail", () => {
   it("초기 workout detail 객체를 반환한다", () => {

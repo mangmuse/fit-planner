@@ -1,0 +1,64 @@
+import PrevSessionDetails from "@/app/(main)/_shared/session/pastSession/PrevSessionDetails";
+import { useModal } from "@/providers/contexts/ModalContext";
+import {
+  LocalExercise,
+  LocalRoutineDetail,
+  LocalWorkoutDetail,
+} from "@/types/models";
+import Image from "next/image";
+import deletIcon from "public/delete.svg";
+import { useEffect, useState } from "react";
+
+type SessionTableHeaderProps = {
+  exercise: LocalExercise;
+  prevDetails: LocalWorkoutDetail[];
+  details: LocalWorkoutDetail[] | LocalRoutineDetail[];
+  reload: () => Promise<void>;
+
+  isRoutine?: boolean;
+};
+
+const SessionTableHeader = ({
+  exercise,
+  prevDetails,
+  details,
+  reload,
+  isRoutine = false,
+}: SessionTableHeaderProps) => {
+  const { openModal } = useModal();
+  const handleDisplayPrevDetailsModal = () => {
+    if (prevDetails.length === 0) return;
+    openModal({
+      type: "generic",
+
+      children: <PrevSessionDetails prevDetails={prevDetails} />,
+    });
+  };
+
+  return (
+    <thead data-testid="workout-table-header">
+      <tr className="h-8 text-center text-text-muted">
+        <th className="w-[14%] ">Set</th>
+        <th
+          onClick={handleDisplayPrevDetailsModal}
+          className="w-[38%] underline underline-offset-2"
+        >
+          Previous
+        </th>
+        <th className="w-[17%]">{exercise.unit || "kg"}</th>
+        <th className="w-[17%]">Reps</th>
+        <th className="w-[14%]">
+          <div className="flex justify-center items-center">
+            {isRoutine ? (
+              <Image src={deletIcon} alt="delete" width={20} height={20} />
+            ) : (
+              <></>
+            )}
+          </div>
+        </th>
+      </tr>
+    </thead>
+  );
+};
+
+export default SessionTableHeader;

@@ -1,7 +1,6 @@
 "use client";
 import RoutineDetailContainer from "@/app/(main)/routines/_components/routineDetail/RoutineDetailContainer";
 import { TEMP_ROUTINE_ID } from "@/app/(main)/routines/constants";
-import WorkoutContainer from "@/app/(main)/workout/_components/WorkoutContainer";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import editIcon from "public/edit.svg";
@@ -9,6 +8,7 @@ import Image from "next/image";
 import { useModal } from "@/providers/contexts/ModalContext";
 import EditRoutineNameForm from "@/app/(main)/routines/_components/routineForm/EditRoutineNameForm";
 import { routineService } from "@/lib/di";
+import SessionContainer from "@/app/(main)/_shared/session/SessionContainer";
 
 const RoutineForm = () => {
   const { openModal } = useModal();
@@ -52,7 +52,7 @@ const RoutineForm = () => {
   );
 
   return (
-    <WorkoutContainer
+    <SessionContainer
       type="ROUTINE"
       routineId={Number(routineId)}
       formattedDate={routineTitle}
