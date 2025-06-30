@@ -41,7 +41,7 @@ describe("RoutineDetailApi", () => {
       await api.fetchRoutineDetailsFromServer(userId);
 
       expect(mockedSafeRequest).toHaveBeenCalledWith(
-        `${BASE_URL}/api/routine/detail/${userId}`,
+        expect.stringContaining(`/api/routine/detail?userId=${userId}`),
         expect.anything(),
         expect.anything()
       );
