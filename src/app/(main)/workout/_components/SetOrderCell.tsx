@@ -4,7 +4,7 @@ import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 import clsx from "clsx";
 
-type SetOrderCellProps = {
+export type SetOrderCellProps = {
   workoutDetail: LocalWorkoutDetail | LocalRoutineDetail;
   loadLocalWorkoutDetails: () => Promise<void>;
 };
@@ -29,7 +29,7 @@ const SetOrderCell = ({
           children: <SetOptionSheet workoutDetail={workoutDetail} />,
         });
       }}
-      data-testid="setOrder"
+      data-testid={setTypeOption ? "set-type" : "set-order"}
       className={clsx(
         "relative cursor-pointer text-center underline underline-offset-2",
         setTypeOption && setTypeOption.textColor
