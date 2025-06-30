@@ -25,6 +25,7 @@ export const getGroupedDetails = <
       .map((detail, index) => ({
         ...detail,
         setOrder: index + 1,
+        exerciseOrder,
       }));
 
     return {
@@ -35,7 +36,10 @@ export const getGroupedDetails = <
 
   const adjustedGroups = groups.map((group, index) => ({
     exerciseOrder: index + 1,
-    details: group.details,
+    details: group.details.map((detail) => ({
+      ...detail,
+      exerciseOrder: index + 1,
+    })),
   }));
 
   return adjustedGroups;
@@ -55,5 +59,9 @@ export const reorderDetailGroups = (
   return arrayMove(groups, oldIndex, newIndex).map((group, index) => ({
     ...group,
     exerciseOrder: index + 1,
+    details: group.details.map((detail) => ({
+      ...detail,
+      exerciseOrder: index + 1,
+    })),
   }));
 };
