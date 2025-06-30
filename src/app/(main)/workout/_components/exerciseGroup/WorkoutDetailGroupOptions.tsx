@@ -2,7 +2,7 @@
 import swapIcon from "public/swap.svg";
 import memoIcon from "public/memo.svg";
 import deleteIcon from "public/delete.svg";
-import GroupOptionItem from "@/app/(main)/workout/_components/GroupOptionItem";
+import GroupOptionItem from "@/app/(main)/workout/_components/exerciseGroup/GroupOptionItem";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
@@ -12,7 +12,7 @@ import {
   LocalWorkoutDetail,
 } from "@/types/models";
 import { useModal } from "@/providers/contexts/ModalContext";
-import ExerciseMemo from "@/app/(main)/workout/_components/ExerciseMemo";
+import ExerciseMemo from "@/app/(main)/workout/_components/workoutSet/ExerciseMemo";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import ExercisesContainer from "@/app/(main)/workout/[date]/exercises/_components/ExercisesContainer";
 import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";

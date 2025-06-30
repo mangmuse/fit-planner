@@ -1,4 +1,4 @@
-import RoutineForm from "@/app/(main)/routines/_components/RoutineForm";
+import RoutineForm from "@/app/(main)/routines/_components/routineForm/RoutineForm";
 
 const RoutineFormPage = () => {
   return (

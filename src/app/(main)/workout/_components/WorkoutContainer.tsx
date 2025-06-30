@@ -1,7 +1,5 @@
 "use client";
 
-import WorkoutSequence from "@/app/(main)/workout/_components/WorkoutSequence";
-import WorkoutExerciseGroup from "@/app/(main)/workout/_components/WorkoutExerciseGroup";
 import WorkoutPlaceholder from "@/app/(main)/workout/_components/WorkoutPlaceholder";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 
@@ -12,7 +10,7 @@ import sortIcon from "public/sort.svg";
 import trashIcon from "public/trash.svg";
 
 import useLoadDetails from "@/hooks/useLoadDetails";
-import LoadPastWorkoutSheet from "@/app/(main)/workout/_components/LoadPastWorkoutSheet";
+
 import { useModal } from "@/providers/contexts/ModalContext";
 import ErrorState from "@/components/ErrorState";
 import { usePathname, useRouter } from "next/navigation";
@@ -28,6 +26,9 @@ import {
   isWorkoutDetails,
 } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import { LocalWorkout } from "@/types/models";
+import WorkoutExerciseGroup from "@/app/(main)/workout/_components/exerciseGroup/WorkoutExerciseGroup";
+import WorkoutSequence from "@/app/(main)/workout/_components/workoutSequence/WorkoutSequence";
+import LoadPastWorkoutSheet from "@/app/(main)/workout/_components/pastWorkout/LoadPastWorkoutSheet";
 
 type WorkoutContainerProps = {
   type: "ROUTINE" | "RECORD";

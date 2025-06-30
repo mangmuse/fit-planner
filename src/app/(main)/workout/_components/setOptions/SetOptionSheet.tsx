@@ -1,5 +1,5 @@
-import RPESelector from "@/app/(main)/workout/_components/RPESelector";
-import SetTypeSelector from "@/app/(main)/workout/_components/SetTypeSelector";
+import RPESelector from "@/app/(main)/workout/_components/setOptions/RPESelector";
+import SetTypeSelector from "@/app/(main)/workout/_components/setOptions/SetTypeSelector";
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 import { useState, useEffect } from "react";
 

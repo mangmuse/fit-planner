@@ -1,4 +1,4 @@
-import ExpandedWorkoutItem from "@/app/(main)/workout/_components/ExpandedWorkoutItem";
+import ExpandedWorkoutItem from "@/app/(main)/workout/_components/expandedView/ExpandedWorkoutItem";
 import { exerciseService } from "@/lib/di";
 import { LocalWorkoutDetail } from "@/types/models";
 import { useEffect, useState } from "react";

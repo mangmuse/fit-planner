@@ -6,7 +6,7 @@ import { mockRoutineDetail } from "@/__mocks__/routineDetail.mock";
 import { mockWorkoutDetail } from "@/__mocks__/workoutDetail.mock";
 import WorkoutItem, {
   WorkoutItemProps,
-} from "@/app/(main)/workout/_components/WorkoutItem";
+} from "@/app/(main)/workout/_components/workoutSet/WorkoutItem";
 import { routineDetailService, workoutDetailService } from "@/lib/di";
 import { useModal } from "@/providers/contexts/ModalContext";
 import { render, screen } from "@testing-library/react";

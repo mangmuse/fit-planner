@@ -35,17 +35,22 @@ jest.mock("@/lib/di", () => ({
 
 jest.mock("@/providers/contexts/ModalContext");
 jest.mock("@/providers/contexts/BottomSheetContext");
-jest.mock("@/app/(main)/workout/_components/WorkoutExerciseGroup", () => {
-  return function MockWorkoutExerciseGroup({
-    details,
-  }: {
-    details: LocalWorkoutDetail[];
-  }) {
-    return (
-      <div data-testid="workout-exercise-group">{details[0]?.exerciseName}</div>
-    );
-  };
-});
+jest.mock(
+  "@/app/(main)/workout/_components/exerciseGroup/WorkoutExerciseGroup",
+  () => {
+    return function MockWorkoutExerciseGroup({
+      details,
+    }: {
+      details: LocalWorkoutDetail[];
+    }) {
+      return (
+        <div data-testid="workout-exerciseGroup">
+          {details[0]?.exerciseName}
+        </div>
+      );
+    };
+  }
+);
 
 jest.mock("@/app/(main)/workout/_components/WorkoutPlaceholder", () => {
   return function MockWorkoutPlaceholder() {
@@ -53,17 +58,23 @@ jest.mock("@/app/(main)/workout/_components/WorkoutPlaceholder", () => {
   };
 });
 
-jest.mock("@/app/(main)/workout/_components/LoadPastWorkoutSheet", () => {
-  return function MockLoadPastWorkoutSheet() {
-    return <div data-testid="load-past-workout-sheet">Load Past Workout</div>;
-  };
-});
+jest.mock(
+  "@/app/(main)/workout/_components/pastWorkout/LoadPastWorkoutSheet",
+  () => {
+    return function MockLoadPastWorkoutSheet() {
+      return <div data-testid="load-pastWorkout-sheet">Load Past Workout</div>;
+    };
+  }
+);
 
-jest.mock("@/app/(main)/workout/_components/WorkoutSequence", () => {
-  return function MockWorkoutSequence() {
-    return <div data-testid="workout-sequence">Workout Sequence</div>;
-  };
-});
+jest.mock(
+  "@/app/(main)/workout/_components/workoutSequence/WorkoutSequence",
+  () => {
+    return function MockWorkoutSequence() {
+      return <div data-testid="workoutSequence">Workout Sequence</div>;
+    };
+  }
+);
 
 jest.mock("@/components/ErrorState", () => {
   return function MockErrorState({
@@ -161,7 +172,7 @@ describe("WorkoutContainer - 규정 테스트", () => {
       expect(screen.getByText("운동 추가")).toBeInTheDocument();
       expect(screen.getByText("불러오기")).toBeInTheDocument();
       expect(screen.getByText("운동 완료")).toBeInTheDocument();
-      expect(screen.getByTestId("workout-exercise-group")).toBeInTheDocument();
+      expect(screen.getByTestId("workout-exerciseGroup")).toBeInTheDocument();
     });
 
     it("운동 데이터가 없을 때 Placeholder가 표시된다", async () => {

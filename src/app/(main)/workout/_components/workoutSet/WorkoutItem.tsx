@@ -1,6 +1,6 @@
 "use client";
 import deletIcon from "public/delete.svg";
-import WorkoutCheckbox from "@/app/(main)/workout/_components/WorkoutCheckbox";
+import WorkoutCheckbox from "@/app/(main)/workout/_components/workoutSet/WorkoutCheckbox";
 import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import {
   LocalExercise,
@@ -9,7 +9,7 @@ import {
 } from "@/types/models";
 import Image from "next/image";
 import { ChangeEventHandler, useState } from "react";
-import SetOrderCell from "@/app/(main)/workout/_components/SetOrderCell";
+import SetOrderCell from "@/app/(main)/workout/_components/workoutSet/SetOrderCell";
 import { routineDetailService, workoutDetailService } from "@/lib/di";
 import { useModal } from "@/providers/contexts/ModalContext";
 

@@ -1,4 +1,4 @@
-import ExpandedWorkoutDetailsView from "@/app/(main)/workout/_components/ExpandedWorkoutDetailsView";
+import ExpandedWorkoutDetailsView from "@/app/(main)/workout/_components/expandedView/ExpandedWorkoutDetailsView";
 import { LocalWorkout } from "@/types/models";
 import { useState } from "react";
 import Image from "next/image";

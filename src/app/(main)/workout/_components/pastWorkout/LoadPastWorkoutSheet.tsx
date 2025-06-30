@@ -1,7 +1,7 @@
 "use client;";
 
 import { useSelectedWorkoutGroups } from "@/store/useSelectedWorkoutGroups";
-import PastWorkoutList from "@/app/(main)/workout/_components/PastWorkoutList";
+import PastWorkoutList from "@/app/(main)/workout/_components/pastWorkout/PastWorkoutList";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 
 import {

@@ -17,7 +17,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import SortableItem from "@/app/(main)/workout/_components/SortableItem";
+import SortableItem from "@/app/(main)/workout/_components/workoutSequence/SortableItem";
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { reorderDetailGroups } from "@/app/(main)/workout/_utils/getGroupedDetails";

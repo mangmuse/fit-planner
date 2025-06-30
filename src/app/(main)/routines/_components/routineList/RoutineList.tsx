@@ -1,4 +1,4 @@
-import RoutineItem from "@/app/(main)/routines/_components/RoutineItem";
+import RoutineItem from "@/app/(main)/routines/_components/routineList/RoutineItem";
 import { LocalRoutine } from "@/types/models";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";

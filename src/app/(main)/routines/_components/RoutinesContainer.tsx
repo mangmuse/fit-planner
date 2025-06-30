@@ -1,5 +1,5 @@
 "use client";
-import RoutineList from "@/app/(main)/routines/_components/RoutineList";
+import RoutineList from "@/app/(main)/routines/_components/routineList/RoutineList";
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";

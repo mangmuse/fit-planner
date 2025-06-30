@@ -1,7 +1,7 @@
-import SetActions from "@/app/(main)/workout/_components/SetActions";
-import WorkoutDetailGroupOptions from "@/app/(main)/workout/_components/WorkoutDetailGroupOptions";
-import WorkoutItem from "@/app/(main)/workout/_components/WorkoutItem";
-import WorkoutTableHeader from "@/app/(main)/workout/_components/WorkoutTableHeader";
+import SetActions from "@/app/(main)/workout/_components/workoutSet/SetActions";
+import WorkoutDetailGroupOptions from "@/app/(main)/workout/_components/exerciseGroup/WorkoutDetailGroupOptions";
+import WorkoutItem from "@/app/(main)/workout/_components/workoutSet/WorkoutItem";
+import WorkoutTableHeader from "@/app/(main)/workout/_components/exerciseGroup/WorkoutTableHeader";
 import ErrorState from "@/components/ErrorState";
 import { useAsync } from "@/hooks/useAsync";
 import { exerciseService, workoutDetailService } from "@/lib/di";

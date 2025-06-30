@@ -1,5 +1,5 @@
 "use client";
-import RoutineDetailContainer from "@/app/(main)/routines/_components/RoutineDetailContainer";
+import RoutineDetailContainer from "@/app/(main)/routines/_components/routineDetail/RoutineDetailContainer";
 import { TEMP_ROUTINE_ID } from "@/app/(main)/routines/constants";
 import WorkoutContainer from "@/app/(main)/workout/_components/WorkoutContainer";
 import { useParams } from "next/navigation";
@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import editIcon from "public/edit.svg";
 import Image from "next/image";
 import { useModal } from "@/providers/contexts/ModalContext";
-import EditRoutineNameForm from "@/app/(main)/routines/_components/EditRoutineNameForm";
+import EditRoutineNameForm from "@/app/(main)/routines/_components/routineForm/EditRoutineNameForm";
 import { routineService } from "@/lib/di";
 
 const RoutineForm = () => {

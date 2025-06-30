@@ -1,4 +1,4 @@
-import RPEItem from "@/app/(main)/workout/_components/RPEItem";
+import RPEItem from "@/app/(main)/workout/_components/setOptions/RPEItem";
 import { RPE_OPTIONS } from "@/app/(main)/workout/constants";
 import { LocalWorkoutDetail } from "@/types/models";
 

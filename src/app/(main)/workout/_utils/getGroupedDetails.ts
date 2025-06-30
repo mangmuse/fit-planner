@@ -1,4 +1,4 @@
-import { DetailGroup } from "@/app/(main)/workout/_components/WorkoutSequence";
+import { DetailGroup } from "@/app/(main)/workout/_components/workoutSequence/WorkoutSequence";
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 import { arrayMove } from "@dnd-kit/sortable";
 

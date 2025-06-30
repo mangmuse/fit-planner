@@ -1,5 +1,5 @@
 import { useSelectedWorkoutGroups } from "@/store/useSelectedWorkoutGroups";
-import ExpandedWorkoutGroup from "@/app/(main)/workout/_components/ExpandedWorkoutGroup";
+import ExpandedWorkoutGroup from "@/app/(main)/workout/_components/expandedView/ExpandedWorkoutGroup";
 import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
 
 import { LocalWorkoutDetail } from "@/types/models";

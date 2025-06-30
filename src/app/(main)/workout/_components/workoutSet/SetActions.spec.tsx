@@ -1,5 +1,5 @@
 // import { mockLocalWorkoutDetails } from "@/__mocks__/workoutDetail.mock";
-// import SetActions from "@/app/(main)/workout/_components/SetActions";
+// import SetActions from "@/app/(main)/workout/_components/workoutSet/SetActions";
 // import {
 //   addSetToWorkout,
 //   deleteWorkoutDetail,

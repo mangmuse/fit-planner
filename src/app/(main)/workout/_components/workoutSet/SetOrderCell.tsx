@@ -1,4 +1,4 @@
-import SetOptionSheet from "@/app/(main)/workout/_components/SetOptionSheet";
+import SetOptionSheet from "@/app/(main)/workout/_components/setOptions/SetOptionSheet";
 import { RPE_OPTIONS, SET_TYPES } from "@/app/(main)/workout/constants";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";

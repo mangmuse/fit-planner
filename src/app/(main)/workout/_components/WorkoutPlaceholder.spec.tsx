@@ -8,7 +8,7 @@ jest.mock("next/navigation", () => ({
   usePathname: jest.fn(),
 }));
 
-jest.mock("@/app/(main)/routines/_components/RoutineList", () => ({
+jest.mock("@/app/(main)/routines/_components/routineList/RoutineList", () => ({
   __esModule: true,
   default: jest.fn(() => <div>RoutineList Mock</div>),
 }));

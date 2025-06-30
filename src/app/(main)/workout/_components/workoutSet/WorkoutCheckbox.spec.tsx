@@ -1,6 +1,6 @@
 import WorkoutCheckbox, {
   WorkoutCheckboxProps,
-} from "@/app/(main)/workout/_components/WorkoutCheckbox";
+} from "@/app/(main)/workout/_components/workoutSet/WorkoutCheckbox";
 import { workoutDetailService } from "@/lib/di";
 import { useModal } from "@/providers/contexts/ModalContext";
 import { render, screen } from "@testing-library/react";

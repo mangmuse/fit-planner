@@ -1,4 +1,4 @@
-import PastWorkoutItem from "@/app/(main)/workout/_components/PastWorkoutItem";
+import PastWorkoutItem from "@/app/(main)/workout/_components/pastWorkout/PastWorkoutItem";
 import { LocalWorkout } from "@/types/models";
 
 type PastWorkoutListProps = {

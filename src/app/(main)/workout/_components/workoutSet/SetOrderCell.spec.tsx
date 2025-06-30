@@ -2,10 +2,10 @@ jest.mock("@/providers/contexts/BottomSheetContext");
 jest.mock("@/lib/di");
 
 import { mockWorkoutDetail } from "@/__mocks__/workoutDetail.mock";
-import SetOptionSheet from "@/app/(main)/workout/_components/SetOptionSheet";
+import SetOptionSheet from "@/app/(main)/workout/_components/setOptions/SetOptionSheet";
 import SetOrderCell, {
   SetOrderCellProps,
-} from "@/app/(main)/workout/_components/SetOrderCell";
+} from "@/app/(main)/workout/_components/workoutSet/SetOrderCell";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";

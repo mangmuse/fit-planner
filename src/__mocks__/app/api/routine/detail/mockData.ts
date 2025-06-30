@@ -5,7 +5,7 @@ export const createPrismaRoutineDetailResponse = (
   overrides?: DeepPartial<RoutineDetailWithIncludes>
 ): RoutineDetailWithIncludes => {
   const defaultRoutineDetail: RoutineDetailWithIncludes = {
-    id: "routine-detail-1",
+    id: "routineDetail-1",
     routineId: "routine-1",
     exerciseId: 123,
     weight: 100,

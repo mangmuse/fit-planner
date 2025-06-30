@@ -1,4 +1,4 @@
-import SetType from "@/app/(main)/workout/_components/SetType";
+import SetType from "@/app/(main)/workout/_components/setOptions/SetType";
 import { SET_TYPES, WorkoutSetType } from "@/app/(main)/workout/constants";
 
 export type SetTypeSelectorProps = {

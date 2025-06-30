@@ -1,4 +1,4 @@
-import PrevWorkoutDetails from "@/app/(main)/workout/_components/PrevWorkoutDetails";
+import PrevWorkoutDetails from "@/app/(main)/workout/_components/pastWorkout/PrevWorkoutDetails";
 import { useModal } from "@/providers/contexts/ModalContext";
 import {
   LocalExercise,
