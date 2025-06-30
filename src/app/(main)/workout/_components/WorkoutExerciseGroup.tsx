@@ -102,7 +102,7 @@ const WorkoutExerciseGroup = ({
               reorderAfterDelete={reorderAfterDelete}
               exercise={exercise}
               reload={reload}
-              workoutDetail={detail}
+              detail={detail}
               prevWorkoutDetail={(prevWorkoutDetails || [])[idx]}
             />
           ))}
