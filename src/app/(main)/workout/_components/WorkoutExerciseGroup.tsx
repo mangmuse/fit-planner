@@ -7,11 +7,7 @@ import { useAsync } from "@/hooks/useAsync";
 import { exerciseService, workoutDetailService } from "@/lib/di";
 
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
-import {
-  LocalExercise,
-  LocalRoutineDetail,
-  LocalWorkoutDetail,
-} from "@/types/models";
+import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 import Image from "next/image";
 import menuIcon from "public/meatball.svg";
 

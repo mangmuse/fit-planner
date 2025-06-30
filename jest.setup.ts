@@ -1,3 +1,4 @@
+import { mockDI } from "@/__mocks__/lib/di";
 import { handlers } from "@/__mocks__/src/api/handlers";
 import "@testing-library/jest-dom";
 import "fake-indexeddb/auto";
@@ -57,6 +58,8 @@ jest.mock("@/lib/prisma", () => ({
   },
 }));
 
+jest.mock("@/lib/di", () => mockDI);
+
 jest.mock("next-auth/react");
 
 jest.mock("@/providers/contexts/BottomSheetContext", () => ({
@@ -70,6 +73,7 @@ jest.mock("@/providers/contexts/BottomSheetContext", () => ({
 jest.mock("@/providers/contexts/ModalContext", () => ({
   useModal: jest.fn(() => ({
     openModal: jest.fn(),
+    closeModal: jest.fn(),
     showError: jest.fn(),
     isOpen: false,
   })),

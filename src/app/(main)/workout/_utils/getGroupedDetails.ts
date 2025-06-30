@@ -59,9 +59,5 @@ export const reorderDetailGroups = (
   return arrayMove(groups, oldIndex, newIndex).map((group, index) => ({
     ...group,
     exerciseOrder: index + 1,
-    details: group.details.map((detail) => ({
-      ...detail,
-      exerciseOrder: index + 1,
-    })),
   }));
 };

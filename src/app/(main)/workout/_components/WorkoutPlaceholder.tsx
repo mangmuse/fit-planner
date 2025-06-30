@@ -8,6 +8,7 @@ import {
   workoutService,
 } from "@/lib/di";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
+import { useModal } from "@/providers/contexts/ModalContext";
 
 import {
   LocalRoutineDetail,
@@ -17,7 +18,7 @@ import {
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 
-type WorkoutPlaceholderProps = (
+export type WorkoutPlaceholderProps = (
   | { type: "ROUTINE"; date?: undefined; userId?: undefined }
   | { type: "RECORD"; date: string; userId: string }
 ) & {
@@ -32,6 +33,7 @@ function WorkoutPlaceholder({
 }: WorkoutPlaceholderProps) {
   const pathname = usePathname();
   const { openBottomSheet } = useBottomSheet();
+  const { showError } = useModal();
 
   const { routineId } = useParams();
 
@@ -45,6 +47,7 @@ function WorkoutPlaceholder({
     routineDetails: LocalRoutineDetail[]
   ) => {
     if (!userId || !date) return;
+
     const workoutResult = await workoutService.getWorkoutByUserIdAndDate(
       userId,
       date
@@ -81,15 +84,20 @@ function WorkoutPlaceholder({
   };
 
   const handlePickRoutine = async (targetRoutineId: number) => {
-    const routineDetails: LocalRoutineDetail[] =
-      await routineDetailService.getLocalRoutineDetails(targetRoutineId);
-    if (type === "RECORD") {
-      await handlePickRoutineForWorkout(routineDetails);
-    } else {
-      await handlePickRoutineForRoutine(routineDetails);
-    }
+    try {
+      const routineDetails: LocalRoutineDetail[] =
+        await routineDetailService.getLocalRoutineDetails(targetRoutineId);
+      if (type === "RECORD") {
+        await handlePickRoutineForWorkout(routineDetails);
+      } else {
+        await handlePickRoutineForRoutine(routineDetails);
+      }
 
-    reloadDetails?.();
+      reloadDetails?.();
+    } catch (e) {
+      console.error(e);
+      showError("루틴 가져오기에 실패했습니다.");
+    }
   };
   const addExercisePath =
     type === "RECORD"
