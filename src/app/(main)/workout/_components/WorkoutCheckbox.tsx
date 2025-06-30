@@ -6,7 +6,7 @@ import { useModal } from "@/providers/contexts/ModalContext";
 
 export type WorkoutCheckboxProps = {
   prevIsDone?: boolean;
-  id?: number;
+  id: number;
   reload?: () => Promise<void>;
 };
 
@@ -15,7 +15,6 @@ const WorkoutCheckbox = ({ prevIsDone, id, reload }: WorkoutCheckboxProps) => {
   const { showError } = useModal();
   const handleChange = async () => {
     try {
-      if (!id) return;
       const newValue = !isDone;
       setIsDone(newValue);
       await workoutDetailService.updateLocalWorkoutDetail({
