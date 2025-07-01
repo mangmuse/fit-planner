@@ -26,7 +26,7 @@ const SetOrderCell = ({
         openBottomSheet({
           onClose: loadLocalWorkoutDetails,
           minHeight: 150,
-          children: <SetOptionSheet workoutDetail={workoutDetail} />,
+          children: <SetOptionSheet detail={workoutDetail} />,
         });
       }}
       data-testid={setTypeOption ? "set-type" : "set-order"}

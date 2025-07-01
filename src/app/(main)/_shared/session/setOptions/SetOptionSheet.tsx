@@ -1,40 +1,55 @@
 import RPESelector from "@/app/(main)/_shared/session/setOptions/RPESelector";
 import SetTypeSelector from "@/app/(main)/_shared/session/setOptions/SetTypeSelector";
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import { WorkoutSetType } from "@/app/(main)/workout/constants";
 import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import { routineDetailService, workoutDetailService } from "@/lib/di";
+import { useModal } from "@/providers/contexts/ModalContext";
 
 type SetOptionSheetProps = {
-  workoutDetail: LocalWorkoutDetail | LocalRoutineDetail;
+  detail: LocalWorkoutDetail | LocalRoutineDetail;
 };
 
-const SetOptionSheet = ({ workoutDetail }: SetOptionSheetProps) => {
-  const [setType, setSetType] = useState(workoutDetail.setType || "NORMAL");
-  const [rpe, setRpe] = useState<number | null>(workoutDetail.rpe);
+const SetOptionSheet = ({ detail }: SetOptionSheetProps) => {
+  const [setType, setSetType] = useState(detail.setType || "NORMAL");
+  const [rpe, setRpe] = useState<number | null>(detail.rpe);
+  const { showError } = useModal();
+  const isMounted = useRef(false);
 
   const handleSetTypeChange = (type: WorkoutSetType["value"]) => {
+    if (type === setType) return;
     setSetType(type === setType ? "NORMAL" : type);
   };
-  const handleChangeRPE = (value: number) =>
+  const handleChangeRPE = (value: number) => {
+    if (rpe === value) return;
     setRpe(rpe === value ? null : value);
+  };
 
-  useEffect(() => {
-    const updateDetail = async () => {
+  const updateDetail = async () => {
+    try {
       const updateInput: Partial<LocalWorkoutDetail> = {
-        ...workoutDetail,
+        ...detail,
         setType,
         rpe,
       };
-      if (isWorkoutDetail(workoutDetail)) {
+      if (isWorkoutDetail(detail)) {
         await workoutDetailService.updateLocalWorkoutDetail(updateInput);
       } else {
         await routineDetailService.updateLocalRoutineDetail(updateInput);
       }
-    };
-    updateDetail();
+    } catch (e) {
+      console.error(e);
+      showError("업데이트에 실패헀습니다");
+    }
+  };
+  useEffect(() => {
+    if (isMounted.current) {
+      updateDetail();
+    } else {
+      isMounted.current = true;
+    }
   }, [setType, rpe]);
 
   return (

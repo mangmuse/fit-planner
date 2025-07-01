@@ -68,7 +68,7 @@ describe("SetOrderCell", () => {
 
       expect(minHeight).toBe(150);
       expect(children.type).toBe(SetOptionSheet);
-      expect(children.props.workoutDetail).toEqual(mockWD);
+      expect(children.props.detail).toEqual(mockWD);
 
       await onClose();
       expect(mockReload).toHaveBeenCalledTimes(1);
