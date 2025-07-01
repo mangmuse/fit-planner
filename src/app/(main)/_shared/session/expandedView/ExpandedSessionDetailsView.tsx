@@ -49,7 +49,7 @@ const ExpandedSessionDetailsView = ({
               key={group.exerciseOrder}
               isSelected={getIsSelected(group)}
               onToggleSelect={toggleGroup}
-              workoutGroup={group}
+              sessionGroup={group}
             />
           ))}
         </ul>

@@ -15,7 +15,6 @@ const PastSessionItem = ({ workout }: PastSessionItemProps) => {
   const handleSelectAll = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsAllSelected(!isAllSelected);
-    // TODO: 실제 선택 로직 구현
   };
 
   return (
