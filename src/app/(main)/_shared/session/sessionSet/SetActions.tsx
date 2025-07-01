@@ -6,7 +6,7 @@ import { useModal } from "@/providers/contexts/ModalContext";
 
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 
-type SetActionsProps = {
+export type SetActionsProps = {
   reorderAfterDelete: (deletedExerciseOrder: number) => Promise<void>;
   lastValue: LocalWorkoutDetail | LocalRoutineDetail;
   reload: () => Promise<void>;
@@ -28,7 +28,7 @@ const SetActions = ({
       reload();
     } catch (e) {
       console.error("[SetActions] Error", e);
-      showError("운동 상태를 동기화하는데 실패했습니다");
+      showError("세트 추가에 실패했습니다");
     }
   };
 
@@ -43,7 +43,7 @@ const SetActions = ({
       reload();
     } catch (e) {
       console.error("[SetActions] Error", e);
-      showError("운동 상태를 동기화하는데 실패했습니다");
+      showError("세트 삭제에 실패했습니다");
     }
   };
   return (

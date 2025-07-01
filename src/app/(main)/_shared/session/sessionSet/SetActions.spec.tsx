@@ -1,51 +1,137 @@
-// import { mockLocalWorkoutDetails } from "@/__mocks__/workoutDetail.mock";
-// import SetActions from "@/app/(main)/workout/_components/workoutSet/SetActions";
-// import {
-//   addSetToWorkout,
-//   deleteWorkoutDetail,
-// } from "@/services/workoutDetail.service";
-// import { customRender, screen } from "@/test-utils/test-utils";
-// import userEvent from "@testing-library/user-event";
-// jest.mock("@/services/workoutDetail.service");
+jest.mock("@/lib/di");
+jest.mock("@/providers/contexts/ModalContext");
 
-// describe("SetActions", () => {
-//   const renderSetActions = () => {
-//     const mockDetail = { ...mockLocalWorkoutDetails[0], workoutId: 1 };
-//     const loadDetailsMock = jest.fn();
-//     const utils = customRender(
-//       <SetActions
-//         lastValue={mockDetail}
-//         loadLocalWorkoutDetails={loadDetailsMock}
-//       />
-//     );
-//     return {
-//       ...utils,
-//       mockDetail,
-//       loadDetailsMock,
-//     };
-//   };
+import { mockRoutineDetail } from "@/__mocks__/routineDetail.mock";
+import { mockWorkoutDetail } from "@/__mocks__/workoutDetail.mock";
+import SetActions, {
+  SetActionsProps,
+} from "@/app/(main)/_shared/session/sessionSet/SetActions";
+import { routineDetailService, workoutDetailService } from "@/lib/di";
+import { useModal } from "@/providers/contexts/ModalContext";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
-//   it("세트 추가 버튼 클릭 시 addSet와 loadLocalWorkoutDetails가 호출된다", async () => {
-//     const { loadDetailsMock, mockDetail } = renderSetActions();
+const mockWorkoutDetailService = jest.mocked(workoutDetailService);
+const mockRoutineDetailService = jest.mocked(routineDetailService);
+const mockUseModal = jest.mocked(useModal);
 
-//     const addSetBtn = screen.getByText("Add Set");
-//     expect(addSetBtn).toBeInTheDocument();
-//     await userEvent.click(addSetBtn);
+describe("SetActions", () => {
+  const mockShowError = jest.fn();
+  const mockReload = jest.fn();
+  const mockReorder = jest.fn();
+  const mockWD = { ...mockWorkoutDetail.past, id: 500 };
+  const mockRD = { ...mockRoutineDetail.past, id: 600 };
 
-//     expect(addSetToWorkout).toHaveBeenCalledWith(mockDetail);
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockUseModal.mockReturnValue({
+      showError: mockShowError,
+      openModal: jest.fn(),
+      closeModal: jest.fn(),
+      isOpen: false,
+    });
+    jest.clearAllMocks();
+  });
 
-//     expect(loadDetailsMock).toHaveBeenCalledTimes(1);
-//   });
+  const renderSetActions = (props?: Partial<SetActionsProps>) => {
+    const defaultProps: SetActionsProps = {
+      lastValue: mockWD,
+      reload: mockReload,
+      reorderAfterDelete: mockReorder,
+    };
+    render(<SetActions {...defaultProps} {...props} />);
+  };
 
-//   it("세트 삭제 버튼 클릭 시 deleteSet 과 loadLocalWorkoutDetails가 호출된다", async () => {
-//     const { loadDetailsMock, mockDetail } = renderSetActions();
+  describe("lastValue가 workoutDetail", () => {
+    it("세트 추가 버튼을 클릭하면 세트가 추가된다", async () => {
+      renderSetActions();
 
-//     const deleteSetBtn = screen.getByText("Delete Set");
-//     expect(deleteSetBtn).toBeInTheDocument();
-//     await userEvent.click(deleteSetBtn);
+      const addSetBtn = screen.getByRole("button", { name: "Add Set" });
+      expect(addSetBtn).toBeInTheDocument();
+      await userEvent.click(addSetBtn);
 
-//     expect(deleteWorkoutDetail).toHaveBeenCalledWith(mockDetail.id);
+      expect(mockWorkoutDetailService.addSetToWorkout).toHaveBeenCalledWith(
+        mockWD
+      );
+      expect(mockRoutineDetailService.addSetToRoutine).not.toHaveBeenCalled();
+      expect(mockReload).toHaveBeenCalledTimes(1);
+    });
 
-//     expect(loadDetailsMock).toHaveBeenCalledTimes(1);
-//   });
-// });
+    it("세트 삭제 버튼을 클릭하면 세트가 삭제된다", async () => {
+      renderSetActions({ lastValue: mockWD });
+
+      const deleteSetBtn = screen.getByRole("button", { name: "Delete Set" });
+      expect(deleteSetBtn).toBeInTheDocument();
+      await userEvent.click(deleteSetBtn);
+
+      expect(mockWorkoutDetailService.deleteWorkoutDetail).toHaveBeenCalledWith(
+        mockWD.id
+      );
+      expect(
+        mockRoutineDetailService.deleteRoutineDetail
+      ).not.toHaveBeenCalled();
+      expect(mockReorder).toHaveBeenCalledWith(mockWD.exerciseOrder);
+      expect(mockReload).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("lastValue가 routineDetail", () => {
+    it("세트 추가 버튼을 클릭하면 세트가 추가된다", async () => {
+      renderSetActions({ lastValue: mockRD });
+
+      const addSetBtn = screen.getByRole("button", { name: "Add Set" });
+      expect(addSetBtn).toBeInTheDocument();
+      await userEvent.click(addSetBtn);
+
+      expect(mockRoutineDetailService.addSetToRoutine).toHaveBeenCalledWith(
+        mockRD
+      );
+      expect(mockReload).toHaveBeenCalledTimes(1);
+
+      expect(mockWorkoutDetailService.addSetToWorkout).not.toHaveBeenCalled();
+    });
+    it("세트 삭제 버튼을 클릭하면 세트가 삭제된다", async () => {
+      renderSetActions({ lastValue: mockRD });
+
+      const deleteSetBtn = screen.getByRole("button", { name: "Delete Set" });
+      expect(deleteSetBtn).toBeInTheDocument();
+      await userEvent.click(deleteSetBtn);
+
+      expect(mockRoutineDetailService.deleteRoutineDetail).toHaveBeenCalledWith(
+        mockRD.id
+      );
+      expect(mockReorder).toHaveBeenCalledWith(mockRD.exerciseOrder);
+      expect(mockReload).toHaveBeenCalledTimes(1);
+
+      expect(
+        mockWorkoutDetailService.deleteWorkoutDetail
+      ).not.toHaveBeenCalled();
+    });
+  });
+
+  it("세트 추가 도중 에러가 발생하면 에러 모달이 표시된다", async () => {
+    renderSetActions();
+
+    const mockError = new Error("추가 실패");
+    mockWorkoutDetailService.addSetToWorkout.mockRejectedValue(mockError);
+
+    const addSetBtn = screen.getByRole("button", { name: "Add Set" });
+    expect(addSetBtn).toBeInTheDocument();
+    await userEvent.click(addSetBtn);
+
+    expect(mockShowError).toHaveBeenCalledWith("세트 추가에 실패했습니다");
+  });
+
+  it("세트 삭제 도중 에러가 발생하면 에러 모달이 표시된다", async () => {
+    renderSetActions({ lastValue: mockWD });
+
+    const mockError = new Error("삭제 실패");
+    mockWorkoutDetailService.deleteWorkoutDetail.mockRejectedValue(mockError);
+
+    const deleteSetBtn = screen.getByRole("button", { name: "Delete Set" });
+    expect(deleteSetBtn).toBeInTheDocument();
+    await userEvent.click(deleteSetBtn);
+
+    expect(mockShowError).toHaveBeenCalledWith("세트 삭제에 실패했습니다");
+  });
+});

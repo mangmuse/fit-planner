@@ -19,7 +19,7 @@ import {
   routineDetailService,
   workoutDetailService,
 } from "@/lib/di";
-import ExerciseMemo from "@/app/(main)/_shared/session/sessionSet/ExerciseMemo";
+import ExerciseMemo from "@/app/(main)/_shared/session/exerciseMemo/ExerciseMemo";
 import GroupOptionItem from "@/app/(main)/_shared/session/exerciseGroup/GroupOptionItem";
 
 type SessionDetailGroupOptions = {
