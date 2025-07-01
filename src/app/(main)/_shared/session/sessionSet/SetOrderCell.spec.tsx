@@ -46,7 +46,6 @@ describe("SetOrderCell", () => {
     it("setType이 NORMAL이 아니면 전달받은 setType이 표시된다", () => {
       renderSetOrderCell({ workoutDetail: { ...mockWD, setType: "AMRAP" } });
       const setType = screen.getByTestId("set-type");
-      screen.debug();
       expect(setType).toHaveTextContent("A");
     });
 

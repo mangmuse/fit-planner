@@ -20,7 +20,7 @@ import {
 import { useModal } from "@/providers/contexts/ModalContext";
 import ErrorState from "@/components/ErrorState";
 
-type LoadPastSessionSheetProps = {
+export type LoadPastSessionSheetProps = {
   type: "ROUTINE" | "RECORD";
   reload: () => Promise<void>;
   startExerciseOrder: number;
@@ -139,11 +139,10 @@ const LoadPastSessionSheet = ({
       closeBottomSheet();
     } catch (e) {
       console.error("[LoadPastSessionSheet] handleAddSelectedWorkout:", e);
-      showError("운동 추가 중 오류가 발생했습니다");
+      showError("운동 추가 도중 에러가 발생했습니다");
     }
   };
 
-  // cleanup on unmount
   useEffect(() => {
     return () => reset();
   }, []);
