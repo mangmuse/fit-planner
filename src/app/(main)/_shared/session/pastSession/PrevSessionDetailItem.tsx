@@ -12,12 +12,12 @@ const PrevSessionDetailItem = ({
   return (
     <li className="flex flex-col gap-1 max-w-48">
       <div className="flex gap-1">
-        <span>{index + 1}.</span>
-        <span>
+        <span data-testid="set-order">{index + 1}.</span>
+        <span data-testid="weight-reps">
           {detail.weight} x {detail.reps}
         </span>
         {typeof detail.rpe === "number" && detail.rpe >= 1 && (
-          <span>RPE {detail.rpe}</span>
+          <span data-testid="rpe">RPE {detail.rpe}</span>
         )}
       </div>
     </li>
