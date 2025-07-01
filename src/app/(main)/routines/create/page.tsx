@@ -1,5 +1,5 @@
-import RoutineForm from "@/app/(main)/routines/_components/RoutineForm";
-import RoutineNameForm from "@/app/(main)/routines/_components/RoutineNameForm";
+import RoutineForm from "@/app/(main)/routines/_components/routineForm/RoutineForm";
+import RoutineNameForm from "@/app/(main)/routines/_components/routineForm/RoutineNameForm";
 
 const CreateRoutinePage = () => {
   return (

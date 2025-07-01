@@ -1,16 +1,15 @@
 import { IRoutineService } from "@/types/services";
 
 export const createMockRoutineService = (): jest.Mocked<IRoutineService> => ({
-  // Core
+  // --- Core Service ---
+  getAllLocalRoutines: jest.fn(),
+  getRoutineByServerId: jest.fn(),
   getRoutineByLocalId: jest.fn(),
-  getAllRoutinesByUserId: jest.fn(),
   addLocalRoutine: jest.fn(),
   updateLocalRoutine: jest.fn(),
-  getRoutineByServerId: jest.fn(),
-  addLocalRoutineWithWorkout: jest.fn(),
   deleteLocalRoutine: jest.fn(),
-  
-  // Sync
-  overwriteWithServerRoutines: jest.fn(),
+
+  // --- Sync Service ---
   syncToServerRoutines: jest.fn(),
+  overwriteWithServerRoutines: jest.fn(),
 });

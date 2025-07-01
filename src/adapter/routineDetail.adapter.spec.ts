@@ -6,8 +6,12 @@ import {
 } from "@/__mocks__/routineDetail.mock";
 import { mockWorkoutDetail } from "@/__mocks__/workoutDetail.mock";
 
-import { INITIAL_ROUTINE_DETAIL_BASE } from "@/adapter/routineDetail.adapter";
-import { routineDetailAdapter } from "@/lib/di";
+import {
+  RoutineDetailAdapter,
+  INITIAL_ROUTINE_DETAIL_BASE,
+} from "@/adapter/routineDetail.adapter";
+
+const routineDetailAdapter = new RoutineDetailAdapter();
 import { LocalRoutineDetail } from "@/types/models";
 
 describe("getInitialWorkoutDetail", () => {
@@ -50,7 +54,7 @@ describe("createRoutineDetail", () => {
   ];
 
   it.each(missingPropertyCases)(
-    "$PropertyName 속성이 없으면 에러를 던져야 한다",
+    "$propertyName 속성이 없으면 에러를 던져야 한다",
     ({ propertyName }) => {
       const invalidOverride = { ...override };
       delete invalidOverride[propertyName as keyof typeof invalidOverride];

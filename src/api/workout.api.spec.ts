@@ -46,7 +46,7 @@ describe("WorkoutApi", () => {
       await api.fetchWorkoutsFromServer(userId);
 
       expect(mockedSafeRequest).toHaveBeenCalledWith(
-        expect.stringContaining(`/api/workout/${userId}`),
+        expect.stringContaining(`/api/workout?userId=${userId}`),
         expect.anything(),
         expect.anything()
       );

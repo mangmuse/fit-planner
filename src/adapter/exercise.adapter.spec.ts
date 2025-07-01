@@ -1,9 +1,11 @@
-import { exerciseAdapter } from "@/lib/di";
+import { ExerciseAdapter } from "@/adapter/exercise.adapter";
 import {
   createMockExercise,
   createMockServerExercise,
 } from "@/__mocks__/exercise.mock";
 import { ClientExercise, LocalExercise } from "@/types/models";
+
+const exerciseAdapter = new ExerciseAdapter();
 
 describe("mergeServerExerciseData", () => {
   it("로컬에만 있는 데이터(serverId=null)는 결과에 그대로 포함되어야 한다", () => {

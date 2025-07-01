@@ -1,4 +1,4 @@
-import { DetailGroup } from "@/app/(main)/workout/_components/WorkoutSequence";
+import { DetailGroup } from "@/app/(main)/_shared/session/sessionSequence/SessionSequence";
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 import { arrayMove } from "@dnd-kit/sortable";
 
@@ -25,6 +25,7 @@ export const getGroupedDetails = <
       .map((detail, index) => ({
         ...detail,
         setOrder: index + 1,
+        exerciseOrder,
       }));
 
     return {
@@ -35,7 +36,10 @@ export const getGroupedDetails = <
 
   const adjustedGroups = groups.map((group, index) => ({
     exerciseOrder: index + 1,
-    details: group.details,
+    details: group.details.map((detail) => ({
+      ...detail,
+      exerciseOrder: index + 1,
+    })),
   }));
 
   return adjustedGroups;

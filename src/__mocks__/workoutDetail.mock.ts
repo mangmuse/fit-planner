@@ -47,6 +47,7 @@ export const mockWorkoutDetail = {
 
   past: createBaseWorkoutDetailMock({
     id: 123,
+    workoutId: 123,
     isDone: true,
     reps: 5,
     weight: 60,
