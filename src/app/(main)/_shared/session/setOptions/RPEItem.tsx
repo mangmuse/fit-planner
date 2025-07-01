@@ -11,6 +11,8 @@ const RPEItem = ({ rpeOption, isSelected, onChange }: RPEItemProps) => {
   const { value, activeBgColor, activeTextColor } = rpeOption;
   return (
     <button
+      role="tab"
+      aria-selected={isSelected}
       onClick={() => onChange(value)}
       className={clsx(
         "w-7 h-7 font-semibold text-[10px] rounded-md ",

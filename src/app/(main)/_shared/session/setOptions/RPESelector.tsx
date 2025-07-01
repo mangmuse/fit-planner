@@ -1,6 +1,5 @@
 import RPEItem from "@/app/(main)/_shared/session/setOptions/RPEItem";
 import { RPE_OPTIONS } from "@/app/(main)/workout/constants";
-import { LocalWorkoutDetail } from "@/types/models";
 
 export type RPESelectorProps = {
   selectedRpe: number | null;
