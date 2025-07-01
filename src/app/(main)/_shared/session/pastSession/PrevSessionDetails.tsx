@@ -1,3 +1,4 @@
+import PrevSessionDetailItem from "@/app/(main)/_shared/session/pastSession/PrevSessionDetailItem";
 import { LocalWorkoutDetail } from "@/types/models";
 
 type PrevSessionDetailsProps = {
@@ -5,8 +6,8 @@ type PrevSessionDetailsProps = {
 };
 
 const PrevSessionDetails = ({ prevDetails }: PrevSessionDetailsProps) => {
-  if (!prevDetails || prevDetails.length === 0) {
-    return <p>prevDetails가 전달되지 않았습니다</p>;
+  if (prevDetails.length === 0) {
+    return null;
   }
   return (
     <article>
@@ -14,17 +15,7 @@ const PrevSessionDetails = ({ prevDetails }: PrevSessionDetailsProps) => {
 
       <ul>
         {prevDetails.map((detail, idx) => (
-          <li className="flex flex-col gap-1 max-w-48" key={detail.id}>
-            <div className="flex gap-1 ">
-              <span>{idx + 1}.</span>
-              <span>
-                {detail.weight} x {detail.reps}
-              </span>
-              {typeof detail.rpe === "number" && detail.rpe >= 1 && (
-                <span>RPE {detail.rpe}</span>
-              )}
-            </div>
-          </li>
+          <PrevSessionDetailItem key={detail.id} detail={detail} index={idx} />
         ))}
       </ul>
     </article>
