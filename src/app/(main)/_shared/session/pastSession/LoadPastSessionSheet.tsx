@@ -7,7 +7,8 @@ import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { LocalWorkout, LocalWorkoutDetail } from "@/types/models";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useAsync } from "@/hooks/useAsync";
 import {
   routineDetailAdapter,
   routineDetailService,
@@ -17,6 +18,7 @@ import {
   workoutService,
 } from "@/lib/di";
 import { useModal } from "@/providers/contexts/ModalContext";
+import ErrorState from "@/components/ErrorState";
 
 type LoadPastSessionSheetProps = {
   type: "ROUTINE" | "RECORD";
@@ -42,7 +44,20 @@ const LoadPastSessionSheet = ({
     (state) => state.selectedGroups
   );
   const params = useParams<{ date?: string; routineId?: string }>();
-  const [pastWorkouts, setPastWorkouts] = useState<LocalWorkout[]>([]);
+
+  const fetchPastWorkouts = async (): Promise<LocalWorkout[]> => {
+    const workouts = await workoutService.getAllWorkouts(userId ?? "");
+
+    return workouts
+      .filter((workout) => workout.status !== "EMPTY")
+      .filter((workout) => !params.date || workout.date !== params.date);
+  };
+
+  const {
+    data: pastWorkouts,
+    error,
+    execute,
+  } = useAsync(fetchPastWorkouts, [userId, params.date]);
 
   const validateInputs = () => {
     if (type === "RECORD" && (!userId || !date)) {
@@ -54,15 +69,9 @@ const LoadPastSessionSheet = ({
   };
 
   const fetchSelectedDetails = async () => {
-    const detailsPromises = selectedGroups.map((group) =>
-      workoutDetailService.getLocalWorkoutDetailsByWorkoutIdAndExerciseOrder(
-        group.workoutId,
-        group.exerciseOrder
-      )
+    return workoutDetailService.getLocalWorkoutDetailsByWorkoutIdAndExerciseOrderPairs(
+      selectedGroups
     );
-
-    const detailsArrays = await Promise.all(detailsPromises);
-    return detailsArrays.flat();
   };
 
   const handleRecordType = async (
@@ -134,24 +143,28 @@ const LoadPastSessionSheet = ({
     }
   };
 
+  // cleanup on unmount
   useEffect(() => {
-    (async () => {
-      const workouts = await workoutService.getAllWorkouts(userId ?? "");
-
-      const filteredWorkouts = workouts
-        .filter((workout) => workout.status !== "EMPTY")
-        .filter((workout) => !params.date || workout.date !== params.date);
-
-      setPastWorkouts(filteredWorkouts);
-    })();
-
     return () => reset();
-  }, [userId, params.date]);
+  }, []);
+
+  if (error) {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="flex-1 overflow-y-auto px-4 pb-4 scrollbar-none">
+          <ErrorState
+            error="과거 운동 목록을 불러오는데 실패했습니다."
+            onRetry={execute}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto px-4 pb-4 scrollbar-none">
-        <PastSessionList pastWorkouts={pastWorkouts} />
+        <PastSessionList pastWorkouts={pastWorkouts || []} />
       </div>
       <div className="sticky bottom-0 p-4 bg-bg-primary border-t border-border-gray">
         <button

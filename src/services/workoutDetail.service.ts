@@ -107,6 +107,14 @@ export class WorkoutDetailService implements IWorkoutDetailService {
     );
   }
 
+  getLocalWorkoutDetailsByWorkoutIdAndExerciseOrderPairs(
+    pairs: { workoutId: number; exerciseOrder: number }[]
+  ): Promise<LocalWorkoutDetail[]> {
+    return this.query.getLocalWorkoutDetailsByWorkoutIdAndExerciseOrderPairs(
+      pairs
+    );
+  }
+
   getLatestWorkoutDetailByExerciseId(
     detail: LocalWorkoutDetail | LocalRoutineDetail
   ): Promise<LocalWorkoutDetail | void> {

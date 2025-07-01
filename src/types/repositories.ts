@@ -83,6 +83,9 @@ export interface IWorkoutDetailRepository {
     workoutId: number,
     exerciseOrder: number
   ) => Promise<LocalWorkoutDetail[]>;
+  findAllByWorkoutIdAndExerciseOrderPairs: (
+    pairs: { workoutId: number; exerciseOrder: number }[]
+  ) => Promise<LocalWorkoutDetail[]>;
   findAllDoneByExerciseId: (
     exerciseId: number
   ) => Promise<LocalWorkoutDetail[]>;

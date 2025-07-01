@@ -36,6 +36,26 @@ export class WorkoutDetailRepository
       .toArray();
   }
 
+  async findAllByWorkoutIdAndExerciseOrderPairs(
+    pairs: { workoutId: number; exerciseOrder: number }[]
+  ): Promise<LocalWorkoutDetail[]> {
+    if (pairs.length === 0) return [];
+
+    const workoutIds = [...new Set(pairs.map((p) => p.workoutId))];
+
+    return this.table
+      .where("workoutId")
+      .anyOf(workoutIds)
+      .filter((detail) =>
+        pairs.some(
+          (pair) =>
+            pair.workoutId === detail.workoutId &&
+            pair.exerciseOrder === detail.exerciseOrder
+        )
+      )
+      .toArray();
+  }
+
   async findAllDoneByExerciseId(
     exerciseId: number
   ): Promise<LocalWorkoutDetail[]> {
