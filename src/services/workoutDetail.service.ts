@@ -49,6 +49,12 @@ export class WorkoutDetailService implements IWorkoutDetailService {
     );
   }
 
+  addPastWorkoutDetailsToWorkout(
+    mappedDetails: LocalWorkoutDetail[]
+  ): Promise<void> {
+    return this.core.addPastWorkoutDetailsToWorkout(mappedDetails);
+  }
+
   addSetToWorkout(lastSet: LocalWorkoutDetail): Promise<number> {
     return this.core.addSetToWorkout(lastSet);
   }

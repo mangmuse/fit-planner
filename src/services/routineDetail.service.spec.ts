@@ -119,6 +119,7 @@ describe("RoutineDetailService", () => {
       ];
 
       mockAdapter.getNewRoutineDetails.mockReturnValue(newDetails);
+      mockRepository.bulkAdd.mockResolvedValue(newDetails.length);
 
       await service.addLocalRoutineDetailsByWorkoutId(
         routineId,
@@ -143,6 +144,46 @@ describe("RoutineDetailService", () => {
           selectedExercises
         )
       ).rejects.toThrow(mockExerciseError);
+    });
+  });
+
+  describe("addPastWorkoutDetailsToRoutine", () => {
+    const mappedDetails: LocalRoutineDetail[] = [
+      mockRoutineDetail.createInput({
+        id: 1,
+        routineId: 100,
+        exerciseId: 1,
+        exerciseOrder: 1,
+      }),
+      mockRoutineDetail.createInput({
+        id: 2,
+        routineId: 100,
+        exerciseId: 2,
+        exerciseOrder: 2,
+      }),
+    ];
+
+    it("전달받은 mappedDetails 배열로 bulkAdd를 호출한다", async () => {
+      mockRepository.bulkAdd.mockResolvedValue(mappedDetails.length);
+
+      await service.addPastWorkoutDetailsToRoutine(mappedDetails);
+
+      expect(mockRepository.bulkAdd).toHaveBeenCalledWith(mappedDetails);
+    });
+
+    it("빈 배열을 전달할 경우 repository를 호출하지 않고 즉시 반환한다", async () => {
+      await service.addPastWorkoutDetailsToRoutine([]);
+
+      expect(mockRepository.bulkAdd).not.toHaveBeenCalled();
+    });
+
+    it("bulkAdd 도중 에러가 발생할 경우 해당 에러를 그대로 전파한다", async () => {
+      const mockError = new Error("bulkAdd 실패");
+      mockRepository.bulkAdd.mockRejectedValue(mockError);
+
+      await expect(
+        service.addPastWorkoutDetailsToRoutine(mappedDetails)
+      ).rejects.toThrow(mockError);
     });
   });
 

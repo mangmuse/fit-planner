@@ -63,6 +63,13 @@ export class WorkoutDetailCoreService implements IWorkoutDetailCoreService {
     return workoutDetails;
   }
 
+  public async addPastWorkoutDetailsToWorkout(
+    mappedDetails: LocalWorkoutDetail[]
+  ): Promise<void> {
+    if (mappedDetails.length === 0) return;
+    await this.repository.bulkAdd(mappedDetails);
+  }
+
   public async addSetToWorkout(lastSet: LocalWorkoutDetail): Promise<number> {
     const addSetInput = this.adapter.getAddSetToWorkoutByLastSet(lastSet);
     const newSet = await this.repository.add(addSetInput);

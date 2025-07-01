@@ -4,11 +4,7 @@ import { useSelectedWorkoutGroups } from "@/store/useSelectedWorkoutGroups";
 import PastSessionList from "@/app/(main)/_shared/session/pastSession/PastSessionList";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 
-import {
-  LocalRoutineDetail,
-  LocalWorkout,
-  LocalWorkoutDetail,
-} from "@/types/models";
+import { LocalWorkout, LocalWorkoutDetail } from "@/types/models";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -20,6 +16,7 @@ import {
   workoutDetailService,
   workoutService,
 } from "@/lib/di";
+import { useModal } from "@/providers/contexts/ModalContext";
 
 type LoadPastSessionSheetProps = {
   type: "ROUTINE" | "RECORD";
@@ -39,6 +36,7 @@ const LoadPastSessionSheet = ({
   const { data: session } = useSession();
   const userId = session?.user?.id;
   const { closeBottomSheet } = useBottomSheet();
+  const { showError } = useModal();
   const reset = useSelectedWorkoutGroups((state) => state.reset);
   const selectedGroups = useSelectedWorkoutGroups(
     (state) => state.selectedGroups
@@ -46,65 +44,94 @@ const LoadPastSessionSheet = ({
   const params = useParams<{ date?: string; routineId?: string }>();
   const [pastWorkouts, setPastWorkouts] = useState<LocalWorkout[]>([]);
 
-  const handleAddSelectedWorkout = async () => {
-    // TODO: 선택한 그룹 수만큼 DB 쿼리 발생.
-    // 배치 처리나 JOIN 쿼리로 최적화 필요
-    await Promise.all(
-      selectedGroups.map(async (group, index) => {
-        const details =
-          await workoutDetailService.getLocalWorkoutDetailsByWorkoutIdAndExerciseOrder(
-            group.workoutId,
-            group.exerciseOrder
-          );
+  const validateInputs = () => {
+    if (type === "RECORD" && (!userId || !date)) {
+      throw new Error("RECORD 타입에는 userId와 date가 필요합니다");
+    }
+    if (type === "ROUTINE" && !routineId) {
+      throw new Error("ROUTINE 타입에는 routineId가 필요합니다");
+    }
+  };
 
-        await Promise.all(
-          details.map(async (detail) => {
-            const newExerciseOrder = startExerciseOrder + index + 1;
-
-            if (type === "RECORD") {
-              if (!userId || !date) {
-                console.error("userId 또는 date가 없습니다");
-                return;
-              }
-              const workout = await workoutService.getWorkoutByUserIdAndDate(
-                userId,
-                date
-              );
-              if (!workout || !workout.id) {
-                console.error("workout ID가 없습니다");
-                return;
-              }
-
-              const newDetail =
-                workoutDetailAdapter.mapPastWorkoutToWorkoutDetail(
-                  detail,
-                  workout.id,
-                  newExerciseOrder
-                );
-              await workoutDetailService.addLocalWorkoutDetail(newDetail);
-            } else if (type === "ROUTINE") {
-              if (!routineId) return;
-              const routine =
-                await routineService.getRoutineByLocalId(routineId);
-              if (!routine || !routine.id) {
-                console.error("루틴 ID가 없습니다");
-                return;
-              }
-
-              const newDetail =
-                routineDetailAdapter.mapPastWorkoutToRoutineDetail(
-                  detail,
-                  routine.id,
-                  newExerciseOrder
-                );
-              await routineDetailService.addLocalRoutineDetail(newDetail);
-            }
-          })
-        );
-      })
+  const fetchSelectedDetails = async () => {
+    const detailsPromises = selectedGroups.map((group) =>
+      workoutDetailService.getLocalWorkoutDetailsByWorkoutIdAndExerciseOrder(
+        group.workoutId,
+        group.exerciseOrder
+      )
     );
-    await reload();
-    closeBottomSheet();
+
+    const detailsArrays = await Promise.all(detailsPromises);
+    return detailsArrays.flat();
+  };
+
+  const handleRecordType = async (
+    details: LocalWorkoutDetail[],
+    startOrder: number
+  ) => {
+    const workout = await workoutService.getWorkoutByUserIdAndDate(
+      userId!,
+      date!
+    );
+    if (!workout?.id) {
+      throw new Error("workout ID가 없습니다");
+    }
+
+    const newDetails = details.map((detail, index) => {
+      const exerciseOrderIndex = Math.floor(index / selectedGroups.length);
+      const newExerciseOrder = startOrder + exerciseOrderIndex + 1;
+
+      return workoutDetailAdapter.mapPastWorkoutToWorkoutDetail(
+        detail,
+        workout.id!,
+        newExerciseOrder
+      );
+    });
+
+    await workoutDetailService.addPastWorkoutDetailsToWorkout(newDetails);
+  };
+
+  const handleRoutineType = async (
+    details: LocalWorkoutDetail[],
+    startOrder: number
+  ) => {
+    const routine = await routineService.getRoutineByLocalId(routineId!);
+    if (!routine?.id) {
+      throw new Error("루틴 ID가 없습니다");
+    }
+
+    const newDetails = details.map((detail, index) => {
+      const exerciseOrderIndex = Math.floor(index / selectedGroups.length);
+      const newExerciseOrder = startOrder + exerciseOrderIndex + 1;
+
+      return routineDetailAdapter.mapPastWorkoutToRoutineDetail(
+        detail,
+        routine.id!,
+        newExerciseOrder
+      );
+    });
+
+    await routineDetailService.addPastWorkoutDetailsToRoutine(newDetails);
+  };
+
+  const handleAddSelectedWorkout = async () => {
+    try {
+      validateInputs();
+
+      const allDetails = await fetchSelectedDetails();
+
+      if (type === "RECORD") {
+        await handleRecordType(allDetails, startExerciseOrder);
+      } else {
+        await handleRoutineType(allDetails, startExerciseOrder);
+      }
+
+      await reload();
+      closeBottomSheet();
+    } catch (e) {
+      console.error("[LoadPastSessionSheet] handleAddSelectedWorkout:", e);
+      showError("운동 추가 중 오류가 발생했습니다");
+    }
   };
 
   useEffect(() => {
@@ -120,6 +147,7 @@ const LoadPastSessionSheet = ({
 
     return () => reset();
   }, [userId, params.date]);
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto px-4 pb-4 scrollbar-none">
@@ -145,9 +173,3 @@ const LoadPastSessionSheet = ({
 };
 
 export default LoadPastSessionSheet;
-
-// 선택완료 클릭시
-
-// => workoutId는 현재것으로, exerciseOrder는 startOrder + index로, 등등
-
-// workoutContainer에서 전역상태로 workoutId 또는 routineId를 관리
