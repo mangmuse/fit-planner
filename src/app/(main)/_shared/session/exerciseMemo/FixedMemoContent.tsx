@@ -1,6 +1,5 @@
 import { LocalExercise } from "@/types/models";
 import { getFormattedDateYMD } from "@/util/formatDate";
-import { Dispatch, SetStateAction } from "react";
 
 type FixedMemoContentProps = {
   fixedMemo: NonNullable<LocalExercise["exerciseMemo"]>["fixed"] | null;
