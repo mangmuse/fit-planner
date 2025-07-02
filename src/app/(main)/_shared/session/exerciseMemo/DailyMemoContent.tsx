@@ -1,5 +1,7 @@
 import AddMemoButton from "@/app/(main)/_shared/session/exerciseMemo/AddMemoButton";
 import DailyMemoForm from "@/app/(main)/_shared/session/exerciseMemo/DailyMemoForm";
+import { exerciseService } from "@/lib/di";
+import { useModal } from "@/providers/contexts/ModalContext";
 import { LocalExercise } from "@/types/models";
 import { getFormattedDateYMD } from "@/util/formatDate";
 import { useState } from "react";
@@ -12,9 +14,9 @@ type DailyMemoContentProps = {
 };
 
 const DailyMemoContent = ({
-  exercise,
+  exercise: initialExercise,
   dailyMemos: prevMemos,
-  existingMemo,
+  existingMemo: initialExistingMemo,
   loadExercises,
 }: DailyMemoContentProps) => {
   const initialDailyMemos =
@@ -25,16 +27,54 @@ const DailyMemoContent = ({
       initialDailyMemos
     );
 
+  const [currentExercise, setCurrentExercise] = useState(initialExercise);
+  const [currentExistingMemo, setCurrentExistingMemo] =
+    useState(initialExistingMemo);
+  const { showError } = useModal();
+
   const today = getFormattedDateYMD(new Date().toISOString());
 
-  const handleAddDailyMemo = async (
-    updatedMemos: NonNullable<LocalExercise["exerciseMemo"]>["daily"]
-  ) => {
-    const sortedMemos = updatedMemos.sort((a, b) =>
-      b.createdAt.localeCompare(a.createdAt)
-    );
-    setDailyMemos(sortedMemos);
-    await loadExercises();
+  const handleAddMemo = async (memoContent: string) => {
+    try {
+      const newDailyMemo = {
+        date: today,
+        content: memoContent,
+        createdAt: new Date().toISOString(),
+        updatedAt: null,
+      };
+
+      const updatedDailyMemos = [
+        ...(currentExistingMemo?.daily || []),
+        newDailyMemo,
+      ];
+
+      const updatedMemo = {
+        fixed: currentExistingMemo?.fixed || null,
+        daily: updatedDailyMemos,
+      };
+
+      await exerciseService.updateLocalExercise({
+        ...currentExercise,
+        exerciseMemo: updatedMemo,
+      });
+
+      setCurrentExistingMemo(updatedMemo);
+      setCurrentExercise({
+        ...currentExercise,
+        exerciseMemo: updatedMemo,
+      });
+
+      const sortedMemos = updatedDailyMemos.sort((a, b) =>
+        b.createdAt.localeCompare(a.createdAt)
+      );
+      setDailyMemos(sortedMemos);
+      setIsWritingNew(false);
+
+      await loadExercises();
+    } catch (e) {
+      console.error(e);
+      showError("메모 저장에 실패했습니다");
+    }
   };
 
   return (
@@ -43,10 +83,7 @@ const DailyMemoContent = ({
         <AddMemoButton setIsWritingNew={setIsWritingNew} today={today} />
       ) : (
         <DailyMemoForm
-          existingMemo={existingMemo}
-          exercise={exercise}
-          today={today}
-          onAdd={handleAddDailyMemo}
+          onAddMemo={handleAddMemo}
           setIsWritingNew={setIsWritingNew}
         />
       )}
