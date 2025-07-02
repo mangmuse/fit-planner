@@ -13,6 +13,7 @@
     "isolatedModules": true,
     "strictNullChecks": true,
     "jsx": "preserve",
+    "types": ["jest", "node"],
 
     "incremental": true,
     "plugins": [
