@@ -58,7 +58,6 @@ const ExerciseMemo = ({ exercise, loadExercises }: ExerciseMemoProps) => {
       )}
       {activeTab === "today" && (
         <DailyMemoContent
-          existingMemo={existingMemo}
           dailyMemos={existingMemo?.daily || []}
           loadExercises={loadExercises}
           exercise={exercise}
