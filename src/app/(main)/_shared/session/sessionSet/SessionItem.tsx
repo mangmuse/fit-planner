@@ -76,7 +76,7 @@ const SessionItem = ({
   };
 
   return (
-    <tr data-testid={`workout-detail-item-${id}`} className="h-9">
+    <tr data-testid={`session-item`} className="h-9">
       <SetOrderCell loadLocalWorkoutDetails={reload} workoutDetail={detail} />
       <td data-testid="prev-record" className="text-center">
         {prevWorkoutDetail
@@ -112,7 +112,7 @@ const SessionItem = ({
           {isWorkoutDetail(detail) ? (
             <SessionCheckbox reload={reload} id={id!} prevIsDone={isDone} />
           ) : (
-            <button onClick={handleDelete}>
+            <button data-testid="delete-button" onClick={handleDelete}>
               <Image src={deletIcon} alt="delete" width={20} height={20} />
             </button>
           )}

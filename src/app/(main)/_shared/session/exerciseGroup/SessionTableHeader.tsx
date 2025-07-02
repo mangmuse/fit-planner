@@ -32,7 +32,7 @@ const SessionTableHeader = ({
   };
 
   return (
-    <thead data-testid="workout-table-header">
+    <thead data-testid="session-table-header">
       <tr className="h-8 text-center text-text-muted">
         <th className="w-[14%] ">Set</th>
         <th
@@ -43,15 +43,7 @@ const SessionTableHeader = ({
         </th>
         <th className="w-[17%]">{exercise.unit || "kg"}</th>
         <th className="w-[17%]">Reps</th>
-        <th className="w-[14%]">
-          <div className="flex justify-center items-center">
-            {isRoutine ? (
-              <Image src={deletIcon} alt="delete" width={20} height={20} />
-            ) : (
-              <></>
-            )}
-          </div>
-        </th>
+        <th className="w-[14%]"></th>
       </tr>
     </thead>
   );

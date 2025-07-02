@@ -11,7 +11,7 @@ import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 import Image from "next/image";
 import menuIcon from "public/meatball.svg";
 
-type SessionExerciseGroupProps = {
+export type SessionExerciseGroupProps = {
   exerciseOrder: number;
   details: LocalWorkoutDetail[] | LocalRoutineDetail[];
   reload: () => Promise<void>;
@@ -40,8 +40,9 @@ const SessionExerciseGroup = ({
   );
 
   const { data: prevWorkoutDetails } = useAsync(async () => {
-    const detail =
-      await workoutDetailService.getLatestWorkoutDetailByExerciseId(details[0]);
+    const detail = await workoutDetailService.getLatestWorkoutDetailByDetail(
+      details[0]
+    );
     if (!detail) return [];
     const workoutDetails =
       await workoutDetailService.getWorkoutGroupByWorkoutDetail(detail);
@@ -50,7 +51,7 @@ const SessionExerciseGroup = ({
       .map((d, i) => ({ ...d, setOrder: i + 1 }));
   }, [exerciseId]);
 
-  if (isExerciseLoading) return <div>Loading...</div>;
+  // if (isExerciseLoading) return <div>Loading...</div>;
   if (exerciseError)
     return (
       <ErrorState error={exerciseError.message} onRetry={reloadExercise} />
@@ -84,7 +85,13 @@ const SessionExerciseGroup = ({
           }}
           className="p-1.5 -mr-1 hover:bg-bg-base rounded-lg transition-colors"
         >
-          <Image src={menuIcon} alt="운동 메뉴" width={20} height={20} />
+          <Image
+            src={menuIcon}
+            role="button"
+            alt="운동 메뉴"
+            width={20}
+            height={20}
+          />
         </button>
       </div>
       <table className="w-full text-xs px-3">

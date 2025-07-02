@@ -84,16 +84,8 @@ export class WorkoutDetailQueryService implements IWorkoutDetailQueryService {
     });
     return filtered[0];
   }
-  /**
-   * 주어진 detail(현재 워크아웃 또는 루틴 디테일)에서
-   *   1. exerciseId가 같고 isDone이 true인 모든 LocalWorkoutDetail을 가져온 뒤,
-   *   2. "현재 디테일이 속한 워크아웃의 날짜" 이전(혹은 같음)의 것만 남긴 다음,
-   *   3. 그중 가장 최근 날짜(내림차순 정렬)인 하나를 반환
-   *
-   * @param detail 현재 화면에 표시된 디테일 중 하나 (LocalWorkoutDetail or LocalRoutineDetail)
-   * @returns 가장 최신인 LocalWorkoutDetail 혹은, 없으면 undefined
-   */
-  async getLatestWorkoutDetailByExerciseId(
+
+  async getLatestWorkoutDetailByDetail(
     detail: LocalWorkoutDetail | LocalRoutineDetail
   ): Promise<LocalWorkoutDetail | void> {
     const isWorkout = "workoutId" in detail;

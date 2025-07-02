@@ -55,7 +55,7 @@ export interface IWorkoutDetailQueryService {
   getLocalWorkoutDetailsByWorkoutIdAndExerciseOrderPairs: (
     pairs: { workoutId: number; exerciseOrder: number }[]
   ) => Promise<LocalWorkoutDetail[]>;
-  getLatestWorkoutDetailByExerciseId: (
+  getLatestWorkoutDetailByDetail: (
     detail: LocalWorkoutDetail | LocalRoutineDetail
   ) => Promise<LocalWorkoutDetail | void>;
 }

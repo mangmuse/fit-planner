@@ -115,10 +115,10 @@ export class WorkoutDetailService implements IWorkoutDetailService {
     );
   }
 
-  getLatestWorkoutDetailByExerciseId(
+  getLatestWorkoutDetailByDetail(
     detail: LocalWorkoutDetail | LocalRoutineDetail
   ): Promise<LocalWorkoutDetail | void> {
-    return this.query.getLatestWorkoutDetailByExerciseId(detail);
+    return this.query.getLatestWorkoutDetailByDetail(detail);
   }
 
   // --- Sync Service ---

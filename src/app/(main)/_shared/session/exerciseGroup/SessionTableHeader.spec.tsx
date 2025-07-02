@@ -49,7 +49,7 @@ describe("SessionTableHeader", () => {
     it("테이블 헤더가 올바르게 렌더링된다", () => {
       renderSessionTableHeader();
 
-      expect(screen.getByTestId("workout-table-header")).toBeInTheDocument();
+      expect(screen.getByTestId("session-table-header")).toBeInTheDocument();
       expect(screen.getByText("Set")).toBeInTheDocument();
       expect(screen.getByText("Previous")).toBeInTheDocument();
       expect(screen.getByText("Reps")).toBeInTheDocument();
@@ -73,12 +73,6 @@ describe("SessionTableHeader", () => {
       renderSessionTableHeader({ isRoutine: false });
 
       expect(screen.queryByAltText("delete")).not.toBeInTheDocument();
-    });
-
-    it("isRoutine=true일 때 delete 아이콘이 표시된다", () => {
-      renderSessionTableHeader({ isRoutine: true });
-
-      expect(screen.getByAltText("delete")).toBeInTheDocument();
     });
   });
 
