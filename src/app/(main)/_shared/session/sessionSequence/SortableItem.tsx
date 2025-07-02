@@ -34,6 +34,7 @@ const SortableItem = ({ id, value }: SortableItemProps) => {
       style={style}
       {...attributes}
       {...listeners}
+      data-dragging={isDragging}
       className="bg-bg-surface rounded-lg px-4 py-3 flex items-center justify-between hover:bg-bg-surface-variant active:bg-bg-surface-variant transition-colors touch-none"
     >
       <div className="flex items-center gap-3">

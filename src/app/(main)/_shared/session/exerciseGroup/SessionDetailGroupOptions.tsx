@@ -3,7 +3,7 @@ import swapIcon from "public/swap.svg";
 import memoIcon from "public/memo.svg";
 import deleteIcon from "public/delete.svg";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import {
   LocalExercise,
@@ -40,20 +40,13 @@ const SessionDetailGroupOptions = ({
   reload,
   reorderAfterDelete,
 }: SessionDetailGroupOptions) => {
-  // 단위변환: 서버DB UserExercise 및 로컬DB exercises 테이블에 unit 컬럼 추가,
-  //  로컬 detail에 unit을 추가하지않고 exercise db에 접근해서 해당 exercise의 unit을 가져오는방식,
-  //  unit 상태를 현재 컴포넌트가 아닌 상위컴포넌트(WorkoutExerciseGroup) 에서 관리
-
-  // 운동교체: 해당 운동그룹 삭제 -> 선택한 운동을 기존 exerciseOrder 로 추가
-  // 메모 남기기: 메모 모달띄우기 (서버DB UserExercise 및 로컬DB exercises 테이블에 memo 컬럼 추가)
-  // 삭제하기: 삭제 모달띄우기 -> 해당 workout의 exerciseOrder 일치 삭제
-
-  // const [exercise, setExercise] = useState<LocalExercise | null>(null);
   const [unit, setUnit] = useState<(typeof units)[number]>(
     exercise.unit || "kg"
   );
   const { closeBottomSheet, openBottomSheet } = useBottomSheet();
-  const { openModal } = useModal();
+  const { openModal, showError } = useModal();
+  const isMounted = useRef(false);
+
   const handleOpenMemo = () => {
     closeBottomSheet();
     openModal({
@@ -63,15 +56,25 @@ const SessionDetailGroupOptions = ({
       ),
     });
   };
+
   const deleteAndLoadDetails = async () => {
-    if (isWorkoutDetails(details)) {
-      await workoutDetailService.deleteWorkoutDetails(details);
-    } else {
-      await routineDetailService.deleteRoutineDetails(details);
+    try {
+      if (isWorkoutDetails(details)) {
+        await workoutDetailService.deleteWorkoutDetails(details);
+      } else {
+        await routineDetailService.deleteRoutineDetails(details);
+      }
+      await reorderAfterDelete(details[0].exerciseOrder);
+      await reload();
+    } catch (e) {
+      console.error(
+        "[SessionDetailGroupOptions] deleteAndLoadDetails Error",
+        e
+      );
+      showError("운동 삭제에 실패했습니다");
     }
-    await reorderAfterDelete(details[0].exerciseOrder);
-    await reload();
   };
+
   const handleOpenDeleteConfirmModal = () => {
     closeBottomSheet();
     openModal({
@@ -81,9 +84,9 @@ const SessionDetailGroupOptions = ({
       onConfirm: deleteAndLoadDetails,
     });
   };
+
   const handleOpenExercisesBottomSheet = () => {
     closeBottomSheet();
-    // TODO: 최대 높이가 작을경우 제대로 표기되지 않음
     openBottomSheet({
       height: "100dvh",
       rounded: false,
@@ -98,23 +101,22 @@ const SessionDetailGroupOptions = ({
     });
   };
 
-  // useEffect(() => {
-  //   const fetchAndSetExercise = async () => {
-  //     const exerciseData = await getExerciseWithLocalId(exerciseId);
-  //     if (!exerciseData) throw new Error("운동 데이터를 받아오지 못했습니다.");
-  //     setExercise(exerciseData);
-  //   };
-
-  //   fetchAndSetExercise();
-  // }, [exerciseId]);
+  const updateUnit = async () => {
+    try {
+      await exerciseService.updateLocalExercise({ ...exercise, unit });
+      await loadExercises();
+    } catch (e) {
+      console.error("[SessionDetailGroupOptions] updateUnit Error", e);
+      showError("단위 변경에 실패했습니다");
+    }
+  };
 
   useEffect(() => {
     if (!loadExercises) return;
-    const updateUnit = async () => {
-      await exerciseService.updateLocalExercise({ ...exercise, unit });
-      await loadExercises();
-    };
-    updateUnit();
+    if (isMounted.current) {
+      updateUnit();
+    }
+    isMounted.current = true;
   }, [unit]);
 
   return (

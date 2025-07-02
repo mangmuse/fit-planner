@@ -1,40 +1,80 @@
 import AddMemoButton from "@/app/(main)/_shared/session/exerciseMemo/AddMemoButton";
 import DailyMemoForm from "@/app/(main)/_shared/session/exerciseMemo/DailyMemoForm";
+import DailyMemoItem from "@/app/(main)/_shared/session/exerciseMemo/DailyMemoItem";
+import { exerciseService } from "@/lib/di";
+import { useModal } from "@/providers/contexts/ModalContext";
 import { LocalExercise } from "@/types/models";
 import { getFormattedDateYMD } from "@/util/formatDate";
 import { useState } from "react";
 
-type DailyMemoContentProps = {
+export type DailyMemoContentProps = {
   dailyMemos: NonNullable<LocalExercise["exerciseMemo"]>["daily"];
-  existingMemo: LocalExercise["exerciseMemo"];
   exercise: LocalExercise;
   loadExercises: () => Promise<void>;
 };
 
 const DailyMemoContent = ({
-  exercise,
+  exercise: initialExercise,
   dailyMemos: prevMemos,
-  existingMemo,
   loadExercises,
 }: DailyMemoContentProps) => {
   const initialDailyMemos =
-    prevMemos.sort((a, b) => b.createdAt.localeCompare(a.createdAt)) || [];
+    [...prevMemos].sort((a, b) => b.createdAt.localeCompare(a.createdAt)) || [];
   const [isWritingNew, setIsWritingNew] = useState(false);
   const [dailyMemos, setDailyMemos] =
     useState<NonNullable<LocalExercise["exerciseMemo"]>["daily"]>(
       initialDailyMemos
     );
 
-  const today = getFormattedDateYMD(new Date().toISOString());
+  const [currentExercise, setCurrentExercise] = useState(initialExercise);
+  const { showError } = useModal();
 
-  const handleAddDailyMemo = async (
-    updatedMemos: NonNullable<LocalExercise["exerciseMemo"]>["daily"]
-  ) => {
-    const sortedMemos = updatedMemos.sort((a, b) =>
-      b.createdAt.localeCompare(a.createdAt)
-    );
-    setDailyMemos(sortedMemos);
-    await loadExercises();
+  const today = getFormattedDateYMD(new Date().toISOString());
+  const createUpdatedMemo = (memoContent: string) => {
+    const newDailyMemo = {
+      date: today,
+      content: memoContent,
+      createdAt: new Date().toISOString(),
+      updatedAt: null,
+    };
+
+    const updatedDailyMemos = [
+      ...(currentExercise.exerciseMemo?.daily || []),
+      newDailyMemo,
+    ];
+
+    const updatedMemo = {
+      fixed: currentExercise.exerciseMemo?.fixed || null,
+      daily: updatedDailyMemos,
+    };
+
+    return { updatedDailyMemos, updatedMemo };
+  };
+  const handleAddMemo = async (memoContent: string) => {
+    try {
+      const { updatedDailyMemos, updatedMemo } = createUpdatedMemo(memoContent);
+
+      await exerciseService.updateLocalExercise({
+        ...currentExercise,
+        exerciseMemo: updatedMemo,
+      });
+
+      setCurrentExercise({
+        ...currentExercise,
+        exerciseMemo: updatedMemo,
+      });
+
+      const sortedMemos = [...updatedDailyMemos].sort((a, b) =>
+        b.createdAt.localeCompare(a.createdAt)
+      );
+      setDailyMemos(sortedMemos);
+      setIsWritingNew(false);
+
+      await loadExercises();
+    } catch (e) {
+      console.error(e);
+      showError("메모 저장에 실패했습니다");
+    }
   };
 
   return (
@@ -43,10 +83,7 @@ const DailyMemoContent = ({
         <AddMemoButton setIsWritingNew={setIsWritingNew} today={today} />
       ) : (
         <DailyMemoForm
-          existingMemo={existingMemo}
-          exercise={exercise}
-          today={today}
-          onAdd={handleAddDailyMemo}
+          onAddMemo={handleAddMemo}
           setIsWritingNew={setIsWritingNew}
         />
       )}
@@ -54,19 +91,11 @@ const DailyMemoContent = ({
       <div className="  mt-3 space-y-2 flex-1 max-h-[180px] flex-shrink-1">
         {dailyMemos.length > 0 &&
           dailyMemos.map((memo, index) => (
-            <div key={index} className="bg-bg-surface rounded-lg p-3 text-xs">
-              <div className="flex justify-between items-start mb-1">
-                <span className="font-medium opacity-70">
-                  {memo.date}
-                  {memo.date === today && (
-                    <span className="text-primary ml-1">(오늘)</span>
-                  )}
-                </span>
-              </div>
-              <p className="text-[11px] opacity-90 leading-relaxed">
-                {memo.content}
-              </p>
-            </div>
+            <DailyMemoItem
+              key={index}
+              memo={memo}
+              isToday={memo.date === today}
+            />
           ))}
       </div>
     </div>

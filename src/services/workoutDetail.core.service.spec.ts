@@ -5,9 +5,7 @@ import {
   mockWorkoutDetail,
 } from "@/__mocks__/workoutDetail.mock";
 import { WorkoutDetailCoreService } from "@/services/workoutDetail.core.service";
-import { IWorkoutDetailAdapter } from "@/types/adapters";
 import { LocalWorkoutDetail } from "@/types/models";
-import { IWorkoutDetailRepository } from "@/types/repositories";
 import { IWorkoutDetailCoreService, IWorkoutService } from "@/types/services";
 import { createMockWorkoutService } from "@/__mocks__/services/workout.service.mock";
 import { createMockWorkoutDetailAdapter } from "@/__mocks__/adapters/workoutDetail.adapter.mock";
@@ -224,6 +222,46 @@ describe("WorkoutDetailCoreService", () => {
           startOrder,
           selectedExercise
         )
+      ).rejects.toThrow(mockError);
+    });
+  });
+
+  describe("addPastWorkoutDetailsToWorkout", () => {
+    const mappedDetails: LocalWorkoutDetail[] = [
+      createBaseWorkoutDetailMock({
+        id: 1,
+        workoutId: 100,
+        exerciseId: 1,
+        exerciseOrder: 1,
+      }),
+      createBaseWorkoutDetailMock({
+        id: 2,
+        workoutId: 100,
+        exerciseId: 2,
+        exerciseOrder: 2,
+      }),
+    ];
+
+    it("전달받은 mappedDetails 배열로 bulkAdd를 호출한다", async () => {
+      mockRepository.bulkAdd.mockResolvedValue(mappedDetails.length);
+
+      await service.addPastWorkoutDetailsToWorkout(mappedDetails);
+
+      expect(mockRepository.bulkAdd).toHaveBeenCalledWith(mappedDetails);
+    });
+
+    it("빈 배열을 전달할 경우 repository를 호출하지 않고 즉시 반환한다", async () => {
+      await service.addPastWorkoutDetailsToWorkout([]);
+
+      expect(mockRepository.bulkAdd).not.toHaveBeenCalled();
+    });
+
+    it("bulkAdd 도중 에러가 발생할 경우 해당 에러를 그대로 전파한다", async () => {
+      const mockError = new Error("bulkAdd 실패");
+      mockRepository.bulkAdd.mockRejectedValue(mockError);
+
+      await expect(
+        service.addPastWorkoutDetailsToWorkout(mappedDetails)
       ).rejects.toThrow(mockError);
     });
   });

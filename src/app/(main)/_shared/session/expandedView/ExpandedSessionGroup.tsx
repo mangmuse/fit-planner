@@ -1,10 +1,11 @@
 import ExpandedSessionItem from "@/app/(main)/_shared/session/expandedView/ExpandedSessionItem";
 import { exerciseService } from "@/lib/di";
 import { LocalWorkoutDetail } from "@/types/models";
-import { useEffect, useState } from "react";
+import { useAsync } from "@/hooks/useAsync";
+import ErrorState from "@/components/ErrorState";
 
-type ExpanedWorkoutGroupProps = {
-  workoutGroup: {
+export type ExpandedWorkoutGroupProps = {
+  sessionGroup: {
     exerciseOrder: number;
     details: LocalWorkoutDetail[];
   };
@@ -14,29 +15,40 @@ type ExpanedWorkoutGroupProps = {
 };
 
 const ExpandedSessionGroup = ({
-  workoutGroup,
+  sessionGroup,
   isSelected,
   onToggleSelect,
-}: ExpanedWorkoutGroupProps) => {
-  const exerciseName = workoutGroup.details[0].exerciseName;
-  const [exerciseUnit, setExerciseUnit] = useState<"kg" | "lbs">("kg");
+}: ExpandedWorkoutGroupProps) => {
+  const exerciseName = sessionGroup.details[0].exerciseName;
+
+  const {
+    data: exercise,
+    error,
+    execute,
+  } = useAsync(
+    () =>
+      exerciseService.getExerciseWithLocalId(
+        sessionGroup.details[0].exerciseId
+      ),
+    [sessionGroup.details[0].exerciseId]
+  );
+
+  const exerciseUnit = exercise?.unit || "kg";
 
   const handleToggleSelect = () => {
-    const workoutId = workoutGroup.details[0].workoutId;
-    const exerciseOrder = workoutGroup.exerciseOrder;
+    const workoutId = sessionGroup.details[0].workoutId;
+    const exerciseOrder = sessionGroup.exerciseOrder;
     onToggleSelect(workoutId, exerciseOrder);
   };
 
-  useEffect(() => {
-    (async () => {
-      const exercise = await exerciseService.getExerciseWithLocalId(
-        workoutGroup.details[0].exerciseId
-      );
-      if (exercise) {
-        setExerciseUnit(exercise.unit);
-      }
-    })();
-  }, [workoutGroup]);
+  if (error)
+    return (
+      <ErrorState
+        error="운동 정보를 불러오는 중 오류가 발생했습니다"
+        onRetry={execute}
+      />
+    );
+
   return (
     <div className="bg-bg-secondary rounded-lg p-3">
       <div className="flex items-start gap-3">
@@ -50,8 +62,8 @@ const ExpandedSessionGroup = ({
         <div className="flex-1">
           <h3 className="font-medium text-base mb-2">{exerciseName}</h3>
           <ul className="flex flex-col gap-1">
-            {workoutGroup.details.length > 0 &&
-              workoutGroup.details.map((detail) => (
+            {sessionGroup.details.length > 0 &&
+              sessionGroup.details.map((detail) => (
                 <ExpandedSessionItem
                   key={detail.id}
                   workoutDetail={detail}

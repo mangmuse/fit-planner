@@ -49,6 +49,12 @@ export class WorkoutDetailService implements IWorkoutDetailService {
     );
   }
 
+  addPastWorkoutDetailsToWorkout(
+    mappedDetails: LocalWorkoutDetail[]
+  ): Promise<void> {
+    return this.core.addPastWorkoutDetailsToWorkout(mappedDetails);
+  }
+
   addSetToWorkout(lastSet: LocalWorkoutDetail): Promise<number> {
     return this.core.addSetToWorkout(lastSet);
   }
@@ -101,10 +107,18 @@ export class WorkoutDetailService implements IWorkoutDetailService {
     );
   }
 
-  getLatestWorkoutDetailByExerciseId(
+  getLocalWorkoutDetailsByWorkoutIdAndExerciseOrderPairs(
+    pairs: { workoutId: number; exerciseOrder: number }[]
+  ): Promise<LocalWorkoutDetail[]> {
+    return this.query.getLocalWorkoutDetailsByWorkoutIdAndExerciseOrderPairs(
+      pairs
+    );
+  }
+
+  getLatestWorkoutDetailByDetail(
     detail: LocalWorkoutDetail | LocalRoutineDetail
   ): Promise<LocalWorkoutDetail | void> {
-    return this.query.getLatestWorkoutDetailByExerciseId(detail);
+    return this.query.getLatestWorkoutDetailByDetail(detail);
   }
 
   // --- Sync Service ---

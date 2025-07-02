@@ -75,7 +75,45 @@ describe("WorkoutDetailQueryService", () => {
     });
   });
 
-  describe("getLatestWorkoutDetailByExerciseId", () => {
+  describe("getLocalWorkoutDetailsByWorkoutIdAndExerciseOrderPairs", () => {
+    const pairs = [
+      { workoutId: 100, exerciseOrder: 1 },
+      { workoutId: 200, exerciseOrder: 2 },
+    ];
+
+    it("전달받은 pairs에 맞는 workoutDetails를 반환한다", async () => {
+      const details: LocalWorkoutDetail[] = [
+        { ...mockWorkoutDetail.past, workoutId: 100, exerciseOrder: 1 },
+        { ...mockWorkoutDetail.past, workoutId: 200, exerciseOrder: 2 },
+      ];
+      mockRepository.findAllByWorkoutIdAndExerciseOrderPairs.mockResolvedValue(
+        details
+      );
+
+      const result =
+        await service.getLocalWorkoutDetailsByWorkoutIdAndExerciseOrderPairs(
+          pairs
+        );
+
+      expect(result).toEqual(details);
+      expect(
+        mockRepository.findAllByWorkoutIdAndExerciseOrderPairs
+      ).toHaveBeenCalledWith(pairs);
+    });
+
+    it("repository에서 에러가 발생하면 해당 에러를 그대로 전파한다", async () => {
+      const mockError = new Error("DB 조회 실패");
+      mockRepository.findAllByWorkoutIdAndExerciseOrderPairs.mockRejectedValue(
+        mockError
+      );
+
+      await expect(
+        service.getLocalWorkoutDetailsByWorkoutIdAndExerciseOrderPairs(pairs)
+      ).rejects.toThrow(mockError);
+    });
+  });
+
+  describe("getLatestWorkoutDetailByDetail", () => {
     const currentDetail: LocalWorkoutDetail = { ...mockWorkoutDetail.past };
     const currentWorkout = {
       ...mockWorkout.planned,
@@ -124,7 +162,7 @@ describe("WorkoutDetailQueryService", () => {
         });
 
       const result =
-        await service.getLatestWorkoutDetailByExerciseId(currentDetail);
+        await service.getLatestWorkoutDetailByDetail(currentDetail);
 
       expect(result).toBeDefined();
       expect(result?.id).toBe(11);
@@ -133,7 +171,7 @@ describe("WorkoutDetailQueryService", () => {
     it("과거 기록이 없을경우 undefined를 반환한다", async () => {
       mockRepository.findAllDoneByExerciseId.mockResolvedValue([]);
       const result =
-        await service.getLatestWorkoutDetailByExerciseId(currentDetail);
+        await service.getLatestWorkoutDetailByDetail(currentDetail);
       expect(result).toBeUndefined();
     });
     it("repository 조회 중 에러가 발생하면, 해당 에러를 그대로 전파한다", async () => {
@@ -141,7 +179,7 @@ describe("WorkoutDetailQueryService", () => {
       mockRepository.findAllDoneByExerciseId.mockRejectedValue(mockError);
 
       await expect(
-        service.getLatestWorkoutDetailByExerciseId(currentDetail)
+        service.getLatestWorkoutDetailByDetail(currentDetail)
       ).rejects.toThrow(mockError);
     });
   });

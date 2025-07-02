@@ -12,6 +12,7 @@ export const createMockWorkoutDetailRepository =
     findAll: jest.fn(),
     findAllByWorkoutId: jest.fn(),
     findAllByWorkoutIdAndExerciseOrder: jest.fn(),
+    findAllByWorkoutIdAndExerciseOrderPairs: jest.fn(),
     findAllByWorkoutIdOrderByExerciseOrder: jest.fn(),
     findAllDoneByExerciseId: jest.fn(),
   });

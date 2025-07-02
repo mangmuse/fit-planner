@@ -21,6 +21,34 @@ const customJestConfig = {
     "^next/navigation$": "<rootDir>/src/__mocks__/next/navigation.ts",
     "\\.(css|less)$": "<rootDir>/src/__mocks__/styleMock.js",
   },
+  // 성능 최적화
+  maxWorkers: "50%",
+  cache: true,
+  cacheDirectory: "<rootDir>/.jest-cache",
+  // Watch 모드 최적화
+  watchPathIgnorePatterns: [
+    "<rootDir>/node_modules/",
+    "<rootDir>/.next/",
+    "<rootDir>/coverage/",
+    "<rootDir>/.jest-cache/",
+    "<rootDir>/public/",
+    "<rootDir>/prisma/",
+    "<rootDir>/.git/"
+  ],
+  // 테스트 파일 검색 최적화
+  testMatch: [
+    "**/__tests__/**/*.(test|spec).[jt]s?(x)",
+    "**/?(*.)+(test|spec).[jt]s?(x)"
+  ],
+  // 불필요한 경로 제외
+  testPathIgnorePatterns: [
+    "<rootDir>/.next/",
+    "<rootDir>/node_modules/",
+    "<rootDir>/coverage/",
+    "<rootDir>/dist/"
+  ],
+  // 메모리 사용량 제한
+  workerIdleMemoryLimit: "512MB"
 };
 
 export default createJestConfig(customJestConfig);

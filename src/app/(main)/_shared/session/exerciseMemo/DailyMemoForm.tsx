@@ -1,47 +1,18 @@
-import { exerciseService } from "@/lib/di";
-import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
-import { useModal } from "@/providers/contexts/ModalContext";
-import { LocalExercise } from "@/types/models";
 import { useState } from "react";
-import { date } from "zod";
 
-type DailyMemoFormProps = {
+export type DailyMemoFormProps = {
+  onAddMemo: (memoContent: string) => void;
   setIsWritingNew: (isWriting: boolean) => void;
-  exercise: LocalExercise;
-  onAdd: (
-    newMemo: NonNullable<LocalExercise["exerciseMemo"]>["daily"]
-  ) => Promise<void>;
-  existingMemo: LocalExercise["exerciseMemo"];
-  today: string;
 };
-const DailyMemoForm = ({
-  exercise,
-  onAdd,
-  existingMemo,
-  today,
-  setIsWritingNew,
-}: DailyMemoFormProps) => {
+
+const DailyMemoForm = ({ onAddMemo, setIsWritingNew }: DailyMemoFormProps) => {
   const [newMemoText, setNewMemoText] = useState("");
 
-  const handleSaveDailyMemo = async () => {
-    const newDailyMemo = {
-      date: today,
-      content: newMemoText,
-      createdAt: new Date().toISOString(),
-      updatedAt: null,
-    };
+  const handleSaveDailyMemo = () => {
+    if (!newMemoText.trim()) return;
 
-    const updatedMemo = {
-      fixed: existingMemo?.fixed || null,
-      daily: [...(existingMemo?.daily || []), newDailyMemo],
-    };
-    await exerciseService.updateLocalExercise({
-      ...exercise,
-      exerciseMemo: { ...updatedMemo },
-    });
-
-    await onAdd(updatedMemo.daily);
-    setIsWritingNew(false);
+    onAddMemo(newMemoText);
+    setNewMemoText("");
   };
 
   return (

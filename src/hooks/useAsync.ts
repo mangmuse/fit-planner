@@ -15,7 +15,11 @@ export const useAsync = <T>(
       const result = await asyncFunction();
       setData(result);
     } catch (err) {
-      setError(err as Error);
+      const error = err as Error;
+      if (process.env.NODE_ENV === "development") {
+        console.error("[useAsync] error:", error);
+      }
+      setError(error);
     } finally {
       setIsLoading(false);
     }

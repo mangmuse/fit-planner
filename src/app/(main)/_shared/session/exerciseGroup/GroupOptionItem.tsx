@@ -24,6 +24,8 @@ const GroupOptionItem = ({
   return (
     <li
       onClick={onClick}
+      data-testid="group-option-item"
+      data-has-bottom-border={showBottomBorder || false}
       className={clsx(
         "flex h-11 justify-between border-t-2 border-border-gray",
         {
@@ -35,7 +37,13 @@ const GroupOptionItem = ({
         <div className="w-6">
           <Image src={imgSrc} alt={label} />
         </div>
-        <span className={`flex    text-xs text ${labelColor}`}>{label}</span>
+        <span
+          data-testid="item-label"
+          data-has-custom-class={!!labelColor}
+          className={`flex text-xs text ${labelColor}`}
+        >
+          {label}
+        </span>
       </div>
       {showArrow && <Image src={arrowIcon} alt="바로가기" />}
     </li>

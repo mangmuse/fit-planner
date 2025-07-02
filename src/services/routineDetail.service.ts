@@ -54,6 +54,14 @@ export class RoutineDetailService implements IRoutineDetailService {
     });
     await this.repository.bulkAdd(newDetails);
   }
+
+  public async addPastWorkoutDetailsToRoutine(
+    mappedDetails: LocalRoutineDetail[]
+  ): Promise<void> {
+    if (mappedDetails.length === 0) return;
+    await this.repository.bulkAdd(mappedDetails);
+  }
+
   public async cloneRoutineDetailWithNewRoutineId(
     originalDetail: LocalRoutineDetail,
     newRoutineId: number

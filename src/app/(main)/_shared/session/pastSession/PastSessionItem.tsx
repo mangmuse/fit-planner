@@ -15,7 +15,6 @@ const PastSessionItem = ({ workout }: PastSessionItemProps) => {
   const handleSelectAll = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsAllSelected(!isAllSelected);
-    // TODO: 실제 선택 로직 구현
   };
 
   return (
@@ -45,10 +44,7 @@ const PastSessionItem = ({ workout }: PastSessionItemProps) => {
       </div>
       {isExpanded && (
         <div className="px-4 pb-4 border-t border-border-gray">
-          <ExpandedSessionDetailsView
-            onToggle={handleToggleExpand}
-            workoutId={workout.id!}
-          />
+          <ExpandedSessionDetailsView workoutId={workout.id!} />
         </div>
       )}
     </li>

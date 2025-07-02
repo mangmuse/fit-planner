@@ -127,4 +127,87 @@ describe("WorkoutDetailRepository", () => {
     expect(andCallback(detail2)).toBe(false);
     expect(andCallback(detail3)).toBe(true);
   });
+
+  describe("findAllByWorkoutIdAndExerciseOrderPairs", () => {
+    it("빈 배열인 경우 빈 배열을 반환한다", async () => {
+      const result = await repository.findAllByWorkoutIdAndExerciseOrderPairs(
+        []
+      );
+      expect(result).toEqual([]);
+    });
+
+    it("주어진 pairs에 해당하는 워크아웃 디테일들을 조회한다", async () => {
+      const pairs = [
+        { workoutId: 100, exerciseOrder: 1 },
+        { workoutId: 100, exerciseOrder: 2 },
+        { workoutId: 200, exerciseOrder: 1 },
+      ];
+
+      const detail1 = {
+        ...mockWorkoutDetail.past,
+        workoutId: 100,
+        exerciseOrder: 1,
+      };
+      const detail2 = {
+        ...mockWorkoutDetail.past,
+        workoutId: 100,
+        exerciseOrder: 2,
+      };
+      const detail3 = {
+        ...mockWorkoutDetail.past,
+        workoutId: 200,
+        exerciseOrder: 1,
+      };
+      const detail4 = {
+        ...mockWorkoutDetail.past,
+        workoutId: 100,
+        exerciseOrder: 3,
+      };
+
+      const expectedResult = [detail1, detail2, detail3];
+
+      const mockToArray = jest.fn().mockResolvedValue(expectedResult);
+      const mockFilter = jest.fn().mockReturnValue({ toArray: mockToArray });
+      const mockAnyOf = jest.fn().mockReturnValue({ filter: mockFilter });
+
+      (mockTable.where as jest.Mock).mockReturnValue({
+        anyOf: mockAnyOf,
+      });
+
+      const result =
+        await repository.findAllByWorkoutIdAndExerciseOrderPairs(pairs);
+
+      expect(mockTable.where("workoutId").anyOf).toHaveBeenCalledWith([
+        100, 200,
+      ]);
+      expect(mockFilter).toHaveBeenCalledTimes(1);
+      expect(mockToArray).toHaveBeenCalledTimes(1);
+      expect(result).toEqual(expectedResult);
+
+      const filterCallback = mockFilter.mock.calls[0][0];
+      expect(filterCallback(detail1)).toBe(true);
+      expect(filterCallback(detail2)).toBe(true);
+      expect(filterCallback(detail3)).toBe(true);
+      expect(filterCallback(detail4)).toBe(false);
+    });
+
+    it("중복된 workoutId가 있어도 올바르게 처리한다", async () => {
+      const pairs = [
+        { workoutId: 100, exerciseOrder: 1 },
+        { workoutId: 100, exerciseOrder: 2 },
+      ];
+
+      const mockToArray = jest.fn().mockResolvedValue([]);
+      const mockFilter = jest.fn().mockReturnValue({ toArray: mockToArray });
+      const mockAnyOf = jest.fn().mockReturnValue({ filter: mockFilter });
+
+      (mockTable.where as jest.Mock).mockReturnValue({
+        anyOf: mockAnyOf,
+      });
+
+      await repository.findAllByWorkoutIdAndExerciseOrderPairs(pairs);
+
+      expect(mockTable.where("workoutId").anyOf).toHaveBeenCalledWith([100]);
+    });
+  });
 });
