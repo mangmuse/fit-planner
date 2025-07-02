@@ -1,7 +1,7 @@
 import { LocalExercise } from "@/types/models";
 import { getFormattedDateYMD } from "@/util/formatDate";
 
-type FixedMemoContentProps = {
+export type FixedMemoContentProps = {
   fixedMemo: NonNullable<LocalExercise["exerciseMemo"]>["fixed"] | null;
   memoText: string;
   onChange: (e: string) => void;

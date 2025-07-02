@@ -1,4 +1,4 @@
-type ExerciseMemoTabProps = {
+export type ExerciseMemoTabProps = {
   activeTab: "fixed" | "today";
   onSelect: (tab: "fixed" | "today") => void;
 };
