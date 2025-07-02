@@ -22,6 +22,7 @@ import { reorderDetailGroups } from "@/app/(main)/workout/_utils/getGroupedDetai
 import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import { routineDetailService, workoutDetailService } from "@/lib/di";
 import SortableItem from "@/app/(main)/_shared/session/sessionSequence/SortableItem";
+import { useModal } from "@/providers/contexts/ModalContext";
 
 export type DetailGroup = {
   exerciseOrder: number;
@@ -39,6 +40,7 @@ const SessionSequence = ({
 }: SessionSequenceProps) => {
   // TODO: 드래그 종료 시 아이템이 원위치로 돌아갔다가 재배치되는 시각적 문제 해결
   const { closeBottomSheet } = useBottomSheet();
+  const { showError } = useModal();
   const [groups, setGroups] = useState<DetailGroup[]>(initialGroups);
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -79,22 +81,27 @@ const SessionSequence = ({
     setActiveId(null);
   };
   const loadReorder = async () => {
-    for (const group of groups) {
-      for (const detail of group.details) {
-        const updateInput = {
-          id: detail.id,
-          exerciseOrder: group.exerciseOrder,
-        };
-        if (isWorkoutDetail(detail)) {
-          await workoutDetailService.updateLocalWorkoutDetail(updateInput);
-        } else {
-          await routineDetailService.updateLocalRoutineDetail(updateInput);
+    try {
+      for (const group of groups) {
+        for (const detail of group.details) {
+          const updateInput = {
+            id: detail.id,
+            exerciseOrder: group.exerciseOrder,
+          };
+          if (isWorkoutDetail(detail)) {
+            await workoutDetailService.updateLocalWorkoutDetail(updateInput);
+          } else {
+            await routineDetailService.updateLocalRoutineDetail(updateInput);
+          }
         }
       }
-    }
 
-    await reload?.();
-    closeBottomSheet();
+      await reload?.();
+      closeBottomSheet();
+    } catch (e) {
+      console.error(e);
+      showError("순서 변경에 실패했습니다. 다시 시도해주세요.");
+    }
   };
 
   return (
