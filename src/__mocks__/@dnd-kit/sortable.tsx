@@ -34,3 +34,10 @@ export const SortableContext = ({ children }: SortableContextProps) => {
 };
 
 export const verticalListSortingStrategy = jest.fn();
+
+export const arrayMove = <T,>(array: T[], from: number, to: number): T[] => {
+  const result = [...array];
+  const [removed] = result.splice(from, 1);
+  result.splice(to, 0, removed);
+  return result;
+};

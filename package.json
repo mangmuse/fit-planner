@@ -8,7 +8,13 @@
     "start": "next start",
     "lint": "next lint",
     "prisma:generate": "prisma generate",
-    "test": "jest --watch"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:watch:related": "jest --watch --onlyChanged",
+    "test:coverage": "jest --coverage",
+    "test:ci": "jest --ci --coverage --maxWorkers=2",
+    "test:unit": "jest --testPathPattern=src/.*\\.test\\.[jt]sx?$",
+    "test:focused": "jest --findRelatedTests"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

@@ -74,7 +74,6 @@ describe("SetActions", () => {
       expect(mockReload).toHaveBeenCalledTimes(1);
     });
   });
-
   describe("lastValue가 routineDetail", () => {
     it("세트 추가 버튼을 클릭하면 세트가 추가된다", async () => {
       renderSetActions({ lastValue: mockRD });
