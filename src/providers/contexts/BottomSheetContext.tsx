@@ -1,5 +1,5 @@
 "use client";
-import BottomSheet from "@/components/Modal/BottomSheet";
+import BottomSheet from "@/components/Dialog/BottomSheet/BottomSheet";
 import { createContext, ReactNode, useContext, useState } from "react";
 
 export type BottomSheetProps = {

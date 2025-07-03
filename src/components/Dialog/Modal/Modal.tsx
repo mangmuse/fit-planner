@@ -1,7 +1,7 @@
 "use client";
-import AlertModal from "@/components/Modal/AlertModal";
-import ConfirmModal from "@/components/Modal/ConfirmModal";
-import GenericModal from "@/components/Modal/GenericModal";
+import AlertModal from "@/components/Dialog/Modal/AlertModal";
+import ConfirmModal from "@/components/Dialog/Modal/ConfirmModal";
+import GenericModal from "@/components/Dialog/Modal/GenericModal";
 import { useModal } from "@/providers/contexts/ModalContext";
 import {
   ModalProps,

@@ -45,7 +45,6 @@ const BottomSheet = ({
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
-      // 390px 컨테이너의 위치 계산
       const container = document.querySelector(".max-w-\\[390px\\]");
       if (container) {
         const rect = container.getBoundingClientRect();

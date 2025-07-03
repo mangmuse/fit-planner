@@ -94,7 +94,7 @@ describe("ModalProvider and useModal hook", () => {
   });
 
   describe("Confirm Modal", () => {
-    it("확인 버튼 클릭", async () => {
+    it("확인 버튼을 누르면 onConfirm이 실행되고 모달이 닫혀야 한다", async () => {
       renderModalProvider();
 
       expect(screen.getByTestId("false")).toBeInTheDocument();
@@ -117,7 +117,7 @@ describe("ModalProvider and useModal hook", () => {
       expect(screen.getByTestId("false")).toBeInTheDocument();
     });
 
-    it("취소 버튼 클릭", async () => {
+    it("취소 버튼을 누르면 onCancel이 실행되고 모달이 닫혀야 한다", async () => {
       renderModalProvider();
 
       expect(screen.getByTestId("false")).toBeInTheDocument();
@@ -143,7 +143,7 @@ describe("ModalProvider and useModal hook", () => {
   });
 
   describe("Alert Modal", () => {
-    it("알림 모달", async () => {
+    it("확인 버튼만 있어야 하고 클릭 시 onClose가 실행되어야 한다", async () => {
       renderModalProvider();
 
       await user.click(screen.getByRole("button", { name: "알림 모달 열기" }));
@@ -168,7 +168,7 @@ describe("ModalProvider and useModal hook", () => {
   });
 
   describe("Generic Modal", () => {
-    it("일반 모달", async () => {
+    it("커스텀 컨텐츠와 함께 렌더링되어야 한다", async () => {
       renderModalProvider();
 
       await user.click(screen.getByRole("button", { name: "일반 모달 열기" }));
@@ -184,7 +184,7 @@ describe("ModalProvider and useModal hook", () => {
   });
 
   describe("Hook Functions", () => {
-    it("showError 함수", () => {
+    it("showError 함수가 에러 알림 모달을 열어야 한다", () => {
       const wrapper = ({ children }: { children: React.ReactNode }) => (
         <ModalProvider>{children}</ModalProvider>
       );
@@ -200,7 +200,7 @@ describe("ModalProvider and useModal hook", () => {
       expect(result.current.isOpen).toBe(true);
     });
 
-    it("closeModal 함수", () => {
+    it("closeModal 함수가 모달을 닫아야 한다", () => {
       const wrapper = ({ children }: { children: React.ReactNode }) => (
         <ModalProvider>{children}</ModalProvider>
       );
@@ -226,7 +226,7 @@ describe("ModalProvider and useModal hook", () => {
   });
 
   describe("브라우저 뒤로가기 이벤트", () => {
-    it("뒤로가기로 닫기", async () => {
+    it("뒤로가기 시 모달이 닫혀야 한다", async () => {
       renderModalProvider();
 
       expect(screen.getByTestId("false")).toBeInTheDocument();
@@ -242,7 +242,7 @@ describe("ModalProvider and useModal hook", () => {
       expect(screen.queryByText("확인 모달")).not.toBeInTheDocument();
     });
 
-    it("모달 닫힌 상태에서 뒤로가기", () => {
+    it("모달이 닫힌 상태에서 뒤로가기해도 문제없어야 한다", () => {
       renderModalProvider();
 
       expect(screen.getByTestId("false")).toBeInTheDocument();

@@ -5,7 +5,7 @@ const createJestConfig = nextJest({
 });
 
 const customJestConfig = {
-  displayName: "ui-components",
+  displayName: "dialog",
   moduleFileExtensions: ["js", "jsx", "ts", "tsx"],
   setupFilesAfterEnv: ["<rootDir>/jest.ui.setup.ts"],
   clearMocks: true,
@@ -19,7 +19,10 @@ const customJestConfig = {
     "^next/navigation$": "<rootDir>/src/__mocks__/next/navigation.ts",
     "\\.(css|less)$": "<rootDir>/src/__mocks__/styleMock.js",
   },
-  testMatch: ["**/ModalProvider.spec.{ts,tsx}", "**/BottomSheet.spec.{ts,tsx}"],
+  testMatch: [
+    "**/ModalProvider.spec.{ts,tsx}",
+    "**/BottomSheetProvider.spec.{ts,tsx}",
+  ],
   testPathIgnorePatterns: [
     "<rootDir>/.next/",
     "<rootDir>/node_modules/",
