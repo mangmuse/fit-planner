@@ -1,30 +1,64 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
+import { renderHook, act } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { ModalProvider, useModal } from "@/providers/contexts/ModalContext";
 
 const ModalTestConsumer = ({
   onConfirm,
   onCancel,
+  onAlertClose,
 }: {
   onConfirm?: () => void;
   onCancel?: () => void;
+  onAlertClose?: () => void;
 }) => {
-  const { openModal } = useModal();
+  const { openModal, isOpen } = useModal();
 
   return (
-    <div>
+    <div data-testid={isOpen.toString()}>
       <button
         onClick={() =>
           openModal({
             type: "confirm",
-            title: "테스트 확인",
-            message: "정말 실행하시겠습니까?",
+            title: "확인 모달",
+            message: "실행할까요?",
             onConfirm,
             onCancel,
           })
         }
       >
-        모달 열기
+        확인 모달 열기
+      </button>
+
+      <button
+        onClick={() =>
+          openModal({
+            type: "alert",
+            title: "알림 모달",
+            message: "완료됐어요",
+            onClose: onAlertClose,
+          })
+        }
+      >
+        알림 모달 열기
+      </button>
+
+      <button
+        onClick={() =>
+          openModal({
+            type: "generic",
+            children: (
+              <div>
+                <h3>일반 모달</h3>
+                <p>커스텀 내용</p>
+                <button>커스텀 버튼</button>
+              </div>
+            ),
+          })
+        }
+      >
+        일반 모달 열기
       </button>
     </div>
   );
@@ -33,41 +67,189 @@ const ModalTestConsumer = ({
 describe("ModalProvider and useModal hook", () => {
   const mockOnConfirm = jest.fn();
   const mockOnCancel = jest.fn();
+  const mockOnAlertClose = jest.fn();
+  const user = userEvent.setup();
+
+  const renderModalProvider = (overrides?: {
+    onConfirm?: () => void;
+    onCancel?: () => void;
+    onAlertClose?: () => void;
+  }) => {
+    const defaultProps = {
+      onConfirm: mockOnConfirm,
+      onCancel: mockOnCancel,
+      onAlertClose: mockOnAlertClose,
+      ...overrides,
+    };
+
+    return render(
+      <ModalProvider>
+        <ModalTestConsumer {...defaultProps} />
+      </ModalProvider>
+    );
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it("모달을 열고 확인 버튼을 누르면 onConfirm이 실행되고 모달이 닫힌다", () => {
-    render(
-      <ModalProvider>
-        <ModalTestConsumer onConfirm={mockOnConfirm} />
-      </ModalProvider>
-    );
+  describe("Confirm Modal", () => {
+    it("확인 버튼 클릭", async () => {
+      renderModalProvider();
 
-    fireEvent.click(screen.getByRole("button", { name: "모달 열기" }));
+      expect(screen.getByTestId("false")).toBeInTheDocument();
 
-    expect(screen.getByText("테스트 확인")).toBeInTheDocument();
+      await user.click(screen.getByRole("button", { name: "확인 모달 열기" }));
 
-    fireEvent.click(screen.getByRole("button", { name: "확인" }));
+      expect(screen.getByText("확인 모달")).toBeInTheDocument();
+      expect(screen.getByTestId("true")).toBeInTheDocument();
 
-    expect(mockOnConfirm).toHaveBeenCalledTimes(1);
+      const confirmButton = screen.getByRole("button", { name: "확인" });
+      const cancelButton = screen.getByRole("button", { name: "취소" });
 
-    expect(screen.queryByText("테스트 확인")).not.toBeInTheDocument();
+      expect(confirmButton).toBeInTheDocument();
+      expect(cancelButton).toBeInTheDocument();
+
+      await user.click(confirmButton);
+
+      expect(mockOnConfirm).toHaveBeenCalledTimes(1);
+      expect(screen.queryByText("확인 모달")).not.toBeInTheDocument();
+      expect(screen.getByTestId("false")).toBeInTheDocument();
+    });
+
+    it("취소 버튼 클릭", async () => {
+      renderModalProvider();
+
+      expect(screen.getByTestId("false")).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: "확인 모달 열기" }));
+
+      expect(screen.getByText("확인 모달")).toBeInTheDocument();
+      expect(screen.getByTestId("true")).toBeInTheDocument();
+
+      const confirmButton = screen.getByRole("button", { name: "확인" });
+      const cancelButton = screen.getByRole("button", { name: "취소" });
+
+      expect(confirmButton).toBeInTheDocument();
+      expect(cancelButton).toBeInTheDocument();
+
+      await user.click(cancelButton);
+
+      expect(mockOnCancel).toHaveBeenCalledTimes(1);
+      expect(mockOnConfirm).not.toHaveBeenCalled();
+      expect(screen.queryByText("확인 모달")).not.toBeInTheDocument();
+      expect(screen.getByTestId("false")).toBeInTheDocument();
+    });
   });
 
-  it("모달을 열고 취소 버튼을 누르면 onCancel이 실행되고 모달이 닫힌다", () => {
-    render(
-      <ModalProvider>
-        <ModalTestConsumer onCancel={mockOnCancel} />
-      </ModalProvider>
-    );
+  describe("Alert Modal", () => {
+    it("알림 모달", async () => {
+      renderModalProvider();
 
-    fireEvent.click(screen.getByRole("button", { name: "모달 열기" }));
-    fireEvent.click(screen.getByRole("button", { name: "취소" }));
+      await user.click(screen.getByRole("button", { name: "알림 모달 열기" }));
 
-    expect(mockOnCancel).toHaveBeenCalledTimes(1);
-    expect(mockOnConfirm).not.toHaveBeenCalled();
-    expect(screen.queryByText("테스트 확인")).not.toBeInTheDocument();
+      expect(screen.getByText("알림 모달")).toBeInTheDocument();
+      expect(screen.getByText("완료됐어요")).toBeInTheDocument();
+      expect(screen.getByTestId("true")).toBeInTheDocument();
+
+      const confirmButton = screen.getByRole("button", { name: "확인" });
+      expect(confirmButton).toBeInTheDocument();
+
+      expect(
+        screen.queryByRole("button", { name: "취소" })
+      ).not.toBeInTheDocument();
+
+      await user.click(confirmButton);
+
+      expect(mockOnAlertClose).toHaveBeenCalledTimes(1);
+      expect(screen.queryByText("알림 모달")).not.toBeInTheDocument();
+      expect(screen.getByTestId("false")).toBeInTheDocument();
+    });
+  });
+
+  describe("Generic Modal", () => {
+    it("일반 모달", async () => {
+      renderModalProvider();
+
+      await user.click(screen.getByRole("button", { name: "일반 모달 열기" }));
+
+      expect(screen.getByText("일반 모달")).toBeInTheDocument();
+      expect(screen.getByText("커스텀 내용")).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "커스텀 버튼" })
+      ).toBeInTheDocument();
+
+      expect(screen.getByTestId("true")).toBeInTheDocument();
+    });
+  });
+
+  describe("Hook Functions", () => {
+    it("showError 함수", () => {
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <ModalProvider>{children}</ModalProvider>
+      );
+
+      const { result } = renderHook(() => useModal(), { wrapper });
+
+      expect(result.current.isOpen).toBe(false);
+
+      act(() => {
+        result.current.showError("테스트 에러");
+      });
+
+      expect(result.current.isOpen).toBe(true);
+    });
+
+    it("closeModal 함수", () => {
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <ModalProvider>{children}</ModalProvider>
+      );
+
+      const { result } = renderHook(() => useModal(), { wrapper });
+
+      act(() => {
+        result.current.openModal({
+          type: "alert",
+          title: "테스트",
+          message: "테스트",
+        });
+      });
+
+      expect(result.current.isOpen).toBe(true);
+
+      act(() => {
+        result.current.closeModal();
+      });
+
+      expect(result.current.isOpen).toBe(false);
+    });
+  });
+
+  describe("브라우저 뒤로가기 이벤트", () => {
+    it("뒤로가기로 닫기", async () => {
+      renderModalProvider();
+
+      expect(screen.getByTestId("false")).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: "확인 모달 열기" }));
+
+      expect(screen.getByTestId("true")).toBeInTheDocument();
+      expect(screen.getByText("확인 모달")).toBeInTheDocument();
+
+      fireEvent.popState(window);
+
+      expect(screen.getByTestId("false")).toBeInTheDocument();
+      expect(screen.queryByText("확인 모달")).not.toBeInTheDocument();
+    });
+
+    it("모달 닫힌 상태에서 뒤로가기", () => {
+      renderModalProvider();
+
+      expect(screen.getByTestId("false")).toBeInTheDocument();
+
+      fireEvent.popState(window);
+
+      expect(screen.getByTestId("false")).toBeInTheDocument();
+    });
   });
 });
