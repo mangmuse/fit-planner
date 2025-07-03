@@ -5,10 +5,11 @@ const createJestConfig = nextJest({
 });
 
 const customJestConfig = {
+  displayName: "ui-components",
   moduleFileExtensions: ["js", "jsx", "ts", "tsx"],
-  setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
+  setupFilesAfterEnv: ["<rootDir>/jest.ui.setup.ts"],
   clearMocks: true,
-  testEnvironment: "jest-fixed-jsdom",
+  testEnvironment: "jsdom",
   transformIgnorePatterns: [
     "/node_modules/(?!(p-map|aggregate-error|p-limit|yocto-queue|react-error-boundary))",
   ],
@@ -18,13 +19,12 @@ const customJestConfig = {
     "^next/navigation$": "<rootDir>/src/__mocks__/next/navigation.ts",
     "\\.(css|less)$": "<rootDir>/src/__mocks__/styleMock.js",
   },
+  testMatch: ["**/ModalProvider.spec.{ts,tsx}", "**/BottomSheet.spec.{ts,tsx}"],
   testPathIgnorePatterns: [
     "<rootDir>/.next/",
     "<rootDir>/node_modules/",
     "<rootDir>/coverage/",
     "<rootDir>/dist/",
-    "<rootDir>/src/components/Modal/ModalProvider.spec.tsx",
-    "<rootDir>/src/components/Modal/BottomSheet.spec.tsx",
   ],
 };
 
