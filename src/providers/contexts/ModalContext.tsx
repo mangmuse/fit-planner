@@ -7,7 +7,7 @@ import {
   useEffect,
 } from "react";
 import { ModalProps } from "@/types/modal.type";
-import Modal from "@/components/Modal/Modal";
+import Modal from "@/components/Dialog/Modal/Modal";
 
 type ModalContextValue = {
   openModal: (options: ModalProps) => void;

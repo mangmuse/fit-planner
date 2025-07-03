@@ -14,7 +14,9 @@
     "test:coverage": "jest --coverage",
     "test:ci": "jest --ci --coverage --maxWorkers=2",
     "test:unit": "jest --testPathPattern=src/.*\\.test\\.[jt]sx?$",
-    "test:focused": "jest --findRelatedTests"
+    "test:focused": "jest --findRelatedTests",
+    "test:ui": "jest --config=jest.ui.config.ts",
+    "test:ui:watch": "jest --config=jest.ui.config.ts --watch"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
