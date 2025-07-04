@@ -136,12 +136,6 @@ export default function ExercisesContainer({
 
   if (error) return <ErrorState error={error} onRetry={reloadExercises} />;
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-40">Loading...</div>
-    );
-  }
-
   return (
     <main className="pb-20">
       <div

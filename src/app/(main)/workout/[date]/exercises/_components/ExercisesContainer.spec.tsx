@@ -128,8 +128,6 @@ describe("Characterization Tests", () => {
     it("초기 렌더링: 운동 목록이 올바르게 표시된다", async () => {
       render(<ExercisesContainer type="RECORD" allowMultipleSelection />);
 
-      expect(screen.getByText("Loading...")).toBeInTheDocument();
-
       await waitFor(() => {
         expect(screen.getByText("벤치프레스")).toBeInTheDocument();
         expect(screen.getByText("스쿼트")).toBeInTheDocument();

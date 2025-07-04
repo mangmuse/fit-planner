@@ -196,11 +196,6 @@ const SessionContainer = ({
     return () => window.removeEventListener("popstate", handlePopState);
   }, [pathname, isModalOpen]);
 
-  if (isLoading)
-    return (
-      <div className="flex justify-center items-center h-40">Loading...</div>
-    );
-
   if (error) return <ErrorState error={error} onRetry={reload} />;
   return (
     <div>

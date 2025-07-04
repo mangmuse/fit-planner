@@ -32,11 +32,18 @@ const useExercises = ({ userId }: UseExercisesProps) => {
       try {
         if (!userId) return;
 
+        setError(null);
+        setLoading(true);
+
         const localAll = await exerciseService.getAllLocalExercises();
+
         if (localAll.length === 0) {
           await exerciseService.syncExercisesFromServerLocalFirst(userId);
+          const syncedData = await exerciseService.getAllLocalExercises();
+          setExercises(syncedData);
+        } else {
+          setExercises(localAll);
         }
-        await loadLocalExerciseData();
       } catch (e) {
         console.error("[useExercises] Error", e);
         setError("운동목록 초기화에 실패했습니다.");
