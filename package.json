@@ -16,7 +16,8 @@
     "test:unit": "jest --testPathPattern=src/.*\\.test\\.[jt]sx?$",
     "test:focused": "jest --findRelatedTests",
     "test:ui": "jest --config=jest.ui.config.ts",
-    "test:ui:watch": "jest --config=jest.ui.config.ts --watch"
+    "test:ui:watch": "jest --config=jest.ui.config.ts --watch",
+    "test:ui:coverage": "jest --config=jest.ui.config.ts --coverage"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

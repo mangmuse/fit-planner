@@ -58,6 +58,7 @@ export interface IExerciseRepository {
 
 export interface IRoutineDetailRepository {
   clear: () => Promise<void>;
+  findOneById: (id: number) => Promise<LocalRoutineDetail | undefined>;
   findAllByRoutineId: (routineId: number) => Promise<LocalRoutineDetail[]>;
 
   add: (toInsert: Omit<LocalRoutineDetail, "id">) => Promise<number>;

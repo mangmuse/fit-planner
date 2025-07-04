@@ -6,6 +6,7 @@ export const createMockRoutineDetailRepository =
     clear: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
+    findOneById: jest.fn(),
     findAll: jest.fn(),
     findAllByRoutineId: jest.fn(),
     bulkAdd: jest.fn(),

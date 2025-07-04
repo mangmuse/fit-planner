@@ -9,7 +9,6 @@ const RoutineNameForm = () => {
   const router = useRouter();
 
   const [name, setName] = useState<string>("");
-  const [hasName, setHasName] = useState<boolean>(false);
 
   const handleAddRoutine = async () => {
     if (!userId) return;

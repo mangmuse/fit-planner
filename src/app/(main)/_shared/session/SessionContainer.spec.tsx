@@ -234,7 +234,7 @@ describe("SessionContainer - 규정 테스트", () => {
     });
   });
 
-  describe("사용자 인터랙션", () => {
+  describe("상호작용", () => {
     it("전체 삭제 버튼 클릭 시 확인 모달이 열린다", async () => {
       const user = userEvent.setup();
 

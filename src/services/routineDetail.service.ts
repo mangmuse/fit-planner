@@ -28,6 +28,7 @@ export class RoutineDetailService implements IRoutineDetailService {
     routineId: number
   ): Promise<LocalRoutineDetail[]> {
     const details = await this.repository.findAllByRoutineId(routineId);
+
     return details;
   }
 
@@ -35,11 +36,17 @@ export class RoutineDetailService implements IRoutineDetailService {
     routineDetailInput: LocalRoutineDetail
   ): Promise<void> {
     await this.repository.add(routineDetailInput);
+    await this.routineService.updateLocalRoutineUpdatedAt(
+      routineDetailInput.routineId
+    );
   }
 
   public async addSetToRoutine(lastSet: LocalRoutineDetail): Promise<number> {
     const addSetInput = this.adapter.getAddSetToRoutineByLastSet(lastSet);
     const newSet = await this.repository.add(addSetInput);
+    await this.routineService.updateLocalRoutineUpdatedAt(
+      addSetInput.routineId
+    );
     return newSet;
   }
 
@@ -53,6 +60,7 @@ export class RoutineDetailService implements IRoutineDetailService {
       startOrder,
     });
     await this.repository.bulkAdd(newDetails);
+    await this.routineService.updateLocalRoutineUpdatedAt(routineId);
   }
 
   public async addPastWorkoutDetailsToRoutine(
@@ -60,6 +68,9 @@ export class RoutineDetailService implements IRoutineDetailService {
   ): Promise<void> {
     if (mappedDetails.length === 0) return;
     await this.repository.bulkAdd(mappedDetails);
+    await this.routineService.updateLocalRoutineUpdatedAt(
+      mappedDetails[0].routineId
+    );
   }
 
   public async cloneRoutineDetailWithNewRoutineId(
@@ -71,13 +82,18 @@ export class RoutineDetailService implements IRoutineDetailService {
       newRoutineId
     );
     await this.repository.add(newDetailInput);
+    await this.routineService.updateLocalRoutineUpdatedAt(newRoutineId);
   }
 
   public async updateLocalRoutineDetail(
     updateWorkoutInput: Partial<LocalRoutineDetail>
   ): Promise<void> {
-    if (!updateWorkoutInput.id) throw new Error("id가 없습니다");
+    if (!updateWorkoutInput.id || !updateWorkoutInput.routineId)
+      throw new Error("id 또는 routineId가 없습니다");
     await this.repository.update(updateWorkoutInput.id, updateWorkoutInput);
+    await this.routineService.updateLocalRoutineUpdatedAt(
+      updateWorkoutInput.routineId
+    );
   }
 
   public async deleteRoutineDetail(detailId: number): Promise<void> {
@@ -92,6 +108,7 @@ export class RoutineDetailService implements IRoutineDetailService {
       return detail.id;
     });
     await this.repository.bulkDelete(ids);
+    await this.routineService.updateLocalRoutineUpdatedAt(details[0].routineId);
   }
 
   // ===== SYNC ===== //
@@ -172,6 +189,9 @@ export class RoutineDetailService implements IRoutineDetailService {
     );
     await this.repository.clear();
     await this.repository.bulkAdd(toInsert);
+    await this.routineService.updateLocalRoutineUpdatedAt(
+      toInsert[0].routineId
+    );
   }
 
   async syncToServerRoutineDetails(): Promise<void> {

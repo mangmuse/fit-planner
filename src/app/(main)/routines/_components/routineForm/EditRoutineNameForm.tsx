@@ -4,7 +4,7 @@ import { routineService } from "@/lib/di";
 import { useModal } from "@/providers/contexts/ModalContext";
 import { ChangeEventHandler, useEffect, useState } from "react";
 
-type EditRoutineNameFormProps = {
+export type EditRoutineNameFormProps = {
   prevName: string;
   routineId: number;
   reload: () => Promise<void>;
@@ -51,7 +51,8 @@ const EditRoutineNameForm = ({
         </button>
         <button
           onClick={handleUpdateName}
-          className="flex-1 py-3 bg-primary text-text-black font-medium rounded-xl hover:bg-primary/90 transition-colors"
+          disabled={!name}
+          className="flex-1 py-3 bg-primary text-text-black font-medium rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           변경
         </button>

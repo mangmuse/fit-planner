@@ -122,6 +122,7 @@ export interface IRoutineService {
     description?: string;
   }) => Promise<number>;
   updateLocalRoutine: (routine: Partial<LocalRoutine>) => Promise<void>;
+  updateLocalRoutineUpdatedAt: (routineId: number) => Promise<void>;
   deleteLocalRoutine: (routineId: number) => Promise<void>;
 
   // --- Sync Service ---
