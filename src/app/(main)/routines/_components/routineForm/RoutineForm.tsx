@@ -1,6 +1,5 @@
 "use client";
-import RoutineDetailContainer from "@/app/(main)/routines/_components/routineDetail/RoutineDetailContainer";
-import { TEMP_ROUTINE_ID } from "@/app/(main)/routines/constants";
+
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import editIcon from "public/edit.svg";

@@ -185,10 +185,8 @@ const SessionContainer = ({
 
   useEffect(() => {
     const handlePopState = () => {
-      // 모달이 열려있으면 모달 핸들러가 처리하도록 놔둠
       if (isModalOpen || isBottomSheetOpen) return;
 
-      // 모달이 없고 workout 페이지면 홈으로
       if (pathname.startsWith("/workout")) {
         router.push("/");
       }
