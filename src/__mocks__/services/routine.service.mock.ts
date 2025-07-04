@@ -6,6 +6,7 @@ export const createMockRoutineService = (): jest.Mocked<IRoutineService> => ({
   getRoutineByServerId: jest.fn(),
   getRoutineByLocalId: jest.fn(),
   addLocalRoutine: jest.fn(),
+  updateLocalRoutineUpdatedAt: jest.fn(),
   updateLocalRoutine: jest.fn(),
   deleteLocalRoutine: jest.fn(),
 

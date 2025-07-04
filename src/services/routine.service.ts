@@ -50,6 +50,12 @@ export class RoutineService implements IRoutineService {
     });
   }
 
+  async updateLocalRoutineUpdatedAt(routineId: number): Promise<void> {
+    await this.repository.update(routineId, {
+      updatedAt: new Date().toISOString(),
+    });
+  }
+
   async deleteLocalRoutine(routineId: number) {
     await this.repository.delete(routineId);
   }

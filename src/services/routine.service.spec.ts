@@ -214,4 +214,15 @@ describe("RoutineService", () => {
       });
     });
   });
+
+  describe("updateLocalRoutineUpdatedAt", () => {
+    it("루틴의 updatedAt을 업데이트한다", async () => {
+      const routineId = 1;
+      mockRepository.update.mockResolvedValue(1);
+      await service.updateLocalRoutineUpdatedAt(routineId);
+      expect(mockRepository.update).toHaveBeenCalledWith(routineId, {
+        updatedAt: expect.any(String),
+      });
+    });
+  });
 });

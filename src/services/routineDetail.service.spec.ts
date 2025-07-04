@@ -58,6 +58,9 @@ describe("RoutineDetailService", () => {
       await service.addLocalRoutineDetail(detailInput);
 
       expect(mockRepository.add).toHaveBeenCalledWith(detailInput);
+      expect(
+        mockRoutineService.updateLocalRoutineUpdatedAt
+      ).toHaveBeenCalledWith(detailInput.routineId);
     });
 
     it("routineDetail 추가 도중 에러가 발생할경우 해당 에러를 전파한다", async () => {
@@ -80,6 +83,9 @@ describe("RoutineDetailService", () => {
         mockRd
       );
       expect(mockRepository.add).toHaveBeenCalledWith(mockRd);
+      expect(
+        mockRoutineService.updateLocalRoutineUpdatedAt
+      ).toHaveBeenCalledWith(mockRd.routineId);
       expect(result).toBe(5);
     });
 
@@ -132,6 +138,9 @@ describe("RoutineDetailService", () => {
         expect.objectContaining({ routineId, startOrder })
       );
       expect(mockRepository.bulkAdd).toHaveBeenCalledWith(newDetails);
+      expect(
+        mockRoutineService.updateLocalRoutineUpdatedAt
+      ).toHaveBeenCalledWith(routineId);
     });
 
     it("운동 생성 도중 에러 발생시 해당 에러를 전파한다", async () => {
@@ -169,6 +178,9 @@ describe("RoutineDetailService", () => {
       await service.addPastWorkoutDetailsToRoutine(mappedDetails);
 
       expect(mockRepository.bulkAdd).toHaveBeenCalledWith(mappedDetails);
+      expect(
+        mockRoutineService.updateLocalRoutineUpdatedAt
+      ).toHaveBeenCalledWith(mappedDetails[0].routineId);
     });
 
     it("빈 배열을 전달할 경우 repository를 호출하지 않고 즉시 반환한다", async () => {
@@ -210,6 +222,9 @@ describe("RoutineDetailService", () => {
         newRoutineId
       );
       expect(mockRepository.add).toHaveBeenCalledWith(newDetailInput);
+      expect(
+        mockRoutineService.updateLocalRoutineUpdatedAt
+      ).toHaveBeenCalledWith(newRoutineId);
     });
 
     it("새 routineDetail 생성 도중 에러 발생시 해당 에러를 전파한다", async () => {
@@ -234,6 +249,7 @@ describe("RoutineDetailService", () => {
   describe("updateLocalRoutineDetail", () => {
     const updateInput: Partial<LocalRoutineDetail> = {
       id: 5,
+      routineId: 10,
       exerciseId: 1,
       exerciseName: "테스트 운동",
     };
@@ -246,6 +262,9 @@ describe("RoutineDetailService", () => {
         updateInput.id,
         updateInput
       );
+      expect(
+        mockRoutineService.updateLocalRoutineUpdatedAt
+      ).toHaveBeenCalledWith(updateInput.routineId);
     });
     it("id가 제공되지 않은경우 에러를 던진다", async () => {
       const updateInput: Partial<LocalRoutineDetail> = {
@@ -255,7 +274,7 @@ describe("RoutineDetailService", () => {
 
       await expect(
         service.updateLocalRoutineDetail(updateInput)
-      ).rejects.toThrow("id가 없습니다");
+      ).rejects.toThrow("id 또는 routineId가 없습니다");
     });
 
     it("업데이트 도중 에러가 발생한 경우 해당 에러를 전파한다", async () => {
@@ -299,6 +318,9 @@ describe("RoutineDetailService", () => {
       await service.deleteRoutineDetails(details);
 
       expect(mockRepository.bulkDelete).toHaveBeenCalledWith([1, 2]);
+      expect(
+        mockRoutineService.updateLocalRoutineUpdatedAt
+      ).toHaveBeenCalledWith(details[0].routineId);
     });
     it("전달받은 details에 id가 없는경우 에러를 던진다", async () => {
       const details: LocalRoutineDetail[] = [
@@ -359,6 +381,9 @@ describe("RoutineDetailService", () => {
       );
       expect(mockRepository.clear).toHaveBeenCalled();
       expect(mockRepository.bulkAdd).toHaveBeenCalledWith(mockToInsert);
+      expect(
+        mockRoutineService.updateLocalRoutineUpdatedAt
+      ).toHaveBeenCalledWith(mockToInsert[0].routineId);
     });
 
     it("매핑에 필요한 exercise나 workout을 찾지 못하면 에러를 던지고, DB를 초기화하지 않는다", async () => {

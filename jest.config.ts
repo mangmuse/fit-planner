@@ -23,8 +23,8 @@ const customJestConfig = {
     "<rootDir>/node_modules/",
     "<rootDir>/coverage/",
     "<rootDir>/dist/",
-    "<rootDir>/src/components/Modal/ModalProvider.spec.tsx",
-    "<rootDir>/src/components/Modal/BottomSheet.spec.tsx",
+    "<rootDir>/src/components/Dialog/BottomSheet/BottomSheetProvider.spec.tsx",
+    "<rootDir>/src/components/Dialog/Modal/ModalProvider.spec.tsx",
   ],
 };
 
