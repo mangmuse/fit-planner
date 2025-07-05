@@ -189,9 +189,6 @@ export class RoutineDetailService implements IRoutineDetailService {
     );
     await this.repository.clear();
     await this.repository.bulkAdd(toInsert);
-    await this.routineService.updateLocalRoutineUpdatedAt(
-      toInsert[0].routineId
-    );
   }
 
   async syncToServerRoutineDetails(): Promise<void> {

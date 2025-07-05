@@ -109,7 +109,7 @@ async function ensureExerciseRecord(
       data: {
         name: item.name,
         category: item.category,
-        isCustom: item.isCustom,
+        isCustom: true, // 항상 true
         imageUrl: item.imageUrl,
         userId: userIdForExerciseData,
         createdAt: new Date(item.createdAt),

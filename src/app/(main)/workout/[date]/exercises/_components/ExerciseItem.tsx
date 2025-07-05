@@ -66,7 +66,7 @@ const ExerciseItem = ({
     >
       <div className="flex items-center gap-3">
         <div className="bg-bg-secondary w-10 h-10 rounded-lg flex items-center justify-center">
-          <span className="text-text-muted text-xs">GYM</span>
+          <span className="text-text-muted text-xs font-medium">FIT</span>
         </div>
         <span
           aria-selected={isSelected}
