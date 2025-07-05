@@ -12,7 +12,15 @@ export class RoutineDetailRepository
     super(table);
   }
 
-  async findAllByRoutineId(routineId: number): Promise<LocalRoutineDetail[]> {
+  public async findAllByRoutineId(
+    routineId: number
+  ): Promise<LocalRoutineDetail[]> {
     return this.table.where("routineId").equals(routineId).toArray();
+  }
+
+  public async findAllByRoutineIds(
+    routineIds: number[]
+  ): Promise<LocalRoutineDetail[]> {
+    return this.table.where("routineId").anyOf(routineIds).toArray();
   }
 }

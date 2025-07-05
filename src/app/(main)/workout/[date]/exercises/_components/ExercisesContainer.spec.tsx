@@ -143,17 +143,14 @@ describe("Characterization Tests", () => {
         expect(screen.getByText("벤치프레스")).toBeInTheDocument();
       });
 
-      // 운동 선택
       const exerciseElement = screen.getByText("벤치프레스").closest("li")!;
       fireEvent.click(exerciseElement);
 
-      // 하단 버튼 확인 및 클릭
       await waitFor(() => {
         const addButton = screen.getByText("1개 선택 완료");
         fireEvent.click(addButton);
       });
 
-      // 서비스 호출 확인
       expect(
         mockWorkoutDetailService.addLocalWorkoutDetailsByUserDate
       ).toHaveBeenCalledWith("user123", "2024-01-01", [

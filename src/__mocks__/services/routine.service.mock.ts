@@ -11,6 +11,6 @@ export const createMockRoutineService = (): jest.Mocked<IRoutineService> => ({
   deleteLocalRoutine: jest.fn(),
 
   // --- Sync Service ---
-  syncToServerRoutines: jest.fn(),
+  // syncToServerRoutines: jest.fn(),
   overwriteWithServerRoutines: jest.fn(),
 });

@@ -8,7 +8,8 @@ export const createMockWorkoutService = (): jest.Mocked<IWorkoutService> => {
     getWorkoutByUserIdAndDate: jest.fn(),
     getWorkoutWithLocalId: jest.fn(),
     getThisMonthWorkouts: jest.fn(),
-    syncToServerWorkouts: jest.fn(),
+    // syncToServerWorkouts: jest.fn(),
+
     updateLocalWorkout: jest.fn(),
     overwriteWithServerWorkouts: jest.fn(),
     getWorkoutWithServerId: jest.fn(),

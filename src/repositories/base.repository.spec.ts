@@ -39,15 +39,6 @@ describe("BaseRepository", () => {
     expect(mockTable.clear).toHaveBeenCalledTimes(1);
   });
 
-  it("findAll 메서드는 table.toArray를 호출한다", async () => {
-    const mockEntity: TestEntity[] = [
-      { id: 1, name: "멍멍이", description: "개" },
-    ];
-    (mockTable.toArray as jest.Mock).mockResolvedValue(mockEntity);
-    const result = await repository.findAll();
-    expect(mockTable.toArray).toHaveBeenCalledTimes(1);
-    expect(result).toEqual(mockEntity);
-  });
   it("findOneById 메서드는 전달받은 id와 함께 table.findOneById를 호출한다", async () => {
     const mockEntity: TestEntity = { id: 1, name: "멍멍이", description: "개" };
     (mockTable.get as jest.Mock).mockResolvedValue(mockEntity);

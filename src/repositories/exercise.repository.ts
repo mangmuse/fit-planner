@@ -11,6 +11,10 @@ export class ExerciseRepository
     super(table);
   }
 
+  async findAll(userId: string): Promise<LocalExercise[]> {
+    return this.table.where("userId").equals(userId).toArray();
+  }
+
   async findOneByServerId(
     serverId: number
   ): Promise<LocalExercise | undefined> {

@@ -38,9 +38,10 @@ describe("ExerciseService", () => {
       it("모든 운동을 가져온다", async () => {
         const mockExercises: LocalExercise[] = [mockExercise.synced];
         mockRepository.findAll.mockResolvedValue(mockExercises);
-        const result = await service.getAllLocalExercises();
+        const result = await service.getAllLocalExercises("user-123");
         expect(result).toEqual(mockExercises);
         expect(mockRepository.findAll).toHaveBeenCalledTimes(1);
+        expect(mockRepository.findAll).toHaveBeenCalledWith("user-123");
       });
     });
 
@@ -231,59 +232,59 @@ describe("ExerciseService", () => {
       });
     });
 
-    describe("syncToServerExercises", () => {
-      const unsyncedDetails = [
-        { ...mockExercise.synced, id: 5, isSynced: false },
-      ];
-      const userId = "user-123";
-      const mockServerResponse: SyncExercisesToServerResponse = {
-        success: true,
-        updated: [
-          {
-            localId: unsyncedDetails[0].id!,
-            serverId: unsyncedDetails[0].serverId || 0,
-          },
-        ],
-      };
+    // describe("syncToServerExercises", () => {
+    //   const unsyncedDetails = [
+    //     { ...mockExercise.synced, id: 5, isSynced: false },
+    //   ];
+    //   const userId = "user-123";
+    //   const mockServerResponse: SyncExercisesToServerResponse = {
+    //     success: true,
+    //     updated: [
+    //       {
+    //         localId: unsyncedDetails[0].id!,
+    //         serverId: unsyncedDetails[0].serverId || 0,
+    //       },
+    //     ],
+    //   };
 
-      it("local exercise들을 서버에 동기화한다", async () => {
-        mockRepository.findAllUnsynced.mockResolvedValue(unsyncedDetails);
-        mockApi.postExercisesToServer.mockResolvedValue(mockServerResponse);
+    //   it("local exercise들을 서버에 동기화한다", async () => {
+    //     mockRepository.findAllUnsynced.mockResolvedValue(unsyncedDetails);
+    //     mockApi.postExercisesToServer.mockResolvedValue(mockServerResponse);
 
-        await service.syncToServerExercises(userId);
+    //     await service.syncToServerExercises(userId);
 
-        expect(mockRepository.update).toHaveBeenCalledWith(5, {
-          isSynced: true,
-          serverId: mockServerResponse.updated[0].serverId,
-        });
-      });
+    //     expect(mockRepository.update).toHaveBeenCalledWith(5, {
+    //       isSynced: true,
+    //       serverId: mockServerResponse.updated[0].serverId,
+    //     });
+    //   });
 
-      it("unsynced exercise가 없는경우 api호출은 하지만 update는 하지않는다", async () => {
-        const unsynced = [];
-        const data = {
-          success: true,
-          updated: [],
-        };
-        mockRepository.findAllUnsynced.mockResolvedValue(unsynced);
-        mockApi.postExercisesToServer.mockResolvedValue(data);
+    //   it("unsynced exercise가 없는경우 api호출은 하지만 update는 하지않는다", async () => {
+    //     const unsynced = [];
+    //     const data = {
+    //       success: true,
+    //       updated: [],
+    //     };
+    //     mockRepository.findAllUnsynced.mockResolvedValue(unsynced);
+    //     mockApi.postExercisesToServer.mockResolvedValue(data);
 
-        await service.syncToServerExercises(userId);
+    //     await service.syncToServerExercises(userId);
 
-        expect(mockApi.postExercisesToServer).toHaveBeenCalledWith(
-          unsynced,
-          userId
-        );
-        expect(mockRepository.update).not.toHaveBeenCalled();
-      });
+    //     expect(mockApi.postExercisesToServer).toHaveBeenCalledWith(
+    //       unsynced,
+    //       userId
+    //     );
+    //     expect(mockRepository.update).not.toHaveBeenCalled();
+    //   });
 
-      it("서버 통신 도중 에러 발생시 해당 에러를 전파한다", async () => {
-        const mockError = new Error("서버 통신 실패");
-        mockRepository.findAllUnsynced.mockResolvedValue(unsyncedDetails);
-        mockApi.postExercisesToServer.mockRejectedValue(mockError);
-        await expect(service.syncToServerExercises(userId)).rejects.toThrow(
-          mockError
-        );
-      });
-    });
+    //   it("서버 통신 도중 에러 발생시 해당 에러를 전파한다", async () => {
+    //     const mockError = new Error("서버 통신 실패");
+    //     mockRepository.findAllUnsynced.mockResolvedValue(unsyncedDetails);
+    //     mockApi.postExercisesToServer.mockRejectedValue(mockError);
+    //     await expect(service.syncToServerExercises(userId)).rejects.toThrow(
+    //       mockError
+    //     );
+    //   });
+    // });
   });
 });

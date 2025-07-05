@@ -10,9 +10,9 @@ export abstract class BaseRepository<
     await this.table.clear();
   }
 
-  public async findAll(): Promise<T[]> {
-    return this.table.toArray();
-  }
+  // public async findAll(): Promise<T[]> {
+  //   return this.table.toArray();
+  // }
 
   public async findOneById(id: TKey): Promise<T | undefined> {
     return this.table.get(id);

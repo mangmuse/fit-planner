@@ -73,21 +73,21 @@ export class WorkoutService implements IWorkoutService {
   }
 
   // ---- Sync ---- //
-  public async syncToServerWorkouts(): Promise<void> {
-    const all = await this.repository.findAll();
+  // public async syncToServerWorkouts(userId: string): Promise<void> {
+  //   const all = await this.repository.findAll(userId);
 
-    const unsynced = all.filter((workout) => !workout.isSynced);
-    const data = await this.api.postWorkoutsToServer(unsynced);
+  //   const unsynced = all.filter((workout) => !workout.isSynced);
+  //   const data = await this.api.postWorkoutsToServer(unsynced);
 
-    if (data.updated.length === 0) return;
+  //   if (data.updated.length === 0) return;
 
-    for (const updated of data.updated) {
-      await this.repository.update(updated.localId, {
-        serverId: updated.serverId,
-        isSynced: true,
-      });
-    }
-  }
+  //   for (const updated of data.updated) {
+  //     await this.repository.update(updated.localId, {
+  //       serverId: updated.serverId,
+  //       isSynced: true,
+  //     });
+  //   }
+  // }
 
   public async overwriteWithServerWorkouts(userId: string): Promise<void> {
     const serverData: ClientWorkout[] =

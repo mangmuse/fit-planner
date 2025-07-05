@@ -87,7 +87,7 @@ describe("ExerciseItem", () => {
       renderExerciseItem({
         exercise: { ...mockExerciseData, isBookmarked: false },
       });
-      await user.click(screen.getByAltText("북마크"));
+      await user.click(screen.getByLabelText("북마크"));
 
       expect(mockExerciseService.toggleLocalBookmark).toHaveBeenCalledWith(
         mockExerciseData.id,
@@ -101,7 +101,7 @@ describe("ExerciseItem", () => {
       renderExerciseItem({
         exercise: { ...mockExerciseData, isBookmarked: true },
       });
-      await user.click(screen.getByAltText("북마크 해제"));
+      await user.click(screen.getByLabelText("북마크 해제"));
 
       expect(mockOpenModal).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -124,7 +124,7 @@ describe("ExerciseItem", () => {
       renderExerciseItem({
         exercise: { ...mockExerciseData, isBookmarked: true },
       });
-      await user.click(screen.getByAltText("북마크 해제"));
+      await user.click(screen.getByLabelText("북마크 해제"));
 
       expect(mockExerciseService.toggleLocalBookmark).toHaveBeenCalledWith(
         mockExerciseData.id,
@@ -145,7 +145,7 @@ describe("ExerciseItem", () => {
         exercise: { ...mockExerciseData, isBookmarked: false },
         onReload: mockOnReload,
       });
-      await user.click(screen.getByAltText("북마크"));
+      await user.click(screen.getByLabelText("북마크"));
 
       await waitFor(() => {
         expect(mockShowError).toHaveBeenCalledWith(

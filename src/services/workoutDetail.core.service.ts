@@ -34,6 +34,12 @@ export class WorkoutDetailCoreService implements IWorkoutDetailCoreService {
     return details;
   }
 
+  public async getAllLocalWorkoutDetailsByWorkoutIds(
+    workoutIds: number[]
+  ): Promise<LocalWorkoutDetail[]> {
+    return this.repository.findAllByWorkoutIds(workoutIds);
+  }
+
   async getStartExerciseOrder(workoutId: number): Promise<number> {
     const allDetails =
       await this.repository.findAllByWorkoutIdOrderByExerciseOrder(workoutId);

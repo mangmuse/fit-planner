@@ -11,6 +11,10 @@ export class WorkoutRepository
     super(table);
   }
 
+  async findAll(userId: string): Promise<LocalWorkout[]> {
+    return this.table.where("userId").equals(userId).toArray();
+  }
+
   async findOneByServerId(serverId: string): Promise<LocalWorkout | undefined> {
     return this.table.where("serverId").equals(serverId).first();
   }

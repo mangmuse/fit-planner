@@ -41,6 +41,12 @@ export class RoutineDetailService implements IRoutineDetailService {
     );
   }
 
+  public async getAllLocalRoutineDetailsByRoutineIds(
+    routineIds: number[]
+  ): Promise<LocalRoutineDetail[]> {
+    return this.repository.findAllByRoutineIds(routineIds);
+  }
+
   public async addSetToRoutine(lastSet: LocalRoutineDetail): Promise<number> {
     const addSetInput = this.adapter.getAddSetToRoutineByLastSet(lastSet);
     const newSet = await this.repository.add(addSetInput);
@@ -191,17 +197,17 @@ export class RoutineDetailService implements IRoutineDetailService {
     await this.repository.bulkAdd(toInsert);
   }
 
-  async syncToServerRoutineDetails(): Promise<void> {
-    const all = await this.repository.findAll();
+  // async syncToServerRoutineDetails(): Promise<void> {
+  //   const all = await this.repository.findAll();
 
-    const unsynced = all.filter((detail) => !detail.isSynced);
-    const mappedUnsynced = await this.mapDetailsToPayload(unsynced);
-    const data = await this.api.postRoutineDetailsToServer(mappedUnsynced);
+  //   const unsynced = all.filter((detail) => !detail.isSynced);
+  //   const mappedUnsynced = await this.mapDetailsToPayload(unsynced);
+  //   const data = await this.api.postRoutineDetailsToServer(mappedUnsynced);
 
-    if (data.updated.length === 0) return;
+  //   if (data.updated.length === 0) return;
 
-    if (data.updated) {
-      await this.updateLocalRoutineDetailWithApiResponse(data.updated);
-    }
-  }
+  //   if (data.updated) {
+  //     await this.updateLocalRoutineDetailWithApiResponse(data.updated);
+  //   }
+  // }
 }

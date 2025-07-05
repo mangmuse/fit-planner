@@ -188,45 +188,45 @@ describe("WorkoutService", () => {
   });
 
   describe("sync service", () => {
-    describe("syncToServerWorkouts", () => {
-      const mockAllWorkouts = [mockWorkout.planned, mockWorkout.synced];
-      it("모든 local workouts를 서버에 동기화한다", async () => {
-        mockRepository.findAll.mockResolvedValue(mockAllWorkouts);
-        mockApi.postWorkoutsToServer.mockResolvedValue({
-          success: true,
-          updated: [
-            { localId: mockWorkout.planned.id!, serverId: "server-123" },
-          ],
-        });
-        await service.syncToServerWorkouts();
+    // describe("syncToServerWorkouts", () => {
+    //   const mockAllWorkouts = [mockWorkout.planned, mockWorkout.synced];
+    //   it("모든 local workouts를 서버에 동기화한다", async () => {
+    //     mockRepository.findAll.mockResolvedValue(mockAllWorkouts);
+    //     mockApi.postWorkoutsToServer.mockResolvedValue({
+    //       success: true,
+    //       updated: [
+    //         { localId: mockWorkout.planned.id!, serverId: "server-123" },
+    //       ],
+    //     });
+    //     await service.syncToServerWorkouts();
 
-        expect(mockRepository.findAll).toHaveBeenCalled();
-        expect(mockApi.postWorkoutsToServer).toHaveBeenCalledWith([
-          mockWorkout.planned,
-        ]);
-        expect(mockRepository.update).toHaveBeenCalledWith(
-          mockWorkout.planned.id!,
-          {
-            serverId: "server-123",
-            isSynced: true,
-          }
-        );
-      });
+    //     expect(mockRepository.findAll).toHaveBeenCalled();
+    //     expect(mockApi.postWorkoutsToServer).toHaveBeenCalledWith([
+    //       mockWorkout.planned,
+    //     ]);
+    //     expect(mockRepository.update).toHaveBeenCalledWith(
+    //       mockWorkout.planned.id!,
+    //       {
+    //         serverId: "server-123",
+    //         isSynced: true,
+    //       }
+    //     );
+    //   });
 
-      it("local workouts이 없을경우 api 호출은 하지만 update는 하지않는다", async () => {
-        mockRepository.findAll.mockResolvedValue([]);
-        mockApi.postWorkoutsToServer.mockResolvedValue({
-          success: true,
-          updated: [],
-        });
+    //   it("local workouts이 없을경우 api 호출은 하지만 update는 하지않는다", async () => {
+    //     mockRepository.findAll.mockResolvedValue([]);
+    //     mockApi.postWorkoutsToServer.mockResolvedValue({
+    //       success: true,
+    //       updated: [],
+    //     });
 
-        await service.syncToServerWorkouts();
+    //     await service.syncToServerWorkouts();
 
-        expect(mockRepository.findAll).toHaveBeenCalled();
-        expect(mockApi.postWorkoutsToServer).toHaveBeenCalledWith([]);
-        expect(mockRepository.update).not.toHaveBeenCalled();
-      });
-    });
+    //     expect(mockRepository.findAll).toHaveBeenCalled();
+    //     expect(mockApi.postWorkoutsToServer).toHaveBeenCalledWith([]);
+    //     expect(mockRepository.update).not.toHaveBeenCalled();
+    //   });
+    // });
 
     describe("overwriteWithServerWorkouts", () => {
       const userId = "user-123";

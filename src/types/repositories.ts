@@ -8,7 +8,6 @@ import {
 
 export interface IWorkoutRepository {
   clear: () => Promise<void>;
-  findAll: () => Promise<LocalWorkout[]>;
   findOneById: (workoutId: number) => Promise<LocalWorkout | undefined>;
   findOneByServerId: (serverId: string) => Promise<LocalWorkout | undefined>;
   findOneByUserIdAndDate: (
@@ -32,7 +31,7 @@ export interface IRoutineRepository {
   clear: () => Promise<void>;
   findOneById: (id: number) => Promise<LocalRoutine | undefined>;
   findOneByServerId: (serverId: string) => Promise<LocalRoutine | undefined>;
-  findAll: () => Promise<LocalRoutine[]>;
+  findAll: (userId: string) => Promise<LocalRoutine[]>;
   findAllByUserId: (userId: string) => Promise<LocalRoutine[]>;
   add: (toInsert: Omit<LocalRoutine, "id">) => Promise<number>;
   bulkAdd: (toInsert: Omit<LocalRoutine, "id">[]) => Promise<number>;
@@ -46,7 +45,7 @@ export interface IExerciseRepository {
   clear: () => Promise<void>;
   findOneById: (id: number) => Promise<LocalExercise | undefined>;
   findOneByServerId: (serverId: number) => Promise<LocalExercise | undefined>;
-  findAll: () => Promise<LocalExercise[]>;
+  findAll: (userId: string) => Promise<LocalExercise[]>;
   findAllUnsynced: () => Promise<LocalExercise[]>;
   add: (toInsert: Omit<LocalExercise, "id">) => Promise<number>;
   bulkAdd: (toInsert: Omit<LocalExercise, "id">[]) => Promise<number>;
@@ -60,9 +59,9 @@ export interface IRoutineDetailRepository {
   clear: () => Promise<void>;
   findOneById: (id: number) => Promise<LocalRoutineDetail | undefined>;
   findAllByRoutineId: (routineId: number) => Promise<LocalRoutineDetail[]>;
-
+  findAllByRoutineIds: (routineIds: number[]) => Promise<LocalRoutineDetail[]>;
   add: (toInsert: Omit<LocalRoutineDetail, "id">) => Promise<number>;
-  findAll: () => Promise<LocalRoutineDetail[]>;
+  // findAll: () => Promise<LocalRoutineDetail[]>;
   bulkAdd: (toInsert: Omit<LocalRoutineDetail, "id">[]) => Promise<number>;
   update: (
     id: number,
@@ -75,7 +74,8 @@ export interface IRoutineDetailRepository {
 
 export interface IWorkoutDetailRepository {
   clear: () => Promise<void>;
-  findAll: () => Promise<LocalWorkoutDetail[]>;
+  findAllByWorkoutIds: (workoutIds: number[]) => Promise<LocalWorkoutDetail[]>;
+
   findAllByWorkoutId: (workoutId: number) => Promise<LocalWorkoutDetail[]>;
   findAllByWorkoutIdOrderByExerciseOrder: (
     workoutId: number

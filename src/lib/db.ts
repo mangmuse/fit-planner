@@ -23,7 +23,7 @@ export class MyLocalDB extends Dexie {
       /*
       
       */
-      exercises: "++id,serverId,name,category,isSynced",
+      exercises: "++id,serverId,name,category,isSynced,userId",
 
       workouts: "++id,[userId+date],serverId,exerciseId,date,userId",
       routines: "++id,serverId,exerciseId,userId",

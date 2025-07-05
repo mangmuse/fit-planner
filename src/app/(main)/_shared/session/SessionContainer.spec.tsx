@@ -165,14 +165,13 @@ describe("SessionContainer - 규정 테스트", () => {
 
       await waitFor(() => {
         expect(screen.getByText("2024년 1월 1일")).toBeInTheDocument();
+        expect(screen.getByAltText("전체 삭제")).toBeInTheDocument();
+        expect(screen.getByAltText("순서 변경")).toBeInTheDocument();
+        expect(screen.getByText("운동 추가")).toBeInTheDocument();
+        expect(screen.getByText("불러오기")).toBeInTheDocument();
+        expect(screen.getByText("운동 완료")).toBeInTheDocument();
+        expect(screen.getByTestId("workout-exerciseGroup")).toBeInTheDocument();
       });
-
-      expect(screen.getByAltText("전체 삭제")).toBeInTheDocument();
-      expect(screen.getByAltText("순서 변경")).toBeInTheDocument();
-      expect(screen.getByText("운동 추가")).toBeInTheDocument();
-      expect(screen.getByText("불러오기")).toBeInTheDocument();
-      expect(screen.getByText("운동 완료")).toBeInTheDocument();
-      expect(screen.getByTestId("workout-exerciseGroup")).toBeInTheDocument();
     });
 
     it("운동 데이터가 없을 때 Placeholder가 표시된다", async () => {
@@ -212,9 +211,8 @@ describe("SessionContainer - 규정 테스트", () => {
 
       await waitFor(() => {
         expect(screen.getByText("2024년 1월 1일")).toBeInTheDocument();
+        expect(screen.queryByText("운동 완료")).not.toBeInTheDocument();
       });
-
-      expect(screen.queryByText("운동 완료")).not.toBeInTheDocument();
     });
   });
 
@@ -228,9 +226,8 @@ describe("SessionContainer - 규정 테스트", () => {
 
       await waitFor(() => {
         expect(screen.getByText("운동 추가")).toBeInTheDocument();
+        expect(screen.queryByText("운동 완료")).not.toBeInTheDocument();
       });
-
-      expect(screen.queryByText("운동 완료")).not.toBeInTheDocument();
     });
   });
 
@@ -358,48 +355,36 @@ describe("SessionContainer - 규정 테스트", () => {
   });
 
   describe("로딩 상태", () => {
-    it("데이터 로드 중 로딩 표시가 나타난다", () => {
-      render(
-        <SessionContainer
-          type="RECORD"
-          date="2024-01-01"
-          formattedDate="2024년 1월 1일"
-        />
-      );
+    describe("날짜 표시", () => {
+      it("formattedDate가 문자열일 때 time 태그로 렌더링된다", async () => {
+        render(
+          <SessionContainer
+            type="RECORD"
+            date="2024-01-01"
+            formattedDate="2024년 1월 1일"
+          />
+        );
 
-      expect(screen.getByText("Loading...")).toBeInTheDocument();
-    });
-  });
-
-  describe("날짜 표시", () => {
-    it("formattedDate가 문자열일 때 time 태그로 렌더링된다", async () => {
-      render(
-        <SessionContainer
-          type="RECORD"
-          date="2024-01-01"
-          formattedDate="2024년 1월 1일"
-        />
-      );
-
-      await waitFor(() => {
-        const timeElement = screen.getByText("2024년 1월 1일");
-        expect(timeElement.tagName).toBe("TIME");
+        await waitFor(() => {
+          const timeElement = screen.getByText("2024년 1월 1일");
+          expect(timeElement.tagName).toBe("TIME");
+        });
       });
-    });
 
-    it("formattedDate가 React 엘리먼트일 때 div로 렌더링된다", async () => {
-      const CustomDate = <span>커스텀 날짜</span>;
+      it("formattedDate가 React 엘리먼트일 때 div로 렌더링된다", async () => {
+        const CustomDate = <span>커스텀 날짜</span>;
 
-      render(
-        <SessionContainer
-          type="RECORD"
-          date="2024-01-01"
-          formattedDate={CustomDate}
-        />
-      );
+        render(
+          <SessionContainer
+            type="RECORD"
+            date="2024-01-01"
+            formattedDate={CustomDate}
+          />
+        );
 
-      await waitFor(() => {
-        expect(screen.getByText("커스텀 날짜")).toBeInTheDocument();
+        await waitFor(() => {
+          expect(screen.getByText("커스텀 날짜")).toBeInTheDocument();
+        });
       });
     });
   });

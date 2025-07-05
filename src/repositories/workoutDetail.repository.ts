@@ -16,6 +16,12 @@ export class WorkoutDetailRepository
     return this.table.where("workoutId").equals(workoutId).toArray();
   }
 
+  async findAllByWorkoutIds(
+    workoutIds: number[]
+  ): Promise<LocalWorkoutDetail[]> {
+    return this.table.where("workoutId").anyOf(workoutIds).toArray();
+  }
+
   async findAllByWorkoutIdOrderByExerciseOrder(
     workoutId: number
   ): Promise<LocalWorkoutDetail[]> {

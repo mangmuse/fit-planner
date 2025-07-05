@@ -17,7 +17,9 @@ const useExercises = ({ userId }: UseExercisesProps) => {
       setError(null);
       setLoading(true);
 
-      const all = await exerciseService.getAllLocalExercises();
+      if (!userId) return;
+
+      const all = await exerciseService.getAllLocalExercises(userId);
       setExercises(all);
     } catch (e) {
       console.error("[useExercises] Error", e);
@@ -35,11 +37,11 @@ const useExercises = ({ userId }: UseExercisesProps) => {
         setError(null);
         setLoading(true);
 
-        const localAll = await exerciseService.getAllLocalExercises();
+        const localAll = await exerciseService.getAllLocalExercises(userId);
 
         if (localAll.length === 0) {
           await exerciseService.syncExercisesFromServerLocalFirst(userId);
-          const syncedData = await exerciseService.getAllLocalExercises();
+          const syncedData = await exerciseService.getAllLocalExercises(userId);
           setExercises(syncedData);
         } else {
           setExercises(localAll);

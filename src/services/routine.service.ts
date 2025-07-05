@@ -61,8 +61,8 @@ export class RoutineService implements IRoutineService {
   }
 
   // ===== SYNC ===== //
-  async syncToServerRoutines(): Promise<void> {
-    const all = await this.repository.findAll();
+  async syncToServerRoutines(userId: string): Promise<void> {
+    const all = await this.repository.findAll(userId);
 
     const unsynced = all.filter((routine) => !routine.isSynced);
     const data = await this.api.postRoutinesToServer(unsynced);

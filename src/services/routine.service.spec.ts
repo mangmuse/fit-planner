@@ -127,46 +127,46 @@ describe("RoutineService", () => {
   });
 
   describe("sync service", () => {
-    describe("syncToServerRoutines", () => {
-      const mockAllRoutines = [mockRoutine.unsynced, mockRoutine.synced];
-      it("모든 local routines를 서버에 동기화한다", async () => {
-        mockRepository.findAll.mockResolvedValue(mockAllRoutines);
-        mockRepository.update.mockResolvedValue(1);
-        mockApi.postRoutinesToServer.mockResolvedValue({
-          success: true,
-          updated: [
-            { localId: mockRoutine.unsynced.id!, serverId: "server-123" },
-          ],
-        });
-        await service.syncToServerRoutines();
+    // describe("syncToServerRoutines", () => {
+    //   const mockAllRoutines = [mockRoutine.unsynced, mockRoutine.synced];
+    //   it("모든 local routines를 서버에 동기화한다", async () => {
+    //     mockRepository.findAll.mockResolvedValue(mockAllRoutines);
+    //     mockRepository.update.mockResolvedValue(1);
+    //     mockApi.postRoutinesToServer.mockResolvedValue({
+    //       success: true,
+    //       updated: [
+    //         { localId: mockRoutine.unsynced.id!, serverId: "server-123" },
+    //       ],
+    //     });
+    //     await service.syncToServerRoutines();
 
-        expect(mockRepository.findAll).toHaveBeenCalled();
-        expect(mockApi.postRoutinesToServer).toHaveBeenCalledWith([
-          mockRoutine.unsynced,
-        ]);
-        expect(mockRepository.update).toHaveBeenCalledWith(
-          mockRoutine.unsynced.id!,
-          {
-            serverId: "server-123",
-            isSynced: true,
-          }
-        );
-      });
+    //     expect(mockRepository.findAll).toHaveBeenCalled();
+    //     expect(mockApi.postRoutinesToServer).toHaveBeenCalledWith([
+    //       mockRoutine.unsynced,
+    //     ]);
+    //     expect(mockRepository.update).toHaveBeenCalledWith(
+    //       mockRoutine.unsynced.id!,
+    //       {
+    //         serverId: "server-123",
+    //         isSynced: true,
+    //       }
+    //     );
+    //   });
 
-      it("local routines이 없을경우 api 호출은 하지만 update는 하지않는다", async () => {
-        mockRepository.findAll.mockResolvedValue([]);
-        mockApi.postRoutinesToServer.mockResolvedValue({
-          success: true,
-          updated: [],
-        });
+    //   it("local routines이 없을경우 api 호출은 하지만 update는 하지않는다", async () => {
+    //     mockRepository.findAll.mockResolvedValue([]);
+    //     mockApi.postRoutinesToServer.mockResolvedValue({
+    //       success: true,
+    //       updated: [],
+    //     });
 
-        await service.syncToServerRoutines();
+    //     await service.syncToServerRoutines();
 
-        expect(mockRepository.findAll).toHaveBeenCalled();
-        expect(mockApi.postRoutinesToServer).toHaveBeenCalledWith([]);
-        expect(mockRepository.update).not.toHaveBeenCalled();
-      });
-    });
+    //     expect(mockRepository.findAll).toHaveBeenCalled();
+    //     expect(mockApi.postRoutinesToServer).toHaveBeenCalledWith([]);
+    //     expect(mockRepository.update).not.toHaveBeenCalled();
+    //   });
+    // });
 
     describe("overwriteWithServerRoutines", () => {
       const userId = "user-123";

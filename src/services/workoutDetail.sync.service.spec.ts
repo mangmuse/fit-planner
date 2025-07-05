@@ -108,139 +108,139 @@ describe("WorkoutDetailSyncService", () => {
     });
   });
 
-  describe("syncToServerWorkoutDetails", () => {
-    const unsyncedDetail = { ...mockWorkoutDetail.unsynced, id: 3 };
-    it("동기화할 데이터가 없으면 빈배열로 API를 호출하고, db 업데이트는 하지않는다", async () => {
-      const syncedDetails = [
-        { ...mockWorkoutDetail.past, id: 1, isSynced: true },
-        { ...mockWorkoutDetail.past, id: 2, isSynced: true },
-      ];
-      mockRepository.findAll.mockResolvedValue(syncedDetails);
-      mockApi.postWorkoutDetailsToServer.mockResolvedValue({
-        success: true,
-        updated: [],
-      });
+  // describe("syncToServerWorkoutDetails", () => {
+  //   const unsyncedDetail = { ...mockWorkoutDetail.unsynced, id: 3 };
+  //   it("동기화할 데이터가 없으면 빈배열로 API를 호출하고, db 업데이트는 하지않는다", async () => {
+  //     const syncedDetails = [
+  //       { ...mockWorkoutDetail.past, id: 1, isSynced: true },
+  //       { ...mockWorkoutDetail.past, id: 2, isSynced: true },
+  //     ];
+  //     mockRepository.findAll.mockResolvedValue(syncedDetails);
+  //     mockApi.postWorkoutDetailsToServer.mockResolvedValue({
+  //       success: true,
+  //       updated: [],
+  //     });
 
-      await service.syncToServerWorkoutDetails();
+  //     await service.syncToServerWorkoutDetails();
 
-      expect(mockRepository.findAll).toHaveBeenCalledTimes(1);
-      expect(mockApi.postWorkoutDetailsToServer).toHaveBeenCalledWith([]);
-      expect(mockRepository.update).not.toHaveBeenCalled();
-    });
+  //     expect(mockRepository.findAll).toHaveBeenCalledTimes(1);
+  //     expect(mockApi.postWorkoutDetailsToServer).toHaveBeenCalledWith([]);
+  //     expect(mockRepository.update).not.toHaveBeenCalled();
+  //   });
 
-    it("unsynced 데이터를 서버에 동기화하고 로컬 DB를 업데이트한다", async () => {
-      const allDetails = [
-        { ...mockWorkoutDetail.past, id: 1, isSynced: true },
-        { ...mockWorkoutDetail.past, id: 2, isSynced: true },
-        unsyncedDetail,
-      ];
+  //   it("unsynced 데이터를 서버에 동기화하고 로컬 DB를 업데이트한다", async () => {
+  //     const allDetails = [
+  //       { ...mockWorkoutDetail.past, id: 1, isSynced: true },
+  //       { ...mockWorkoutDetail.past, id: 2, isSynced: true },
+  //       unsyncedDetail,
+  //     ];
 
-      const mockEx: LocalExercise = {
-        ...mockExercise.synced,
-        id: unsyncedDetail.exerciseId,
-        serverId: 111,
-      };
-      const mockWo: LocalWorkout = {
-        ...mockWorkout.synced,
-        id: unsyncedDetail.workoutId,
-        serverId: "wo-server-1",
-      };
+  //     const mockEx: LocalExercise = {
+  //       ...mockExercise.synced,
+  //       id: unsyncedDetail.exerciseId,
+  //       serverId: 111,
+  //     };
+  //     const mockWo: LocalWorkout = {
+  //       ...mockWorkout.synced,
+  //       id: unsyncedDetail.workoutId,
+  //       serverId: "wo-server-1",
+  //     };
 
-      const mappedPayload: LocalWorkoutDetailWithServerWorkoutId = {
-        ...unsyncedDetail,
-        exerciseId: mockEx.serverId!,
-        workoutId: mockWo.serverId!,
-      };
+  //     const mappedPayload: LocalWorkoutDetailWithServerWorkoutId = {
+  //       ...unsyncedDetail,
+  //       exerciseId: mockEx.serverId!,
+  //       workoutId: mockWo.serverId!,
+  //     };
 
-      const apiResponse: SyncWorkoutDetailsToServerResponse = {
-        success: true,
-        updated: [
-          {
-            localId: unsyncedDetail.id,
-            serverId: "server-detail-123",
-            exerciseId: mockEx.serverId!,
-            workoutId: mockWo.serverId!,
-          },
-        ],
-      };
+  //     const apiResponse: SyncWorkoutDetailsToServerResponse = {
+  //       success: true,
+  //       updated: [
+  //         {
+  //           localId: unsyncedDetail.id,
+  //           serverId: "server-detail-123",
+  //           exerciseId: mockEx.serverId!,
+  //           workoutId: mockWo.serverId!,
+  //         },
+  //       ],
+  //     };
 
-      mockRepository.findAll.mockResolvedValue(allDetails);
-      mockExerciseService.getExerciseWithLocalId.mockResolvedValue(mockEx);
-      mockWorkoutService.getWorkoutWithLocalId.mockResolvedValue(mockWo);
-      mockAdapter.mapLocalWorkoutDetailToServer.mockReturnValue(mappedPayload);
-      mockApi.postWorkoutDetailsToServer.mockResolvedValue(apiResponse);
+  //     mockRepository.findAll.mockResolvedValue(allDetails);
+  //     mockExerciseService.getExerciseWithLocalId.mockResolvedValue(mockEx);
+  //     mockWorkoutService.getWorkoutWithLocalId.mockResolvedValue(mockWo);
+  //     mockAdapter.mapLocalWorkoutDetailToServer.mockReturnValue(mappedPayload);
+  //     mockApi.postWorkoutDetailsToServer.mockResolvedValue(apiResponse);
 
-      mockExerciseService.getExerciseWithServerId.mockResolvedValue(mockEx);
-      mockWorkoutService.getWorkoutWithServerId.mockResolvedValue(mockWo);
+  //     mockExerciseService.getExerciseWithServerId.mockResolvedValue(mockEx);
+  //     mockWorkoutService.getWorkoutWithServerId.mockResolvedValue(mockWo);
 
-      await service.syncToServerWorkoutDetails();
+  //     await service.syncToServerWorkoutDetails();
 
-      expect(mockRepository.findAll).toHaveBeenCalledTimes(1);
+  //     expect(mockRepository.findAll).toHaveBeenCalledTimes(1);
 
-      expect(mockExerciseService.getExerciseWithLocalId).toHaveBeenCalledWith(
-        unsyncedDetail.exerciseId
-      );
-      expect(mockWorkoutService.getWorkoutWithLocalId).toHaveBeenCalledWith(
-        unsyncedDetail.workoutId
-      );
-      expect(mockAdapter.mapLocalWorkoutDetailToServer).toHaveBeenCalledWith(
-        unsyncedDetail,
-        mockEx,
-        mockWo
-      );
+  //     expect(mockExerciseService.getExerciseWithLocalId).toHaveBeenCalledWith(
+  //       unsyncedDetail.exerciseId
+  //     );
+  //     expect(mockWorkoutService.getWorkoutWithLocalId).toHaveBeenCalledWith(
+  //       unsyncedDetail.workoutId
+  //     );
+  //     expect(mockAdapter.mapLocalWorkoutDetailToServer).toHaveBeenCalledWith(
+  //       unsyncedDetail,
+  //       mockEx,
+  //       mockWo
+  //     );
 
-      expect(mockApi.postWorkoutDetailsToServer).toHaveBeenCalledWith([
-        mappedPayload,
-      ]);
+  //     expect(mockApi.postWorkoutDetailsToServer).toHaveBeenCalledWith([
+  //       mappedPayload,
+  //     ]);
 
-      expect(mockExerciseService.getExerciseWithServerId).toHaveBeenCalledWith(
-        111
-      );
-      expect(mockWorkoutService.getWorkoutWithServerId).toHaveBeenCalledWith(
-        "wo-server-1"
-      );
-      expect(mockRepository.update).toHaveBeenCalledWith(unsyncedDetail.id, {
-        serverId: "server-detail-123",
-        isSynced: true,
-        exerciseId: mockEx.id,
-        workoutId: mockWo.id,
-      });
-    });
+  //     expect(mockExerciseService.getExerciseWithServerId).toHaveBeenCalledWith(
+  //       111
+  //     );
+  //     expect(mockWorkoutService.getWorkoutWithServerId).toHaveBeenCalledWith(
+  //       "wo-server-1"
+  //     );
+  //     expect(mockRepository.update).toHaveBeenCalledWith(unsyncedDetail.id, {
+  //       serverId: "server-detail-123",
+  //       isSynced: true,
+  //       exerciseId: mockEx.id,
+  //       workoutId: mockWo.id,
+  //     });
+  //   });
 
-    it("매핑 도중 exercise 또는 workout의 serverId가 없으면 에러를 던진다", async () => {
-      const unsyncedDetail = { ...mockWorkoutDetail.unsynced, id: 3 };
-      const allDetails = [unsyncedDetail];
-      const mockEx = {
-        ...mockExercise.synced,
-        id: unsyncedDetail.exerciseId,
-        serverId: null,
-      };
-      const mockWo = mockWorkout.synced;
+  //   it("매핑 도중 exercise 또는 workout의 serverId가 없으면 에러를 던진다", async () => {
+  //     const unsyncedDetail = { ...mockWorkoutDetail.unsynced, id: 3 };
+  //     const allDetails = [unsyncedDetail];
+  //     const mockEx = {
+  //       ...mockExercise.synced,
+  //       id: unsyncedDetail.exerciseId,
+  //       serverId: null,
+  //     };
+  //     const mockWo = mockWorkout.synced;
 
-      mockRepository.findAll.mockResolvedValue(allDetails);
-      mockExerciseService.getExerciseWithLocalId.mockResolvedValue(mockEx);
-      mockWorkoutService.getWorkoutWithLocalId.mockResolvedValue(mockWo);
+  //     mockRepository.findAll.mockResolvedValue(allDetails);
+  //     mockExerciseService.getExerciseWithLocalId.mockResolvedValue(mockEx);
+  //     mockWorkoutService.getWorkoutWithLocalId.mockResolvedValue(mockWo);
 
-      await expect(service.syncToServerWorkoutDetails()).rejects.toThrow(
-        "exercise 또는 workout의 serverId가 없습니다."
-      );
-    });
+  //     await expect(service.syncToServerWorkoutDetails()).rejects.toThrow(
+  //       "exercise 또는 workout의 serverId가 없습니다."
+  //     );
+  //   });
 
-    it("API 전송 도중 에러가 발생하면 해당 에러를 전파한다", async () => {
-      const mockError = new Error("API 전송 실패");
-      mockApi.postWorkoutDetailsToServer.mockRejectedValue(mockError);
-      mockRepository.findAll.mockResolvedValue([unsyncedDetail]);
-      mockExerciseService.getExerciseWithLocalId.mockResolvedValue(
-        mockExercise.synced
-      );
-      mockWorkoutService.getWorkoutWithLocalId.mockResolvedValue(
-        mockWorkout.synced
-      );
+  //   it("API 전송 도중 에러가 발생하면 해당 에러를 전파한다", async () => {
+  //     const mockError = new Error("API 전송 실패");
+  //     mockApi.postWorkoutDetailsToServer.mockRejectedValue(mockError);
+  //     mockRepository.findAll.mockResolvedValue([unsyncedDetail]);
+  //     mockExerciseService.getExerciseWithLocalId.mockResolvedValue(
+  //       mockExercise.synced
+  //     );
+  //     mockWorkoutService.getWorkoutWithLocalId.mockResolvedValue(
+  //       mockWorkout.synced
+  //     );
 
-      await expect(service.syncToServerWorkoutDetails()).rejects.toThrow(
-        mockError
-      );
-      expect(mockRepository.update).not.toHaveBeenCalled();
-    });
-  });
+  //     await expect(service.syncToServerWorkoutDetails()).rejects.toThrow(
+  //       mockError
+  //     );
+  //     expect(mockRepository.update).not.toHaveBeenCalled();
+  //   });
+  // });
 });

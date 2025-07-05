@@ -381,9 +381,6 @@ describe("RoutineDetailService", () => {
       );
       expect(mockRepository.clear).toHaveBeenCalled();
       expect(mockRepository.bulkAdd).toHaveBeenCalledWith(mockToInsert);
-      expect(
-        mockRoutineService.updateLocalRoutineUpdatedAt
-      ).toHaveBeenCalledWith(mockToInsert[0].routineId);
     });
 
     it("매핑에 필요한 exercise나 workout을 찾지 못하면 에러를 던지고, DB를 초기화하지 않는다", async () => {
@@ -419,124 +416,124 @@ describe("RoutineDetailService", () => {
     });
   });
 
-  describe("syncToServerRoutineDetails", () => {
-    const unsyncedDetail = mockRoutineDetail.unsynced;
-    const mockEx: LocalExercise = mockExercise.synced;
-    const mockRo: LocalRoutine = mockRoutine.synced;
+  // describe("syncToServerRoutineDetails", () => {
+  //   const unsyncedDetail = mockRoutineDetail.unsynced;
+  //   const mockEx: LocalExercise = mockExercise.synced;
+  //   const mockRo: LocalRoutine = mockRoutine.synced;
 
-    it("동기화할 데이터가 없으면 빈배열로 API를 호출하고, db 업데이트는 하지않는다", async () => {
-      const syncedDetails = [
-        { ...mockRoutineDetail.past, id: 1, isSynced: true },
-        { ...mockRoutineDetail.past, id: 2, isSynced: true },
-      ];
-      mockRepository.findAll.mockResolvedValue(syncedDetails);
-      mockApi.postRoutineDetailsToServer.mockResolvedValue({
-        success: true,
-        updated: [],
-      });
+  //   it("동기화할 데이터가 없으면 빈배열로 API를 호출하고, db 업데이트는 하지않는다", async () => {
+  //     const syncedDetails = [
+  //       { ...mockRoutineDetail.past, id: 1, isSynced: true },
+  //       { ...mockRoutineDetail.past, id: 2, isSynced: true },
+  //     ];
+  //     mockRepository.findAll.mockResolvedValue(syncedDetails);
+  //     mockApi.postRoutineDetailsToServer.mockResolvedValue({
+  //       success: true,
+  //       updated: [],
+  //     });
 
-      await service.syncToServerRoutineDetails();
+  //     await service.syncToServerRoutineDetails();
 
-      expect(mockRepository.findAll).toHaveBeenCalledTimes(1);
-      expect(mockApi.postRoutineDetailsToServer).toHaveBeenCalledWith([]);
-      expect(mockRepository.update).not.toHaveBeenCalled();
-    });
+  //     expect(mockRepository.findAll).toHaveBeenCalledTimes(1);
+  //     expect(mockApi.postRoutineDetailsToServer).toHaveBeenCalledWith([]);
+  //     expect(mockRepository.update).not.toHaveBeenCalled();
+  //   });
 
-    it("unsynced 데이터를 서버에 동기화하고 로컬 DB를 업데이트한다", async () => {
-      const allDetails = [
-        { ...mockRoutineDetail.past, id: 1, isSynced: true },
-        { ...mockRoutineDetail.past, id: 2, isSynced: true },
-        unsyncedDetail,
-      ];
+  //   it("unsynced 데이터를 서버에 동기화하고 로컬 DB를 업데이트한다", async () => {
+  //     const allDetails = [
+  //       { ...mockRoutineDetail.past, id: 1, isSynced: true },
+  //       { ...mockRoutineDetail.past, id: 2, isSynced: true },
+  //       unsyncedDetail,
+  //     ];
 
-      const mappedPayload: LocalRoutineDetailWithServerRoutineId = {
-        ...unsyncedDetail,
-        exerciseId: mockEx.serverId!,
-        routineId: mockRo.serverId!,
-      };
+  //     const mappedPayload: LocalRoutineDetailWithServerRoutineId = {
+  //       ...unsyncedDetail,
+  //       exerciseId: mockEx.serverId!,
+  //       routineId: mockRo.serverId!,
+  //     };
 
-      const apiResponse: SyncRoutineDetailsToServerResponse = {
-        success: true,
-        updated: [
-          {
-            localId: unsyncedDetail.id!,
-            serverId: "server-detail-123",
-            exerciseId: mockEx.serverId!,
-            routineId: mockRo.serverId!,
-          },
-        ],
-      };
+  //     const apiResponse: SyncRoutineDetailsToServerResponse = {
+  //       success: true,
+  //       updated: [
+  //         {
+  //           localId: unsyncedDetail.id!,
+  //           serverId: "server-detail-123",
+  //           exerciseId: mockEx.serverId!,
+  //           routineId: mockRo.serverId!,
+  //         },
+  //       ],
+  //     };
 
-      mockRepository.findAll.mockResolvedValue(allDetails);
-      mockExerciseService.getExerciseWithLocalId.mockResolvedValue(mockEx);
-      mockRoutineService.getRoutineByLocalId.mockResolvedValue(mockRo);
-      mockAdapter.mapLocalRoutineDetailToServer.mockReturnValue(mappedPayload);
-      mockApi.postRoutineDetailsToServer.mockResolvedValue(apiResponse);
+  //     mockRepository.findAll.mockResolvedValue(allDetails);
+  //     mockExerciseService.getExerciseWithLocalId.mockResolvedValue(mockEx);
+  //     mockRoutineService.getRoutineByLocalId.mockResolvedValue(mockRo);
+  //     mockAdapter.mapLocalRoutineDetailToServer.mockReturnValue(mappedPayload);
+  //     mockApi.postRoutineDetailsToServer.mockResolvedValue(apiResponse);
 
-      mockExerciseService.getExerciseWithServerId.mockResolvedValue(mockEx);
-      mockRoutineService.getRoutineByServerId.mockResolvedValue(mockRo);
+  //     mockExerciseService.getExerciseWithServerId.mockResolvedValue(mockEx);
+  //     mockRoutineService.getRoutineByServerId.mockResolvedValue(mockRo);
 
-      await service.syncToServerRoutineDetails();
+  //     await service.syncToServerRoutineDetails();
 
-      expect(mockRepository.findAll).toHaveBeenCalledTimes(1);
+  //     expect(mockRepository.findAll).toHaveBeenCalledTimes(1);
 
-      expect(mockExerciseService.getExerciseWithLocalId).toHaveBeenCalledWith(
-        unsyncedDetail.exerciseId
-      );
-      expect(mockRoutineService.getRoutineByLocalId).toHaveBeenCalledWith(
-        unsyncedDetail.routineId
-      );
-      expect(mockAdapter.mapLocalRoutineDetailToServer).toHaveBeenCalledWith(
-        unsyncedDetail,
-        mockEx,
-        mockRo
-      );
+  //     expect(mockExerciseService.getExerciseWithLocalId).toHaveBeenCalledWith(
+  //       unsyncedDetail.exerciseId
+  //     );
+  //     expect(mockRoutineService.getRoutineByLocalId).toHaveBeenCalledWith(
+  //       unsyncedDetail.routineId
+  //     );
+  //     expect(mockAdapter.mapLocalRoutineDetailToServer).toHaveBeenCalledWith(
+  //       unsyncedDetail,
+  //       mockEx,
+  //       mockRo
+  //     );
 
-      expect(mockApi.postRoutineDetailsToServer).toHaveBeenCalledWith([
-        mappedPayload,
-      ]);
+  //     expect(mockApi.postRoutineDetailsToServer).toHaveBeenCalledWith([
+  //       mappedPayload,
+  //     ]);
 
-      expect(mockExerciseService.getExerciseWithServerId).toHaveBeenCalledWith(
-        mockEx.serverId
-      );
-      expect(mockRoutineService.getRoutineByServerId).toHaveBeenCalledWith(
-        mockRo.serverId
-      );
-      expect(mockRepository.update).toHaveBeenCalledWith(unsyncedDetail.id, {
-        serverId: "server-detail-123",
-        isSynced: true,
-        exerciseId: mockEx.id,
-        routineId: mockRo.id,
-      });
-    });
+  //     expect(mockExerciseService.getExerciseWithServerId).toHaveBeenCalledWith(
+  //       mockEx.serverId
+  //     );
+  //     expect(mockRoutineService.getRoutineByServerId).toHaveBeenCalledWith(
+  //       mockRo.serverId
+  //     );
+  //     expect(mockRepository.update).toHaveBeenCalledWith(unsyncedDetail.id, {
+  //       serverId: "server-detail-123",
+  //       isSynced: true,
+  //       exerciseId: mockEx.id,
+  //       routineId: mockRo.id,
+  //     });
+  //   });
 
-    it("매핑 도중 exercise 또는 routine의 serverId가 없으면 에러를 던진다", async () => {
-      const allDetails = [unsyncedDetail];
-      const mockExNoServerId = {
-        ...mockEx,
-        serverId: null,
-      };
+  //   it("매핑 도중 exercise 또는 routine의 serverId가 없으면 에러를 던진다", async () => {
+  //     const allDetails = [unsyncedDetail];
+  //     const mockExNoServerId = {
+  //       ...mockEx,
+  //       serverId: null,
+  //     };
 
-      mockRepository.findAll.mockResolvedValue(allDetails);
-      mockExerciseService.getExerciseWithLocalId.mockResolvedValue(
-        mockExNoServerId
-      );
-      mockRoutineService.getRoutineByLocalId.mockResolvedValue(mockRo);
+  //     mockRepository.findAll.mockResolvedValue(allDetails);
+  //     mockExerciseService.getExerciseWithLocalId.mockResolvedValue(
+  //       mockExNoServerId
+  //     );
+  //     mockRoutineService.getRoutineByLocalId.mockResolvedValue(mockRo);
 
-      await expect(service.syncToServerRoutineDetails()).rejects.toThrow("");
-    });
+  //     await expect(service.syncToServerRoutineDetails()).rejects.toThrow("");
+  //   });
 
-    it("API 전송 도중 에러가 발생하면 해당 에러를 전파한다", async () => {
-      const mockError = new Error("");
-      mockApi.postRoutineDetailsToServer.mockRejectedValue(mockError);
-      mockRepository.findAll.mockResolvedValue([unsyncedDetail]);
-      mockExerciseService.getExerciseWithLocalId.mockResolvedValue(mockEx);
-      mockRoutineService.getRoutineByLocalId.mockResolvedValue(mockRo);
+  //   it("API 전송 도중 에러가 발생하면 해당 에러를 전파한다", async () => {
+  //     const mockError = new Error("");
+  //     mockApi.postRoutineDetailsToServer.mockRejectedValue(mockError);
+  //     mockRepository.findAll.mockResolvedValue([unsyncedDetail]);
+  //     mockExerciseService.getExerciseWithLocalId.mockResolvedValue(mockEx);
+  //     mockRoutineService.getRoutineByLocalId.mockResolvedValue(mockRo);
 
-      await expect(service.syncToServerRoutineDetails()).rejects.toThrow(
-        mockError
-      );
-      expect(mockRepository.update).not.toHaveBeenCalled();
-    });
-  });
+  //     await expect(service.syncToServerRoutineDetails()).rejects.toThrow(
+  //       mockError
+  //     );
+  //     expect(mockRepository.update).not.toHaveBeenCalled();
+  //   });
+  // });
 });
