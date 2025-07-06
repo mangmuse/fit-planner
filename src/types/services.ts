@@ -3,18 +3,26 @@ import {
   LocalRoutineDetail,
   LocalWorkout,
   LocalWorkoutDetail,
+  Saved,
 } from "@/types/models";
 import { ClientExercise, LocalExercise } from "@/types/models";
+
+// --- SyncAll ---
+
+export interface ISyncAllService {
+  overWriteAllWithServerData: (userId: string) => Promise<void>;
+  overWriteToServer: (userId: string) => Promise<void>;
+}
 
 // --- WorkoutDetail ---
 export interface IWorkoutDetailCoreService {
   getLocalWorkoutDetails: (
     userId: string,
     date: string
-  ) => Promise<LocalWorkoutDetail[]>;
+  ) => Promise<Saved<LocalWorkoutDetail>[]>;
   getLocalWorkoutDetailsByWorkoutId: (
     workoutId: number
-  ) => Promise<LocalWorkoutDetail[]>;
+  ) => Promise<Saved<LocalWorkoutDetail>[]>;
   getStartExerciseOrder: (workoutId: number) => Promise<number>;
   addLocalWorkoutDetail: (detailInput: LocalWorkoutDetail) => Promise<void>;
   addLocalWorkoutDetailsByWorkoutId: (
@@ -34,6 +42,9 @@ export interface IWorkoutDetailCoreService {
   updateLocalWorkoutDetail: (
     updateWorkoutInput: Partial<LocalWorkoutDetail>
   ) => Promise<void>;
+  getAllLocalWorkoutDetailsByWorkoutIds: (
+    workoutIds: number[]
+  ) => Promise<Saved<LocalWorkoutDetail>[]>;
   updateWorkoutDetails: (updatedDetails: LocalWorkoutDetail[]) => Promise<void>;
   deleteWorkoutDetail: (lastSetId: number) => Promise<void>;
   deleteWorkoutDetails: (details: LocalWorkoutDetail[]) => Promise<void>;
@@ -41,7 +52,7 @@ export interface IWorkoutDetailCoreService {
 
 export interface IWorkoutDetailSyncService {
   overwriteWithServerWorkoutDetails: (userId: string) => Promise<void>;
-  syncToServerWorkoutDetails: () => Promise<void>;
+  // syncToServerWorkoutDetails: () => Promise<void>;
 }
 
 export interface IWorkoutDetailQueryService {
@@ -51,13 +62,13 @@ export interface IWorkoutDetailQueryService {
   getLocalWorkoutDetailsByWorkoutIdAndExerciseOrder: (
     workoutId: number,
     exerciseOrder: number
-  ) => Promise<LocalWorkoutDetail[]>;
+  ) => Promise<Saved<LocalWorkoutDetail>[]>;
   getLocalWorkoutDetailsByWorkoutIdAndExerciseOrderPairs: (
     pairs: { workoutId: number; exerciseOrder: number }[]
-  ) => Promise<LocalWorkoutDetail[]>;
+  ) => Promise<Saved<LocalWorkoutDetail>[]>;
   getLatestWorkoutDetailByDetail: (
-    detail: LocalWorkoutDetail | LocalRoutineDetail
-  ) => Promise<LocalWorkoutDetail | void>;
+    detail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>
+  ) => Promise<Saved<LocalWorkoutDetail> | void>;
 }
 
 export interface IWorkoutDetailService
@@ -68,34 +79,41 @@ export interface IWorkoutDetailService
 // === Workout ===
 export interface IWorkoutService {
   // --- Core Service ---
-  getAllWorkouts: (userId: string) => Promise<LocalWorkout[]>;
-  getWorkoutWithServerId: (serverId: string) => Promise<LocalWorkout | void>;
-  getWorkoutWithLocalId: (id: number) => Promise<LocalWorkout | void>;
+  getAllWorkouts: (userId: string) => Promise<Saved<LocalWorkout>[]>;
+  getWorkoutWithServerId: (
+    serverId: string
+  ) => Promise<Saved<LocalWorkout> | void>;
+  getWorkoutWithLocalId: (id: number) => Promise<Saved<LocalWorkout> | void>;
   getWorkoutByUserIdAndDate: (
     userId: string,
     date: string
-  ) => Promise<LocalWorkout | void>;
-  addLocalWorkout: (userId: string, date: string) => Promise<LocalWorkout>;
+  ) => Promise<Saved<LocalWorkout> | void>;
+  addLocalWorkout: (
+    userId: string,
+    date: string
+  ) => Promise<Saved<LocalWorkout>>;
   updateLocalWorkout: (workout: Partial<LocalWorkout>) => Promise<void>;
   deleteLocalWorkout: (workoutId: number) => Promise<void>;
 
   // --- Sync Service ---
-  syncToServerWorkouts: () => Promise<void>;
+  // syncToServerWorkouts: (userId: string) => Promise<void>;
   overwriteWithServerWorkouts: (userId: string) => Promise<void>;
 
   // --- Query Service ---
   getThisMonthWorkouts: (
     startDate: string,
     endDate: string
-  ) => Promise<LocalWorkout[]>;
+  ) => Promise<Saved<LocalWorkout>[]>;
 }
 
 // ==== Exercise ====
 export interface IExerciseService {
   // --- Core Service ---
-  getExerciseWithServerId: (serverId: number) => Promise<LocalExercise | void>;
-  getAllLocalExercises: () => Promise<LocalExercise[]>;
-  getExerciseWithLocalId: (id: number) => Promise<LocalExercise | void>;
+  getExerciseWithServerId: (
+    serverId: number
+  ) => Promise<Saved<LocalExercise> | void>;
+  getAllLocalExercises: (userId: string) => Promise<Saved<LocalExercise>[]>;
+  getExerciseWithLocalId: (id: number) => Promise<Saved<LocalExercise> | void>;
   addLocalExercise: (args: {
     name: string;
     category: string;
@@ -107,15 +125,17 @@ export interface IExerciseService {
   // --- Sync Service ---
   overwriteWithServerExercises: (userId: string) => Promise<void>;
   syncExercisesFromServerLocalFirst: (userId: string) => Promise<void>;
-  syncToServerExercises: (userId: string) => Promise<void>;
+  // syncToServerExercises: (userId: string) => Promise<void>;
 }
 
 // ==== Routine ====
 export interface IRoutineService {
   // --- Core Service ---
-  getAllLocalRoutines: (userId: string) => Promise<LocalRoutine[]>;
-  getRoutineByServerId: (serverId: string) => Promise<LocalRoutine | void>;
-  getRoutineByLocalId: (localId: number) => Promise<LocalRoutine | void>;
+  getAllLocalRoutines: (userId: string) => Promise<Saved<LocalRoutine>[]>;
+  getRoutineByServerId: (
+    serverId: string
+  ) => Promise<Saved<LocalRoutine> | void>;
+  getRoutineByLocalId: (localId: number) => Promise<Saved<LocalRoutine> | void>;
   addLocalRoutine: (args: {
     userId: string;
     name: string;
@@ -126,16 +146,22 @@ export interface IRoutineService {
   deleteLocalRoutine: (routineId: number) => Promise<void>;
 
   // --- Sync Service ---
-  syncToServerRoutines: () => Promise<void>;
+  // syncToServerRoutines: (userId: string) => Promise<void>;
   overwriteWithServerRoutines: (userId: string) => Promise<void>;
 }
 
 // --- RoutineDetail Service Interface ---
 export interface IRoutineDetailService {
   // --- Core Service ---
-  getLocalRoutineDetails: (routineId: number) => Promise<LocalRoutineDetail[]>;
+  getLocalRoutineDetails: (
+    routineId: number
+  ) => Promise<Saved<LocalRoutineDetail>[]>;
+  getAllLocalRoutineDetailsByRoutineIds: (
+    routineIds: number[]
+  ) => Promise<Saved<LocalRoutineDetail>[]>;
+
   addLocalRoutineDetail: (detailInput: LocalRoutineDetail) => Promise<void>;
-  addSetToRoutine: (lastSet: LocalRoutineDetail) => Promise<number>;
+  addSetToRoutine: (lastSet: Saved<LocalRoutineDetail>) => Promise<number>;
   addLocalRoutineDetailsByWorkoutId: (
     routineId: number,
     startOrder: number,
@@ -145,16 +171,16 @@ export interface IRoutineDetailService {
     mappedDetails: LocalRoutineDetail[]
   ) => Promise<void>;
   cloneRoutineDetailWithNewRoutineId: (
-    originalDetail: LocalRoutineDetail,
+    originalDetail: Saved<LocalRoutineDetail>,
     newRoutineId: number
   ) => Promise<void>;
   updateLocalRoutineDetail: (
     updateInput: Partial<LocalRoutineDetail>
   ) => Promise<void>;
   deleteRoutineDetail: (detailId: number) => Promise<void>;
-  deleteRoutineDetails: (details: LocalRoutineDetail[]) => Promise<void>;
+  deleteRoutineDetails: (details: Saved<LocalRoutineDetail>[]) => Promise<void>;
 
   // --- Sync Service ---
-  syncToServerRoutineDetails: () => Promise<void>;
+  // syncToServerRoutineDetails: () => Promise<void>;
   overwriteWithServerRoutineDetails: (userId: string) => Promise<void>;
 }

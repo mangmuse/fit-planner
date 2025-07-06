@@ -9,7 +9,7 @@ export const createMockWorkoutDetailRepository =
     bulkPut: jest.fn(),
     delete: jest.fn(),
     bulkDelete: jest.fn(),
-    findAll: jest.fn(),
+    findAllByWorkoutIds: jest.fn(),
     findAllByWorkoutId: jest.fn(),
     findAllByWorkoutIdAndExerciseOrder: jest.fn(),
     findAllByWorkoutIdAndExerciseOrderPairs: jest.fn(),

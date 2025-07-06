@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { BaseRepository } from "@/repositories/base.repository";
-import { LocalRoutine } from "@/types/models";
+import { LocalRoutine, LocalRoutineDetail, Saved } from "@/types/models";
 import { IRoutineRepository } from "@/types/repositories";
 import { Table } from "dexie";
 
@@ -14,11 +14,21 @@ export class RoutineRepository
     super(table);
   }
 
-  async findOneByServerId(serverId: string): Promise<LocalRoutine | undefined> {
-    return this.table.where("serverId").equals(serverId).first();
+  async findAll(userId: string): Promise<Saved<LocalRoutine>[]> {
+    return this.table.where("userId").equals(userId).toArray() as Promise<
+      Saved<LocalRoutine>[]
+    >;
   }
 
-  async findAllByUserId(userId: string) {
-    return this.table.where("userId").equals(userId).toArray();
+  async findOneByServerId(serverId: string): Promise<Saved<LocalRoutine> | undefined> {
+    return this.table.where("serverId").equals(serverId).first() as Promise<
+      Saved<LocalRoutine> | undefined
+    >;
+  }
+
+  async findAllByUserId(userId: string): Promise<Saved<LocalRoutine>[]> {
+    return this.table.where("userId").equals(userId).toArray() as Promise<
+      Saved<LocalRoutine>[]
+    >;
   }
 }

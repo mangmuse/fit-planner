@@ -3,6 +3,24 @@ import { User, Exercise, WorkoutDetail, Workout } from "@prisma/client";
 import { boolean, nullable, z } from "zod";
 import { set } from "lodash";
 
+export const exerciseMemoFixedSchema = z.object({
+  content: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string().nullable(),
+});
+
+export const exerciseMemoDailySchema = z.object({
+  date: z.string(),
+  content: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string().nullable(),
+});
+
+export const exerciseMemoSchema = z.object({
+  fixed: exerciseMemoFixedSchema.nullable(),
+  daily: z.array(exerciseMemoDailySchema),
+});
+
 export const clientWorkoutSchema = z.object({
   id: z.string(),
   userId: z.string(),
@@ -28,25 +46,7 @@ export const clientExerciseSchema = z.object({
   imageUrl: z.string(),
   isBookmarked: z.boolean(),
   isCustom: z.boolean(),
-  exerciseMemo: z
-    .object({
-      fixed: z
-        .object({
-          content: z.string(),
-          createdAt: z.string(),
-          updatedAt: z.string().nullable(),
-        })
-        .nullable(),
-      daily: z.array(
-        z.object({
-          date: z.string(),
-          content: z.string(),
-          createdAt: z.string(),
-          updatedAt: z.string().nullable(),
-        })
-      ),
-    })
-    .nullable(),
+  exerciseMemo: exerciseMemoSchema.nullable(),
   name: z.string(),
   unit: z.enum(["kg", "lbs"]),
   userId: z.string().nullable(),
@@ -115,25 +115,7 @@ export const localExerciseSchema = z.object({
   category: z.string(),
   serverId: z.number().nullable(),
   unit: z.enum(["kg", "lbs"]),
-  exerciseMemo: z
-    .object({
-      fixed: z
-        .object({
-          content: z.string(),
-          createdAt: z.string(),
-          updatedAt: z.string().nullable(),
-        })
-        .nullable(),
-      daily: z.array(
-        z.object({
-          date: z.string(),
-          content: z.string(),
-          createdAt: z.string(),
-          updatedAt: z.string().nullable(),
-        })
-      ),
-    })
-    .nullable(),
+  exerciseMemo: exerciseMemoSchema.nullable(),
   id: z.number().optional(),
   updatedAt: z.string().nullable().optional(),
   isSynced: z.boolean(),
@@ -175,7 +157,24 @@ export const localRoutineDetailSchema = z.object({
   updatedAt: z.string().optional().nullable(),
 });
 
+export const userExerciseSchema = z.object({
+  isBookmarked: z.boolean(),
+  unit: z.enum(["kg", "lbs"]),
+  fixedMemo: exerciseMemoFixedSchema.nullable(),
+  dailyMemos: z.array(exerciseMemoDailySchema),
+});
+
+export const nestedExerciseSchema = localExerciseSchema
+  .omit({ isBookmarked: true, unit: true, exerciseMemo: true })
+  .extend({
+    id: z.number(),
+    userExercise: userExerciseSchema.nullable(),
+  });
+
 // expectType<>({} as LocalExercise);
+
+export type Saved<T extends { id?: number }> = Omit<T, "id"> & { id: number };
+
 export type ModelWithStringDates<T> = Omit<T, "createdAt" | "updatedAt"> & {
   createdAt: string;
   updatedAt?: string | null;
@@ -193,6 +192,21 @@ export type LocalWorkout = z.infer<typeof localWorkoutSchema>;
 export type LocalRoutine = z.infer<typeof localRoutineSchema>;
 export type LocalWorkoutDetail = z.infer<typeof localWorkoutDetailSchema>;
 export type LocalRoutineDetail = z.infer<typeof localRoutineDetailSchema>;
+
+export type ExerciseMemoFixed = z.infer<typeof exerciseMemoFixedSchema>;
+export type ExerciseMemoDaily = z.infer<typeof exerciseMemoDailySchema>;
+export type ExerciseMemo = z.infer<typeof exerciseMemoSchema>;
+
+export type UserExercise = z.infer<typeof userExerciseSchema>;
+export type NestedExercise = z.infer<typeof nestedExerciseSchema>;
+
+export type NestedWorkout = Saved<LocalWorkout> & {
+  details: Saved<LocalWorkoutDetail>[];
+};
+
+export type NestedRoutine = Saved<LocalRoutine> & {
+  details: Saved<LocalRoutineDetail>[];
+};
 
 export type LocalWorkoutDetailWithServerWorkoutId = Omit<
   LocalWorkoutDetail,

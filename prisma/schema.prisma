@@ -78,7 +78,7 @@ model FixedExerciseMemo {
   content        String
   createdAt      DateTime     @default(now())
   updatedAt      DateTime?    @updatedAt
-  userExercise   UserExercise @relation("UserExerciseToFixedExerciseMemo", fields: [userExerciseId], references: [id])
+  userExercise   UserExercise @relation("UserExerciseToFixedExerciseMemo", fields: [userExerciseId], references: [id], onDelete: Cascade)
 }
 
 model DailyExerciseMemo {
@@ -88,7 +88,7 @@ model DailyExerciseMemo {
   content        String
   createdAt      DateTime     @default(now())
   updatedAt      DateTime?    @updatedAt
-  userExercise   UserExercise @relation(fields: [userExerciseId], references: [id])
+  userExercise   UserExercise @relation(fields: [userExerciseId], references: [id], onDelete: Cascade)
 
   @@unique([userExerciseId, date])
 }

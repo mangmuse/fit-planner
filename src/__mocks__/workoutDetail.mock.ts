@@ -7,6 +7,7 @@ import {
   ClientWorkoutDetail,
   LocalWorkoutDetail,
   LocalWorkoutDetailWithServerWorkoutId,
+  Saved,
 } from "@/types/models";
 import { server } from "jest.setup";
 import { over } from "lodash";
@@ -52,7 +53,7 @@ export const mockWorkoutDetail = {
     reps: 5,
     weight: 60,
     updatedAt: "2025-06-17T10:00:00.000Z",
-  }),
+  }) as Saved<LocalWorkoutDetail>,
 
   server: createServerWorkoutDetailMock(),
 
@@ -63,7 +64,7 @@ export const mockWorkoutDetail = {
     isDone: false,
     isSynced: false,
     serverId: null,
-  }),
+  }) as Saved<LocalWorkoutDetail>,
 
   fromServer: (
     overrides?: Partial<ClientWorkoutDetail>

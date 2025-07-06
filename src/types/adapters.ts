@@ -8,6 +8,8 @@ import {
   LocalWorkout,
   LocalWorkoutDetail,
   LocalWorkoutDetailWithServerWorkoutId,
+  NestedExercise,
+  Saved,
 } from "./models";
 
 export type WD_NewInput = {
@@ -19,6 +21,25 @@ export type RD_NewInput = {
   routineId: number;
   startOrder: number;
 };
+
+// --- SyncAll Adapter --- //
+
+export interface ISyncAllAdapter {
+  createNestedStructure: <
+    P extends number,
+    T extends { id: P },
+    K extends PropertyKey,
+    U extends Record<K, P>,
+  >(
+    parents: T[],
+    children: U[],
+    foreignKey: K
+  ) => (T & { details: U[] })[];
+
+  createNestedExercises: (
+    exercises: Saved<LocalExercise>[]
+  ) => NestedExercise[];
+}
 
 export interface IExerciseAdapter {
   mergeServerExerciseData: (

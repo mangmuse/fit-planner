@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { ClientRoutine, LocalRoutine } from "@/types/models";
+import { ClientRoutine, LocalRoutine, Saved } from "@/types/models";
 import { getFormattedDateYMD } from "@/util/formatDate";
 import {
   FetchRoutinesResponse,
@@ -8,7 +8,7 @@ import {
 
 export const createBaseRoutineMock = (
   overrides?: Partial<LocalRoutine>
-): LocalRoutine => ({
+): Saved<LocalRoutine> => ({
   id: Math.floor(Math.random() * 1000),
   userId: "mockUserId",
   isSynced: true,

@@ -1,4 +1,4 @@
-import { ClientWorkout } from "../types/models";
+import { ClientWorkout, Saved } from "../types/models";
 import {
   FetchWorkoutsResponse,
   SyncWorkoutsToServerResponse,
@@ -9,7 +9,7 @@ import { getFormattedDateYMD } from "@/util/formatDate";
 
 const createBaseWorkoutMock = (
   overrides?: Partial<LocalWorkout>
-): LocalWorkout => ({
+): Saved<LocalWorkout> => ({
   id: Math.floor(Math.random() * 1000),
   userId: "mockUserId",
   date: getFormattedDateYMD(new Date()), // 오늘 날짜

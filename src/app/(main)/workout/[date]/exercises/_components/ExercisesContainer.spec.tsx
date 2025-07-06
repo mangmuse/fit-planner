@@ -7,11 +7,7 @@ import {
   workoutDetailService,
   routineDetailService,
 } from "@/lib/di";
-import {
-  LocalExercise,
-  LocalWorkoutDetail,
-  LocalRoutineDetail,
-} from "@/types/models";
+import { LocalExercise, LocalWorkoutDetail, Saved } from "@/types/models";
 
 jest.mock("next-auth/react");
 jest.mock("@/lib/di");
@@ -43,7 +39,7 @@ jest.mock("@/providers/contexts/ModalContext", () => ({
   }),
 }));
 
-const mockExercises: LocalExercise[] = [
+const mockExercises: Saved<LocalExercise>[] = [
   {
     id: 1,
     name: "벤치프레스",
@@ -76,7 +72,7 @@ const mockExercises: LocalExercise[] = [
   },
 ];
 
-const mockCurrentDetails: LocalWorkoutDetail[] = [
+const mockCurrentDetails: Saved<LocalWorkoutDetail>[] = [
   {
     id: 1,
     serverId: "detail1",
@@ -128,8 +124,6 @@ describe("Characterization Tests", () => {
     it("초기 렌더링: 운동 목록이 올바르게 표시된다", async () => {
       render(<ExercisesContainer type="RECORD" allowMultipleSelection />);
 
-      expect(screen.getByText("Loading...")).toBeInTheDocument();
-
       await waitFor(() => {
         expect(screen.getByText("벤치프레스")).toBeInTheDocument();
         expect(screen.getByText("스쿼트")).toBeInTheDocument();
@@ -145,17 +139,14 @@ describe("Characterization Tests", () => {
         expect(screen.getByText("벤치프레스")).toBeInTheDocument();
       });
 
-      // 운동 선택
       const exerciseElement = screen.getByText("벤치프레스").closest("li")!;
       fireEvent.click(exerciseElement);
 
-      // 하단 버튼 확인 및 클릭
       await waitFor(() => {
         const addButton = screen.getByText("1개 선택 완료");
         fireEvent.click(addButton);
       });
 
-      // 서비스 호출 확인
       expect(
         mockWorkoutDetailService.addLocalWorkoutDetailsByUserDate
       ).toHaveBeenCalledWith("user123", "2024-01-01", [

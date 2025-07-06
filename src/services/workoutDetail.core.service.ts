@@ -1,5 +1,5 @@
 import { IWorkoutDetailAdapter } from "./../types/adapters";
-import { LocalWorkoutDetail } from "@/types/models";
+import { LocalWorkoutDetail, Saved } from "@/types/models";
 import { IWorkoutDetailRepository } from "@/types/repositories";
 import { IWorkoutDetailCoreService, IWorkoutService } from "@/types/services";
 
@@ -13,7 +13,7 @@ export class WorkoutDetailCoreService implements IWorkoutDetailCoreService {
   async getLocalWorkoutDetails(
     userId: string,
     date: string
-  ): Promise<LocalWorkoutDetail[]> {
+  ): Promise<Saved<LocalWorkoutDetail>[]> {
     const workout = await this.workoutService.getWorkoutByUserIdAndDate(
       userId,
       date
@@ -29,9 +29,15 @@ export class WorkoutDetailCoreService implements IWorkoutDetailCoreService {
 
   async getLocalWorkoutDetailsByWorkoutId(
     workoutId: number
-  ): Promise<LocalWorkoutDetail[]> {
+  ): Promise<Saved<LocalWorkoutDetail>[]> {
     const details = await this.repository.findAllByWorkoutId(workoutId);
     return details;
+  }
+
+  public async getAllLocalWorkoutDetailsByWorkoutIds(
+    workoutIds: number[]
+  ): Promise<Saved<LocalWorkoutDetail>[]> {
+    return this.repository.findAllByWorkoutIds(workoutIds);
   }
 
   async getStartExerciseOrder(workoutId: number): Promise<number> {
@@ -70,7 +76,7 @@ export class WorkoutDetailCoreService implements IWorkoutDetailCoreService {
     await this.repository.bulkAdd(mappedDetails);
   }
 
-  public async addSetToWorkout(lastSet: LocalWorkoutDetail): Promise<number> {
+  public async addSetToWorkout(lastSet: Saved<LocalWorkoutDetail>): Promise<number> {
     const addSetInput = this.adapter.getAddSetToWorkoutByLastSet(lastSet);
     const newSet = await this.repository.add(addSetInput);
     return newSet;
@@ -117,7 +123,7 @@ export class WorkoutDetailCoreService implements IWorkoutDetailCoreService {
   }
 
   public async deleteWorkoutDetails(
-    details: LocalWorkoutDetail[]
+    details: Saved<LocalWorkoutDetail>[]
   ): Promise<void> {
     if (details.length === 0) return;
     const ids = details.map((detail) => {

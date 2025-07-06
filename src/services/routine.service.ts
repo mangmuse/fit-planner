@@ -1,6 +1,6 @@
 import { IRoutineApi } from "@/types/apis";
 
-import { ClientRoutine, LocalRoutine } from "@/types/models";
+import { ClientRoutine, LocalRoutine, Saved } from "@/types/models";
 import { IRoutineRepository } from "@/types/repositories";
 import { IRoutineService } from "@/types/services";
 
@@ -16,15 +16,15 @@ export class RoutineService implements IRoutineService {
     private readonly api: IRoutineApi
   ) {}
   // ----- CORE ----- //
-  async getAllLocalRoutines(userId: string): Promise<LocalRoutine[]> {
+  async getAllLocalRoutines(userId: string): Promise<Saved<LocalRoutine>[]> {
     return this.repository.findAllByUserId(userId);
   }
 
-  async getRoutineByServerId(serverId: string): Promise<LocalRoutine | void> {
+  async getRoutineByServerId(serverId: string): Promise<Saved<LocalRoutine> | void> {
     return this.repository.findOneByServerId(serverId);
   }
 
-  async getRoutineByLocalId(localId: number): Promise<LocalRoutine | void> {
+  async getRoutineByLocalId(localId: number): Promise<Saved<LocalRoutine> | void> {
     return this.repository.findOneById(localId);
   }
 
@@ -61,8 +61,8 @@ export class RoutineService implements IRoutineService {
   }
 
   // ===== SYNC ===== //
-  async syncToServerRoutines(): Promise<void> {
-    const all = await this.repository.findAll();
+  async syncToServerRoutines(userId: string): Promise<void> {
+    const all = await this.repository.findAll(userId);
 
     const unsynced = all.filter((routine) => !routine.isSynced);
     const data = await this.api.postRoutinesToServer(unsynced);

@@ -33,6 +33,25 @@ describe("WorkoutDetailRepository", () => {
     expect(result).toEqual([mockWD]);
   });
 
+  it("findAllByWorkoutIds", async () => {
+    const mockWD1 = mockWorkoutDetail.past;
+    const mockWD2 = mockWorkoutDetail.past;
+    const workoutIds = [mockWD1.workoutId, mockWD2.workoutId];
+    const expectedResult = [mockWD1, mockWD2];
+    const mockToArray = jest.fn().mockResolvedValue(expectedResult);
+    (mockTable.where as jest.Mock).mockReturnValue({
+      anyOf: jest.fn().mockReturnValue({
+        toArray: mockToArray,
+      }),
+    });
+
+    const result = await repository.findAllByWorkoutIds(workoutIds);
+
+    expect(mockTable.where("workoutId").anyOf).toHaveBeenCalledWith(workoutIds);
+    expect(mockToArray).toHaveBeenCalledTimes(1);
+    expect(result).toEqual(expectedResult);
+  });
+
   it("findAllByWorkoutIdOrderByExerciseOrder", async () => {
     const mockWD1 = {
       ...mockWorkoutDetail.past,

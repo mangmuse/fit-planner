@@ -1,5 +1,5 @@
 import { IWorkoutApi } from "@/types/apis";
-import { ClientWorkout, LocalWorkout } from "@/types/models";
+import { ClientWorkout, LocalWorkout, Saved } from "@/types/models";
 import { IWorkoutRepository } from "@/types/repositories";
 import { IWorkoutService } from "@/types/services";
 import { getFormattedDateYMD } from "@/util/formatDate";
@@ -11,31 +11,31 @@ export class WorkoutService implements IWorkoutService {
   ) {}
 
   // ---- Core ---- //
-  public async getAllWorkouts(userId: string): Promise<LocalWorkout[]> {
+  public async getAllWorkouts(userId: string): Promise<Saved<LocalWorkout>[]> {
     return this.repository.findAllByUserIdOrderByDate(userId);
   }
 
   public async getWorkoutWithServerId(
     serverId: string
-  ): Promise<LocalWorkout | void> {
+  ): Promise<Saved<LocalWorkout> | undefined> {
     return this.repository.findOneByServerId(serverId);
   }
 
-  public async getWorkoutWithLocalId(id: number): Promise<LocalWorkout | void> {
+  public async getWorkoutWithLocalId(id: number): Promise<Saved<LocalWorkout> | undefined> {
     return this.repository.findOneById(id);
   }
 
   public async getWorkoutByUserIdAndDate(
     userId: string,
     date: string
-  ): Promise<LocalWorkout | void> {
+  ): Promise<Saved<LocalWorkout> | undefined> {
     return this.repository.findOneByUserIdAndDate(userId, date);
   }
 
   public async addLocalWorkout(
     userId: string,
     date: string
-  ): Promise<LocalWorkout> {
+  ): Promise<Saved<LocalWorkout>> {
     const existing = await this.getWorkoutByUserIdAndDate(userId, date);
     if (existing) {
       return existing;
@@ -73,21 +73,21 @@ export class WorkoutService implements IWorkoutService {
   }
 
   // ---- Sync ---- //
-  public async syncToServerWorkouts(): Promise<void> {
-    const all = await this.repository.findAll();
+  // public async syncToServerWorkouts(userId: string): Promise<void> {
+  //   const all = await this.repository.findAll(userId);
 
-    const unsynced = all.filter((workout) => !workout.isSynced);
-    const data = await this.api.postWorkoutsToServer(unsynced);
+  //   const unsynced = all.filter((workout) => !workout.isSynced);
+  //   const data = await this.api.postWorkoutsToServer(unsynced);
 
-    if (data.updated.length === 0) return;
+  //   if (data.updated.length === 0) return;
 
-    for (const updated of data.updated) {
-      await this.repository.update(updated.localId, {
-        serverId: updated.serverId,
-        isSynced: true,
-      });
-    }
-  }
+  //   for (const updated of data.updated) {
+  //     await this.repository.update(updated.localId, {
+  //       serverId: updated.serverId,
+  //       isSynced: true,
+  //     });
+  //   }
+  // }
 
   public async overwriteWithServerWorkouts(userId: string): Promise<void> {
     const serverData: ClientWorkout[] =
@@ -114,7 +114,7 @@ export class WorkoutService implements IWorkoutService {
   public async getThisMonthWorkouts(
     startDate: string,
     endDate: string
-  ): Promise<LocalWorkout[]> {
+  ): Promise<Saved<LocalWorkout>[]> {
     return this.repository.findAllByDateRangeExcludeEmpty(startDate, endDate);
   }
 }

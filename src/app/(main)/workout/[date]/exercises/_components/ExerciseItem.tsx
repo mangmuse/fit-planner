@@ -2,9 +2,7 @@ import { exerciseService } from "@/lib/di";
 import { useModal } from "@/providers/contexts/ModalContext";
 import { ClientExercise, ClientUser, LocalExercise } from "@/types/models";
 import clsx from "clsx";
-import Image from "next/image";
-import favoriteIcon from "public/favorite.svg";
-import filledFavoriteIcon from "public/favorite_filled.svg";
+import { Star } from "lucide-react";
 import { useState } from "react";
 
 export type ExerciseItemProps = {
@@ -68,7 +66,7 @@ const ExerciseItem = ({
     >
       <div className="flex items-center gap-3">
         <div className="bg-bg-secondary w-10 h-10 rounded-lg flex items-center justify-center">
-          <span className="text-text-muted text-xs">GYM</span>
+          <span className="text-text-muted text-xs font-medium">FIT</span>
         </div>
         <span
           aria-selected={isSelected}
@@ -80,12 +78,14 @@ const ExerciseItem = ({
       <button
         className="p-2 hover:bg-bg-secondary rounded-lg transition-colors"
         onClick={handleToggleBookmark}
+        aria-label={isBookmarked ? "북마크 해제" : "북마크"}
       >
-        <Image
-          src={isBookmarked ? filledFavoriteIcon : favoriteIcon}
-          alt={isBookmarked ? "북마크 해제" : "북마크"}
-          width={20}
-          height={20}
+        <Star
+          className={clsx("w-[22px] h-[22px] transition-colors", {
+            "fill-[yellow] text-[yellow]": isBookmarked,
+            "text-white fill-none": !isBookmarked,
+          })}
+          strokeWidth={2}
         />
       </button>
     </li>

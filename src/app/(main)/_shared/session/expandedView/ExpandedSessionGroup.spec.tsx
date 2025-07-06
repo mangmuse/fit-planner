@@ -4,7 +4,7 @@ import ExpandedSessionGroup, {
   ExpandedWorkoutGroupProps,
 } from "@/app/(main)/_shared/session/expandedView/ExpandedSessionGroup";
 import { exerciseService } from "@/lib/di";
-import { LocalExercise } from "@/types/models";
+import { LocalExercise, Saved } from "@/types/models";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
@@ -18,7 +18,7 @@ describe("ExpandedSessionGroup", () => {
     jest.clearAllMocks();
   });
 
-  const mockEx: LocalExercise = {
+  const mockEx: Saved<LocalExercise> = {
     ...mockExercise.synced,
     unit: "lbs",
     name: "벤치프레스",

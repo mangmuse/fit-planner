@@ -4,6 +4,7 @@ import type {
   IWorkoutDetailApi,
   IRoutineApi,
   IRoutineDetailApi,
+  ISyncAllApi,
 } from "@/types/apis";
 import type {
   IExerciseRepository,
@@ -18,11 +19,13 @@ import type {
   IWorkoutDetailService,
   IRoutineService,
   IRoutineDetailService,
+  ISyncAllService,
 } from "@/types/services";
 import type {
   IExerciseAdapter,
   IWorkoutDetailAdapter,
   IRoutineDetailAdapter,
+  ISyncAllAdapter,
 } from "@/types/adapters";
 
 function createMockFromInterface<T>(): jest.Mocked<T> {
@@ -43,6 +46,7 @@ export const mockWorkoutDetailApi =
 export const mockRoutineApi = createMockFromInterface<IRoutineApi>();
 export const mockRoutineDetailApi =
   createMockFromInterface<IRoutineDetailApi>();
+export const mockSyncAllApi = createMockFromInterface<ISyncAllApi>();
 
 export const mockExerciseRepository =
   createMockFromInterface<IExerciseRepository>();
@@ -60,6 +64,7 @@ export const mockWorkoutDetailAdapter =
   createMockFromInterface<IWorkoutDetailAdapter>();
 export const mockRoutineDetailAdapter =
   createMockFromInterface<IRoutineDetailAdapter>();
+export const mockSyncAllAdapter = createMockFromInterface<ISyncAllAdapter>();
 
 export const mockExerciseService = createMockFromInterface<IExerciseService>();
 export const mockWorkoutService = createMockFromInterface<IWorkoutService>();
@@ -68,6 +73,7 @@ export const mockRoutineDetailService =
   createMockFromInterface<IRoutineDetailService>();
 export const mockWorkoutDetailService =
   createMockFromInterface<IWorkoutDetailService>();
+export const mockSyncAllService = createMockFromInterface<ISyncAllService>();
 
 export const mockDI = {
   // API
@@ -76,6 +82,7 @@ export const mockDI = {
   workoutDetailApi: mockWorkoutDetailApi,
   routineApi: mockRoutineApi,
   routineDetailApi: mockRoutineDetailApi,
+  syncAllApi: mockSyncAllApi,
 
   // Repository
   exerciseRepository: mockExerciseRepository,
@@ -88,6 +95,7 @@ export const mockDI = {
   exerciseAdapter: mockExerciseAdapter,
   workoutDetailAdapter: mockWorkoutDetailAdapter,
   routineDetailAdapter: mockRoutineDetailAdapter,
+  syncAllAdapter: mockSyncAllAdapter,
 
   // Service
   exerciseService: mockExerciseService,
@@ -95,4 +103,5 @@ export const mockDI = {
   routineService: mockRoutineService,
   routineDetailService: mockRoutineDetailService,
   workoutDetailService: mockWorkoutDetailService,
+  syncAllService: mockSyncAllService,
 };

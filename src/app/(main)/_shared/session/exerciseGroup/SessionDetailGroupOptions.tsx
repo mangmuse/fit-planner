@@ -9,6 +9,7 @@ import {
   LocalExercise,
   LocalRoutineDetail,
   LocalWorkoutDetail,
+  Saved,
 } from "@/types/models";
 import { useModal } from "@/providers/contexts/ModalContext";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
@@ -23,8 +24,8 @@ import ExerciseMemo from "@/app/(main)/_shared/session/exerciseMemo/ExerciseMemo
 import GroupOptionItem from "@/app/(main)/_shared/session/exerciseGroup/GroupOptionItem";
 
 type SessionDetailGroupOptions = {
-  exercise: LocalExercise;
-  details: LocalWorkoutDetail[] | LocalRoutineDetail[];
+  exercise: Saved<LocalExercise>;
+  details: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[];
 
   loadExercises: () => Promise<void>;
   reload: () => Promise<void>;
@@ -59,6 +60,18 @@ const SessionDetailGroupOptions = ({
 
   const deleteAndLoadDetails = async () => {
     try {
+      console.log("[SessionDetailGroupOptions] 삭제할 details:", {
+        count: details.length,
+        exerciseOrder: details[0]?.exerciseOrder,
+        details: details.map((d) => ({
+          id: d.id,
+          exerciseId: d.exerciseId,
+          exerciseName: d.exerciseName,
+          exerciseOrder: d.exerciseOrder,
+          setOrder: d.setOrder,
+        })),
+      });
+
       if (isWorkoutDetails(details)) {
         await workoutDetailService.deleteWorkoutDetails(details);
       } else {

@@ -72,9 +72,15 @@ export async function GET(request: NextRequest) {
   const parsedUserId = validateData<string>(z.string(), userId);
 
   try {
-    const exercises = await prisma.exercise.findMany(
-      getExerciseQueryArgs(parsedUserId)
-    );
+    const exercises = await prisma.exercise.findMany({
+      where: {
+        OR: [
+          { userId: null }, // 시스템 제공
+          { userId: parsedUserId }, // 커스텀
+        ],
+      },
+      ...getExerciseQueryArgs(parsedUserId),
+    });
 
     const exercisesWithBookmark = exercises.map(transformExerciseToClient);
 

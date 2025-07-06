@@ -2,7 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import RoutineList from "./RoutineList";
 import { mockRoutine } from "@/__mocks__/routine.mock";
 import { routineService } from "@/lib/di";
-import { LocalRoutine } from "@/types/models";
+import { LocalRoutine, Saved } from "@/types/models";
 
 jest.mock("@/lib/di");
 
@@ -23,7 +23,7 @@ describe("RoutineList", () => {
     });
 
     it("루틴 목록을 올바르게 렌더링한다", async () => {
-      const mockRoutines: LocalRoutine[] = [
+      const mockRoutines: Saved<LocalRoutine>[] = [
         { ...mockRoutine.synced, id: 1, name: "루틴 1" },
         { ...mockRoutine.synced, id: 2, name: "루틴 2" },
       ];

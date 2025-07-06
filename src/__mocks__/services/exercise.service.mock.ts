@@ -10,5 +10,5 @@ export const createMockExerciseService = (): jest.Mocked<IExerciseService> => ({
 
   overwriteWithServerExercises: jest.fn(),
   syncExercisesFromServerLocalFirst: jest.fn(),
-  syncToServerExercises: jest.fn(),
+  // syncToServerExercises: jest.fn(),
 });

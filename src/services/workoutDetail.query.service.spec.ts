@@ -4,7 +4,7 @@ import { createMockWorkoutDetailRepository } from "@/__mocks__/repositories/work
 import { mockWorkout } from "@/__mocks__/workout.mock";
 import { mockWorkoutDetail } from "@/__mocks__/workoutDetail.mock";
 import { WorkoutDetailQueryService } from "@/services/workoutDetail.query.service";
-import { LocalWorkoutDetail } from "@/types/models";
+import { LocalWorkoutDetail, Saved } from "@/types/models";
 import { IWorkoutDetailQueryService } from "@/types/services";
 
 const mockRepository = createMockWorkoutDetailRepository();
@@ -25,7 +25,7 @@ describe("WorkoutDetailQueryService", () => {
   const workoutId = 10;
   const exerciseOrder = 5;
   describe("getWorkoutGroupByWorkoutDetail", () => {
-    const detail: LocalWorkoutDetail = {
+    const detail: Saved<LocalWorkoutDetail> = {
       ...mockWorkoutDetail.past,
       exerciseOrder,
       workoutId,
@@ -55,7 +55,7 @@ describe("WorkoutDetailQueryService", () => {
 
   describe("getLocalWorkoutDetailsByWorkoutIdAndExerciseOrder", () => {
     it("전달받은 인자에 맞는 workoutDetails를 반환한다", async () => {
-      const details: LocalWorkoutDetail[] = [
+      const details: Saved<LocalWorkoutDetail>[] = [
         { ...mockWorkoutDetail.past, workoutId, exerciseOrder },
       ];
       mockRepository.findAllByWorkoutIdAndExerciseOrder.mockResolvedValue(
@@ -82,7 +82,7 @@ describe("WorkoutDetailQueryService", () => {
     ];
 
     it("전달받은 pairs에 맞는 workoutDetails를 반환한다", async () => {
-      const details: LocalWorkoutDetail[] = [
+      const details: Saved<LocalWorkoutDetail>[] = [
         { ...mockWorkoutDetail.past, workoutId: 100, exerciseOrder: 1 },
         { ...mockWorkoutDetail.past, workoutId: 200, exerciseOrder: 2 },
       ];
@@ -114,14 +114,16 @@ describe("WorkoutDetailQueryService", () => {
   });
 
   describe("getLatestWorkoutDetailByDetail", () => {
-    const currentDetail: LocalWorkoutDetail = { ...mockWorkoutDetail.past };
+    const currentDetail: Saved<LocalWorkoutDetail> = {
+      ...mockWorkoutDetail.past,
+    };
     const currentWorkout = {
       ...mockWorkout.planned,
       id: workoutId,
       date: "2025-10-01",
     };
     it("과거 기록이 여러 개 있을때, 기준일자 이전의 가장 최신 기록을 반환해야 한다", async () => {
-      const candidates: LocalWorkoutDetail[] = [
+      const candidates: Saved<LocalWorkoutDetail>[] = [
         {
           ...currentDetail,
           id: 11,

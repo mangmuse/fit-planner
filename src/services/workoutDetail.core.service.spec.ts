@@ -5,7 +5,7 @@ import {
   mockWorkoutDetail,
 } from "@/__mocks__/workoutDetail.mock";
 import { WorkoutDetailCoreService } from "@/services/workoutDetail.core.service";
-import { LocalWorkoutDetail } from "@/types/models";
+import { LocalWorkoutDetail, Saved } from "@/types/models";
 import { IWorkoutDetailCoreService, IWorkoutService } from "@/types/services";
 import { createMockWorkoutService } from "@/__mocks__/services/workout.service.mock";
 import { createMockWorkoutDetailAdapter } from "@/__mocks__/adapters/workoutDetail.adapter.mock";
@@ -87,9 +87,43 @@ describe("WorkoutDetailCoreService", () => {
     });
   });
 
+  describe("getAllLocalWorkoutDetailsByWorkoutIds", () => {
+    it("workoutIds에 일치하는 detail들을 배열로 반환한다", async () => {
+      const details: Saved<LocalWorkoutDetail>[] = [
+        { ...mockWorkoutDetail.past, workoutId },
+      ];
+      mockRepository.findAllByWorkoutIds.mockResolvedValue(details);
+
+      const result = await service.getAllLocalWorkoutDetailsByWorkoutIds([
+        workoutId,
+      ]);
+
+      expect(mockRepository.findAllByWorkoutIds).toHaveBeenCalledWith([
+        workoutId,
+      ]);
+      expect(result).toEqual(details);
+    });
+
+    it("workoutIds에 일치하는 detail이 없는경우 빈 배열을 반환한다", async () => {
+      mockRepository.findAllByWorkoutIds.mockResolvedValue([]);
+      const result = await service.getAllLocalWorkoutDetailsByWorkoutIds([
+        workoutId,
+      ]);
+      expect(result).toEqual([]);
+    });
+
+    it("findAllByWorkoutIds 에서 에러가 발생한경우 해당 에러를 그대로 전파한다", async () => {
+      const mockError = new Error("DB 조회 실패");
+      mockRepository.findAllByWorkoutIds.mockRejectedValue(mockError);
+      await expect(
+        service.getAllLocalWorkoutDetailsByWorkoutIds([workoutId])
+      ).rejects.toThrow(mockError);
+    });
+  });
+
   describe("getLocalWorkoutDetailsByWorkoutId", () => {
     it("workoutId에 일치하는 detail들을 배열로 반환한다", async () => {
-      const details: LocalWorkoutDetail[] = [
+      const details: Saved<LocalWorkoutDetail>[] = [
         { ...mockWorkoutDetail.past, workoutId },
       ];
       mockRepository.findAllByWorkoutId.mockResolvedValue(details);

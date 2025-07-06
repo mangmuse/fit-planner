@@ -94,17 +94,17 @@ export class WorkoutDetailSyncService implements IWorkoutDetailSyncService {
     }
   }
 
-  public async syncToServerWorkoutDetails(): Promise<void> {
-    const all = await this.repository.findAll();
+  // public async syncToServerWorkoutDetails(): Promise<void> {
+  //   const all = await this.repository.findAll();
 
-    const unsynced = all.filter((detail) => !detail.isSynced);
-    const mappedUnsynced = await this.mapDetailsToPayload(unsynced);
-    const data = await this.api.postWorkoutDetailsToServer(mappedUnsynced);
+  //   const unsynced = all.filter((detail) => !detail.isSynced);
+  //   const mappedUnsynced = await this.mapDetailsToPayload(unsynced);
+  //   const data = await this.api.postWorkoutDetailsToServer(mappedUnsynced);
 
-    if (data.updated.length === 0) return;
+  //   if (data.updated.length === 0) return;
 
-    if (data.updated) {
-      await this.updateLocalWorkoutDetailWithApiResponse(data.updated);
-    }
-  }
+  //   if (data.updated) {
+  //     await this.updateLocalWorkoutDetailWithApiResponse(data.updated);
+  //   }
+  // }
 }

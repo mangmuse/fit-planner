@@ -1,6 +1,6 @@
 import { IExerciseAdapter } from "@/types/adapters";
 import { IExerciseApi } from "@/types/apis";
-import { ClientExercise, LocalExercise } from "@/types/models";
+import { ClientExercise, LocalExercise, Saved } from "@/types/models";
 import { IExerciseRepository } from "@/types/repositories";
 import { IExerciseService } from "@/types/services";
 
@@ -13,15 +13,17 @@ export class ExerciseService implements IExerciseService {
 
   async getExerciseWithServerId(
     serverId: number
-  ): Promise<LocalExercise | void> {
+  ): Promise<Saved<LocalExercise> | void> {
     return await this.repository.findOneByServerId(serverId);
   }
 
-  async getAllLocalExercises(): Promise<LocalExercise[]> {
-    return this.repository.findAll();
+  async getAllLocalExercises(userId: string): Promise<Saved<LocalExercise>[]> {
+    return this.repository.findAll(userId);
   }
 
-  async getExerciseWithLocalId(id: number): Promise<LocalExercise | void> {
+  async getExerciseWithLocalId(
+    id: number
+  ): Promise<Saved<LocalExercise> | void> {
     return await this.repository.findOneById(id);
   }
 
@@ -75,7 +77,7 @@ export class ExerciseService implements IExerciseService {
 
   // ----- Sync ----- //
 
-  private async getUnsyncedExercises(): Promise<LocalExercise[]> {
+  private async getUnsyncedExercises(): Promise<Saved<LocalExercise>[]> {
     return this.repository.findAllUnsynced();
   }
 
@@ -100,7 +102,7 @@ export class ExerciseService implements IExerciseService {
 
     if (serverData.length === 0) return;
 
-    const localAll = await this.repository.findAll();
+    const localAll = await this.repository.findAll(userId);
 
     const merged = this.adapter.mergeServerExerciseData(serverData, localAll);
 
@@ -108,17 +110,17 @@ export class ExerciseService implements IExerciseService {
     await this.repository.bulkPut(merged);
   }
 
-  async syncToServerExercises(userId: string): Promise<void> {
-    const unsynced = await this.getUnsyncedExercises();
-    const data = await this.api.postExercisesToServer(unsynced, userId);
+  // async syncToServerExercises(userId: string): Promise<void> {
+  //   const unsynced = await this.getUnsyncedExercises();
+  //   const data = await this.api.postExercisesToServer(unsynced, userId);
 
-    if (data.updated.length === 0) return;
+  //   if (data.updated.length === 0) return;
 
-    for (const updated of data.updated) {
-      await this.repository.update(updated.localId, {
-        isSynced: true,
-        serverId: updated.serverId,
-      });
-    }
-  }
+  //   for (const updated of data.updated) {
+  //     await this.repository.update(updated.localId, {
+  //       isSynced: true,
+  //       serverId: updated.serverId,
+  //     });
+  //   }
+  // }
 }

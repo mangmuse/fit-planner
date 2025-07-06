@@ -1,5 +1,5 @@
 import type { Table, UpdateSpec } from "dexie";
-import type { LocalBase } from "@/types/models";
+import type { LocalBase, Saved } from "@/types/models";
 export abstract class BaseRepository<
   T extends LocalBase,
   TKey extends number | string,
@@ -10,12 +10,12 @@ export abstract class BaseRepository<
     await this.table.clear();
   }
 
-  public async findAll(): Promise<T[]> {
-    return this.table.toArray();
-  }
+  // public async findAll(): Promise<T[]> {
+  //   return this.table.toArray();
+  // }
 
-  public async findOneById(id: TKey): Promise<T | undefined> {
-    return this.table.get(id);
+  public async findOneById(id: TKey): Promise<Saved<T> | undefined> {
+    return this.table.get(id) as Promise<Saved<T> | undefined>;
   }
 
   public async add(toInsert: T): Promise<TKey> {

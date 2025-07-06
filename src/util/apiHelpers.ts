@@ -28,7 +28,6 @@ export async function safeRequest<T>(
 
     throw new ApiError(res.status, errorMessage);
   }
-
   const data = await res.json();
 
   return schema ? schema.parse(data) : data;

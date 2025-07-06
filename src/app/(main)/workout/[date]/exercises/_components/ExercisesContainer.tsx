@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import addButton from "public/add.svg";
-import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
+import { LocalRoutineDetail, LocalWorkoutDetail, Saved } from "@/types/models";
 import ExerciseFilter from "@/app/(main)/workout/[date]/exercises/_components/ExerciseFilter";
 import SearchBar from "@/app/(main)/workout/[date]/exercises/_components/SearchBar";
 import ExerciseList from "@/app/(main)/workout/[date]/exercises/_components/ExerciseList";
@@ -23,7 +23,7 @@ type ExercisesContainerProps = {
   type: "ROUTINE" | "RECORD";
   routineId?: number;
   allowMultipleSelection?: boolean;
-  currentDetails?: LocalWorkoutDetail[] | LocalRoutineDetail[];
+  currentDetails?: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[];
   reloadDetails?: () => Promise<void>;
 };
 
@@ -35,6 +35,7 @@ export default function ExercisesContainer({
 }: ExercisesContainerProps) {
   const { data: session } = useSession();
   const userId = session?.user?.id;
+
   const { openModal, showError } = useModal();
   const router = useRouter();
   const { closeBottomSheet } = useBottomSheet();
@@ -135,12 +136,6 @@ export default function ExercisesContainer({
     : "교체하기";
 
   if (error) return <ErrorState error={error} onRetry={reloadExercises} />;
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-40">Loading...</div>
-    );
-  }
 
   return (
     <main className="pb-20">

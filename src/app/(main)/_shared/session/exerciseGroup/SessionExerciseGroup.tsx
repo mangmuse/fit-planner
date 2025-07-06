@@ -7,13 +7,13 @@ import { useAsync } from "@/hooks/useAsync";
 import { exerciseService, workoutDetailService } from "@/lib/di";
 
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
-import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
+import { LocalRoutineDetail, LocalWorkoutDetail, Saved } from "@/types/models";
 import Image from "next/image";
 import menuIcon from "public/meatball.svg";
 
 export type SessionExerciseGroupProps = {
   exerciseOrder: number;
-  details: LocalWorkoutDetail[] | LocalRoutineDetail[];
+  details: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[];
   reload: () => Promise<void>;
   reorderAfterDelete: (deletedExerciseOrder: number) => Promise<void>;
 };

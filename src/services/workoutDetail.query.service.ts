@@ -1,4 +1,4 @@
-import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
+import { LocalRoutineDetail, LocalWorkoutDetail, Saved } from "@/types/models";
 import {
   IWorkoutDetailRepository,
   IWorkoutRepository,
@@ -12,8 +12,8 @@ export class WorkoutDetailQueryService implements IWorkoutDetailQueryService {
   ) {}
 
   async getWorkoutGroupByWorkoutDetail(
-    detail: LocalWorkoutDetail
-  ): Promise<LocalWorkoutDetail[]> {
+    detail: Saved<LocalWorkoutDetail>
+  ): Promise<Saved<LocalWorkoutDetail>[]> {
     const { exerciseOrder, workoutId } = detail;
     return this.repository.findAllByWorkoutIdAndExerciseOrder(
       workoutId,
@@ -24,7 +24,7 @@ export class WorkoutDetailQueryService implements IWorkoutDetailQueryService {
   async getLocalWorkoutDetailsByWorkoutIdAndExerciseOrder(
     workoutId: number,
     exerciseOrder: number
-  ): Promise<LocalWorkoutDetail[]> {
+  ): Promise<Saved<LocalWorkoutDetail>[]> {
     return this.repository.findAllByWorkoutIdAndExerciseOrder(
       workoutId,
       exerciseOrder
@@ -33,28 +33,28 @@ export class WorkoutDetailQueryService implements IWorkoutDetailQueryService {
 
   async getLocalWorkoutDetailsByWorkoutIdAndExerciseOrderPairs(
     pairs: { workoutId: number; exerciseOrder: number }[]
-  ): Promise<LocalWorkoutDetail[]> {
+  ): Promise<Saved<LocalWorkoutDetail>[]> {
     return this.repository.findAllByWorkoutIdAndExerciseOrderPairs(pairs);
   }
 
   private async getAllDoneDetailsExceptCurrent(
-    detail: LocalWorkoutDetail | LocalRoutineDetail
-  ): Promise<LocalWorkoutDetail[]> {
+    detail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>
+  ): Promise<Saved<LocalWorkoutDetail>[]> {
     // 직접 타입 체크: "workoutId"가 있으면 LocalWorkoutDetail
     const isWorkout = "workoutId" in detail;
     let candidates = await this.repository.findAllDoneByExerciseId(
       detail.exerciseId
     );
     if (isWorkout) {
-      const currentWorkoutId = (detail as LocalWorkoutDetail).workoutId;
+      const currentWorkoutId = (detail as Saved<LocalWorkoutDetail>).workoutId;
       candidates = candidates.filter((d) => d.workoutId !== currentWorkoutId);
     }
     return candidates;
   }
   private async pickMostRecentDetailBeforeDate(
-    candidates: LocalWorkoutDetail[],
+    candidates: Saved<LocalWorkoutDetail>[],
     referenceDate?: Date
-  ): Promise<LocalWorkoutDetail | undefined> {
+  ): Promise<Saved<LocalWorkoutDetail> | undefined> {
     if (!candidates.length) return undefined;
 
     const workoutIdToDateMap = new Map<number, string>();
@@ -86,15 +86,15 @@ export class WorkoutDetailQueryService implements IWorkoutDetailQueryService {
   }
 
   async getLatestWorkoutDetailByDetail(
-    detail: LocalWorkoutDetail | LocalRoutineDetail
-  ): Promise<LocalWorkoutDetail | void> {
+    detail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>
+  ): Promise<Saved<LocalWorkoutDetail> | void> {
     const isWorkout = "workoutId" in detail;
     const candidates = await this.getAllDoneDetailsExceptCurrent(detail);
     if (!candidates.length) return;
     let referenceDate: Date | undefined = undefined;
     if (isWorkout) {
       const currentWorkout = await this.workoutRepository.findOneById(
-        (detail as LocalWorkoutDetail).workoutId
+        (detail as Saved<LocalWorkoutDetail>).workoutId
       );
       if (!currentWorkout?.date) return;
       referenceDate = new Date(currentWorkout.date);

@@ -1,5 +1,5 @@
 import { BaseRepository } from "@/repositories/base.repository";
-import { LocalExercise } from "@/types/models";
+import { LocalExercise, Saved } from "@/types/models";
 import { IExerciseRepository } from "@/types/repositories";
 import { Table } from "dexie";
 
@@ -11,13 +11,25 @@ export class ExerciseRepository
     super(table);
   }
 
-  async findOneByServerId(
-    serverId: number
-  ): Promise<LocalExercise | undefined> {
-    return this.table.where("serverId").equals(serverId).first();
+  async findAll(userId: string): Promise<Saved<LocalExercise>[]> {
+    return this.table
+      .filter(
+        (exercise) => exercise.userId === null || exercise.userId === userId
+      )
+      .toArray() as Promise<Saved<LocalExercise>[]>;
   }
 
-  async findAllUnsynced(): Promise<LocalExercise[]> {
-    return this.table.filter((ex) => !ex.isSynced).toArray();
+  async findOneByServerId(
+    serverId: number
+  ): Promise<Saved<LocalExercise> | undefined> {
+    return this.table.where("serverId").equals(serverId).first() as Promise<
+      Saved<LocalExercise> | undefined
+    >;
+  }
+
+  async findAllUnsynced(): Promise<Saved<LocalExercise>[]> {
+    return this.table.filter((ex) => !ex.isSynced).toArray() as Promise<
+      Saved<LocalExercise>[]
+    >;
   }
 }
