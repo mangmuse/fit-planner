@@ -1,11 +1,7 @@
 "use client";
 
-import { routineDetailService, routineService } from "@/lib/di";
+import { routineDetailService, routineService, syncAllService } from "@/lib/di";
 
-import {
-  overWriteAllWithServerData,
-  overWriteToServer,
-} from "@/services/syncAll.service";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 const AuthTest = () => {
@@ -33,7 +29,7 @@ const AuthTest = () => {
       <button
         className="px-2 py-1 bg-bg-secondary text-xs rounded"
         onClick={() => {
-          overWriteToServer(userId ?? "");
+          syncAllService.overWriteToServer(userId ?? "");
         }}
       >
         To Server
@@ -41,7 +37,7 @@ const AuthTest = () => {
       <button
         className="px-2 py-1 bg-bg-secondary text-xs rounded"
         onClick={() => {
-          overWriteAllWithServerData(userId ?? "");
+          syncAllService.overWriteAllWithServerData(userId ?? "");
         }}
       >
         From Server

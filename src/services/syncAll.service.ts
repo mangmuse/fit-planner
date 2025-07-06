@@ -1,34 +1,79 @@
-import {
-  createNestedExercises,
-  createNestedStructure,
-} from "@/adapter/syncAll.adapter.";
-import { syncAllToServer } from "@/app/api/syncAll.api";
-import {
-  exerciseService,
-  routineDetailService,
-  routineService,
-  workoutDetailService,
-  workoutService,
-} from "@/lib/di";
+import { ISyncAllAdapter } from "@/types/adapters";
+import { ISyncAllApi } from "@/types/apis";
 import {
   LocalRoutine,
-  LocalRoutineDetail,
-  LocalWorkout,
-  LocalWorkoutDetail,
   NestedRoutine,
   NestedWorkout,
   Saved,
 } from "@/types/models";
+import {
+  IExerciseService,
+  IRoutineDetailService,
+  IRoutineService,
+  ISyncAllService,
+  IWorkoutDetailService,
+  IWorkoutService,
+} from "@/types/services";
 
-export const overWriteAllWithServerData = async (userId: string) => {
-  await exerciseService.overwriteWithServerExercises(userId);
+export class SyncAllService implements ISyncAllService {
+  constructor(
+    private readonly exerciseService: IExerciseService,
+    private readonly workoutService: IWorkoutService,
+    private readonly routineService: IRoutineService,
+    private readonly workoutDetailService: IWorkoutDetailService,
+    private readonly routineDetailService: IRoutineDetailService,
+    private readonly api: ISyncAllApi,
+    private readonly adapter: ISyncAllAdapter
+  ) {}
 
-  await workoutService.overwriteWithServerWorkouts(userId);
-  await routineService.overwriteWithServerRoutines(userId);
+  public overWriteAllWithServerData = async (userId: string) => {
+    await this.exerciseService.overwriteWithServerExercises(userId);
 
-  await workoutDetailService.overwriteWithServerWorkoutDetails(userId);
-  await routineDetailService.overwriteWithServerRoutineDetails(userId);
-};
+    await this.workoutService.overwriteWithServerWorkouts(userId);
+    await this.routineService.overwriteWithServerRoutines(userId);
+
+    await this.workoutDetailService.overwriteWithServerWorkoutDetails(userId);
+    await this.routineDetailService.overwriteWithServerRoutineDetails(userId);
+  };
+
+  public overWriteToServer = async (userId: string) => {
+    const exercises = await this.exerciseService.getAllLocalExercises(userId);
+    const workouts = await this.workoutService.getAllWorkouts(userId);
+    const routines = await this.routineService.getAllLocalRoutines(userId);
+
+    const workoutIds = workouts.map((workout) => workout.id);
+    const routineIds = routines.map((routine) => routine.id);
+
+    const workoutDetails =
+      await this.workoutDetailService.getAllLocalWorkoutDetailsByWorkoutIds(
+        workoutIds
+      );
+    const routineDetails =
+      await this.routineDetailService.getAllLocalRoutineDetailsByRoutineIds(
+        routineIds
+      );
+
+    const nestedExercises = this.adapter.createNestedExercises(exercises);
+
+    const nestedWorkouts = this.adapter.createNestedStructure(
+      workouts,
+      workoutDetails,
+      "workoutId"
+    );
+    const nestedRoutines = this.adapter.createNestedStructure(
+      routines,
+      routineDetails,
+      "routineId"
+    );
+
+    await this.api.syncAllToServer({
+      userId,
+      nestedExercises,
+      nestedWorkouts,
+      nestedRoutines,
+    });
+  };
+}
 
 // export const syncToServer = async (userId: string) => {
 //   // 반드시 exercise
@@ -42,41 +87,3 @@ export const overWriteAllWithServerData = async (userId: string) => {
 //   await workoutDetailService.syncToServerWorkoutDetails();
 //   await routineDetailService.syncToServerRoutineDetails();
 // };
-
-export const overWriteToServer = async (userId: string) => {
-  const exercises = await exerciseService.getAllLocalExercises(userId);
-  const workouts = await workoutService.getAllWorkouts(userId);
-  const routines = await routineService.getAllLocalRoutines(userId);
-
-  const workoutIds = workouts.map((workout) => workout.id);
-  const routineIds = routines.map((routine) => routine.id);
-
-  const workoutDetails =
-    await workoutDetailService.getAllLocalWorkoutDetailsByWorkoutIds(
-      workoutIds
-    );
-  const routineDetails =
-    await routineDetailService.getAllLocalRoutineDetailsByRoutineIds(
-      routineIds
-    );
-
-  const nestedExercises = createNestedExercises(exercises);
-
-  const nestedWorkouts: NestedWorkout[] = createNestedStructure(
-    workouts,
-    workoutDetails,
-    "workoutId"
-  );
-  const nestedRoutines: NestedRoutine[] = createNestedStructure(
-    routines,
-    routineDetails,
-    "routineId"
-  );
-
-  syncAllToServer({
-    userId,
-    nestedExercises,
-    nestedWorkouts,
-    nestedRoutines,
-  });
-};

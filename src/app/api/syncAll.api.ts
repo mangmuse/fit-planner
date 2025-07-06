@@ -1,4 +1,5 @@
 import { BASE_URL } from "@/constants";
+import { ISyncAllApi } from "@/types/apis";
 import {
   LocalExercise,
   LocalRoutine,
@@ -26,13 +27,20 @@ export const syncAllToServerResponseSchema = z.object({
   success: z.boolean(),
 });
 
-export const syncAllToServer = async (props: SyncAllToServerProps) => {
-  await safeRequest(
-    `${BASE_URL}/api/sync/all`,
-    {
-      method: "POST",
-      body: JSON.stringify(props),
-    },
-    syncAllToServerResponseSchema
-  );
-};
+export type SyncAllToServerResponse = z.infer<
+  typeof syncAllToServerResponseSchema
+>;
+
+export class SyncAllApi implements ISyncAllApi {
+  async syncAllToServer(props: SyncAllToServerProps) {
+    const data = await safeRequest(
+      `${BASE_URL}/api/sync/all`,
+      {
+        method: "POST",
+        body: JSON.stringify(props),
+      },
+      syncAllToServerResponseSchema
+    );
+    return data.success;
+  }
+}

@@ -16,6 +16,14 @@ import { SyncWorkoutsToServerResponse } from "@/api/workout.api";
 import { SyncRoutinesToServerResponse } from "@/api/routine.api";
 import { SyncRoutineDetailsToServerResponse } from "@/api/routineDetail.api";
 import { SyncWorkoutDetailsToServerResponse } from "@/api/workoutDetail.api";
+import {
+  SyncAllToServerProps,
+  SyncAllToServerResponse,
+} from "@/app/api/syncAll.api";
+
+export interface ISyncAllApi {
+  syncAllToServer: (props: SyncAllToServerProps) => Promise<boolean>;
+}
 
 export interface IExerciseApi {
   fetchExercisesFromServer: (userId: string) => Promise<ClientExercise[]>;

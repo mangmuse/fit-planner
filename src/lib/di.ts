@@ -1,5 +1,6 @@
 import { ExerciseAdapter } from "@/adapter/exercise.adapter";
 import { RoutineDetailAdapter } from "@/adapter/routineDetail.adapter";
+import { SyncAllAdapter } from "@/adapter/syncAll.adapter.";
 
 import { WorkoutdetailAdapter } from "@/adapter/workoutDetail.adapter";
 import { ExerciseApi } from "@/api/exercise.api";
@@ -7,6 +8,7 @@ import { RoutineApi } from "@/api/routine.api";
 import { RoutineDetailApi } from "@/api/routineDetail.api";
 import { WorkoutApi } from "@/api/workout.api";
 import { WorkoutDetailApi } from "@/api/workoutDetail.api";
+import { SyncAllApi } from "@/app/api/syncAll.api";
 import { db } from "@/lib/db";
 import { ExerciseRepository } from "@/repositories/exercise.repository";
 import { RoutineRepository } from "@/repositories/routine.repository";
@@ -19,6 +21,7 @@ import { ExerciseService } from "@/services/exercise.service";
 import { RoutineService } from "@/services/routine.service";
 
 import { RoutineDetailService } from "@/services/routineDetail.service";
+import { SyncAllService } from "@/services/syncAll.service";
 
 import { WorkoutService } from "@/services/workout.service";
 import { WorkoutDetailCoreService } from "@/services/workoutDetail.core.service";
@@ -51,12 +54,15 @@ export const workoutRepository = new WorkoutRepository(db.workouts);
 export const workoutDetailRepository = new WorkoutDetailRepository(
   db.workoutDetails
 );
+export const syncAllApi = new SyncAllApi();
 
 // ------ Adapter ----- //
 export const exerciseAdapter = new ExerciseAdapter();
 
 export const workoutDetailAdapter = new WorkoutdetailAdapter();
 export const routineDetailAdapter = new RoutineDetailAdapter();
+
+export const syncAllAdapter = new SyncAllAdapter();
 
 // ----- Service ----- //
 
@@ -105,4 +111,14 @@ export const routineDetailService = new RoutineDetailService(
   routineDetailRepository,
   routineDetailAdapter,
   routineDetailApi
+);
+
+export const syncAllService = new SyncAllService(
+  exerciseService,
+  workoutService,
+  routineService,
+  workoutDetailService,
+  routineDetailService,
+  syncAllApi,
+  syncAllAdapter
 );

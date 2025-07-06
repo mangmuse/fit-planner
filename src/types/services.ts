@@ -7,6 +7,13 @@ import {
 } from "@/types/models";
 import { ClientExercise, LocalExercise } from "@/types/models";
 
+// --- SyncAll ---
+
+export interface ISyncAllService {
+  overWriteAllWithServerData: (userId: string) => Promise<void>;
+  overWriteToServer: (userId: string) => Promise<void>;
+}
+
 // --- WorkoutDetail ---
 export interface IWorkoutDetailCoreService {
   getLocalWorkoutDetails: (
