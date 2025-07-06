@@ -1,6 +1,6 @@
 import { ExerciseAdapter } from "@/adapter/exercise.adapter";
 import { RoutineDetailAdapter } from "@/adapter/routineDetail.adapter";
-import { SyncAllAdapter } from "@/adapter/syncAll.adapter.";
+import { SyncAllAdapter } from "@/adapter/syncAll.adapter";
 
 import { WorkoutdetailAdapter } from "@/adapter/workoutDetail.adapter";
 import { ExerciseApi } from "@/api/exercise.api";

@@ -17,9 +17,7 @@ export async function safeRequest<T>(
 ): Promise<T> {
   const res = await fetch(url, options);
 
-  const data = await res.json();
-
-  if (!res.ok || data.success === false) {
+  if (!res.ok) {
     let errorMessage = `요청 실패 (${res.status})`;
     try {
       const errorBody = await res.json();
@@ -30,6 +28,7 @@ export async function safeRequest<T>(
 
     throw new ApiError(res.status, errorMessage);
   }
+  const data = await res.json();
 
   return schema ? schema.parse(data) : data;
 }
