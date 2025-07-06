@@ -25,7 +25,11 @@ import {
   isWorkoutDetail,
   isWorkoutDetails,
 } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
-import { LocalWorkout } from "@/types/models";
+import {
+  LocalWorkout,
+  LocalWorkoutDetail,
+  LocalRoutineDetail,
+} from "@/types/models";
 import SessionExerciseGroup from "@/app/(main)/_shared/session/exerciseGroup/SessionExerciseGroup";
 import SessionSequence from "@/app/(main)/_shared/session/sessionSequence/SessionSequence";
 import LoadPastSessionSheet from "@/app/(main)/_shared/session/pastSession/LoadPastSessionSheet";
@@ -83,12 +87,48 @@ const SessionContainer = ({
     deletedExerciseOrder: number
   ): Promise<void> => {
     try {
-      // 1. 삭제한 세트 제외한 나머지 중 exerciseOrder가 큰 것들만 필터링
-      const affectedDetails = allDetails.filter(
+      console.log("[SessionContainer] reorderAfterDelete 시작:", {
+        deletedExerciseOrder,
+        currentAllDetailsCount: allDetails.length,
+        type,
+      });
+
+      // 최신 데이터를 다시 조회
+      let latestDetails: (LocalWorkoutDetail | LocalRoutineDetail)[] = [];
+
+      if (type === "RECORD" && userId && date) {
+        latestDetails = await workoutDetailService.getLocalWorkoutDetails(
+          userId,
+          date
+        );
+      } else if (type === "ROUTINE" && routineId) {
+        latestDetails =
+          await routineDetailService.getLocalRoutineDetails(routineId);
+      }
+
+      console.log("[SessionContainer] 최신 details 조회 결과:", {
+        latestDetailsCount: latestDetails.length,
+        exerciseOrders: latestDetails
+          .map((d) => d.exerciseOrder)
+          .filter((v, i, a) => a.indexOf(v) === i)
+          .sort(),
+      });
+
+      // 1. 삭제한 운동보다 exerciseOrder가 큰 것들만 필터링
+      const affectedDetails = latestDetails.filter(
         (d) => d.exerciseOrder > deletedExerciseOrder
       );
+
+      console.log("[SessionContainer] 영향받는 details:", {
+        affectedCount: affectedDetails.length,
+        affectedExerciseOrders: affectedDetails
+          .map((d) => d.exerciseOrder)
+          .filter((v, i, a) => a.indexOf(v) === i)
+          .sort(),
+      });
+
       // 2. exerciseOrder를 1씩 감소시키면서 DB 업데이트
-      const details = await Promise.all(
+      await Promise.all(
         affectedDetails.map((detail) => {
           const updated = {
             ...detail,
@@ -101,8 +141,10 @@ const SessionContainer = ({
           }
         })
       );
+
+      console.log("[SessionContainer] reorderAfterDelete 완료");
     } catch (e) {
-      console.error("[SessionContainer] Error", e);
+      console.error("[SessionContainer] reorderAfterDelete Error", e);
       showError("운동 상태를 동기화하는 데 실패했습니다");
     }
   };

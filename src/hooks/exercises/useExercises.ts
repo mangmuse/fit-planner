@@ -11,7 +11,6 @@ const useExercises = ({ userId }: UseExercisesProps) => {
   const [exercises, setExercises] = useState<LocalExercise[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setLoading] = useState<boolean>(true);
-
   async function loadLocalExerciseData() {
     try {
       setError(null);
@@ -29,30 +28,32 @@ const useExercises = ({ userId }: UseExercisesProps) => {
     }
   }
 
-  useEffect(() => {
-    (async () => {
-      try {
-        if (!userId) return;
+  const loadExercises = async () => {
+    try {
+      if (!userId) return;
 
-        setError(null);
-        setLoading(true);
+      setError(null);
+      setLoading(true);
+      const localAll = await exerciseService.getAllLocalExercises(userId);
 
-        const localAll = await exerciseService.getAllLocalExercises(userId);
+      if (localAll.length === 0) {
+        await exerciseService.syncExercisesFromServerLocalFirst(userId);
+        const syncedData = await exerciseService.getAllLocalExercises(userId);
 
-        if (localAll.length === 0) {
-          await exerciseService.syncExercisesFromServerLocalFirst(userId);
-          const syncedData = await exerciseService.getAllLocalExercises(userId);
-          setExercises(syncedData);
-        } else {
-          setExercises(localAll);
-        }
-      } catch (e) {
-        console.error("[useExercises] Error", e);
-        setError("운동목록 초기화에 실패했습니다.");
-      } finally {
-        setLoading(false);
+        setExercises(syncedData);
+      } else {
+        setExercises(localAll);
       }
-    })();
+    } catch (e) {
+      console.error("[useExercises] Error", e);
+      setError("운동목록 초기화에 실패했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadExercises();
   }, [userId]);
 
   const returnValue = {

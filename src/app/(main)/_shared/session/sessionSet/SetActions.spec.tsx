@@ -70,7 +70,7 @@ describe("SetActions", () => {
       expect(
         mockRoutineDetailService.deleteRoutineDetail
       ).not.toHaveBeenCalled();
-      expect(mockReorder).toHaveBeenCalledWith(mockWD.exerciseOrder);
+      expect(mockReorder).not.toHaveBeenCalled();
       expect(mockReload).toHaveBeenCalledTimes(1);
     });
   });
@@ -99,7 +99,7 @@ describe("SetActions", () => {
       expect(mockRoutineDetailService.deleteRoutineDetail).toHaveBeenCalledWith(
         mockRD.id
       );
-      expect(mockReorder).toHaveBeenCalledWith(mockRD.exerciseOrder);
+      expect(mockReorder).not.toHaveBeenCalled();
       expect(mockReload).toHaveBeenCalledTimes(1);
 
       expect(

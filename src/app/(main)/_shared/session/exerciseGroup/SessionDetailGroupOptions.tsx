@@ -60,6 +60,18 @@ const SessionDetailGroupOptions = ({
 
   const deleteAndLoadDetails = async () => {
     try {
+      console.log("[SessionDetailGroupOptions] 삭제할 details:", {
+        count: details.length,
+        exerciseOrder: details[0]?.exerciseOrder,
+        details: details.map((d) => ({
+          id: d.id,
+          exerciseId: d.exerciseId,
+          exerciseName: d.exerciseName,
+          exerciseOrder: d.exerciseOrder,
+          setOrder: d.setOrder,
+        })),
+      });
+
       if (isWorkoutDetails(details)) {
         await workoutDetailService.deleteWorkoutDetails(details);
       } else {

@@ -35,6 +35,7 @@ export default function ExercisesContainer({
 }: ExercisesContainerProps) {
   const { data: session } = useSession();
   const userId = session?.user?.id;
+
   const { openModal, showError } = useModal();
   const router = useRouter();
   const { closeBottomSheet } = useBottomSheet();

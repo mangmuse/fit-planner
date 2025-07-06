@@ -295,9 +295,7 @@ describe("SessionExerciseGroup", () => {
         expect(
           mockWorkoutDetailService.deleteWorkoutDetail
         ).toHaveBeenCalledWith(mockWDs[mockWDs.length - 1].id);
-        expect(mockReorderAfterDelete).toHaveBeenCalledWith(
-          mockWDs[mockWDs.length - 1].exerciseOrder
-        );
+        expect(mockReorderAfterDelete).not.toHaveBeenCalled();
 
         expect(
           mockedRoutineDetailService.deleteRoutineDetail
@@ -371,9 +369,7 @@ describe("SessionExerciseGroup", () => {
         expect(
           mockedRoutineDetailService.deleteRoutineDetail
         ).toHaveBeenCalledWith(mockRDs[mockRDs.length - 1].id);
-        expect(mockReorderAfterDelete).toHaveBeenCalledWith(
-          mockRDs[mockRDs.length - 1].exerciseOrder
-        );
+        expect(mockReorderAfterDelete).not.toHaveBeenCalled();
 
         expect(
           mockWorkoutDetailService.deleteWorkoutDetail

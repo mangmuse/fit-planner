@@ -68,13 +68,29 @@ const LoadPastSessionSheet = ({
     }
   };
 
-  const fetchSelectedDetails = async () => {
+  const fetchSelectedDetails = async (): Promise<LocalWorkoutDetail[]> => {
     return workoutDetailService.getLocalWorkoutDetailsByWorkoutIdAndExerciseOrderPairs(
       selectedGroups
     );
   };
 
-  const handleRecordType = async (
+  const createExerciseOrderMapping = (
+    startOrder: number
+  ): Map<number, number> => {
+    const exerciseOrderMap = new Map<number, number>();
+    let currentOrder = startOrder;
+
+    selectedGroups.forEach((group) => {
+      if (!exerciseOrderMap.has(group.exerciseOrder)) {
+        exerciseOrderMap.set(group.exerciseOrder, currentOrder);
+        currentOrder++;
+      }
+    });
+
+    return exerciseOrderMap;
+  };
+
+  const addDetailsToWorkout = async (
     details: LocalWorkoutDetail[],
     startOrder: number
   ) => {
@@ -83,13 +99,14 @@ const LoadPastSessionSheet = ({
       date!
     );
     if (!workout?.id) {
-      throw new Error("workout ID가 없습니다");
+      throw new Error("workout을 찾을 수 없습니다");
     }
 
-    const newDetails = details.map((detail, index) => {
-      const exerciseOrderIndex = Math.floor(index / selectedGroups.length);
-      const newExerciseOrder = startOrder + exerciseOrderIndex + 1;
+    const exerciseOrderMap = createExerciseOrderMapping(startOrder);
 
+    const newDetails = details.map((detail) => {
+      const newExerciseOrder =
+        exerciseOrderMap.get(detail.exerciseOrder) || startOrder;
       return workoutDetailAdapter.mapPastWorkoutToWorkoutDetail(
         detail,
         workout.id!,
@@ -100,19 +117,19 @@ const LoadPastSessionSheet = ({
     await workoutDetailService.addPastWorkoutDetailsToWorkout(newDetails);
   };
 
-  const handleRoutineType = async (
+  const addDetailsToRoutine = async (
     details: LocalWorkoutDetail[],
     startOrder: number
   ) => {
     const routine = await routineService.getRoutineByLocalId(routineId!);
     if (!routine?.id) {
-      throw new Error("루틴 ID가 없습니다");
+      throw new Error("루틴을 찾을 수 없습니다");
     }
 
-    const newDetails = details.map((detail, index) => {
-      const exerciseOrderIndex = Math.floor(index / selectedGroups.length);
-      const newExerciseOrder = startOrder + exerciseOrderIndex + 1;
-
+    const exerciseOrderMap = createExerciseOrderMapping(startOrder);
+    const newDetails = details.map((detail) => {
+      const newExerciseOrder =
+        exerciseOrderMap.get(detail.exerciseOrder) || startOrder;
       return routineDetailAdapter.mapPastWorkoutToRoutineDetail(
         detail,
         routine.id!,
@@ -130,9 +147,9 @@ const LoadPastSessionSheet = ({
       const allDetails = await fetchSelectedDetails();
 
       if (type === "RECORD") {
-        await handleRecordType(allDetails, startExerciseOrder);
+        await addDetailsToWorkout(allDetails, startExerciseOrder);
       } else {
-        await handleRoutineType(allDetails, startExerciseOrder);
+        await addDetailsToRoutine(allDetails, startExerciseOrder);
       }
 
       await reload();

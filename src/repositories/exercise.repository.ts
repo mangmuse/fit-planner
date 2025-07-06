@@ -12,9 +12,11 @@ export class ExerciseRepository
   }
 
   async findAll(userId: string): Promise<Saved<LocalExercise>[]> {
-    return this.table.where("userId").equals(userId).toArray() as Promise<
-      Saved<LocalExercise>[]
-    >;
+    return this.table
+      .filter(
+        (exercise) => exercise.userId === null || exercise.userId === userId
+      )
+      .toArray() as Promise<Saved<LocalExercise>[]>;
   }
 
   async findOneByServerId(

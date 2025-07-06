@@ -39,7 +39,6 @@ const SetActions = ({
       } else {
         await routineDetailService.deleteRoutineDetail(lastValue.id ?? 0);
       }
-      await reorderAfterDelete(lastValue.exerciseOrder);
       reload();
     } catch (e) {
       console.error("[SetActions] Error", e);

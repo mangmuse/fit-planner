@@ -28,6 +28,8 @@ import {
 import userEvent from "@testing-library/user-event";
 import { mockWorkoutDetail } from "@/__mocks__/workoutDetail.mock";
 import { mockRoutine } from "@/__mocks__/routine.mock";
+import { WorkoutdetailAdapter } from "@/adapter/workoutDetail.adapter";
+import { RoutineDetailAdapter } from "@/adapter/routineDetail.adapter";
 
 jest.mock("@/app/(main)/_shared/session/pastSession/PastSessionList", () => {
   return jest.fn(({ pastWorkouts }) => (
@@ -73,8 +75,20 @@ describe("LoadPastSessionSheet", () => {
     { workoutId: 500, exerciseOrder: 1 },
     { workoutId: 500, exerciseOrder: 2 },
   ];
-  const mockPastWorkoutDetail1 = { ...mockWorkoutDetail.past, id: 1 };
-  const mockPastWorkoutDetail2 = { ...mockWorkoutDetail.past, id: 2 };
+  const mockPastWorkoutDetail1 = {
+    ...mockWorkoutDetail.past,
+    id: 1,
+    exerciseOrder: 1,
+    exerciseId: 1,
+    exerciseName: "벤치 프레스",
+  };
+  const mockPastWorkoutDetail2 = {
+    ...mockWorkoutDetail.past,
+    id: 2,
+    exerciseOrder: 2,
+    exerciseId: 2,
+    exerciseName: "스쿼트",
+  };
   const mockPastWorkoutDetails: Saved<LocalWorkoutDetail>[] = [
     mockPastWorkoutDetail1,
     mockPastWorkoutDetail2,
@@ -84,6 +98,19 @@ describe("LoadPastSessionSheet", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+
+    // 실제 adapter를 사용하도록 설정
+    const workoutDetailAdapterInstance = new WorkoutdetailAdapter();
+    const routineDetailAdapterInstance = new RoutineDetailAdapter();
+
+    jest.mocked(workoutDetailAdapter).mapPastWorkoutToWorkoutDetail =
+      workoutDetailAdapterInstance.mapPastWorkoutToWorkoutDetail.bind(
+        workoutDetailAdapterInstance
+      );
+    jest.mocked(routineDetailAdapter).mapPastWorkoutToRoutineDetail =
+      routineDetailAdapterInstance.mapPastWorkoutToRoutineDetail.bind(
+        routineDetailAdapterInstance
+      );
 
     act(() => {
       useSelectedWorkoutGroups.setState({
@@ -204,17 +231,18 @@ describe("LoadPastSessionSheet", () => {
           mockPastWorkoutDetails
         );
         mockedWorkoutService.getWorkoutByUserIdAndDate.mockResolvedValue(mockW);
+        // 실제 adapter를 사용하여 예상값 생성
         const mockNewWorkoutDetail1 =
           workoutDetailAdapter.mapPastWorkoutToWorkoutDetail(
             mockPastWorkoutDetail1,
             mockW.id!,
-            6
+            5
           );
         const mockNewWorkoutDetail2 =
           workoutDetailAdapter.mapPastWorkoutToWorkoutDetail(
             mockPastWorkoutDetail2,
             mockW.id!,
-            7
+            6
           );
 
         renderRecordSheet({ startExerciseOrder: 5 });
@@ -229,8 +257,14 @@ describe("LoadPastSessionSheet", () => {
           expect(
             mockedWorkoutDetailService.addPastWorkoutDetailsToWorkout
           ).toHaveBeenCalledWith([
-            mockNewWorkoutDetail1,
-            mockNewWorkoutDetail2,
+            {
+              ...mockNewWorkoutDetail1,
+              createdAt: expect.any(String),
+            },
+            {
+              ...mockNewWorkoutDetail2,
+              createdAt: expect.any(String),
+            },
           ]);
 
           expect(
@@ -275,17 +309,18 @@ describe("LoadPastSessionSheet", () => {
         );
         mockedRoutineService.getRoutineByLocalId.mockResolvedValue(mockRoutine);
 
+        // 실제 adapter를 사용해서 예상값 생성
         const mockNewRoutineDetail1 =
           routineDetailAdapter.mapPastWorkoutToRoutineDetail(
             mockPastWorkoutDetail1,
             mockRoutine.id!,
-            6
+            5
           );
         const mockNewRoutineDetail2 =
           routineDetailAdapter.mapPastWorkoutToRoutineDetail(
             mockPastWorkoutDetail2,
             mockRoutine.id!,
-            7
+            6
           );
 
         renderRoutineSheet({ routineId: 123, startExerciseOrder: 5 });
@@ -300,8 +335,14 @@ describe("LoadPastSessionSheet", () => {
           expect(
             mockedRoutineDetailService.addPastWorkoutDetailsToRoutine
           ).toHaveBeenCalledWith([
-            mockNewRoutineDetail1,
-            mockNewRoutineDetail2,
+            {
+              ...mockNewRoutineDetail1,
+              createdAt: expect.any(String),
+            },
+            {
+              ...mockNewRoutineDetail2,
+              createdAt: expect.any(String),
+            },
           ]);
 
           expect(
