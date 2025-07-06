@@ -30,6 +30,8 @@ export const overWriteAllWithServerData = async (userId: string) => {
 // };
 
 export const overWriteToServer = async (userId: string) => {
+  // 각 db에서 데이터 가져오기
+
   const exercises = await exerciseService.getAllLocalExercises(userId);
   const workouts = await workoutService.getAllWorkouts(userId);
   const routines = await routineService.getAllLocalRoutines(userId);
@@ -51,7 +53,7 @@ export const overWriteToServer = async (userId: string) => {
   console.log("routines:::", routines);
   console.log("workoutDetails:::", workoutDetails);
   console.log("routineDetails:::", routineDetails);
+  // workout과 routine의 경우 detail을 nested구조로 변환 (adapter)
+
+  // 서버통신
 };
-// 각 db에서 데이터 가져오기
-// workout과 routine의 경우 detail을 nested구조로 변환 (adapter)
-// 던지기

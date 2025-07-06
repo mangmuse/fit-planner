@@ -47,4 +47,23 @@ describe("RoutineDetailRepository", () => {
     expect(mockToArray).toHaveBeenCalledTimes(1);
     expect(result).toEqual(mockDetails);
   });
+
+  it("findAllByRoutineIds", async () => {
+    const mockRD1 = mockRoutineDetail.past;
+    const mockRD2 = mockRoutineDetail.past;
+    const routineIds = [mockRD1.routineId, mockRD2.routineId];
+    const expectedResult = [mockRD1, mockRD2];
+    const mockToArray = jest.fn().mockResolvedValue(expectedResult);
+    (mockTable.where as jest.Mock).mockReturnValue({
+      anyOf: jest.fn().mockReturnValue({
+        toArray: mockToArray,
+      }),
+    });
+
+    const result = await repository.findAllByRoutineIds(routineIds);
+
+    expect(mockTable.where("routineId").anyOf).toHaveBeenCalledWith(routineIds);
+    expect(mockToArray).toHaveBeenCalledTimes(1);
+    expect(result).toEqual(expectedResult);
+  });
 });

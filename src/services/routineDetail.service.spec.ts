@@ -73,6 +73,43 @@ describe("RoutineDetailService", () => {
     });
   });
 
+  describe("getAllLocalRoutineDetailsByRoutineIds", () => {
+    it("routineIds에 일치하는 detail들을 배열로 반환한다", async () => {
+      const routineIds = [1, 2, 3];
+      const mockDetails = [
+        { ...mockRoutineDetail.past, routineId: 1 },
+        { ...mockRoutineDetail.past, routineId: 3 },
+      ];
+      mockRepository.findAllByRoutineIds.mockResolvedValue(mockDetails);
+
+      const result =
+        await service.getAllLocalRoutineDetailsByRoutineIds(routineIds);
+
+      expect(mockRepository.findAllByRoutineIds).toHaveBeenCalledWith(
+        routineIds
+      );
+      expect(result).toEqual(mockDetails);
+    });
+
+    it("routineIds에 일치하는 detail이 없으면 빈 배열을 반환한다", async () => {
+      const routineIds = [1, 2, 3];
+      mockRepository.findAllByRoutineIds.mockResolvedValue([]);
+
+      const result =
+        await service.getAllLocalRoutineDetailsByRoutineIds(routineIds);
+
+      expect(result).toEqual([]);
+    });
+
+    it("findAllByRoutineIds 에서 에러가 발생한경우 해당 에러를 그대로 전파한다", async () => {
+      const mockError = new Error("DB 조회 실패");
+      mockRepository.findAllByRoutineIds.mockRejectedValue(mockError);
+      await expect(
+        service.getAllLocalRoutineDetailsByRoutineIds([1, 2, 3])
+      ).rejects.toThrow(mockError);
+    });
+  });
+
   describe("addSetToRoutine", () => {
     it("전달받은 detail을 기반으로 다음세트를 생성한다", async () => {
       const mockRd = mockRoutineDetail.unsynced;

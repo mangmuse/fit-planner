@@ -87,6 +87,40 @@ describe("WorkoutDetailCoreService", () => {
     });
   });
 
+  describe("getAllLocalWorkoutDetailsByWorkoutIds", () => {
+    it("workoutIds에 일치하는 detail들을 배열로 반환한다", async () => {
+      const details: LocalWorkoutDetail[] = [
+        { ...mockWorkoutDetail.past, workoutId },
+      ];
+      mockRepository.findAllByWorkoutIds.mockResolvedValue(details);
+
+      const result = await service.getAllLocalWorkoutDetailsByWorkoutIds([
+        workoutId,
+      ]);
+
+      expect(mockRepository.findAllByWorkoutIds).toHaveBeenCalledWith([
+        workoutId,
+      ]);
+      expect(result).toEqual(details);
+    });
+
+    it("workoutIds에 일치하는 detail이 없는경우 빈 배열을 반환한다", async () => {
+      mockRepository.findAllByWorkoutIds.mockResolvedValue([]);
+      const result = await service.getAllLocalWorkoutDetailsByWorkoutIds([
+        workoutId,
+      ]);
+      expect(result).toEqual([]);
+    });
+
+    it("findAllByWorkoutIds 에서 에러가 발생한경우 해당 에러를 그대로 전파한다", async () => {
+      const mockError = new Error("DB 조회 실패");
+      mockRepository.findAllByWorkoutIds.mockRejectedValue(mockError);
+      await expect(
+        service.getAllLocalWorkoutDetailsByWorkoutIds([workoutId])
+      ).rejects.toThrow(mockError);
+    });
+  });
+
   describe("getLocalWorkoutDetailsByWorkoutId", () => {
     it("workoutId에 일치하는 detail들을 배열로 반환한다", async () => {
       const details: LocalWorkoutDetail[] = [
