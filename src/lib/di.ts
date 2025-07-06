@@ -8,7 +8,7 @@ import { RoutineApi } from "@/api/routine.api";
 import { RoutineDetailApi } from "@/api/routineDetail.api";
 import { WorkoutApi } from "@/api/workout.api";
 import { WorkoutDetailApi } from "@/api/workoutDetail.api";
-import { SyncAllApi } from "@/app/api/syncAll.api";
+import { SyncAllApi } from "@/api/syncAll.api";
 import { db } from "@/lib/db";
 import { ExerciseRepository } from "@/repositories/exercise.repository";
 import { RoutineRepository } from "@/repositories/routine.repository";

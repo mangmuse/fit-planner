@@ -19,10 +19,10 @@ import { SyncWorkoutDetailsToServerResponse } from "@/api/workoutDetail.api";
 import {
   SyncAllToServerProps,
   SyncAllToServerResponse,
-} from "@/app/api/syncAll.api";
+} from "@/api/syncAll.api";
 
 export interface ISyncAllApi {
-  syncAllToServer: (props: SyncAllToServerProps) => Promise<boolean>;
+  syncAllToServer: (props: SyncAllToServerProps) => Promise<void>;
 }
 
 export interface IExerciseApi {

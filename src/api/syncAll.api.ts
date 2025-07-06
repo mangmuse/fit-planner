@@ -32,8 +32,8 @@ export type SyncAllToServerResponse = z.infer<
 >;
 
 export class SyncAllApi implements ISyncAllApi {
-  async syncAllToServer(props: SyncAllToServerProps) {
-    const data = await safeRequest(
+  async syncAllToServer(props: SyncAllToServerProps): Promise<void> {
+    await safeRequest(
       `${BASE_URL}/api/sync/all`,
       {
         method: "POST",
@@ -41,6 +41,5 @@ export class SyncAllApi implements ISyncAllApi {
       },
       syncAllToServerResponseSchema
     );
-    return data.success;
   }
 }
