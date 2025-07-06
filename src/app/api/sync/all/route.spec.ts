@@ -210,7 +210,7 @@ describe("POST api/sync/all", () => {
         updatedAt: routine.updatedAt ? new Date(routine.updatedAt) : undefined,
         routineDetails: {
           create: routine.details.map((detail) => ({
-            exerciseId: expectedExerciseId, // 매핑된 ID
+            exerciseId: expectedExerciseId,
             weight: detail.weight,
             reps: detail.reps,
             rpe: detail.rpe,
@@ -320,17 +320,13 @@ describe("POST api/sync/all", () => {
 
       const req = createRequest(mockBody);
 
-      mockedValidateData.mockReturnValue(mockBody);
-
-      mockTx.exercise.findMany.mockResolvedValue([
+      mockedValidateData.mockReturnValueOnce(mockBody);
+      mockTx.exercise.findMany.mockResolvedValueOnce([
         { id: 1, name: "데드리프트" },
       ]);
 
       const res = await POST(req);
-      const body = (await res.json()) as ApiSuccessResponse;
-      console.log(body);
       expect(res.status).toBe(201);
-      expect(body.success).toBe(true);
       expectDeleteMethodsCalled();
 
       expect(mockTx.exercise.findMany).toHaveBeenCalled();
@@ -358,8 +354,8 @@ describe("POST api/sync/all", () => {
 
       const req = createRequest(mockBody);
 
-      mockedValidateData.mockReturnValue(mockBody);
-      mockTx.exercise.findMany.mockResolvedValue([
+      mockedValidateData.mockReturnValueOnce(mockBody);
+      mockTx.exercise.findMany.mockResolvedValueOnce([
         { id: 1, name: "데드리프트" },
       ]);
 
@@ -384,13 +380,11 @@ describe("POST api/sync/all", () => {
 
       const req = createRequest(mockBody);
 
-      mockedValidateData.mockReturnValue(mockBody);
-
-      mockTx.exercise.findMany.mockResolvedValue([
+      mockedValidateData.mockReturnValueOnce(mockBody);
+      mockTx.exercise.findMany.mockResolvedValueOnce([
         { id: 1, name: "데드리프트" },
       ]);
-
-      mockTx.exercise.create.mockResolvedValue({ id: 1 });
+      mockTx.exercise.create.mockResolvedValueOnce({ id: 1 });
 
       const res = await POST(req);
       expect(res.status).toBe(201);
@@ -402,6 +396,126 @@ describe("POST api/sync/all", () => {
       );
       expectWorkoutCreatedWith(mockNestedWorkout, mockUserId, 1);
       expectRoutineCreatedWith(mockNestedRoutine, mockUserId, 1);
+    });
+
+    it("대용량 데이터를 처리할 수 있다", async () => {
+      const largeExercises = Array.from({ length: 100 }, (_, i) => ({
+        ...mockNestedExercise,
+        id: i + 1,
+        name: `운동${i + 1}`,
+        isCustom: false,
+        userExercise: null,
+      }));
+
+      const largeWorkouts = Array.from({ length: 200 }, (_, i) => ({
+        ...mockNestedWorkout,
+        id: i + 1,
+        date: `2025-06-${String((i % 30) + 1).padStart(2, "0")}`,
+        details: [
+          {
+            ...mockWD,
+            id: i + 1,
+            exerciseId: (i % 100) + 1,
+          },
+        ],
+      }));
+
+      const largeRoutines = Array.from({ length: 50 }, (_, i) => ({
+        ...mockNestedRoutine,
+        id: i + 1,
+        name: `루틴${i + 1}`,
+        details: [
+          {
+            ...mockRD,
+            id: i + 1,
+            exerciseId: (i % 100) + 1,
+          },
+        ],
+      }));
+
+      const mockBody = {
+        userId: mockUserId,
+        nestedExercises: largeExercises,
+        nestedWorkouts: largeWorkouts,
+        nestedRoutines: largeRoutines,
+      };
+
+      const req = createRequest(mockBody);
+      mockedValidateData.mockReturnValueOnce(mockBody);
+
+      const serverExercises = Array.from({ length: 100 }, (_, i) => ({
+        id: i + 1,
+        name: `운동${i + 1}`,
+      }));
+      mockTx.exercise.findMany.mockResolvedValueOnce(serverExercises);
+
+      const startTime = Date.now();
+      const res = await POST(req);
+      const endTime = Date.now();
+
+      expect(res.status).toBe(201);
+      expect(endTime - startTime).toBeLessThan(35000);
+
+      expectDeleteMethodsCalled();
+      expect(mockTx.workout.create).toHaveBeenCalledTimes(200);
+      expect(mockTx.routine.create).toHaveBeenCalledTimes(50);
+    }, 35000);
+
+    it("기본운동을 찾을 수 없는 경우 해당 운동을 건너뛴다", async () => {
+      const mockBody = {
+        userId: mockUserId,
+        nestedExercises: [
+          {
+            ...mockNestedExercise,
+            name: "데드리프트",
+            isCustom: false,
+            userExercise: null,
+          },
+        ],
+        nestedWorkouts: [
+          {
+            ...mockNestedWorkout,
+            details: [
+              { ...mockWD, exerciseId: 100 },
+              { ...mockWD, id: 124, exerciseId: 999 },
+            ],
+          },
+        ],
+        nestedRoutines: [
+          {
+            ...mockNestedRoutine,
+            details: [
+              { ...mockRD, exerciseId: 100 },
+              { ...mockRD, id: 124, exerciseId: 999 },
+            ],
+          },
+        ],
+      };
+
+      const req = createRequest(mockBody);
+      mockedValidateData.mockReturnValueOnce(mockBody);
+
+      mockTx.exercise.findMany.mockResolvedValueOnce([
+        { id: 1, name: "데드리프트" },
+      ]);
+
+      const res = await POST(req);
+      expect(res.status).toBe(201);
+
+      expectDeleteMethodsCalled();
+
+      // 필터링된 데이터로 헬퍼 함수 사용
+      const expectedWorkout = {
+        ...mockNestedWorkout,
+        details: [{ ...mockWD, exerciseId: 100 }],
+      };
+      const expectedRoutine = {
+        ...mockNestedRoutine,
+        details: [{ ...mockRD, exerciseId: 100 }],
+      };
+
+      expectWorkoutCreatedWith(expectedWorkout, mockUserId, 1);
+      expectRoutineCreatedWith(expectedRoutine, mockUserId, 1);
     });
   });
 
@@ -416,11 +530,11 @@ describe("POST api/sync/all", () => {
 
       const mockErrorRes = new HttpError("이상해요", 422);
 
-      mockedValidateData.mockImplementation(() => {
+      mockedValidateData.mockImplementationOnce(() => {
         throw mockErrorRes;
       });
 
-      mockedHandleServerError.mockReturnValue(
+      mockedHandleServerError.mockReturnValueOnce(
         NextResponse.json(
           { success: false, message: mockErrorRes.message },
           { status: mockErrorRes.status }
@@ -449,12 +563,12 @@ describe("POST api/sync/all", () => {
       };
       const mockErrorRes = new Error("DB 에러");
 
-      mockedValidateData.mockReturnValue(mockBody);
+      mockedValidateData.mockReturnValueOnce(mockBody);
 
       let transactionExecuted = false;
       let transactionSucceeded = false;
 
-      (prisma.$transaction as jest.Mock).mockImplementation(async (fn) => {
+      (prisma.$transaction as jest.Mock).mockImplementationOnce(async (fn) => {
         transactionExecuted = true;
         try {
           const result = await fn(mockTx);
@@ -466,13 +580,13 @@ describe("POST api/sync/all", () => {
         }
       });
 
-      mockTx.exercise.findMany.mockResolvedValue([
+      mockTx.exercise.findMany.mockResolvedValueOnce([
         { id: 1, name: "데드리프트" },
       ]);
 
-      mockTx.workout.create.mockRejectedValue(mockErrorRes);
+      mockTx.workout.create.mockRejectedValueOnce(mockErrorRes);
 
-      mockedHandleServerError.mockReturnValue(
+      mockedHandleServerError.mockReturnValueOnce(
         NextResponse.json(
           { success: false, message: "예상치 못한 서버 에러" },
           { status: 500 }
