@@ -16,7 +16,6 @@ import {
   LocalRoutineDetailWithServerRoutineId,
   Saved,
 } from "@/types/models";
-import { SyncRoutineDetailsToServerResponse } from "@/api/routineDetail.api";
 
 const mockRepository = createMockRoutineDetailRepository();
 const mockAdapter = createMockRoutineDetailAdapter();
