@@ -1,7 +1,11 @@
 import {
+  LocalExercise,
   LocalRoutineDetail,
   LocalWorkout,
   LocalWorkoutDetail,
+  NestedExercise,
+  UserExercise,
+  Saved,
 } from "@/types/models";
 
 export const createNestedStructure = <
@@ -28,4 +32,29 @@ export const createNestedStructure = <
     ...parent,
     details: childrenMap.get(parent.id) || [],
   }));
+};
+
+export const createNestedExercises = (
+  exercises: Saved<LocalExercise>[]
+): NestedExercise[] => {
+  return exercises.map((exercise) => {
+    const { isBookmarked, unit, exerciseMemo, ...exerciseData } = exercise;
+
+    const userExercise: UserExercise | null =
+      isBookmarked || unit !== "kg" || exerciseMemo
+        ? {
+            isBookmarked,
+            unit,
+            fixedMemo: exerciseMemo?.fixed ?? null,
+            dailyMemos: exerciseMemo?.daily ?? [],
+          }
+        : null;
+
+    const nested: NestedExercise = {
+      ...exerciseData,
+      userExercise,
+    };
+
+    return nested;
+  });
 };

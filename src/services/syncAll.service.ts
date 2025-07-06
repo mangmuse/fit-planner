@@ -1,4 +1,8 @@
-import { createNestedStructure } from "@/adapter/syncAll.adapter.";
+import {
+  createNestedExercises,
+  createNestedStructure,
+} from "@/adapter/syncAll.adapter.";
+import { syncAllToServer } from "@/app/api/syncAll.api";
 import {
   exerciseService,
   routineDetailService,
@@ -6,6 +10,15 @@ import {
   workoutDetailService,
   workoutService,
 } from "@/lib/di";
+import {
+  LocalRoutine,
+  LocalRoutineDetail,
+  LocalWorkout,
+  LocalWorkoutDetail,
+  NestedRoutine,
+  NestedWorkout,
+  Saved,
+} from "@/types/models";
 
 export const overWriteAllWithServerData = async (userId: string) => {
   await exerciseService.overwriteWithServerExercises(userId);
@@ -31,14 +44,12 @@ export const overWriteAllWithServerData = async (userId: string) => {
 // };
 
 export const overWriteToServer = async (userId: string) => {
-  // 각 db에서 데이터 가져오기
-
   const exercises = await exerciseService.getAllLocalExercises(userId);
   const workouts = await workoutService.getAllWorkouts(userId);
   const routines = await routineService.getAllLocalRoutines(userId);
 
-  const workoutIds = workouts.map((workout) => workout.id) as number[];
-  const routineIds = routines.map((routine) => routine.id) as number[];
+  const workoutIds = workouts.map((workout) => workout.id);
+  const routineIds = routines.map((routine) => routine.id);
 
   const workoutDetails =
     await workoutDetailService.getAllLocalWorkoutDetailsByWorkoutIds(
@@ -49,22 +60,23 @@ export const overWriteToServer = async (userId: string) => {
       routineIds
     );
 
-  console.log("exercises:::::", exercises);
-  console.log("workouts:::", workouts);
-  console.log("routines:::", routines);
-  console.log("workoutDetails:::", workoutDetails);
-  console.log("routineDetails:::", routineDetails);
-  // workout과 routine의 경우 detail을 nested구조로 변환 (adapter)
-  const nestedWorkouts = createNestedStructure(
+  const nestedExercises = createNestedExercises(exercises);
+
+  const nestedWorkouts: NestedWorkout[] = createNestedStructure(
     workouts,
     workoutDetails,
     "workoutId"
   );
-  const nestedRoutines = createNestedStructure(
+  const nestedRoutines: NestedRoutine[] = createNestedStructure(
     routines,
     routineDetails,
     "routineId"
   );
 
-  // 서버통신
+  syncAllToServer({
+    userId,
+    nestedExercises,
+    nestedWorkouts,
+    nestedRoutines,
+  });
 };
