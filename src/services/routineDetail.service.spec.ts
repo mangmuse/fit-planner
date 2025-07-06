@@ -14,6 +14,7 @@ import {
   LocalRoutine,
   LocalRoutineDetail,
   LocalRoutineDetailWithServerRoutineId,
+  Saved,
 } from "@/types/models";
 import { SyncRoutineDetailsToServerResponse } from "@/api/routineDetail.api";
 
@@ -346,7 +347,7 @@ describe("RoutineDetailService", () => {
 
   describe("deleteRoutineDetails", () => {
     it("전달받은 details를 삭제한다", async () => {
-      const details: LocalRoutineDetail[] = [
+      const details: Saved<LocalRoutineDetail>[] = [
         { ...mockRoutineDetail.past, id: 1 },
         { ...mockRoutineDetail.past, id: 2 },
       ];
@@ -359,20 +360,12 @@ describe("RoutineDetailService", () => {
         mockRoutineService.updateLocalRoutineUpdatedAt
       ).toHaveBeenCalledWith(details[0].routineId);
     });
-    it("전달받은 details에 id가 없는경우 에러를 던진다", async () => {
-      const details: LocalRoutineDetail[] = [
-        { ...mockRoutineDetail.past, id: 1 },
-        { ...mockRoutineDetail.past, id: undefined },
-      ];
-
-      await expect(service.deleteRoutineDetails(details)).rejects.toThrow(
-        "id가 없습니다"
-      );
-    });
 
     it("삭제 도중 에러 발생시 해당 에러를 전파한다", async () => {
       const mockError = new Error("DB Error");
-      const details: LocalRoutineDetail[] = [{ ...mockRoutineDetail.past }];
+      const details: Saved<LocalRoutineDetail>[] = [
+        { ...mockRoutineDetail.past },
+      ];
       mockRepository.bulkDelete.mockRejectedValueOnce(mockError);
 
       await expect(service.deleteRoutineDetails(details)).rejects.toThrow(
@@ -426,10 +419,9 @@ describe("RoutineDetailService", () => {
       );
 
       mockApi.fetchRoutineDetailsFromServer.mockResolvedValue(mockServerData);
-      mockExerciseService.getExerciseWithServerId.mockResolvedValueOnce({
-        ...mockEx,
-        id: undefined,
-      });
+      mockExerciseService.getExerciseWithServerId.mockResolvedValueOnce(
+        undefined
+      );
       mockRoutineService.getRoutineByServerId.mockResolvedValue(mockR);
 
       await expect(

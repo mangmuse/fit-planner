@@ -12,7 +12,7 @@ import {
 } from "@/lib/di";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { useModal } from "@/providers/contexts/ModalContext";
-import { LocalExercise } from "@/types/models";
+import { LocalExercise, Saved } from "@/types/models";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
@@ -26,7 +26,7 @@ const mockedRoutineDetailService = jest.mocked(routineDetailService);
 const mockedUseModal = jest.mocked(useModal);
 const mockedUseBottomSheet = jest.mocked(useBottomSheet);
 
-const mockEx: LocalExercise = {
+const mockEx: Saved<LocalExercise> = {
   ...mockExercise.bookmarked,
   id: 123,
   name: "굿모닝",

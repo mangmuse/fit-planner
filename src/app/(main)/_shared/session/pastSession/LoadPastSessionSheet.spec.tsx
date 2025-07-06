@@ -12,7 +12,12 @@ import {
   workoutDetailService,
   workoutService,
 } from "@/lib/di";
-import { LocalRoutine, LocalWorkout, LocalWorkoutDetail } from "@/types/models";
+import {
+  LocalRoutine,
+  LocalWorkout,
+  LocalWorkoutDetail,
+  Saved,
+} from "@/types/models";
 import { mockWorkout } from "@/__mocks__/workout.mock";
 import PastSessionList from "@/app/(main)/_shared/session/pastSession/PastSessionList";
 import { useParams } from "next/navigation";
@@ -50,10 +55,10 @@ const mockedRoutineService = jest.mocked(routineService);
 const mockedWorkoutDetailService = jest.mocked(workoutDetailService);
 const mockedRoutineDetailService = jest.mocked(routineDetailService);
 
-const mockW: LocalWorkout = mockWorkout.planned;
-const mockR: LocalRoutine = mockRoutine.default;
+const mockW: Saved<LocalWorkout> = { ...mockWorkout.planned };
+const mockR: Saved<LocalRoutine> = { ...mockRoutine.default };
 
-const mockWorkouts: LocalWorkout[] = [
+const mockWorkouts: Saved<LocalWorkout>[] = [
   { ...mockW, status: "EMPTY", date: "2024-10-02" }, // status 필터링 검사용
   { ...mockW, status: "PLANNED", date: "2024-10-02" },
   { ...mockW, status: "PLANNED", date: "2025-01-01" }, // 날짜 필터링 검사용
@@ -70,7 +75,7 @@ describe("LoadPastSessionSheet", () => {
   ];
   const mockPastWorkoutDetail1 = { ...mockWorkoutDetail.past, id: 1 };
   const mockPastWorkoutDetail2 = { ...mockWorkoutDetail.past, id: 2 };
-  const mockPastWorkoutDetails: LocalWorkoutDetail[] = [
+  const mockPastWorkoutDetails: Saved<LocalWorkoutDetail>[] = [
     mockPastWorkoutDetail1,
     mockPastWorkoutDetail2,
   ];

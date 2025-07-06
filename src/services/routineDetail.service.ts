@@ -6,6 +6,7 @@ import {
   ClientRoutineDetail,
   LocalRoutineDetail,
   LocalRoutineDetailWithServerRoutineId,
+  Saved,
 } from "@/types/models";
 import { IRoutineDetailRepository } from "@/types/repositories";
 import {
@@ -26,7 +27,7 @@ export class RoutineDetailService implements IRoutineDetailService {
   // ===== CORE =====
   public async getLocalRoutineDetails(
     routineId: number
-  ): Promise<LocalRoutineDetail[]> {
+  ): Promise<Saved<LocalRoutineDetail>[]> {
     const details = await this.repository.findAllByRoutineId(routineId);
 
     return details;
@@ -43,11 +44,13 @@ export class RoutineDetailService implements IRoutineDetailService {
 
   public async getAllLocalRoutineDetailsByRoutineIds(
     routineIds: number[]
-  ): Promise<LocalRoutineDetail[]> {
+  ): Promise<Saved<LocalRoutineDetail>[]> {
     return this.repository.findAllByRoutineIds(routineIds);
   }
 
-  public async addSetToRoutine(lastSet: LocalRoutineDetail): Promise<number> {
+  public async addSetToRoutine(
+    lastSet: Saved<LocalRoutineDetail>
+  ): Promise<number> {
     const addSetInput = this.adapter.getAddSetToRoutineByLastSet(lastSet);
     const newSet = await this.repository.add(addSetInput);
     await this.routineService.updateLocalRoutineUpdatedAt(
@@ -80,7 +83,7 @@ export class RoutineDetailService implements IRoutineDetailService {
   }
 
   public async cloneRoutineDetailWithNewRoutineId(
-    originalDetail: LocalRoutineDetail,
+    originalDetail: Saved<LocalRoutineDetail>,
     newRoutineId: number
   ) {
     const newDetailInput = this.adapter.cloneToCreateInput(
@@ -107,10 +110,9 @@ export class RoutineDetailService implements IRoutineDetailService {
   }
 
   public async deleteRoutineDetails(
-    details: LocalRoutineDetail[]
+    details: Saved<LocalRoutineDetail>[]
   ): Promise<void> {
     const ids = details.map((detail) => {
-      if (!detail.id) throw new Error("id가 없습니다");
       return detail.id;
     });
     await this.repository.bulkDelete(ids);
@@ -177,7 +179,7 @@ export class RoutineDetailService implements IRoutineDetailService {
           data.routineId
         );
 
-        if (!exercise?.id || !routine?.id) {
+        if (!exercise || !routine) {
           throw new Error(
             "exerciseId 또는 routineId가 일치하는 데이터를 찾을 수 없습니다"
           );

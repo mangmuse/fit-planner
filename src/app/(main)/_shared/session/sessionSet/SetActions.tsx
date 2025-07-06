@@ -4,11 +4,11 @@ import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetai
 import { routineDetailService, workoutDetailService } from "@/lib/di";
 import { useModal } from "@/providers/contexts/ModalContext";
 
-import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
+import { LocalRoutineDetail, LocalWorkoutDetail, Saved } from "@/types/models";
 
 export type SetActionsProps = {
   reorderAfterDelete: (deletedExerciseOrder: number) => Promise<void>;
-  lastValue: LocalWorkoutDetail | LocalRoutineDetail;
+  lastValue: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>;
   reload: () => Promise<void>;
 };
 

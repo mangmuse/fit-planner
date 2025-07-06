@@ -39,6 +39,7 @@ import {
   LocalExercise,
   LocalWorkoutDetail,
   LocalRoutineDetail,
+  Saved,
 } from "@/types/models";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -58,11 +59,14 @@ describe("SessionDetailGroupOptions", () => {
   const mockReload = jest.fn();
   const mockReorderAfterDelete = jest.fn();
 
-  const mockExerciseData: LocalExercise = mockExercise.list[0];
-  const mockWorkoutDetails: LocalWorkoutDetail[] = [
+  const mockExerciseData: Saved<LocalExercise> = {
+    ...mockExercise.list[0],
+    id: 1,
+  };
+  const mockWorkoutDetails: Saved<LocalWorkoutDetail>[] = [
     { ...mockWorkoutDetail.past, exerciseOrder: 1 },
   ];
-  const mockRoutineDetails: LocalRoutineDetail[] = [
+  const mockRoutineDetails: Saved<LocalRoutineDetail>[] = [
     { ...mockRoutineDetail.past, exerciseOrder: 1 },
   ];
 
@@ -88,8 +92,8 @@ describe("SessionDetailGroupOptions", () => {
   });
 
   const renderSessionDetailGroupOptions = (props?: {
-    exercise?: LocalExercise;
-    details?: LocalWorkoutDetail[] | LocalRoutineDetail[];
+    exercise?: Saved<LocalExercise>;
+    details?: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[];
     loadExercises?: () => Promise<void>;
     reload?: () => Promise<void>;
     reorderAfterDelete?: (deletedExerciseOrder: number) => Promise<void>;

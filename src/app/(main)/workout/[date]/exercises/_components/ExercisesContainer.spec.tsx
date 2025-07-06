@@ -7,11 +7,7 @@ import {
   workoutDetailService,
   routineDetailService,
 } from "@/lib/di";
-import {
-  LocalExercise,
-  LocalWorkoutDetail,
-  LocalRoutineDetail,
-} from "@/types/models";
+import { LocalExercise, LocalWorkoutDetail, Saved } from "@/types/models";
 
 jest.mock("next-auth/react");
 jest.mock("@/lib/di");
@@ -43,7 +39,7 @@ jest.mock("@/providers/contexts/ModalContext", () => ({
   }),
 }));
 
-const mockExercises: LocalExercise[] = [
+const mockExercises: Saved<LocalExercise>[] = [
   {
     id: 1,
     name: "벤치프레스",
@@ -76,7 +72,7 @@ const mockExercises: LocalExercise[] = [
   },
 ];
 
-const mockCurrentDetails: LocalWorkoutDetail[] = [
+const mockCurrentDetails: Saved<LocalWorkoutDetail>[] = [
   {
     id: 1,
     serverId: "detail1",

@@ -1,3 +1,4 @@
+import { createNestedStructure } from "@/adapter/syncAll.adapter.";
 import {
   exerciseService,
   routineDetailService,
@@ -54,6 +55,16 @@ export const overWriteToServer = async (userId: string) => {
   console.log("workoutDetails:::", workoutDetails);
   console.log("routineDetails:::", routineDetails);
   // workout과 routine의 경우 detail을 nested구조로 변환 (adapter)
+  const nestedWorkouts = createNestedStructure(
+    workouts,
+    workoutDetails,
+    "workoutId"
+  );
+  const nestedRoutines = createNestedStructure(
+    routines,
+    routineDetails,
+    "routineId"
+  );
 
   // 서버통신
 };

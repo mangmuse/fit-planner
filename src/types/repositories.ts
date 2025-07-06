@@ -4,21 +4,26 @@ import {
   LocalRoutineDetail,
   LocalWorkout,
   LocalWorkoutDetail,
+  Saved,
 } from "@/types/models";
 
 export interface IWorkoutRepository {
   clear: () => Promise<void>;
-  findOneById: (workoutId: number) => Promise<LocalWorkout | undefined>;
-  findOneByServerId: (serverId: string) => Promise<LocalWorkout | undefined>;
+  findOneById: (workoutId: number) => Promise<Saved<LocalWorkout> | undefined>;
+  findOneByServerId: (
+    serverId: string
+  ) => Promise<Saved<LocalWorkout> | undefined>;
   findOneByUserIdAndDate: (
     userId: string,
     date: string
-  ) => Promise<LocalWorkout | undefined>;
-  findAllByUserIdOrderByDate: (userId: string) => Promise<LocalWorkout[]>;
+  ) => Promise<Saved<LocalWorkout> | undefined>;
+  findAllByUserIdOrderByDate: (
+    userId: string
+  ) => Promise<Saved<LocalWorkout>[]>;
   findAllByDateRangeExcludeEmpty: (
     startDate: string,
     endDate: string
-  ) => Promise<LocalWorkout[]>;
+  ) => Promise<Saved<LocalWorkout>[]>;
   add: (toInsert: Omit<LocalWorkout, "id">) => Promise<number>;
   bulkAdd: (toInsert: Omit<LocalWorkout, "id">[]) => Promise<number>;
   update: (id: number, toUpdate: Partial<LocalWorkout>) => Promise<number>;
@@ -29,10 +34,12 @@ export interface IWorkoutRepository {
 
 export interface IRoutineRepository {
   clear: () => Promise<void>;
-  findOneById: (id: number) => Promise<LocalRoutine | undefined>;
-  findOneByServerId: (serverId: string) => Promise<LocalRoutine | undefined>;
-  findAll: (userId: string) => Promise<LocalRoutine[]>;
-  findAllByUserId: (userId: string) => Promise<LocalRoutine[]>;
+  findOneById: (id: number) => Promise<Saved<LocalRoutine> | undefined>;
+  findOneByServerId: (
+    serverId: string
+  ) => Promise<Saved<LocalRoutine> | undefined>;
+  findAll: (userId: string) => Promise<Saved<LocalRoutine>[]>;
+  findAllByUserId: (userId: string) => Promise<Saved<LocalRoutine>[]>;
   add: (toInsert: Omit<LocalRoutine, "id">) => Promise<number>;
   bulkAdd: (toInsert: Omit<LocalRoutine, "id">[]) => Promise<number>;
   update: (id: number, toUpdate: Partial<LocalRoutine>) => Promise<number>;
@@ -43,10 +50,12 @@ export interface IRoutineRepository {
 
 export interface IExerciseRepository {
   clear: () => Promise<void>;
-  findOneById: (id: number) => Promise<LocalExercise | undefined>;
-  findOneByServerId: (serverId: number) => Promise<LocalExercise | undefined>;
-  findAll: (userId: string) => Promise<LocalExercise[]>;
-  findAllUnsynced: () => Promise<LocalExercise[]>;
+  findOneById: (id: number) => Promise<Saved<LocalExercise> | undefined>;
+  findOneByServerId: (
+    serverId: number
+  ) => Promise<Saved<LocalExercise> | undefined>;
+  findAll: (userId: string) => Promise<Saved<LocalExercise>[]>;
+  findAllUnsynced: () => Promise<Saved<LocalExercise>[]>;
   add: (toInsert: Omit<LocalExercise, "id">) => Promise<number>;
   bulkAdd: (toInsert: Omit<LocalExercise, "id">[]) => Promise<number>;
   update: (id: number, toUpdate: Partial<LocalExercise>) => Promise<number>;
@@ -57,9 +66,13 @@ export interface IExerciseRepository {
 
 export interface IRoutineDetailRepository {
   clear: () => Promise<void>;
-  findOneById: (id: number) => Promise<LocalRoutineDetail | undefined>;
-  findAllByRoutineId: (routineId: number) => Promise<LocalRoutineDetail[]>;
-  findAllByRoutineIds: (routineIds: number[]) => Promise<LocalRoutineDetail[]>;
+  findOneById: (id: number) => Promise<Saved<LocalRoutineDetail> | undefined>;
+  findAllByRoutineId: (
+    routineId: number
+  ) => Promise<Saved<LocalRoutineDetail>[]>;
+  findAllByRoutineIds: (
+    routineIds: number[]
+  ) => Promise<Saved<LocalRoutineDetail>[]>;
   add: (toInsert: Omit<LocalRoutineDetail, "id">) => Promise<number>;
   // findAll: () => Promise<LocalRoutineDetail[]>;
   bulkAdd: (toInsert: Omit<LocalRoutineDetail, "id">[]) => Promise<number>;
@@ -74,22 +87,26 @@ export interface IRoutineDetailRepository {
 
 export interface IWorkoutDetailRepository {
   clear: () => Promise<void>;
-  findAllByWorkoutIds: (workoutIds: number[]) => Promise<LocalWorkoutDetail[]>;
+  findAllByWorkoutIds: (
+    workoutIds: number[]
+  ) => Promise<Saved<LocalWorkoutDetail>[]>;
 
-  findAllByWorkoutId: (workoutId: number) => Promise<LocalWorkoutDetail[]>;
+  findAllByWorkoutId: (
+    workoutId: number
+  ) => Promise<Saved<LocalWorkoutDetail>[]>;
   findAllByWorkoutIdOrderByExerciseOrder: (
     workoutId: number
-  ) => Promise<LocalWorkoutDetail[]>;
+  ) => Promise<Saved<LocalWorkoutDetail>[]>;
   findAllByWorkoutIdAndExerciseOrder: (
     workoutId: number,
     exerciseOrder: number
-  ) => Promise<LocalWorkoutDetail[]>;
+  ) => Promise<Saved<LocalWorkoutDetail>[]>;
   findAllByWorkoutIdAndExerciseOrderPairs: (
     pairs: { workoutId: number; exerciseOrder: number }[]
-  ) => Promise<LocalWorkoutDetail[]>;
+  ) => Promise<Saved<LocalWorkoutDetail>[]>;
   findAllDoneByExerciseId: (
     exerciseId: number
-  ) => Promise<LocalWorkoutDetail[]>;
+  ) => Promise<Saved<LocalWorkoutDetail>[]>;
   add: (toInsert: Omit<LocalWorkoutDetail, "id">) => Promise<number>;
   bulkAdd: (toInsert: Omit<LocalWorkoutDetail, "id">[]) => Promise<number>;
   update: (

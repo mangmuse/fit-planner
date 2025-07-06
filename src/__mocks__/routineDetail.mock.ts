@@ -1,5 +1,5 @@
 import { INITIAL_ROUTINE_DETAIL_BASE } from "./../adapter/routineDetail.adapter";
-import { ClientRoutineDetail, LocalRoutineDetail } from "@/types/models";
+import { ClientRoutineDetail, LocalRoutineDetail, Saved } from "@/types/models";
 import {
   FetchRoutineDetailsResponse,
   SyncRoutineDetailsToServerResponse,
@@ -44,14 +44,14 @@ export const mockRoutineDetail = {
     weight: 60,
 
     updatedAt: "2025-06-17T10:00:00.000Z",
-  }),
+  }) as Saved<LocalRoutineDetail>,
 
   unsynced: createBaseRoutineDetailMock({
     id: 3,
     isSynced: false,
     serverId: null,
-  }),
-  
+  }) as Saved<LocalRoutineDetail>,
+
   server: createServerRoutineDetailMock(),
 };
 
@@ -62,20 +62,21 @@ export const mockFetchRoutineDetailsResponse: FetchRoutineDetailsResponse = {
   routineDetails: [mockRoutineDetail.server],
 };
 
-export const mockPostRoutineDetailsToServerResponse: SyncRoutineDetailsToServerResponse = {
-  success: true,
-  updated: [
-    { 
-      localId: 1, 
-      serverId: "mock-server-detail-1",
-      exerciseId: 100,
-      routineId: "server-routine-123"
-    },
-    { 
-      localId: 2, 
-      serverId: "mock-server-detail-2",
-      exerciseId: 101,
-      routineId: "server-routine-456"
-    },
-  ],
-};
+export const mockPostRoutineDetailsToServerResponse: SyncRoutineDetailsToServerResponse =
+  {
+    success: true,
+    updated: [
+      {
+        localId: 1,
+        serverId: "mock-server-detail-1",
+        exerciseId: 100,
+        routineId: "server-routine-123",
+      },
+      {
+        localId: 2,
+        serverId: "mock-server-detail-2",
+        exerciseId: 101,
+        routineId: "server-routine-456",
+      },
+    ],
+  };

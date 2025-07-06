@@ -5,7 +5,7 @@ import {
   mockWorkoutDetail,
 } from "@/__mocks__/workoutDetail.mock";
 import { WorkoutDetailCoreService } from "@/services/workoutDetail.core.service";
-import { LocalWorkoutDetail } from "@/types/models";
+import { LocalWorkoutDetail, Saved } from "@/types/models";
 import { IWorkoutDetailCoreService, IWorkoutService } from "@/types/services";
 import { createMockWorkoutService } from "@/__mocks__/services/workout.service.mock";
 import { createMockWorkoutDetailAdapter } from "@/__mocks__/adapters/workoutDetail.adapter.mock";
@@ -89,7 +89,7 @@ describe("WorkoutDetailCoreService", () => {
 
   describe("getAllLocalWorkoutDetailsByWorkoutIds", () => {
     it("workoutIds에 일치하는 detail들을 배열로 반환한다", async () => {
-      const details: LocalWorkoutDetail[] = [
+      const details: Saved<LocalWorkoutDetail>[] = [
         { ...mockWorkoutDetail.past, workoutId },
       ];
       mockRepository.findAllByWorkoutIds.mockResolvedValue(details);
@@ -123,7 +123,7 @@ describe("WorkoutDetailCoreService", () => {
 
   describe("getLocalWorkoutDetailsByWorkoutId", () => {
     it("workoutId에 일치하는 detail들을 배열로 반환한다", async () => {
-      const details: LocalWorkoutDetail[] = [
+      const details: Saved<LocalWorkoutDetail>[] = [
         { ...mockWorkoutDetail.past, workoutId },
       ];
       mockRepository.findAllByWorkoutId.mockResolvedValue(details);

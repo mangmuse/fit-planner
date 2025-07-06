@@ -7,6 +7,7 @@ import {
   LocalRoutineDetail,
   LocalWorkout,
   LocalWorkoutDetail,
+  Saved,
 } from "@/types/models";
 import { useEffect, useState } from "react";
 import {
@@ -24,7 +25,7 @@ type UseLoadDetailsProps = {
 
 export type WorkoutGroup = {
   exerciseOrder: number;
-  details: LocalWorkoutDetail[] | LocalRoutineDetail[];
+  details: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[];
 };
 
 const useLoadDetails = ({
@@ -37,7 +38,7 @@ const useLoadDetails = ({
   const [error, setError] = useState<string | null>(null);
   const [isInitialLoading, setIsInitialLoading] = useState<boolean>(true);
   const [allDetails, setAllDetails] = useState<
-    LocalWorkoutDetail[] | LocalRoutineDetail[]
+    Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[]
   >([]);
   const [workoutGroups, setWorkoutGroups] = useState<WorkoutGroup[]>([]);
 

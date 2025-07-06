@@ -1,4 +1,4 @@
-import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
+import { LocalRoutineDetail, LocalWorkoutDetail, Saved } from "@/types/models";
 
 import {
   IWorkoutDetailCoreService,
@@ -19,19 +19,19 @@ export class WorkoutDetailService implements IWorkoutDetailService {
   public getLocalWorkoutDetails(
     userId: string,
     date: string
-  ): Promise<LocalWorkoutDetail[]> {
+  ): Promise<Saved<LocalWorkoutDetail>[]> {
     return this.core.getLocalWorkoutDetails(userId, date);
   }
 
   public getLocalWorkoutDetailsByWorkoutId(
     workoutId: number
-  ): Promise<LocalWorkoutDetail[]> {
+  ): Promise<Saved<LocalWorkoutDetail>[]> {
     return this.core.getLocalWorkoutDetailsByWorkoutId(workoutId);
   }
 
   public getAllLocalWorkoutDetailsByWorkoutIds(
     workoutIds: number[]
-  ): Promise<LocalWorkoutDetail[]> {
+  ): Promise<Saved<LocalWorkoutDetail>[]> {
     return this.core.getAllLocalWorkoutDetailsByWorkoutIds(workoutIds);
   }
 
@@ -108,7 +108,7 @@ export class WorkoutDetailService implements IWorkoutDetailService {
   public getLocalWorkoutDetailsByWorkoutIdAndExerciseOrder(
     workoutId: number,
     exerciseOrder: number
-  ): Promise<LocalWorkoutDetail[]> {
+  ): Promise<Saved<LocalWorkoutDetail>[]> {
     return this.query.getLocalWorkoutDetailsByWorkoutIdAndExerciseOrder(
       workoutId,
       exerciseOrder
@@ -117,15 +117,15 @@ export class WorkoutDetailService implements IWorkoutDetailService {
 
   public getLocalWorkoutDetailsByWorkoutIdAndExerciseOrderPairs(
     pairs: { workoutId: number; exerciseOrder: number }[]
-  ): Promise<LocalWorkoutDetail[]> {
+  ): Promise<Saved<LocalWorkoutDetail>[]> {
     return this.query.getLocalWorkoutDetailsByWorkoutIdAndExerciseOrderPairs(
       pairs
     );
   }
 
   public getLatestWorkoutDetailByDetail(
-    detail: LocalWorkoutDetail | LocalRoutineDetail
-  ): Promise<LocalWorkoutDetail | void> {
+    detail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>
+  ): Promise<Saved<LocalWorkoutDetail> | void> {
     return this.query.getLatestWorkoutDetailByDetail(detail);
   }
 

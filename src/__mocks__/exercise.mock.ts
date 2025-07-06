@@ -2,11 +2,11 @@ import {
   FetchExercisesResponse,
   SyncExercisesToServerResponse,
 } from "@/api/exercise.api";
-import { ClientExercise, LocalExercise } from "@/types/models";
+import { ClientExercise, LocalExercise, Saved } from "@/types/models";
 
 export const createMockExercise = (
   overrides?: Partial<LocalExercise>
-): LocalExercise => ({
+): Saved<LocalExercise> => ({
   id: Math.floor(Math.random() * 1000),
   name: "기본 운동",
   category: "가슴",

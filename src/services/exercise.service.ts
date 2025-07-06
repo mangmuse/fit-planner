@@ -1,6 +1,6 @@
 import { IExerciseAdapter } from "@/types/adapters";
 import { IExerciseApi } from "@/types/apis";
-import { ClientExercise, LocalExercise } from "@/types/models";
+import { ClientExercise, LocalExercise, Saved } from "@/types/models";
 import { IExerciseRepository } from "@/types/repositories";
 import { IExerciseService } from "@/types/services";
 
@@ -13,15 +13,17 @@ export class ExerciseService implements IExerciseService {
 
   async getExerciseWithServerId(
     serverId: number
-  ): Promise<LocalExercise | void> {
+  ): Promise<Saved<LocalExercise> | void> {
     return await this.repository.findOneByServerId(serverId);
   }
 
-  async getAllLocalExercises(userId: string): Promise<LocalExercise[]> {
+  async getAllLocalExercises(userId: string): Promise<Saved<LocalExercise>[]> {
     return this.repository.findAll(userId);
   }
 
-  async getExerciseWithLocalId(id: number): Promise<LocalExercise | void> {
+  async getExerciseWithLocalId(
+    id: number
+  ): Promise<Saved<LocalExercise> | void> {
     return await this.repository.findOneById(id);
   }
 
@@ -75,7 +77,7 @@ export class ExerciseService implements IExerciseService {
 
   // ----- Sync ----- //
 
-  private async getUnsyncedExercises(): Promise<LocalExercise[]> {
+  private async getUnsyncedExercises(): Promise<Saved<LocalExercise>[]> {
     return this.repository.findAllUnsynced();
   }
 

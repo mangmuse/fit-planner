@@ -9,15 +9,7 @@ import { WorkoutDetailSyncService } from "@/services/workoutDetail.sync.service"
 import { mockWorkoutDetail } from "@/__mocks__/workoutDetail.mock";
 import { mockExercise } from "@/__mocks__/exercise.mock";
 import { mockWorkout } from "@/__mocks__/workout.mock";
-import {
-  ClientExercise,
-  ClientWorkout,
-  LocalExercise,
-  LocalWorkout,
-  LocalWorkoutDetailWithServerWorkoutId,
-} from "@/types/models";
-import { SyncWorkoutDetailsToServerResponse } from "@/api/workoutDetail.api";
-import { update } from "lodash";
+import { LocalExercise, LocalWorkout, Saved } from "@/types/models";
 
 const mockRepository = createMockWorkoutDetailRepository();
 const mockAdapter = createMockWorkoutDetailAdapter();
@@ -47,8 +39,8 @@ describe("WorkoutDetailSyncService", () => {
       isSynced: true,
       serverId: "server-123",
     };
-    const mockEx: LocalExercise = mockExercise.synced;
-    const mockWo: LocalWorkout = mockWorkout.synced;
+    const mockEx: Saved<LocalExercise> = mockExercise.synced;
+    const mockWo: Saved<LocalWorkout> = mockWorkout.synced;
     it("서버 데이터를 받아 매핑하여 로컬DB에 덮어씌운다", async () => {
       mockApi.fetchWorkoutDetailsFromServer.mockResolvedValue(mockServerData);
 
@@ -78,10 +70,9 @@ describe("WorkoutDetailSyncService", () => {
 
     it("매핑에 필요한 exercise나 workout을 찾지 못하면 에러를 던지고, DB를 초기화하지 않는다", async () => {
       mockApi.fetchWorkoutDetailsFromServer.mockResolvedValue(mockServerData);
-      mockExerciseService.getExerciseWithServerId.mockResolvedValueOnce({
-        ...mockEx,
-        id: undefined,
-      });
+      mockExerciseService.getExerciseWithServerId.mockResolvedValueOnce(
+        undefined
+      );
       mockWorkoutService.getWorkoutWithServerId.mockResolvedValue(
         mockWorkout.synced
       );

@@ -1,13 +1,13 @@
 import ExpandedSessionItem from "@/app/(main)/_shared/session/expandedView/ExpandedSessionItem";
 import { exerciseService } from "@/lib/di";
-import { LocalWorkoutDetail } from "@/types/models";
+import { LocalWorkoutDetail, Saved } from "@/types/models";
 import { useAsync } from "@/hooks/useAsync";
 import ErrorState from "@/components/ErrorState";
 
 export type ExpandedWorkoutGroupProps = {
   sessionGroup: {
     exerciseOrder: number;
-    details: LocalWorkoutDetail[];
+    details: Saved<LocalWorkoutDetail>[];
   };
   isSelected: boolean;
 

@@ -1,13 +1,10 @@
-import { mock } from "node:test";
-import { server } from "./../../jest.setup";
 import { createMockExerciseAdapter } from "@/__mocks__/adapters/exercise.adapter.mock";
 import { createMockExerciseApi } from "@/__mocks__/api/exercise.api.mock";
 import { mockExercise } from "@/__mocks__/exercise.mock";
 import { createMockExerciseRepository } from "@/__mocks__/repositories/exercise.repository.mock";
 import { ExerciseService } from "@/services/exercise.service";
-import { ClientExercise, LocalExercise } from "@/types/models";
+import { ClientExercise, LocalExercise, Saved } from "@/types/models";
 import { IExerciseService } from "@/types/services";
-import { SyncExercisesToServerResponse } from "@/api/exercise.api";
 
 const mockRepository = createMockExerciseRepository();
 const mockAdapter = createMockExerciseAdapter();
@@ -36,7 +33,7 @@ describe("ExerciseService", () => {
 
     describe("getAllLocalExercises", () => {
       it("모든 운동을 가져온다", async () => {
-        const mockExercises: LocalExercise[] = [mockExercise.synced];
+        const mockExercises: Saved<LocalExercise>[] = [mockExercise.synced];
         mockRepository.findAll.mockResolvedValue(mockExercises);
         const result = await service.getAllLocalExercises("user-123");
         expect(result).toEqual(mockExercises);
@@ -201,8 +198,8 @@ describe("ExerciseService", () => {
 
     describe("syncExercisesFromServerLocalFirst", () => {
       const serverData: ClientExercise[] = [mockExercise.server];
-      const localData: LocalExercise[] = [mockExercise.bookmarked];
-      const merged: LocalExercise[] = [mockExercise.synced];
+      const localData: Saved<LocalExercise>[] = [mockExercise.bookmarked];
+      const merged: Saved<LocalExercise>[] = [mockExercise.synced];
       const userId = "user-123";
       it("서버 데이터를 로컬데이터에 머지한다", async () => {
         mockApi.fetchExercisesFromServer.mockResolvedValue(serverData);

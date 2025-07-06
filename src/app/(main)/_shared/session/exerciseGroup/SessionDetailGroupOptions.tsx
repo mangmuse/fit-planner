@@ -9,6 +9,7 @@ import {
   LocalExercise,
   LocalRoutineDetail,
   LocalWorkoutDetail,
+  Saved,
 } from "@/types/models";
 import { useModal } from "@/providers/contexts/ModalContext";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
@@ -23,8 +24,8 @@ import ExerciseMemo from "@/app/(main)/_shared/session/exerciseMemo/ExerciseMemo
 import GroupOptionItem from "@/app/(main)/_shared/session/exerciseGroup/GroupOptionItem";
 
 type SessionDetailGroupOptions = {
-  exercise: LocalExercise;
-  details: LocalWorkoutDetail[] | LocalRoutineDetail[];
+  exercise: Saved<LocalExercise>;
+  details: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[];
 
   loadExercises: () => Promise<void>;
   reload: () => Promise<void>;

@@ -176,6 +176,9 @@ export const localRoutineDetailSchema = z.object({
 });
 
 // expectType<>({} as LocalExercise);
+
+export type Saved<T extends { id?: number }> = Omit<T, "id"> & { id: number };
+
 export type ModelWithStringDates<T> = Omit<T, "createdAt" | "updatedAt"> & {
   createdAt: string;
   updatedAt?: string | null;

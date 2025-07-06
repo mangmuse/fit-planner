@@ -14,6 +14,7 @@ import {
   LocalRoutineDetail,
   LocalWorkout,
   LocalWorkoutDetail,
+  Saved,
 } from "@/types/models";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
@@ -70,7 +71,7 @@ function SessionPlaceholder({
   };
 
   const handlePickRoutineForRoutine = async (
-    routineDetails: LocalRoutineDetail[]
+    routineDetails: Saved<LocalRoutineDetail>[]
   ) => {
     if (!routineId) throw new Error("routineId가 없습니다");
     await Promise.all(
@@ -85,7 +86,7 @@ function SessionPlaceholder({
 
   const handlePickRoutine = async (targetRoutineId: number) => {
     try {
-      const routineDetails: LocalRoutineDetail[] =
+      const routineDetails: Saved<LocalRoutineDetail>[] =
         await routineDetailService.getLocalRoutineDetails(targetRoutineId);
       if (type === "RECORD") {
         await handlePickRoutineForWorkout(routineDetails);
