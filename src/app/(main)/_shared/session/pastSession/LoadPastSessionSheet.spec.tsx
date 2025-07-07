@@ -78,6 +78,7 @@ describe("LoadPastSessionSheet", () => {
   const mockPastWorkoutDetail1 = {
     ...mockWorkoutDetail.past,
     id: 1,
+    workoutId: 500,
     exerciseOrder: 1,
     exerciseId: 1,
     exerciseName: "벤치 프레스",
@@ -85,6 +86,7 @@ describe("LoadPastSessionSheet", () => {
   const mockPastWorkoutDetail2 = {
     ...mockWorkoutDetail.past,
     id: 2,
+    workoutId: 500,
     exerciseOrder: 2,
     exerciseId: 2,
     exerciseName: "스쿼트",
