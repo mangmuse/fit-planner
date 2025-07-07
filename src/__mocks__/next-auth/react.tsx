@@ -1,12 +1,16 @@
-import React from 'react';
+import React from "react";
 
-export const SessionProvider = ({ children }: { children: React.ReactNode }) => {
+export const SessionProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   return <>{children}</>;
 };
 
 export const useSession = jest.fn(() => ({
   data: {
-    user: { id: "user123" },
+    user: { id: "user123", email: "test@example.com", image: "/" },
     expires: "2024-12-31T23:59:59.999Z",
   },
   status: "authenticated",

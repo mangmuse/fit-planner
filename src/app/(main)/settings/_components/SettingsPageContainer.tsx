@@ -10,6 +10,7 @@ import ProgressSpinner from "@/components/ProgressSpinner";
 
 const SettingsPageContainer = () => {
   const { data: session } = useSession();
+  // console.log(session);
   const userId = session?.user?.id;
   const { showError, openModal, closeModal } = useModal();
 
@@ -20,9 +21,29 @@ const SettingsPageContainer = () => {
     try {
       await signOut();
     } catch (error) {
-      console.error("로그아웃 오류:", error);
+      console.error("[SettingsPageContainer] handleSignOut:", error);
       showError("로그아웃 중 오류가 발생했습니다.");
       setIsSigningOut(false);
+    }
+  };
+
+  const handleUploadToServer = async () => {
+    closeModal();
+
+    setTimeout(() => {
+      openModal({
+        type: "generic",
+        children: <ProgressSpinner message="서버로 업로드 중..." />,
+        disableBackdropClick: true,
+      });
+    }, 0);
+
+    try {
+      await syncAllService.overWriteToServer(userId!);
+      closeModal();
+    } catch (error) {
+      console.error("서버 동기화 오류:", error);
+      showError("동기화 중 오류가 발생했습니다.");
     }
   };
 
@@ -37,25 +58,28 @@ const SettingsPageContainer = () => {
       title: "서버로 업로드",
       message:
         "현재 로컬 데이터가 서버 데이터를 덮어씌웁니다.\n이 작업은 되돌릴 수 없습니다.\n\n계속하시겠습니까?",
-      onConfirm: async () => {
-        setTimeout(() => {
-          openModal({
-            type: "generic",
-            children: <ProgressSpinner message="서버로 업로드 중..." />,
-            disableBackdropClick: true,
-          });
-        }, 0);
-
-        try {
-          await syncAllService.overWriteToServer(userId);
-        } catch (error) {
-          console.error("서버 동기화 오류:", error);
-          showError("동기화 중 오류가 발생했습니다.");
-        } finally {
-          closeModal();
-        }
-      },
+      onConfirm: handleUploadToServer,
     });
+  };
+
+  const handleDownloadFromServer = async () => {
+    closeModal();
+
+    setTimeout(() => {
+      openModal({
+        type: "generic",
+        children: <ProgressSpinner message="서버에서 다운로드 중..." />,
+        disableBackdropClick: true,
+      });
+    }, 0);
+
+    try {
+      await syncAllService.overWriteAllWithServerData(userId!);
+      closeModal();
+    } catch (error) {
+      console.error("클라이언트 동기화 오류:", error);
+      showError("동기화 중 오류가 발생했습니다.");
+    }
   };
 
   const handleSyncFromServer = async () => {
@@ -69,24 +93,7 @@ const SettingsPageContainer = () => {
       title: "서버에서 다운로드",
       message:
         "서버 데이터가 현재 로컬 데이터를 덮어씌웁니다.\n이 작업은 되돌릴 수 없습니다.\n\n계속하시겠습니까?",
-      onConfirm: async () => {
-        setTimeout(() => {
-          openModal({
-            type: "generic",
-            children: <ProgressSpinner message="서버에서 다운로드 중..." />,
-            disableBackdropClick: true,
-          });
-        }, 0);
-
-        try {
-          await syncAllService.overWriteAllWithServerData(userId);
-        } catch (error) {
-          console.error("클라이언트 동기화 오류:", error);
-          showError("동기화 중 오류가 발생했습니다.");
-        } finally {
-          closeModal();
-        }
-      },
+      onConfirm: handleDownloadFromServer,
     });
   };
 
