@@ -9,6 +9,7 @@ export type SelectedWorkoutGroupsState = {
   selectedGroups: SelectedGroupKey[];
   setSelectedGroups: (groups: SelectedGroupKey[]) => void;
   toggleGroup: (workoutId: number, exerciseOrder: number) => void;
+  toggleAllGroups: (allGroups: SelectedGroupKey[]) => void;
   reset: () => void;
 };
 
@@ -36,6 +37,45 @@ export const createSelectedWorkoutGroupsSlice: StateCreator<
             { workoutId, exerciseOrder },
           ],
         };
+      }
+    }),
+  toggleAllGroups: (allGroups) =>
+    set((state) => {
+      const allSelected =
+        allGroups.length > 0 &&
+        allGroups.every((group) =>
+          state.selectedGroups.some(
+            (s) =>
+              s.workoutId === group.workoutId &&
+              s.exerciseOrder === group.exerciseOrder
+          )
+        );
+
+      if (allSelected) {
+        return {
+          selectedGroups: state.selectedGroups.filter(
+            (s) =>
+              !allGroups.some(
+                (g) =>
+                  g.workoutId === s.workoutId &&
+                  g.exerciseOrder === s.exerciseOrder
+              )
+          ),
+        };
+      } else {
+        const newGroups = [...state.selectedGroups];
+        allGroups.forEach((group) => {
+          if (
+            !state.selectedGroups.some(
+              (s) =>
+                s.workoutId === group.workoutId &&
+                s.exerciseOrder === group.exerciseOrder
+            )
+          ) {
+            newGroups.push(group);
+          }
+        });
+        return { selectedGroups: newGroups };
       }
     }),
   reset: () => set({ selectedGroups: [] }),
