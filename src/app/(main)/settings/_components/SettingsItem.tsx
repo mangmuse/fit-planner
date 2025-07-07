@@ -7,10 +7,10 @@ export type SettingsItemProps = {
   disabled?: boolean;
 };
 
-export const SettingsItem = ({ 
-  title, 
-  description, 
-  onClick, 
+export const SettingsItem = ({
+  title,
+  description,
+  onClick,
   className = "",
   icon,
   disabled,
@@ -18,14 +18,24 @@ export const SettingsItem = ({
   const content = (
     <div className="flex items-center gap-3 px-4 py-3">
       {icon && (
-        <div className={`text-text-muted ${disabled ? 'opacity-50' : ''}`}>
+        <div className={`text-text-muted ${disabled ? "opacity-50" : ""}`}>
           {icon}
         </div>
       )}
       <div className="flex-1">
-        <p className={`text-white ${className} ${disabled ? 'opacity-50' : ''}`}>{title}</p>
+        <p
+          className={`text-white ${className} ${disabled ? "opacity-50" : ""}`}
+        >
+          {title}
+        </p>
         {description && (
-          <p className={`text-text-muted text-sm ${disabled ? 'opacity-50' : ''}`}>{description}</p>
+          <p
+            className={`text-text-muted text-sm ${
+              disabled ? "opacity-50" : ""
+            }`}
+          >
+            {description}
+          </p>
         )}
       </div>
     </div>
@@ -37,7 +47,7 @@ export const SettingsItem = ({
         onClick={onClick}
         disabled={disabled}
         className={`w-full text-left hover:bg-bg-secondary transition-colors ${
-          disabled ? 'cursor-not-allowed' : ''
+          disabled ? "cursor-not-allowed" : ""
         }`}
       >
         {content}
