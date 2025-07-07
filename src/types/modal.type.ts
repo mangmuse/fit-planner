@@ -4,6 +4,7 @@ export type GenericModalProps = {
   type: "generic";
   children: ReactNode;
   onClose?: () => void;
+  disableBackdropClick?: boolean;
 };
 
 export type AlertModalProps = {
