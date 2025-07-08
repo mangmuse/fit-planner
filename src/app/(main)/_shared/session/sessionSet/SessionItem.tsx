@@ -80,7 +80,7 @@ const SessionItem = ({
       <SetOrderCell loadLocalWorkoutDetails={reload} workoutDetail={detail} />
       <td data-testid="prev-record" className="text-center">
         {prevWorkoutDetail
-          ? `${prevWorkoutDetail.weight} ${exercise.unit || "kg"} x ${
+          ? `${prevWorkoutDetail.weight || 0} ${exercise.unit || "kg"} x ${
               prevWorkoutDetail.reps
             } 회`
           : "-"}
