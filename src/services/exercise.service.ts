@@ -10,24 +10,27 @@ export class ExerciseService implements IExerciseService {
     private readonly adapter: IExerciseAdapter,
     private readonly api: IExerciseApi
   ) {}
+  public syncPromise: Promise<void> | null = null;
 
-  async getExerciseWithServerId(
+  public async getExerciseWithServerId(
     serverId: number
   ): Promise<Saved<LocalExercise> | void> {
     return await this.repository.findOneByServerId(serverId);
   }
 
-  async getAllLocalExercises(userId: string): Promise<Saved<LocalExercise>[]> {
+  public async getAllLocalExercises(
+    userId: string
+  ): Promise<Saved<LocalExercise>[]> {
     return this.repository.findAll(userId);
   }
 
-  async getExerciseWithLocalId(
+  public async getExerciseWithLocalId(
     id: number
   ): Promise<Saved<LocalExercise> | void> {
     return await this.repository.findOneById(id);
   }
 
-  async addLocalExercise({
+  public async addLocalExercise({
     name,
     category,
     userId,
@@ -54,7 +57,7 @@ export class ExerciseService implements IExerciseService {
     await this.repository.add(newExercise);
   }
 
-  async updateLocalExercise(
+  public async updateLocalExercise(
     updateInput: Partial<LocalExercise>
   ): Promise<number> {
     if (!updateInput.id) throw new Error("id가 없습니다");
@@ -64,7 +67,7 @@ export class ExerciseService implements IExerciseService {
     });
   }
 
-  async toggleLocalBookmark(
+  public async toggleLocalBookmark(
     localId: number,
     nextValue: boolean
   ): Promise<void> {
@@ -81,7 +84,7 @@ export class ExerciseService implements IExerciseService {
     return this.repository.findAllUnsynced();
   }
 
-  async overwriteWithServerExercises(userId: string) {
+  public async overwriteWithServerExercises(userId: string) {
     const serverData: ClientExercise[] =
       await this.api.fetchExercisesFromServer(userId);
 
@@ -96,7 +99,7 @@ export class ExerciseService implements IExerciseService {
     await this.repository.bulkAdd(toInsert);
   }
 
-  async syncExercisesFromServerLocalFirst(userId: string) {
+  public async syncExercisesFromServerLocalFirst(userId: string) {
     const serverData: ClientExercise[] =
       await this.api.fetchExercisesFromServer(userId);
 
@@ -108,6 +111,24 @@ export class ExerciseService implements IExerciseService {
 
     await this.repository.clear();
     await this.repository.bulkPut(merged);
+  }
+
+  public syncFromServerIfNeeded(userId: string): Promise<void> {
+    if (this.syncPromise) {
+      return this.syncPromise;
+    }
+
+    this.syncPromise = this.getAllLocalExercises(userId)
+      .then((localExercises) => {
+        if (localExercises.length === 0) {
+          return this.syncExercisesFromServerLocalFirst(userId);
+        }
+      })
+      .finally(() => {
+        this.syncPromise = null;
+      });
+
+    return this.syncPromise;
   }
 
   // async syncToServerExercises(userId: string): Promise<void> {

@@ -8,8 +8,12 @@ const ConfirmModal = ({
 }: ConfirmModalProps) => {
   return (
     <div className="bg-bg-secondary px-6 py-6 rounded-2xl max-w-[320px] w-full border border-border-gray" role="dialog">
-      <h2 className="text-lg font-semibold text-text-white text-center mb-3">{title || "확인"}</h2>
-      <p className="text-text-muted text-center mb-6">{message}</p>
+      <h2 className="text-lg font-semibold text-text-white text-center mb-4">
+        {title || "확인"}
+      </h2>
+      <p className="text-sm text-text-muted text-center mb-6 leading-relaxed whitespace-pre-line">
+        {message}
+      </p>
       <div className="flex gap-3">
         <button 
           onClick={onCancel} 

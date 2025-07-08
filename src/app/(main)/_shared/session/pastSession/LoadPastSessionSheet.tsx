@@ -76,15 +76,14 @@ const LoadPastSessionSheet = ({
 
   const createExerciseOrderMapping = (
     startOrder: number
-  ): Map<number, number> => {
-    const exerciseOrderMap = new Map<number, number>();
+  ): Map<string, number> => {
+    const exerciseOrderMap = new Map<string, number>();
     let currentOrder = startOrder;
 
     selectedGroups.forEach((group) => {
-      if (!exerciseOrderMap.has(group.exerciseOrder)) {
-        exerciseOrderMap.set(group.exerciseOrder, currentOrder);
-        currentOrder++;
-      }
+      const key = `${group.workoutId}-${group.exerciseOrder}`;
+      exerciseOrderMap.set(key, currentOrder);
+      currentOrder++;
     });
 
     return exerciseOrderMap;
@@ -105,8 +104,8 @@ const LoadPastSessionSheet = ({
     const exerciseOrderMap = createExerciseOrderMapping(startOrder);
 
     const newDetails = details.map((detail) => {
-      const newExerciseOrder =
-        exerciseOrderMap.get(detail.exerciseOrder) || startOrder;
+      const key = `${detail.workoutId}-${detail.exerciseOrder}`;
+      const newExerciseOrder = exerciseOrderMap.get(key) || startOrder;
       return workoutDetailAdapter.mapPastWorkoutToWorkoutDetail(
         detail,
         workout.id!,
@@ -128,8 +127,8 @@ const LoadPastSessionSheet = ({
 
     const exerciseOrderMap = createExerciseOrderMapping(startOrder);
     const newDetails = details.map((detail) => {
-      const newExerciseOrder =
-        exerciseOrderMap.get(detail.exerciseOrder) || startOrder;
+      const key = `${detail.workoutId}-${detail.exerciseOrder}`;
+      const newExerciseOrder = exerciseOrderMap.get(key) || startOrder;
       return routineDetailAdapter.mapPastWorkoutToRoutineDetail(
         detail,
         routine.id!,

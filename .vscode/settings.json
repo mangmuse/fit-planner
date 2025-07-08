@@ -11,5 +11,25 @@
   "typescript.enablePromptUseWorkspaceTsdk": true,
 
   "jest.runMode": "on-demand",
-  "jest.autoRun": "off"
+  "jest.autoRun": {
+    "watch": false,
+    "onSave": "off"
+  },
+  "jest.autoRevealOutput": "on-run",
+  "jest.showCoverageOnLoad": false,
+  "jest.autoEnable": true,
+  "jest.enable": true,
+  "jest.disabledWorkspaceFolders": [],
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/*/**": true,
+    "**/.yarn/**": true
+  },
+  "jest.virtualFolders": [
+    {
+      "name": "settings",
+      "rootPath": "src/app/(main)/settings"
+    }
+  ]
 }

@@ -1,6 +1,7 @@
 import { IExerciseService } from "@/types/services";
 
 export const createMockExerciseService = (): jest.Mocked<IExerciseService> => ({
+  syncPromise: null,
   getExerciseWithServerId: jest.fn(),
   getAllLocalExercises: jest.fn(),
   getExerciseWithLocalId: jest.fn(),
@@ -10,5 +11,6 @@ export const createMockExerciseService = (): jest.Mocked<IExerciseService> => ({
 
   overwriteWithServerExercises: jest.fn(),
   syncExercisesFromServerLocalFirst: jest.fn(),
+  syncFromServerIfNeeded: jest.fn(),
   // syncToServerExercises: jest.fn(),
 });
