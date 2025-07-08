@@ -51,7 +51,8 @@ const SessionExerciseGroup = ({
       .map((d, i) => ({ ...d, setOrder: i + 1 }));
   }, [exerciseId]);
 
-  // if (isExerciseLoading) return <div>Loading...</div>;
+  if (isExerciseLoading)
+    return <div className="bg-bg-surface rounded-xl mb-3 min-h-[164px]" />;
   if (exerciseError)
     return (
       <ErrorState error={exerciseError.message} onRetry={reloadExercise} />

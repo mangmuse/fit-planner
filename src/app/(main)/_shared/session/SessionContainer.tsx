@@ -93,7 +93,6 @@ const SessionContainer = ({
         type,
       });
 
-      // 최신 데이터를 다시 조회
       let latestDetails: (LocalWorkoutDetail | LocalRoutineDetail)[] = [];
 
       if (type === "RECORD" && userId && date) {
@@ -114,7 +113,6 @@ const SessionContainer = ({
           .sort(),
       });
 
-      // 1. 삭제한 운동보다 exerciseOrder가 큰 것들만 필터링
       const affectedDetails = latestDetails.filter(
         (d) => d.exerciseOrder > deletedExerciseOrder
       );
@@ -127,7 +125,6 @@ const SessionContainer = ({
           .sort(),
       });
 
-      // 2. exerciseOrder를 1씩 감소시키면서 DB 업데이트
       await Promise.all(
         affectedDetails.map((detail) => {
           const updated = {
@@ -152,6 +149,7 @@ const SessionContainer = ({
   const handleDeleteAll = async () => {
     try {
       async function deleteAll() {
+        let targetPath = "/";
         if (type === "RECORD" && isWorkoutDetails(allDetails) && workout?.id) {
           if (allDetails.length === 0) return;
           await workoutDetailService.deleteWorkoutDetails(allDetails);
@@ -168,8 +166,10 @@ const SessionContainer = ({
           }
           await routineDetailService.deleteRoutineDetails(allDetails);
           await routineService.deleteLocalRoutine(routineId);
+          targetPath = `/routines`;
         }
-        router.push("/");
+
+        router.push(targetPath);
         setWorkout(null);
       }
       openModal({
@@ -191,14 +191,12 @@ const SessionContainer = ({
         console.error("Workout을 찾을 수 없습니다");
         return;
       }
-      // workout status COMPLETED로 변경하고
       const updatedWorkout: Partial<LocalWorkout> = {
         id: workout.id,
         status: "COMPLETED",
       };
       await workoutService.updateLocalWorkout(updatedWorkout);
 
-      // 메인메이지로 이동
       router.push("/");
     } catch (e) {
       console.error("[SessionContainer] Error", e);
@@ -219,7 +217,6 @@ const SessionContainer = ({
       ? `/workout/${date}/exercises`
       : `/routines/${routineId}/exercises`;
 
-  // type이 record일때에는 workoutId도 전달함
   const placeholderProps =
     type === "ROUTINE"
       ? { type: "ROUTINE" as const }
@@ -238,6 +235,7 @@ const SessionContainer = ({
     return () => window.removeEventListener("popstate", handlePopState);
   }, [pathname, isModalOpen]);
 
+  if (isLoading) return null;
   if (error) return <ErrorState error={error} onRetry={reload} />;
   return (
     <div>
@@ -298,6 +296,7 @@ const SessionContainer = ({
               />
             ))}
           </ul>
+
           <div className="flex gap-2 mt-2">
             <Link
               href={exercisePath}
