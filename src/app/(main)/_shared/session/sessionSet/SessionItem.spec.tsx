@@ -17,7 +17,7 @@ const mockUseModal = jest.mocked(useModal);
 const mockWorkoutDetailService = jest.mocked(workoutDetailService);
 const mockRoutineDetailService = jest.mocked(routineDetailService);
 
-describe("WorkoutItem", () => {
+describe("SessionItem", () => {
   const mockShowError = jest.fn();
   const mockReload = jest.fn();
   const mockReorder = jest.fn();
@@ -163,7 +163,7 @@ describe("WorkoutItem", () => {
     it("루틴의 경우 삭제 버튼을 클릭하면 루틴 상세 삭제 후 재정렬 후 리로드한다", async () => {
       renderWorkoutItem({ detail: mockRD });
 
-      const deleteButton = screen.getByRole("button", { name: "delete" });
+      const deleteButton = screen.getByRole("button", { name: "삭제" });
       await user.click(deleteButton);
 
       expect(mockRoutineDetailService.deleteRoutineDetail).toHaveBeenCalledWith(
@@ -214,7 +214,7 @@ describe("WorkoutItem", () => {
         new Error("못지움")
       );
 
-      const deleteButton = screen.getByRole("button", { name: "delete" });
+      const deleteButton = screen.getByRole("button", { name: "삭제" });
       await user.click(deleteButton);
 
       expect(mockShowError).toHaveBeenCalledWith("운동 삭제에 실패했습니다");

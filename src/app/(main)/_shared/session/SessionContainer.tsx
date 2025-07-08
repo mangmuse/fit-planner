@@ -5,9 +5,7 @@ import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import Image from "next/image";
-import sortIcon from "public/sort.svg";
-import trashIcon from "public/trash.svg";
+import { Trash2, ChevronsUpDown } from "lucide-react";
 
 import useLoadDetails from "@/hooks/useLoadDetails";
 
@@ -253,13 +251,9 @@ const SessionContainer = ({
                 <button
                   onClick={handleDeleteAll}
                   className="p-2 hover:bg-bg-surface rounded-lg transition-colors"
+                  aria-label="전체 삭제"
                 >
-                  <Image
-                    src={trashIcon}
-                    alt="전체 삭제"
-                    width={24}
-                    height={24}
-                  />
+                  <Trash2 className="w-6 h-6 text-text-muted" />
                 </button>
                 <button
                   onClick={() =>
@@ -274,13 +268,9 @@ const SessionContainer = ({
                     })
                   }
                   className="p-2 hover:bg-bg-surface rounded-lg transition-colors"
+                  aria-label="순서 변경"
                 >
-                  <Image
-                    src={sortIcon}
-                    alt="순서 변경"
-                    width={24}
-                    height={24}
-                  />
+                  <ChevronsUpDown className="w-6 h-6 text-text-muted" />
                 </button>
               </div>
             </div>

@@ -163,7 +163,7 @@ describe("SessionExerciseGroup", () => {
           expect(screen.getByTestId("exercise-order")).toBeInTheDocument();
         });
 
-        const deleteIcon = screen.queryAllByTestId("delete-button");
+        const deleteIcon = screen.queryAllByRole("button", { name: "삭제" });
         expect(deleteIcon).toHaveLength(0);
       });
 
@@ -224,7 +224,7 @@ describe("SessionExerciseGroup", () => {
           expect(screen.getByTestId("exercise-order")).toBeInTheDocument();
         });
 
-        const deleteButtons = screen.getAllByTestId("delete-button");
+        const deleteButtons = screen.getAllByRole("button", { name: "삭제" });
         expect(deleteButtons).toHaveLength(mockRDs.length);
       });
     });

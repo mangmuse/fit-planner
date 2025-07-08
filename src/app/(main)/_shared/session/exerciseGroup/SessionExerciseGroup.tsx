@@ -8,8 +8,7 @@ import { exerciseService, workoutDetailService } from "@/lib/di";
 
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { LocalRoutineDetail, LocalWorkoutDetail, Saved } from "@/types/models";
-import Image from "next/image";
-import menuIcon from "public/meatball.svg";
+import { MoreHorizontal } from "lucide-react";
 
 export type SessionExerciseGroupProps = {
   exerciseOrder: number;
@@ -70,6 +69,7 @@ const SessionExerciseGroup = ({
           <span className="font-medium">{exercise.name}</span>
         </h6>
         <button
+          aria-label="운동 메뉴"
           onClick={() => {
             openBottomSheet({
               minHeight: 300,
@@ -86,13 +86,7 @@ const SessionExerciseGroup = ({
           }}
           className="p-1.5 -mr-1 hover:bg-bg-base rounded-lg transition-colors"
         >
-          <Image
-            src={menuIcon}
-            role="button"
-            alt="운동 메뉴"
-            width={20}
-            height={20}
-          />
+          <MoreHorizontal className="w-5 h-5 text-text-muted" />
         </button>
       </div>
       <table className="w-full text-xs px-3">

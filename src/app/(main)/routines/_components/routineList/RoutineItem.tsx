@@ -3,8 +3,7 @@ import { useModal } from "@/providers/contexts/ModalContext";
 import { LocalRoutine } from "@/types/models";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import rightChevron from "public/right-chevron.svg";
+import { ChevronRight } from "lucide-react";
 import dayjs from "dayjs";
 
 type RoutineItemProps = {
@@ -57,7 +56,7 @@ const RoutineItem = ({ routine, onPick }: RoutineItemProps) => {
                 : "새로운 루틴"}
             </p>
           </div>
-          <Image src={rightChevron} alt="상세보기" width={20} height={20} />
+          <ChevronRight className="w-5 h-5 text-text-muted" />
         </div>
       </button>
     </li>
