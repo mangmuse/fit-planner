@@ -8,11 +8,14 @@ const ExercisePrefetcher = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const userId = session?.user?.id;
+    let isCancelled = false;
 
     if (status === "authenticated" && userId) {
       const prefetchExercises = async () => {
         try {
-          await exerciseService.syncFromServerIfNeeded(userId);
+          if (!isCancelled) {
+            await exerciseService.syncFromServerIfNeeded(userId);
+          }
         } catch (error) {
           console.error(
             "[ExercisePrefetcher] Failed to prefetch exercises:",
@@ -23,6 +26,9 @@ const ExercisePrefetcher = ({ children }: { children: ReactNode }) => {
 
       prefetchExercises();
     }
+    return () => {
+      isCancelled = true;
+    };
   }, [status, session?.user?.id]);
 
   return <>{children}</>;
