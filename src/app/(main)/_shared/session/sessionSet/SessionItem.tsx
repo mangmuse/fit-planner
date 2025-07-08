@@ -1,5 +1,4 @@
 "use client";
-import deletIcon from "public/delete.svg";
 import SessionCheckbox from "@/app/(main)/_shared/session/sessionSet/SessionCheckbox";
 import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import {
@@ -7,7 +6,7 @@ import {
   LocalRoutineDetail,
   LocalWorkoutDetail,
 } from "@/types/models";
-import Image from "next/image";
+import { Trash2 } from "lucide-react";
 import { ChangeEventHandler, useState } from "react";
 import SetOrderCell from "@/app/(main)/_shared/session/sessionSet/SetOrderCell";
 import { routineDetailService, workoutDetailService } from "@/lib/di";
@@ -80,7 +79,7 @@ const SessionItem = ({
       <SetOrderCell loadLocalWorkoutDetails={reload} workoutDetail={detail} />
       <td data-testid="prev-record" className="text-center">
         {prevWorkoutDetail
-          ? `${prevWorkoutDetail.weight} ${exercise.unit || "kg"} x ${
+          ? `${prevWorkoutDetail.weight || 0} ${exercise.unit || "kg"} x ${
               prevWorkoutDetail.reps
             } 회`
           : "-"}
@@ -112,8 +111,8 @@ const SessionItem = ({
           {isWorkoutDetail(detail) ? (
             <SessionCheckbox reload={reload} id={id!} prevIsDone={isDone} />
           ) : (
-            <button data-testid="delete-button" onClick={handleDelete}>
-              <Image src={deletIcon} alt="delete" width={20} height={20} />
+            <button onClick={handleDelete} aria-label="삭제">
+              <Trash2 className="w-5 h-5 text-warning" />
             </button>
           )}
         </div>

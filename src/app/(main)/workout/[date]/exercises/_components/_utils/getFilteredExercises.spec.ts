@@ -48,8 +48,18 @@ describe("getFilteredExercises with Snapshots", () => {
       "전체",
       "전체"
     );
-    // result 배열 전체의 '스냅샷'을 찍어 비교합니다.
     expect(result).toMatchSnapshot();
+  });
+  it("키워드 검색시 띄어쓰기를 무시해야 한다", () => {
+    const result = getFilteredExercises(
+      mockExercises,
+      "인클라인벤치프레스",
+      "전체",
+      "전체"
+    );
+    expect(result).toMatchSnapshot();
+    expect(result.length).toBe(1);
+    expect(result[0].name).toBe("인클라인 벤치프레스");
   });
 
   it('exerciseType이 "커스텀"일 때, isCustom이 true인 운동만 반환해야 한다', () => {

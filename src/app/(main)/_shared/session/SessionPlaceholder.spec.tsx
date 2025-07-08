@@ -13,6 +13,14 @@ jest.mock("@/app/(main)/routines/_components/routineList/RoutineList", () => ({
   default: jest.fn(() => <div>RoutineList Mock</div>),
 }));
 
+jest.mock(
+  "@/app/(main)/_shared/session/pastSession/LoadPastSessionSheet",
+  () => ({
+    __esModule: true,
+    default: jest.fn(() => <div>LoadPastSessionSheet Mock</div>),
+  })
+);
+
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useParams, usePathname } from "next/navigation";
@@ -27,11 +35,13 @@ import {
   workoutDetailAdapter,
   workoutDetailService,
 } from "@/lib/di";
+import LoadPastSessionSheet from "@/app/(main)/_shared/session/pastSession/LoadPastSessionSheet";
 
 const mockUseParams = jest.mocked(useParams);
 const mockUsePathname = jest.mocked(usePathname);
 const mockUseBottomSheet = jest.mocked(useBottomSheet);
 const mockUseModal = jest.mocked(useModal);
+const mockLoadPastSessionSheet = jest.mocked(LoadPastSessionSheet);
 
 describe("SessionPlaceholder", () => {
   const mockReloadDetails = jest.fn();
@@ -94,20 +104,22 @@ describe("SessionPlaceholder", () => {
     render(<SessionPlaceholder {...mergedProps} />);
   };
 
-  it("type이 RECORD인경우 기본 버튼들이 표시된다", () => {
+  it("type이 RECORD인경우 기본 버튼들과 불러오기 버튼이 표시된다", () => {
     renderRecordPlaceholder();
 
     expect(screen.getByText("나의 루틴 가져오기")).toBeInTheDocument();
+    expect(screen.getByText("불러오기")).toBeInTheDocument();
     expect(screen.getByText("운동 추가하기")).toBeInTheDocument();
   });
 
-  it("type이 ROUTINE인경우 기본 버튼들이 표시된다", () => {
+  it("type이 ROUTINE인경우 기본 버튼들과 불러오기 버튼이 모두 표시된다", () => {
     mockUseParams.mockReturnValue({ routineId: "123" });
     mockUsePathname.mockReturnValue("/routines/123");
     renderRoutinePlaceholder();
 
     expect(screen.getByText("나의 루틴 가져오기")).toBeInTheDocument();
     expect(screen.getByText("운동 추가하기")).toBeInTheDocument();
+    expect(screen.getByText("불러오기")).toBeInTheDocument();
   });
 
   it("'운동 추가하기' 링크의 경로가 type에 따라 올바르게 설정된다 (RECORD)", () => {
@@ -222,5 +234,71 @@ describe("SessionPlaceholder", () => {
     await onPick(123);
 
     expect(mockShowError).toHaveBeenCalledWith("루틴 가져오기에 실패했습니다.");
+  });
+
+  describe("불러오기 버튼", () => {
+    it("type이 RECORD일 때 불러오기 버튼 클릭 시 LoadPastSessionSheet가 열린다", async () => {
+      renderRecordPlaceholder();
+
+      const loadButton = screen.getByRole("button", { name: "불러오기" });
+      await userEvent.click(loadButton);
+
+      expect(mockOpenBottomSheet).toHaveBeenCalledWith({
+        height: "100dvh",
+        rounded: false,
+        children: expect.any(Object),
+      });
+
+      const { children } = mockOpenBottomSheet.mock.calls[0][0];
+      expect(children.type).toBe(mockLoadPastSessionSheet);
+      expect(children.props).toMatchObject({
+        type: "RECORD",
+        date: "2024-01-01",
+        reload: expect.any(Function),
+        startExerciseOrder: 1,
+      });
+    });
+
+    it("type이 ROUTINE일 때 불러오기 버튼 클릭 시 LoadPastSessionSheet가 열린다", async () => {
+      mockUseParams.mockReturnValue({ routineId: "123" });
+      mockUsePathname.mockReturnValue("/routines/123");
+      renderRoutinePlaceholder();
+
+      const loadButton = screen.getByRole("button", { name: "불러오기" });
+      await userEvent.click(loadButton);
+
+      expect(mockOpenBottomSheet).toHaveBeenCalledWith({
+        height: "100dvh",
+        rounded: false,
+        children: expect.any(Object),
+      });
+
+      const { children } = mockOpenBottomSheet.mock.calls[0][0];
+      expect(children.type).toBe(mockLoadPastSessionSheet);
+      expect(children.props).toMatchObject({
+        type: "ROUTINE",
+        routineId: 123,
+        reload: expect.any(Function),
+        startExerciseOrder: 1,
+      });
+    });
+
+    it("reloadDetails가 없을 때 빈 함수가 전달된다", async () => {
+      renderRecordPlaceholder({ reloadDetails: undefined });
+
+      const loadButton = screen.getByRole("button", { name: "불러오기" });
+      await userEvent.click(loadButton);
+
+      const { children } = mockOpenBottomSheet.mock.calls[0][0];
+      expect(children.props.reload).toBeDefined();
+      expect(typeof children.props.reload).toBe("function");
+    });
+  });
+
+  it("'ROUTINE' 타입일 때 routineId가 없으면 아무것도 렌더링하지 않는다", () => {
+    mockUseParams.mockReturnValue({ routineId: undefined });
+    mockUsePathname.mockReturnValue("/routines/new");
+    const { container } = render(<SessionPlaceholder type="ROUTINE" />);
+    expect(container).toBeEmptyDOMElement();
   });
 });

@@ -1,27 +1,29 @@
-import Image from "next/image";
 import Link from "next/link";
+import { LucideIcon } from "lucide-react";
 
 const BottomNavBarItem = ({
   path,
-  icon,
-  activeIcon,
+  icon: Icon,
   label,
   isActive,
 }: {
   path: string;
-  icon: string;
-  activeIcon: string;
+  icon: LucideIcon;
   label: string;
   isActive: boolean;
 }) => {
   return (
-    <Link href={path}>
+    <Link href={path} aria-label={label}>
       <li
+        role="listitem"
+        aria-label={isActive ? "활성화" : "비활성화"}
         className={`flex flex-col justify-center items-center text-center text-muted text-xs cursor-pointer ${
           isActive ? "text-primary" : "text-text-muted"
         }`}
       >
-        <Image src={isActive ? activeIcon : icon} alt={label} />
+        <Icon
+          className={`w-6 h-6 ${isActive ? "text-primary" : "text-white"}`}
+        />
         <span className="">{label}</span>
       </li>
     </Link>

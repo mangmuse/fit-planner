@@ -165,8 +165,8 @@ describe("SessionContainer - 규정 테스트", () => {
 
       await waitFor(() => {
         expect(screen.getByText("2024년 1월 1일")).toBeInTheDocument();
-        expect(screen.getByAltText("전체 삭제")).toBeInTheDocument();
-        expect(screen.getByAltText("순서 변경")).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "전체 삭제" })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "순서 변경" })).toBeInTheDocument();
         expect(screen.getByText("운동 추가")).toBeInTheDocument();
         expect(screen.getByText("불러오기")).toBeInTheDocument();
         expect(screen.getByText("운동 완료")).toBeInTheDocument();
@@ -244,10 +244,10 @@ describe("SessionContainer - 규정 테스트", () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByAltText("전체 삭제")).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "전체 삭제" })).toBeInTheDocument();
       });
 
-      await user.click(screen.getByAltText("전체 삭제"));
+      await user.click(screen.getByRole("button", { name: "전체 삭제" }));
 
       expect(mockOpenModal).toHaveBeenCalledWith({
         type: "confirm",
@@ -269,10 +269,10 @@ describe("SessionContainer - 규정 테스트", () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByAltText("순서 변경")).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "순서 변경" })).toBeInTheDocument();
       });
 
-      await user.click(screen.getByAltText("순서 변경"));
+      await user.click(screen.getByRole("button", { name: "순서 변경" }));
 
       expect(mockOpenBottomSheet).toHaveBeenCalledWith({
         height: "100dvh",

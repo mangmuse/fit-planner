@@ -2,8 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import editIcon from "public/edit.svg";
-import Image from "next/image";
+import { Pencil } from "lucide-react";
 import { useModal } from "@/providers/contexts/ModalContext";
 import EditRoutineNameForm from "@/app/(main)/routines/_components/routineForm/EditRoutineNameForm";
 import { routineService } from "@/lib/di";
@@ -45,7 +44,7 @@ const RoutineForm = () => {
         onClick={handleClickEditBtn}
         className="p-1 hover:bg-bg-surface rounded transition-colors"
       >
-        <Image src={editIcon} alt="edit_name" width={20} height={20} />
+        <Pencil className="w-5 h-5 text-text-muted" />
       </button>
     </div>
   );
