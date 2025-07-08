@@ -9,8 +9,10 @@ import { useAsync } from "@/hooks/useAsync";
 
 const RoutineList = ({
   onPick,
+  excludeRoutineId,
 }: {
   onPick?: (routineId: number) => Promise<void>;
+  excludeRoutineId?: number;
 }) => {
   const userId = useSession().data?.user?.id;
 
@@ -24,21 +26,20 @@ const RoutineList = ({
     return await routineService.getAllLocalRoutines(userId);
   }, [userId]);
 
+  const filteredRoutines =
+    routines?.filter((routine) =>
+      excludeRoutineId ? routine.id !== excludeRoutineId : true
+    ) || [];
+
   if (error) {
     return <ErrorState error={error.message} onRetry={loadRoutines} />;
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-40">Loading...</div>
-    );
-  }
-
   return (
     <>
-      {routines && routines.length > 0 ? (
+      {filteredRoutines && filteredRoutines.length > 0 ? (
         <ul className="flex flex-col gap-3">
-          {routines.map((item) => (
+          {filteredRoutines.map((item) => (
             <RoutineItem key={item.id} onPick={onPick} routine={item} />
           ))}
         </ul>

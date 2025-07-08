@@ -47,7 +47,12 @@ function SessionPlaceholder({
   const handleClickRoutineBtn = () =>
     openBottomSheet({
       height: "100dvh",
-      children: <RoutineList onPick={handlePickRoutine} />,
+      children: (
+        <RoutineList
+          excludeRoutineId={routineId ? Number(routineId) : undefined}
+          onPick={handlePickRoutine}
+        />
+      ),
     });
 
   const handleOpenLocalWorkoutSheet = () => {
