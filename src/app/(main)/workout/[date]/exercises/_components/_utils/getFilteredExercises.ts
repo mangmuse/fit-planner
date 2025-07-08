@@ -7,8 +7,11 @@ export const getFilteredExercises = (
   exerciseType: ExerciseType,
   category: Category
 ): LocalExercise[] => {
-  const filterByKeyword = (exercise: LocalExercise) =>
-    exercise.name.includes(keyword);
+  const filterByKeyword = (exercise: LocalExercise) => {
+    return exercise.name
+      .replace(/\s/g, "")
+      .includes(keyword.replace(/\s/g, ""));
+  };
 
   const filterByExerciseType = (exercise: LocalExercise) => {
     if (exerciseType === "전체") return true;

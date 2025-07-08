@@ -90,6 +90,26 @@ exports[`getFilteredExercises with Snapshots 여러 필터가 조합되었을 �
 ]
 `;
 
+exports[`getFilteredExercises with Snapshots 키워드 검색시 띄어쓰기를 무시해야 한다 1`] = `
+[
+  {
+    "category": "가슴",
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "exerciseMemo": null,
+    "id": 2,
+    "imageUrl": "https://example.com/default.png",
+    "isBookmarked": false,
+    "isCustom": true,
+    "isSynced": true,
+    "name": "인클라인 벤치프레스",
+    "serverId": 200,
+    "unit": "kg",
+    "updatedAt": null,
+    "userId": "mockUserId",
+  },
+]
+`;
+
 exports[`getFilteredExercises with Snapshots 키워드가 포함된 운동만 반환해야 한다 1`] = `
 [
   {
