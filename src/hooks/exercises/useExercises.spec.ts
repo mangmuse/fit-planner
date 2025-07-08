@@ -29,17 +29,16 @@ describe("useExercises", () => {
   });
 
   it("로컬DB에 운동 목록이 없으면, 서버에서 운동 목록을 불러온다", async () => {
-    mockExerciseService.getAllLocalExercises
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce(mockExercises);
+    mockExerciseService.syncFromServerIfNeeded.mockResolvedValue(undefined);
+    mockExerciseService.getAllLocalExercises.mockResolvedValue(mockExercises);
 
     const { result } = renderHook(() => useExercises({ userId: mockUserId }));
 
     await waitFor(() => {
       expect(result.current.exercises).toEqual(mockExercises);
-      expect(
-        exerciseService.syncExercisesFromServerLocalFirst
-      ).toHaveBeenCalledWith(mockUserId);
+      expect(exerciseService.syncFromServerIfNeeded).toHaveBeenCalledWith(
+        mockUserId
+      );
     });
   });
 
@@ -69,7 +68,7 @@ describe("useExercises", () => {
   });
   it("서버 동기화에 실패하면 에러를 설정하고 로딩 상태를 false로 변경한다", async () => {
     mockExerciseService.getAllLocalExercises.mockResolvedValue([]);
-    mockExerciseService.syncExercisesFromServerLocalFirst.mockRejectedValue(
+    mockExerciseService.syncFromServerIfNeeded.mockRejectedValue(
       new Error("서버 동기화 실패")
     );
 

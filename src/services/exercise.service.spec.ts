@@ -229,6 +229,79 @@ describe("ExerciseService", () => {
       });
     });
 
+    describe("syncFromServerIfNeeded", () => {
+      const userId = "user-123";
+
+      it("syncPromise가 있으면 기존 프로미스를 반환한다", async () => {
+        const existingPromise = Promise.resolve();
+        service.syncPromise = existingPromise;
+
+        const result = service.syncFromServerIfNeeded(userId);
+
+        expect(result).toBe(existingPromise);
+      });
+
+      it("syncPromise가 null이고 로컬 데이터가 없으면 새로운 프로미스를 생성하고 서버 동기화를 실행한다", async () => {
+        service.syncPromise = null;
+
+        const getAllSpy = jest
+          .spyOn(service, "getAllLocalExercises")
+          .mockResolvedValue([]);
+        const syncSpy = jest
+          .spyOn(service, "syncExercisesFromServerLocalFirst")
+          .mockResolvedValue();
+
+        const result = service.syncFromServerIfNeeded(userId);
+
+        expect(result).toBe(service.syncPromise);
+        expect(service.syncPromise).not.toBeNull();
+
+        await result;
+
+        expect(getAllSpy).toHaveBeenCalledWith(userId);
+        expect(syncSpy).toHaveBeenCalledWith(userId);
+        expect(service.syncPromise).toBeNull();
+
+        getAllSpy.mockRestore();
+        syncSpy.mockRestore();
+      });
+
+      it("syncPromise가 null이고 로컬 데이터가 있으면 서버 동기화는 하지 않는다", async () => {
+        service.syncPromise = null;
+
+        const mockLocalExercises = [mockExercise.synced];
+        const getAllSpy = jest
+          .spyOn(service, "getAllLocalExercises")
+          .mockResolvedValue(mockLocalExercises);
+        const syncSpy = jest
+          .spyOn(service, "syncExercisesFromServerLocalFirst")
+          .mockResolvedValue();
+
+        const result = service.syncFromServerIfNeeded(userId);
+
+        expect(result).toBe(service.syncPromise);
+        expect(service.syncPromise).not.toBeNull();
+
+        await result;
+
+        expect(getAllSpy).toHaveBeenCalledWith(userId);
+        expect(syncSpy).not.toHaveBeenCalled();
+        expect(service.syncPromise).toBeNull();
+
+        getAllSpy.mockRestore();
+        syncSpy.mockRestore();
+      });
+
+      it("syncPromise가 있으면 그것을 반환한다", () => {
+        const existingPromise = Promise.resolve();
+        service.syncPromise = existingPromise;
+
+        const result = service.syncFromServerIfNeeded(userId);
+
+        expect(result).toBe(existingPromise);
+      });
+    });
+
     // describe("syncToServerExercises", () => {
     //   const unsyncedDetails = [
     //     { ...mockExercise.synced, id: 5, isSynced: false },

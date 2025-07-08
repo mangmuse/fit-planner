@@ -108,6 +108,7 @@ export interface IWorkoutService {
 
 // ==== Exercise ====
 export interface IExerciseService {
+  syncPromise: Promise<void> | null;
   // --- Core Service ---
   getExerciseWithServerId: (
     serverId: number
@@ -125,6 +126,7 @@ export interface IExerciseService {
   // --- Sync Service ---
   overwriteWithServerExercises: (userId: string) => Promise<void>;
   syncExercisesFromServerLocalFirst: (userId: string) => Promise<void>;
+  syncFromServerIfNeeded: (userId: string) => Promise<void>;
   // syncToServerExercises: (userId: string) => Promise<void>;
 }
 
