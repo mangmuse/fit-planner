@@ -1,6 +1,7 @@
 "use client";
 
 import RoutineList from "@/app/(main)/routines/_components/routineList/RoutineList";
+import LoadPastSessionSheet from "@/app/(main)/_shared/session/pastSession/LoadPastSessionSheet";
 import {
   routineDetailService,
   workoutDetailAdapter,
@@ -38,11 +39,31 @@ function SessionPlaceholder({
 
   const { routineId } = useParams();
 
+  if (type === "ROUTINE" && !routineId) {
+    return null;
+  }
+
   const handleClickRoutineBtn = () =>
     openBottomSheet({
       height: "100dvh",
       children: <RoutineList onPick={handlePickRoutine} />,
     });
+
+  const handleOpenLocalWorkoutSheet = () => {
+    openBottomSheet({
+      height: "100dvh",
+      rounded: false,
+      children: (
+        <LoadPastSessionSheet
+          type={type}
+          date={date}
+          routineId={routineId ? Number(routineId) : undefined}
+          reload={reloadDetails || (async () => {})}
+          startExerciseOrder={1}
+        />
+      ),
+    });
+  };
 
   const handlePickRoutineForWorkout = async (
     routineDetails: LocalRoutineDetail[]
@@ -111,6 +132,12 @@ function SessionPlaceholder({
         className="flex justify-center items-center w-full h-[47px] font-bold rounded-2xl bg-primary text-text-black"
       >
         나의 루틴 가져오기
+      </button>
+      <button
+        onClick={handleOpenLocalWorkoutSheet}
+        className="flex justify-center items-center w-full h-[47px] font-bold rounded-2xl bg-primary text-text-black"
+      >
+        불러오기
       </button>
       <Link
         href={addExercisePath}
