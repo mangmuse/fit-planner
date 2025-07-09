@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`calculateTotalVolume 올바르게 볼륨을 계산한다 1`] = `14000`;
+
+exports[`calculateVolumeFromDetails routineDetail 올바르게 볼륨을 계산한다 1`] = `14000`;
+
+exports[`calculateVolumeFromDetails routineDetail 올바르게 볼륨을 계산한다 2`] = `0`;
+
+exports[`calculateVolumeFromDetails workoutDetail 올바르게 볼륨을 계산한다 1`] = `14000`;
+
+exports[`calculateVolumeFromDetails workoutDetail 올바르게 볼륨을 계산한다 2`] = `0`;

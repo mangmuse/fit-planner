@@ -31,6 +31,10 @@ import {
 import SessionExerciseGroup from "@/app/(main)/_shared/session/exerciseGroup/SessionExerciseGroup";
 import SessionSequence from "@/app/(main)/_shared/session/sessionSequence/SessionSequence";
 import LoadPastSessionSheet from "@/app/(main)/_shared/session/pastSession/LoadPastSessionSheet";
+import {
+  calculateTotalVolume,
+  calculateVolumeFromDetails,
+} from "@/util/volumeCalculator";
 
 type SessionContainerProps = {
   type: "ROUTINE" | "RECORD";
@@ -81,6 +85,11 @@ const SessionContainer = ({
 
     return exerciseOrderToOccurrenceMap;
   }, [workoutGroups]);
+
+  const totalCurrentVolume = useMemo(
+    () => calculateTotalVolume(workoutGroups),
+    [workoutGroups]
+  );
 
   const handleOpenLocalWorkoutSheet = useCallback(() => {
     openBottomSheet({
@@ -283,12 +292,13 @@ const SessionContainer = ({
             </div>
           )}
 
-          {/* TODO: 전체 세션 볼륨 표시 기능추가 */}
           {workoutGroups.length > 0 && (
             <div className="bg-bg-surface rounded-lg p-3 mb-4">
               <div className="flex items-center gap-2">
                 <span className="text-sm text-text-muted">총 볼륨</span>
-                <span className="text-lg font-semibold">15,600kg</span>
+                <span className="text-lg font-semibold">
+                  {totalCurrentVolume.toLocaleString()}kg
+                </span>
               </div>
             </div>
           )}

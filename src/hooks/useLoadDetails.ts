@@ -23,14 +23,9 @@ type UseLoadDetailsProps = {
   routineId?: number;
 };
 
-export type WorkoutGroup = {
+export type SessionGroup = {
   exerciseOrder: number;
   details: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[];
-};
-
-type GroupedDetail = {
-  exerciseOrder: number;
-  details: (Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>)[];
 };
 
 const useLoadDetails = ({
@@ -46,7 +41,7 @@ const useLoadDetails = ({
   const [allDetails, setAllDetails] = useState<
     Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[]
   >([]);
-  const [workoutGroups, setWorkoutGroups] = useState<WorkoutGroup[]>([]);
+  const [workoutGroups, setWorkoutGroups] = useState<SessionGroup[]>([]);
 
   const loadLocalDetails = useCallback(async () => {
     try {
@@ -225,7 +220,7 @@ const useLoadDetails = ({
             details: newDetails,
           };
         })
-        .filter(Boolean) as WorkoutGroup[];
+        .filter(Boolean) as SessionGroup[];
 
       if (deletedOrder !== null) {
         return filteredGroups.map((group) => ({

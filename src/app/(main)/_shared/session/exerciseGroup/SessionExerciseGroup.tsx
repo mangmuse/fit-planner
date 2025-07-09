@@ -11,6 +11,7 @@ import { LocalRoutineDetail, LocalWorkoutDetail, Saved } from "@/types/models";
 import { MoreHorizontal } from "lucide-react";
 import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
 import React, { useMemo } from "react";
+import { calculateVolumeFromDetails } from "@/util/volumeCalculator";
 
 export type SessionExerciseGroupProps = {
   exerciseOrder: number;
@@ -43,6 +44,11 @@ const SessionExerciseGroup = ({
 
   const exerciseId = useMemo(() => details[0]?.exerciseId, [details]);
 
+  const currentVolume = useMemo(
+    () => calculateVolumeFromDetails(details),
+    [details]
+  );
+
   const {
     data: exercise,
     isLoading: isExerciseLoading,
@@ -53,22 +59,32 @@ const SessionExerciseGroup = ({
     [exerciseId]
   );
 
-  const { data: prevWorkoutDetails } = useAsync(async () => {
+  const { data: prevWorkoutDetails } = useAsync(async (): Promise<
+    Saved<LocalWorkoutDetail>[]
+  > => {
     const detail = await workoutDetailService.getLatestWorkoutDetailByDetail(
       details[0]
     );
     if (!detail) return [];
-    const dd =
+    const prevDetails =
       await workoutDetailService.getLocalWorkoutDetailsByWorkoutIdAndExerciseId(
         detail.workoutId,
         exerciseId
       );
-    const groupedaa = getGroupedDetails(dd);
-    const aaDetailS = groupedaa[occurrence - 1]?.details || [];
-    return aaDetailS
+
+    const groupedDetails = getGroupedDetails(prevDetails);
+    const groupedPrevDetails = groupedDetails[occurrence - 1]?.details || [];
+
+    return groupedPrevDetails
       .filter((d) => d.isDone)
       .map((d, i) => ({ ...d, setOrder: i + 1 }));
   }, [exerciseId, occurrence]);
+
+  const prevVolume = useMemo(() => {
+    return calculateVolumeFromDetails(prevWorkoutDetails || []);
+  }, [prevWorkoutDetails]);
+
+  const volumeDiff = currentVolume - prevVolume;
 
   if (isExerciseLoading)
     return <div className="bg-bg-surface rounded-xl mb-3 min-h-[164px]" />;
@@ -89,11 +105,20 @@ const SessionExerciseGroup = ({
             </span>
             <span className="font-medium">{exercise.name}</span>
           </h6>
-          {/* TODO: 볼륨 표시 기능추가 */}
           <div className="flex items-center gap-1.5 text-xs text-text-muted mt-1">
-            <span className="font-normal">2,400kg</span>
-
-            <span className="text-green-500 font-medium">+400kg</span>
+            <span className="font-normal">
+              {currentVolume.toLocaleString()}kg
+            </span>
+            {volumeDiff !== 0 && (
+              <span
+                className={`font-medium ${
+                  volumeDiff > 0 ? "text-green-500" : "text-red-500"
+                }`}
+              >
+                {volumeDiff > 0 ? "+" : ""}
+                {volumeDiff.toLocaleString()}kg
+              </span>
+            )}
           </div>
         </div>
         <button
