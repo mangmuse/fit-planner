@@ -61,13 +61,21 @@ const SessionExerciseGroup = ({
 
   return (
     <div className="bg-bg-surface font-semibold rounded-xl mb-3 ">
-      <div className="flex px-3 py-1 items-center justify-between">
-        <h6 className="flex items-center gap-1.5 text-sm">
-          <span data-testid="exercise-order" className="text-text-muted">
-            {exerciseOrder}
-          </span>
-          <span className="font-medium">{exercise.name}</span>
-        </h6>
+      <div className="flex px-3 py-2.5 items-start justify-between">
+        <div className="flex flex-col">
+          <h6 className="flex items-center gap-1.5 text-sm">
+            <span data-testid="exercise-order" className="text-text-muted">
+              {exerciseOrder}
+            </span>
+            <span className="font-medium">{exercise.name}</span>
+          </h6>
+          {/* TODO: 볼륨 표시 기능추가 */}
+          <div className="flex items-center gap-1.5 text-xs text-text-muted mt-1">
+            <span className="font-normal">2,400kg</span>
+
+            <span className="text-green-500 font-medium">+400kg</span>
+          </div>
+        </div>
         <button
           aria-label="운동 메뉴"
           onClick={() => {
@@ -84,7 +92,7 @@ const SessionExerciseGroup = ({
               ),
             });
           }}
-          className="p-1.5 -mr-1 hover:bg-bg-base rounded-lg transition-colors"
+          className="p-1.5 -mr-1 -mt-0.5 hover:bg-bg-base rounded-lg transition-colors"
         >
           <MoreHorizontal className="w-5 h-5 text-text-muted" />
         </button>

@@ -275,6 +275,17 @@ const SessionContainer = ({
               </div>
             </div>
           )}
+
+          {/* TODO: 전체 세션 볼륨 표시 기능추가 */}
+          {workoutGroups.length > 0 && (
+            <div className="bg-bg-surface rounded-lg p-3 mb-4">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-text-muted">총 볼륨</span>
+                <span className="text-lg font-semibold">15,600kg</span>
+              </div>
+            </div>
+          )}
+
           <ul className="flex flex-col gap-2.5 scrollbar-none">
             {workoutGroups.map(({ exerciseOrder, details }) => (
               <SessionExerciseGroup
