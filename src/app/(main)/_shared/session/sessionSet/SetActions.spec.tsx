@@ -17,10 +17,11 @@ const mockUseModal = jest.mocked(useModal);
 
 describe("SetActions", () => {
   const mockShowError = jest.fn();
-  const mockReload = jest.fn();
-  const mockReorder = jest.fn();
+
   const mockWD = { ...mockWorkoutDetail.past, id: 500 };
   const mockRD = { ...mockRoutineDetail.past, id: 600 };
+  const mockAddDetailToGroup = jest.fn();
+  const mockRemoveDetailFromGroup = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -30,20 +31,24 @@ describe("SetActions", () => {
       closeModal: jest.fn(),
       isOpen: false,
     });
-    jest.clearAllMocks();
   });
 
   const renderSetActions = (props?: Partial<SetActionsProps>) => {
     const defaultProps: SetActionsProps = {
       lastValue: mockWD,
-      reload: mockReload,
-      reorderAfterDelete: mockReorder,
+      addDetailToGroup: mockAddDetailToGroup,
+      removeDetailFromGroup: mockRemoveDetailFromGroup,
     };
     render(<SetActions {...defaultProps} {...props} />);
   };
 
   describe("lastValue가 workoutDetail", () => {
     it("세트 추가 버튼을 클릭하면 세트가 추가된다", async () => {
+      mockWorkoutDetailService.addSetToWorkout.mockResolvedValue({
+        ...mockWD,
+        id: 501,
+      });
+
       renderSetActions();
 
       const addSetBtn = screen.getByRole("button", { name: "Add Set" });
@@ -54,7 +59,13 @@ describe("SetActions", () => {
         mockWD
       );
       expect(mockRoutineDetailService.addSetToRoutine).not.toHaveBeenCalled();
-      expect(mockReload).toHaveBeenCalledTimes(1);
+      expect(mockAddDetailToGroup).toHaveBeenCalledWith(
+        {
+          ...mockWD,
+          id: 501,
+        },
+        mockWD
+      );
     });
 
     it("세트 삭제 버튼을 클릭하면 세트가 삭제된다", async () => {
@@ -70,11 +81,16 @@ describe("SetActions", () => {
       expect(
         mockRoutineDetailService.deleteRoutineDetail
       ).not.toHaveBeenCalled();
-      expect(mockReorder).not.toHaveBeenCalled();
-      expect(mockReload).toHaveBeenCalledTimes(1);
+
+      expect(mockRemoveDetailFromGroup).toHaveBeenCalledWith(mockWD.id);
     });
   });
   describe("lastValue가 routineDetail", () => {
+    mockRoutineDetailService.addSetToRoutine.mockResolvedValue({
+      ...mockRD,
+      id: 601,
+    });
+
     it("세트 추가 버튼을 클릭하면 세트가 추가된다", async () => {
       renderSetActions({ lastValue: mockRD });
 
@@ -85,7 +101,14 @@ describe("SetActions", () => {
       expect(mockRoutineDetailService.addSetToRoutine).toHaveBeenCalledWith(
         mockRD
       );
-      expect(mockReload).toHaveBeenCalledTimes(1);
+
+      expect(mockAddDetailToGroup).toHaveBeenCalledWith(
+        {
+          ...mockRD,
+          id: 601,
+        },
+        mockRD
+      );
 
       expect(mockWorkoutDetailService.addSetToWorkout).not.toHaveBeenCalled();
     });
@@ -99,8 +122,8 @@ describe("SetActions", () => {
       expect(mockRoutineDetailService.deleteRoutineDetail).toHaveBeenCalledWith(
         mockRD.id
       );
-      expect(mockReorder).not.toHaveBeenCalled();
-      expect(mockReload).toHaveBeenCalledTimes(1);
+
+      expect(mockRemoveDetailFromGroup).toHaveBeenCalledWith(mockRD.id);
 
       expect(
         mockWorkoutDetailService.deleteWorkoutDetail

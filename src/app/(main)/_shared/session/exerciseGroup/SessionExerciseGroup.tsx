@@ -9,24 +9,39 @@ import { exerciseService, workoutDetailService } from "@/lib/di";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { LocalRoutineDetail, LocalWorkoutDetail, Saved } from "@/types/models";
 import { MoreHorizontal } from "lucide-react";
+import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
+import React, { useMemo } from "react";
 
 export type SessionExerciseGroupProps = {
   exerciseOrder: number;
   details: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[];
   reload: () => Promise<void>;
   reorderAfterDelete: (deletedExerciseOrder: number) => Promise<void>;
+  occurrence: number;
+  updateDetailInGroups: (
+    updatedDetail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>
+  ) => void;
+  addDetailToGroup: (
+    newDetail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>,
+    lastDetail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>
+  ) => void;
+  removeDetailFromGroup: (detailId: number) => void;
 };
 
 const SessionExerciseGroup = ({
   details,
   exerciseOrder,
   reload,
+  occurrence,
   reorderAfterDelete,
+  updateDetailInGroups,
+  addDetailToGroup,
+  removeDetailFromGroup,
 }: SessionExerciseGroupProps) => {
   const { openBottomSheet } = useBottomSheet();
   const lastDetail = details[details.length - 1];
 
-  const exerciseId = details[0]?.exerciseId;
+  const exerciseId = useMemo(() => details[0]?.exerciseId, [details]);
 
   const {
     data: exercise,
@@ -43,12 +58,17 @@ const SessionExerciseGroup = ({
       details[0]
     );
     if (!detail) return [];
-    const workoutDetails =
-      await workoutDetailService.getWorkoutGroupByWorkoutDetail(detail);
-    return workoutDetails
+    const dd =
+      await workoutDetailService.getLocalWorkoutDetailsByWorkoutIdAndExerciseId(
+        detail.workoutId,
+        exerciseId
+      );
+    const groupedaa = getGroupedDetails(dd);
+    const aaDetailS = groupedaa[occurrence - 1]?.details || [];
+    return aaDetailS
       .filter((d) => d.isDone)
       .map((d, i) => ({ ...d, setOrder: i + 1 }));
-  }, [exerciseId]);
+  }, [exerciseId, occurrence]);
 
   if (isExerciseLoading)
     return <div className="bg-bg-surface rounded-xl mb-3 min-h-[164px]" />;
@@ -109,24 +129,26 @@ const SessionExerciseGroup = ({
           {details.map((detail, idx) => (
             <SessionItem
               key={detail.id}
+              reload={reload}
               reorderAfterDelete={reorderAfterDelete}
               exercise={exercise}
-              reload={reload}
+              removeDetailFromGroup={removeDetailFromGroup}
               detail={detail}
               prevWorkoutDetail={(prevWorkoutDetails || [])[idx]}
+              updateDetailInGroups={updateDetailInGroups}
             />
           ))}
         </tbody>
       </table>
       <div className="px-3 pb-3">
         <SetActions
-          reorderAfterDelete={reorderAfterDelete}
-          reload={reload}
           lastValue={lastDetail}
+          addDetailToGroup={addDetailToGroup}
+          removeDetailFromGroup={removeDetailFromGroup}
         />
       </div>
     </div>
   );
 };
 
-export default SessionExerciseGroup;
+export default React.memo(SessionExerciseGroup);

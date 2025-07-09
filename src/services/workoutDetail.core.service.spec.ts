@@ -306,25 +306,32 @@ describe("WorkoutDetailCoreService", () => {
       exerciseOrder: 5,
       setOrder: 5,
     };
-    const newSet = {
+    const newSetInput = {
       ...lastSet,
-      id: 5,
+      id: undefined,
       setOrder: 6,
     };
-    it("전달받은 마지막세트를 기반으로 다음세트를 생성한다", async () => {
-      mockAdapter.getAddSetToWorkoutByLastSet.mockReturnValue(newSet);
-      mockRepository.add.mockResolvedValue(5);
+    const newSet = {
+      ...newSetInput,
+      id: 555,
+    };
+
+    it("전달받은 마지막세트를 기반으로 다음세트를 생성하며 해당 세트를 반환한다", async () => {
+      mockAdapter.getAddSetToWorkoutByLastSet.mockReturnValue(newSetInput);
+      mockRepository.add.mockResolvedValue(555);
+
       const result = await service.addSetToWorkout(lastSet);
 
       expect(mockAdapter.getAddSetToWorkoutByLastSet).toHaveBeenCalledWith(
         lastSet
       );
-      expect(mockRepository.add).toHaveBeenCalledWith(newSet);
-      expect(result).toBe(5);
+      expect(mockRepository.add).toHaveBeenCalledWith(newSetInput);
+      expect(result).toEqual(newSet);
     });
 
     it("다음세트 생성중 에러가 발생할경우 해당 에러를 그대로 전파한다", async () => {
       const mockError = new Error("DB 추가 실패");
+      mockAdapter.getAddSetToWorkoutByLastSet.mockReturnValue(newSetInput);
       mockRepository.add.mockRejectedValue(mockError);
       await expect(service.addSetToWorkout(lastSet)).rejects.toThrow(mockError);
     });

@@ -61,7 +61,9 @@ export class WorkoutDetailService implements IWorkoutDetailService {
     return this.core.addPastWorkoutDetailsToWorkout(mappedDetails);
   }
 
-  public addSetToWorkout(lastSet: LocalWorkoutDetail): Promise<number> {
+  public addSetToWorkout(
+    lastSet: Saved<LocalWorkoutDetail>
+  ): Promise<Saved<LocalWorkoutDetail>> {
     return this.core.addSetToWorkout(lastSet);
   }
 
@@ -112,6 +114,16 @@ export class WorkoutDetailService implements IWorkoutDetailService {
     return this.query.getLocalWorkoutDetailsByWorkoutIdAndExerciseOrder(
       workoutId,
       exerciseOrder
+    );
+  }
+
+  public getLocalWorkoutDetailsByWorkoutIdAndExerciseId(
+    workoutId: number,
+    exerciseId: number
+  ): Promise<Saved<LocalWorkoutDetail>[]> {
+    return this.query.getLocalWorkoutDetailsByWorkoutIdAndExerciseId(
+      workoutId,
+      exerciseId
     );
   }
 

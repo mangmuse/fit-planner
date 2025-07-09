@@ -33,7 +33,9 @@ export interface IWorkoutDetailCoreService {
   addPastWorkoutDetailsToWorkout: (
     mappedDetails: LocalWorkoutDetail[]
   ) => Promise<void>;
-  addSetToWorkout: (lastSet: LocalWorkoutDetail) => Promise<number>;
+  addSetToWorkout: (
+    lastSet: Saved<LocalWorkoutDetail>
+  ) => Promise<Saved<LocalWorkoutDetail>>;
   addLocalWorkoutDetailsByUserDate: (
     userId: string,
     date: string,
@@ -69,6 +71,11 @@ export interface IWorkoutDetailQueryService {
   getLatestWorkoutDetailByDetail: (
     detail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>
   ) => Promise<Saved<LocalWorkoutDetail> | void>;
+
+  getLocalWorkoutDetailsByWorkoutIdAndExerciseId: (
+    workoutId: number,
+    exerciseId: number
+  ) => Promise<Saved<LocalWorkoutDetail>[]>;
 }
 
 export interface IWorkoutDetailService
@@ -163,7 +170,9 @@ export interface IRoutineDetailService {
   ) => Promise<Saved<LocalRoutineDetail>[]>;
 
   addLocalRoutineDetail: (detailInput: LocalRoutineDetail) => Promise<void>;
-  addSetToRoutine: (lastSet: Saved<LocalRoutineDetail>) => Promise<number>;
+  addSetToRoutine: (
+    lastSet: Saved<LocalRoutineDetail>
+  ) => Promise<Saved<LocalRoutineDetail>>;
   addLocalRoutineDetailsByWorkoutId: (
     routineId: number,
     startOrder: number,

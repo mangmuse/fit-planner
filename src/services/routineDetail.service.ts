@@ -50,13 +50,14 @@ export class RoutineDetailService implements IRoutineDetailService {
 
   public async addSetToRoutine(
     lastSet: Saved<LocalRoutineDetail>
-  ): Promise<number> {
+  ): Promise<Saved<LocalRoutineDetail>> {
     const addSetInput = this.adapter.getAddSetToRoutineByLastSet(lastSet);
     const newSet = await this.repository.add(addSetInput);
+
     await this.routineService.updateLocalRoutineUpdatedAt(
       addSetInput.routineId
     );
-    return newSet;
+    return { ...addSetInput, id: newSet };
   }
 
   public async addLocalRoutineDetailsByWorkoutId(

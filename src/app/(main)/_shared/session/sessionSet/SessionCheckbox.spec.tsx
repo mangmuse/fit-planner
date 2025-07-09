@@ -1,3 +1,4 @@
+import { mockWorkoutDetail } from "@/__mocks__/workoutDetail.mock";
 import SessionCheckbox, {
   SessionCheckboxProps,
 } from "@/app/(main)/_shared/session/sessionSet/SessionCheckbox";
@@ -12,8 +13,11 @@ jest.mock("@/providers/contexts/ModalContext");
 const mockWorkoutDetailService = jest.mocked(workoutDetailService);
 const mockUseModal = jest.mocked(useModal);
 
+const mockWD = { ...mockWorkoutDetail.past, id: 234 };
+
 describe("SessionCheckbox", () => {
-  const mockReload = jest.fn();
+  const mockUpdateDetailInGroups = jest.fn();
+
   let mockShowError: jest.Mock;
   beforeEach(() => {
     jest.clearAllMocks();
@@ -31,8 +35,8 @@ describe("SessionCheckbox", () => {
   const renderSessionCheckbox = (props?: Partial<SessionCheckboxProps>) => {
     const defaultProps: SessionCheckboxProps = {
       prevIsDone: false,
-      id: 234,
-      reload: mockReload,
+      detail: mockWD,
+      updateDetailInGroups: mockUpdateDetailInGroups,
     };
     render(<SessionCheckbox {...defaultProps} {...props} />);
   };
@@ -57,14 +61,15 @@ describe("SessionCheckbox", () => {
 
       const checkbox = screen.getByRole("checkbox");
       await userEvent.click(checkbox);
+      const updatedDetail = {
+        ...mockWD,
+        isDone: true,
+      };
 
       expect(
         mockWorkoutDetailService.updateLocalWorkoutDetail
-      ).toHaveBeenCalledWith({
-        id: 234,
-        isDone: true,
-      });
-      expect(mockReload).toHaveBeenCalledTimes(1);
+      ).toHaveBeenCalledWith(updatedDetail);
+      expect(mockUpdateDetailInGroups).toHaveBeenCalledWith(updatedDetail);
     });
 
     it("true -> false", async () => {
@@ -72,14 +77,14 @@ describe("SessionCheckbox", () => {
 
       const checkbox = screen.getByRole("checkbox");
       await userEvent.click(checkbox);
-
+      const updatedDetail = {
+        ...mockWD,
+        isDone: false,
+      };
       expect(
         mockWorkoutDetailService.updateLocalWorkoutDetail
-      ).toHaveBeenCalledWith({
-        id: 234,
-        isDone: false,
-      });
-      expect(mockReload).toHaveBeenCalledTimes(1);
+      ).toHaveBeenCalledWith(updatedDetail);
+      expect(mockUpdateDetailInGroups).toHaveBeenCalledWith(updatedDetail);
     });
   });
 
@@ -97,7 +102,6 @@ describe("SessionCheckbox", () => {
       "운동 상태를 동기화하는데 실패했습니다"
     );
 
-    // 에러가 발생했지만, 사용자가 클릭한 상태는 유지
     expect(checkbox).toBeChecked();
   });
 });

@@ -5,6 +5,7 @@ import {
   LocalExercise,
   LocalRoutineDetail,
   LocalWorkoutDetail,
+  Saved,
 } from "@/types/models";
 import { Trash2 } from "lucide-react";
 import { ChangeEventHandler, useState } from "react";
@@ -14,11 +15,14 @@ import { useModal } from "@/providers/contexts/ModalContext";
 
 export type SessionItemProps = {
   exercise: LocalExercise;
-  detail: LocalWorkoutDetail | LocalRoutineDetail;
-  prevWorkoutDetail?: LocalWorkoutDetail;
+  detail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>;
+  prevWorkoutDetail?: Saved<LocalWorkoutDetail>;
   reorderAfterDelete: (deletedExerciseOrder: number) => Promise<void>;
-
   reload: () => Promise<void>;
+  updateDetailInGroups: (
+    updatedDetail: LocalWorkoutDetail | LocalRoutineDetail
+  ) => void;
+  removeDetailFromGroup?: (detailId: number) => void;
 };
 
 const SessionItem = ({
@@ -26,7 +30,9 @@ const SessionItem = ({
   exercise,
   prevWorkoutDetail,
   reload,
+  removeDetailFromGroup,
   reorderAfterDelete,
+  updateDetailInGroups,
 }: SessionItemProps) => {
   const { weight, reps, id } = detail;
   const { showError } = useModal();
@@ -46,15 +52,15 @@ const SessionItem = ({
   ) => {
     try {
       const updateWorkoutInput = {
+        ...detail,
         ...data,
-        id,
       };
       if (isWorkoutDetail(detail)) {
         await workoutDetailService.updateLocalWorkoutDetail(updateWorkoutInput);
       } else {
         await routineDetailService.updateLocalRoutineDetail(updateWorkoutInput);
       }
-      await reload();
+      updateDetailInGroups(updateWorkoutInput);
     } catch (e) {
       console.error("[SessionItem] Error", e);
       showError("운동 상태 업데이트에 실패했습니다");
@@ -66,7 +72,7 @@ const SessionItem = ({
       try {
         await routineDetailService.deleteRoutineDetail(detail.id);
         await reorderAfterDelete(detail.exerciseOrder);
-        await reload();
+        removeDetailFromGroup?.(detail.id);
       } catch (e) {
         console.error("[SessionItem] Error", e);
         showError("운동 삭제에 실패했습니다");
@@ -95,6 +101,7 @@ const SessionItem = ({
           className="w-9 h-5 rounded bg-transparent outline outline-1 outline-text-muted text-center focus:outline-primary"
         />
       </td>
+
       <td className="text-center">
         <input
           data-testid="reps"
@@ -109,7 +116,11 @@ const SessionItem = ({
       <td className="text-center  ">
         <div className="flex justify-center items-center">
           {isWorkoutDetail(detail) ? (
-            <SessionCheckbox reload={reload} id={id!} prevIsDone={isDone} />
+            <SessionCheckbox
+              prevIsDone={isDone}
+              updateDetailInGroups={updateDetailInGroups}
+              detail={detail}
+            />
           ) : (
             <button onClick={handleDelete} aria-label="삭제">
               <Trash2 className="w-5 h-5 text-warning" />

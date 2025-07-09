@@ -12,7 +12,9 @@ export class WorkoutDetailRepository
     super(table);
   }
 
-  async findAllByWorkoutId(workoutId: number): Promise<Saved<LocalWorkoutDetail>[]> {
+  async findAllByWorkoutId(
+    workoutId: number
+  ): Promise<Saved<LocalWorkoutDetail>[]> {
     return this.table.where("workoutId").equals(workoutId).toArray() as Promise<
       Saved<LocalWorkoutDetail>[]
     >;
@@ -73,6 +75,17 @@ export class WorkoutDetailRepository
       .where("exerciseId")
       .equals(exerciseId)
       .and((detail) => detail.isDone === true)
+      .toArray() as Promise<Saved<LocalWorkoutDetail>[]>;
+  }
+
+  public async findAllByWorkoutIdAndExerciseId(
+    workoutId: number,
+    exerciseId: number
+  ): Promise<Saved<LocalWorkoutDetail>[]> {
+    return this.table
+      .where("workoutId")
+      .equals(workoutId)
+      .and((detail) => detail.exerciseId === exerciseId)
       .toArray() as Promise<Saved<LocalWorkoutDetail>[]>;
   }
 }

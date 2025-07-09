@@ -200,7 +200,6 @@ describe("SessionDetailGroupOptions", () => {
         expect(
           mockWorkoutDetailService.deleteWorkoutDetails
         ).toHaveBeenCalledWith(mockWorkoutDetails);
-        expect(mockReorderAfterDelete).toHaveBeenCalledWith(1);
         expect(mockReload).toHaveBeenCalledTimes(1);
       });
     });
@@ -220,7 +219,6 @@ describe("SessionDetailGroupOptions", () => {
         expect(
           mockRoutineDetailService.deleteRoutineDetails
         ).toHaveBeenCalledWith(mockRoutineDetails);
-        expect(mockReorderAfterDelete).toHaveBeenCalledWith(1);
         expect(mockReload).toHaveBeenCalledTimes(1);
       });
     });

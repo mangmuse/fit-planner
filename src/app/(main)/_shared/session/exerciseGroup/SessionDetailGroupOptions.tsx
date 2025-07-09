@@ -77,7 +77,6 @@ const SessionDetailGroupOptions = ({
       } else {
         await routineDetailService.deleteRoutineDetails(details);
       }
-      await reorderAfterDelete(details[0].exerciseOrder);
       await reload();
     } catch (e) {
       console.error(
