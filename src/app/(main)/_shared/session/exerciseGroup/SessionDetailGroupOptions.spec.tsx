@@ -37,6 +37,7 @@ import {
 } from "@/types/models";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { KG_TO_LBS } from "@/util/weightConversion";
 
 const mockUseModal = jest.mocked(useModal);
 const mockUseBottomSheet = jest.mocked(useBottomSheet);
@@ -227,12 +228,17 @@ describe("SessionDetailGroupOptions", () => {
       });
     });
 
-    it("단위 버튼 클릭 시 상태가 변경되고 API가 호출되어야 한다", async () => {
+    it("단위 버튼 클릭 시 DB 업데이트와 updateMultipleDetailsInGroups를 호출해야 한다", async () => {
       const user = userEvent.setup();
       renderSessionDetailGroupOptions({
-        details: [{ ...mockWD, weightUnit: "kg" }],
+        details: [{ ...mockWD, weightUnit: "kg", weight: 100 }],
       });
 
+      const updatedDetail = {
+        ...mockWD,
+        weightUnit: "lbs",
+        weight: 100 * KG_TO_LBS,
+      };
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "kg" })).toBeInTheDocument();
       });
@@ -244,8 +250,12 @@ describe("SessionDetailGroupOptions", () => {
         expect(
           mockWorkoutDetailService.updateLocalWorkoutDetail
         ).toHaveBeenCalledTimes(1);
+        expect(
+          mockWorkoutDetailService.updateLocalWorkoutDetail
+        ).toHaveBeenCalledWith(updatedDetail);
+
         expect(mockUpdateMultipleDetailsInGroups).toHaveBeenCalledWith([
-          { ...mockWD, weightUnit: "lbs" },
+          updatedDetail,
         ]);
       });
     });

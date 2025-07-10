@@ -25,6 +25,7 @@ import {
 } from "@/lib/di";
 import ExerciseMemo from "@/app/(main)/_shared/session/exerciseMemo/ExerciseMemo";
 import GroupOptionItem from "@/app/(main)/_shared/session/exerciseGroup/GroupOptionItem";
+import { convertKgtoLbs, convertLbstoKg } from "@/util/weightConversion";
 
 type SessionDetailGroupOptions = {
   exercise: Saved<LocalExercise>;
@@ -50,9 +51,16 @@ const SessionDetailGroupOptions = ({
   const [unit, setUnit] = useState<(typeof units)[number]>(
     details[0]?.weightUnit || "kg"
   );
+  const [currentWeights, setCurrentWeights] = useState<number[]>(
+    details.map((d) => d.weight || 0)
+  );
   const { closeBottomSheet, openBottomSheet } = useBottomSheet();
   const { openModal, showError } = useModal();
   const isMounted = useRef(false);
+
+  useEffect(() => {
+    setCurrentWeights(details.map((d) => d.weight || 0));
+  }, [details]);
 
   const handleOpenMemo = () => {
     closeBottomSheet();
@@ -111,11 +119,21 @@ const SessionDetailGroupOptions = ({
     if (newUnit === unit) return;
 
     const prevUnit = unit;
+
     setUnit(newUnit);
 
     try {
-      const updatePromise = details.map((detail) => {
-        const updatedDetail = { ...detail, weightUnit: newUnit };
+      const newWeights = currentWeights.map((weight) =>
+        prevUnit === "kg" ? convertKgtoLbs(weight) : convertLbstoKg(weight)
+      );
+
+      const updatePromise = details.map((detail, index) => {
+        const updatedDetail = {
+          ...detail,
+          weight: newWeights[index],
+          weightUnit: newUnit,
+        };
+
         if (isWorkoutDetail(detail)) {
           return workoutDetailService.updateLocalWorkoutDetail(updatedDetail);
         } else {
@@ -125,15 +143,17 @@ const SessionDetailGroupOptions = ({
 
       await Promise.all(updatePromise);
 
-      // reload() 대신 updateMultipleDetailsInGroups 사용하여 깜빡임 방지
-      const updatedDetails = details.map((detail) => ({
+      const updatedDetails = details.map((detail, index) => ({
         ...detail,
+        weight: newWeights[index],
         weightUnit: newUnit,
       }));
+
+      setCurrentWeights(newWeights);
       updateMultipleDetailsInGroups(updatedDetails);
     } catch (e) {
       console.error("[SessionDetailGroupOptions] handleUnitChange Error", e);
-      setUnit(prevUnit); // 에러 시 이전 상태로 롤백
+      setUnit(prevUnit);
       showError("단위 변경에 실패했습니다");
     }
   };

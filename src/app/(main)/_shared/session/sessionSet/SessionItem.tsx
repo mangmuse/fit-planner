@@ -8,7 +8,7 @@ import {
   Saved,
 } from "@/types/models";
 import { Trash2 } from "lucide-react";
-import { ChangeEventHandler, useState } from "react";
+import { ChangeEventHandler, useState, useEffect } from "react";
 import SetOrderCell from "@/app/(main)/_shared/session/sessionSet/SetOrderCell";
 import { routineDetailService, workoutDetailService } from "@/lib/di";
 import { useModal } from "@/providers/contexts/ModalContext";
@@ -42,6 +42,14 @@ const SessionItem = ({
     weight || null
   );
   const [editedReps, setEditedReps] = useState<number | null>(reps || null);
+
+  useEffect(() => {
+    setEditedWeight(weight || null);
+  }, [weight]);
+
+  useEffect(() => {
+    setEditedReps(reps || null);
+  }, [reps]);
 
   const handleChangeWeight: ChangeEventHandler<HTMLInputElement> = (e) => {
     const weightUnit = detail.weightUnit || "kg";
