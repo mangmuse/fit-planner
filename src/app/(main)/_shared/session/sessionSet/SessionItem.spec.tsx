@@ -21,6 +21,8 @@ describe("SessionItem", () => {
   const mockShowError = jest.fn();
   const mockReload = jest.fn();
   const mockReorder = jest.fn();
+  const mockUpdateDetailInGroups = jest.fn();
+  const mockRemoveDetailFromGroup = jest.fn();
 
   const mockWD = mockWorkoutDetail.past;
   const mockRD = mockRoutineDetail.past;
@@ -41,6 +43,8 @@ describe("SessionItem", () => {
     const defaultProps: SessionItemProps = {
       exercise: mockEx,
       detail: mockWD,
+      updateDetailInGroups: mockUpdateDetailInGroups,
+      removeDetailFromGroup: mockRemoveDetailFromGroup,
       prevWorkoutDetail: mockPrevWD,
       reorderAfterDelete: mockReorder,
       reload: mockReload,
@@ -57,10 +61,10 @@ describe("SessionItem", () => {
       expect(setOrder).toHaveTextContent(mockWD.setOrder.toString());
 
       const weight = screen.getByTestId("weight");
-      expect(weight).toHaveValue(mockWD.weight?.toString() ?? "");
+      expect(weight).toHaveValue(mockWD.weight ?? 0);
 
       const reps = screen.getByTestId("reps");
-      expect(reps).toHaveValue(mockWD.reps?.toString() ?? "");
+      expect(reps).toHaveValue(mockWD.reps ?? 0);
 
       const checkbox = screen.getByRole("checkbox");
       expect(checkbox).toBeChecked();
@@ -108,14 +112,15 @@ describe("SessionItem", () => {
       await user.type(weight, "567");
       await user.tab();
 
+      const updatedDetail = {
+        ...mockWD,
+        weight: 567,
+      };
       expect(
         mockWorkoutDetailService.updateLocalWorkoutDetail
-      ).toHaveBeenCalledWith({
-        weight: 567,
-        id: mockWD.id,
-      });
+      ).toHaveBeenCalledWith(updatedDetail);
 
-      expect(mockReload).toHaveBeenCalledTimes(1);
+      expect(mockUpdateDetailInGroups).toHaveBeenCalledWith(updatedDetail);
 
       // RoutineDetail 관련 메서드는 호출되지 않음
       expect(
@@ -132,14 +137,16 @@ describe("SessionItem", () => {
       await user.type(reps, "10");
       await user.tab();
 
+      const updatedDetail = {
+        ...mockRD,
+        reps: 10,
+      };
+
       expect(
         mockRoutineDetailService.updateLocalRoutineDetail
-      ).toHaveBeenCalledWith({
-        reps: 10,
-        id: mockWD.id,
-      });
+      ).toHaveBeenCalledWith(updatedDetail);
 
-      expect(mockReload).toHaveBeenCalledTimes(1);
+      expect(mockUpdateDetailInGroups).toHaveBeenCalledWith(updatedDetail);
 
       // WorkoutDetail 관련 메서드는 호출되지 않음
       expect(
@@ -170,7 +177,7 @@ describe("SessionItem", () => {
         mockRD.id
       );
       expect(mockReorder).toHaveBeenCalledWith(mockRD.exerciseOrder);
-      expect(mockReload).toHaveBeenCalledTimes(1);
+      expect(mockRemoveDetailFromGroup).toHaveBeenCalledWith(mockRD.id);
     });
 
     it("무게나 횟수 업데이트 도중 에러가 발생하면 에러 모달을 표시한다 (workoutDetail)", async () => {

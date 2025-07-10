@@ -4,6 +4,7 @@ import { signOut, useSession } from "next-auth/react";
 import { syncAllService } from "@/lib/di";
 import { SettingsGroup } from "./SettingsGroup";
 import { SettingsItem } from "./SettingsItem";
+import { WeightUnitSetting } from "./WeightUnitSetting";
 import { useState } from "react";
 import { useModal } from "@/providers/contexts/ModalContext";
 import ProgressSpinner from "@/components/ProgressSpinner";
@@ -99,6 +100,10 @@ const SettingsPageContainer = () => {
 
   return (
     <div className="space-y-6">
+      <SettingsGroup title="일반">
+        <WeightUnitSetting />
+      </SettingsGroup>
+
       <SettingsGroup title="계정">
         <SettingsItem
           title={session?.user?.email || "사용자"}

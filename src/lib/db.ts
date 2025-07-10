@@ -20,9 +20,6 @@ export class MyLocalDB extends Dexie {
   constructor() {
     super("MyFitPlannerDB"); //
     this.version(1).stores({
-      /*
-      
-      */
       exercises: "++id,serverId,name,category,isSynced,userId",
 
       workouts: "++id,[userId+date],serverId,exerciseId,date,userId",
@@ -31,6 +28,31 @@ export class MyLocalDB extends Dexie {
       workoutDetails: "++id,serverId,exerciseId,workoutId",
       routineDetails: "++id,serverId,routineId,exerciseId",
     });
+
+    // weightUnit 필드 추가
+    this.version(2)
+      .stores({
+        exercises: "++id,serverId,name,category,isSynced,userId",
+        workouts: "++id,[userId+date],serverId,exerciseId,date,userId",
+        routines: "++id,serverId,exerciseId,userId",
+        workoutDetails: "++id,serverId,exerciseId,workoutId",
+        routineDetails: "++id,serverId,routineId,exerciseId",
+      })
+      .upgrade(async (trans) => {
+        await trans
+          .table("workoutDetails")
+          .toCollection()
+          .modify((detail) => {
+            detail.weightUnit = "kg";
+          });
+
+        await trans
+          .table("routineDetails")
+          .toCollection()
+          .modify((detail) => {
+            detail.weightUnit = "kg";
+          });
+      });
   }
 }
 

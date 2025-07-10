@@ -1,9 +1,9 @@
 import { DetailGroup } from "@/app/(main)/_shared/session/sessionSequence/SessionSequence";
-import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
+import { LocalRoutineDetail, LocalWorkoutDetail, Saved } from "@/types/models";
 import { arrayMove } from "@dnd-kit/sortable";
 
 export const getGroupedDetails = <
-  T extends LocalWorkoutDetail | LocalRoutineDetail,
+  T extends Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>,
 >(
   details: T[]
 ): {

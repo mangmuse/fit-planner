@@ -3,25 +3,31 @@ import Image from "next/image";
 import checkIcon from "public/check.svg";
 import { workoutDetailService } from "@/lib/di";
 import { useModal } from "@/providers/contexts/ModalContext";
+import { LocalWorkoutDetail, Saved } from "@/types/models";
 
 export type SessionCheckboxProps = {
   prevIsDone?: boolean;
-  id: number;
-  reload?: () => Promise<void>;
+  updateDetailInGroups: (updatedDetail: Saved<LocalWorkoutDetail>) => void;
+  detail: Saved<LocalWorkoutDetail>;
 };
 
-const SessionCheckbox = ({ prevIsDone, id, reload }: SessionCheckboxProps) => {
+const SessionCheckbox = ({
+  prevIsDone,
+  updateDetailInGroups,
+  detail,
+}: SessionCheckboxProps) => {
   const [isDone, setIsDone] = useState<boolean>(prevIsDone ?? false);
   const { showError } = useModal();
   const handleChange = async () => {
     try {
       const newValue = !isDone;
       setIsDone(newValue);
-      await workoutDetailService.updateLocalWorkoutDetail({
+      const updatedDetail = {
+        ...detail,
         isDone: newValue,
-        id,
-      });
-      if (reload) reload();
+      };
+      await workoutDetailService.updateLocalWorkoutDetail(updatedDetail);
+      updateDetailInGroups(updatedDetail as Saved<LocalWorkoutDetail>);
     } catch (e) {
       console.error("[SessionCheckbox] Error", e);
       showError("운동 상태를 동기화하는데 실패했습니다");

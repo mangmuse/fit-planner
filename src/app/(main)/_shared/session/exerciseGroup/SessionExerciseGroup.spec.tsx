@@ -15,16 +15,19 @@ import { useModal } from "@/providers/contexts/ModalContext";
 import { LocalExercise, Saved } from "@/types/models";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
 
 jest.mock("@/lib/di");
 jest.mock("@/providers/contexts/BottomSheetContext");
 jest.mock("@/providers/contexts/ModalContext");
+jest.mock("@/app/(main)/workout/_utils/getGroupedDetails");
 
 const mockedExerciseService = jest.mocked(exerciseService);
 const mockedWorkoutDetailService = jest.mocked(workoutDetailService);
 const mockedRoutineDetailService = jest.mocked(routineDetailService);
 const mockedUseModal = jest.mocked(useModal);
 const mockedUseBottomSheet = jest.mocked(useBottomSheet);
+const mockedGetGroupedDetails = jest.mocked(getGroupedDetails);
 
 const mockEx: Saved<LocalExercise> = {
   ...mockExercise.bookmarked,
@@ -45,6 +48,7 @@ const mockWDs = [
     rpe: null,
     isDone: true,
     setOrder: 1,
+    weightUnit: "lbs" as const,
   },
   {
     ...mockWorkoutDetail.past,
@@ -56,6 +60,7 @@ const mockWDs = [
     rpe: null,
     isDone: true,
     setOrder: 2,
+    weightUnit: "lbs" as const,
   },
   {
     ...mockWorkoutDetail.past,
@@ -67,6 +72,7 @@ const mockWDs = [
     rpe: null,
     isDone: true,
     setOrder: 3,
+    weightUnit: "lbs" as const,
   },
 ];
 
@@ -108,6 +114,10 @@ describe("SessionExerciseGroup", () => {
   const mockShowError = jest.fn();
   const mockReload = jest.fn();
   const mockReorderAfterDelete = jest.fn();
+
+  const mockAddDetailToGroup = jest.fn();
+  const mockUpdateDetailInGroups = jest.fn();
+  const mockRemoveDetailFromGroup = jest.fn();
   beforeEach(() => {
     jest.clearAllMocks();
 
@@ -131,6 +141,15 @@ describe("SessionExerciseGroup", () => {
     mockedWorkoutDetailService.getWorkoutGroupByWorkoutDetail.mockResolvedValue(
       mockWDs
     );
+    mockedWorkoutDetailService.getLocalWorkoutDetailsByWorkoutIdAndExerciseId.mockResolvedValue(
+      mockWDs
+    );
+    mockedGetGroupedDetails.mockReturnValue([
+      {
+        exerciseOrder: mockExerciseOrder,
+        details: mockWDs,
+      },
+    ]);
   });
   const renderSessionExerciseGroup = (
     props?: Partial<SessionExerciseGroupProps>
@@ -140,6 +159,11 @@ describe("SessionExerciseGroup", () => {
       exerciseOrder: mockExerciseOrder,
       reload: mockReload,
       reorderAfterDelete: mockReorderAfterDelete,
+      occurrence: 1,
+      updateDetailInGroups: jest.fn(),
+      updateMultipleDetailsInGroups: jest.fn(),
+      removeDetailFromGroup: mockRemoveDetailFromGroup,
+      addDetailToGroup: mockAddDetailToGroup,
     };
     render(<SessionExerciseGroup {...defaultProps} {...props} />);
   };
@@ -195,10 +219,10 @@ describe("SessionExerciseGroup", () => {
 
         expect(setOrder).toHaveTextContent(mockWDs[0].setOrder.toString());
         expect(prevRecord).toHaveTextContent(
-          `${mockWDs[0].weight} ${mockEx.unit} x ${mockWDs[0].reps} 회`
+          `${mockWDs[0].weight} ${mockWDs[0].weightUnit} x ${mockWDs[0].reps} 회`
         );
-        expect(weight).toHaveValue(mockWDs[0].weight.toString());
-        expect(reps).toHaveValue(mockWDs[0].reps.toString());
+        expect(weight).toHaveValue(mockWDs[0].weight);
+        expect(reps).toHaveValue(mockWDs[0].reps);
 
         const checkbox = within(firstItem).getByRole("checkbox");
         expect(checkbox).toBeChecked();
@@ -262,6 +286,10 @@ describe("SessionExerciseGroup", () => {
     });
 
     describe("workout", () => {
+      mockWorkoutDetailService.addSetToWorkout.mockResolvedValue({
+        ...mockWDs[mockWDs.length - 1],
+        id: 55,
+      });
       it("Add Set 버튼을 클릭하면 세트가 추가된다", async () => {
         renderSessionExerciseGroup();
 
@@ -275,7 +303,13 @@ describe("SessionExerciseGroup", () => {
         expect(mockWorkoutDetailService.addSetToWorkout).toHaveBeenCalledWith(
           mockWDs[mockWDs.length - 1]
         );
-        expect(mockReload).toHaveBeenCalledTimes(1);
+        expect(mockAddDetailToGroup).toHaveBeenCalledWith(
+          {
+            ...mockWDs[mockWDs.length - 1],
+            id: 55,
+          },
+          mockWDs[mockWDs.length - 1]
+        );
 
         expect(
           mockedRoutineDetailService.addSetToRoutine
@@ -295,7 +329,10 @@ describe("SessionExerciseGroup", () => {
         expect(
           mockWorkoutDetailService.deleteWorkoutDetail
         ).toHaveBeenCalledWith(mockWDs[mockWDs.length - 1].id);
-        expect(mockReorderAfterDelete).not.toHaveBeenCalled();
+
+        expect(mockRemoveDetailFromGroup).toHaveBeenCalledWith(
+          mockWDs[mockWDs.length - 1].id
+        );
 
         expect(
           mockedRoutineDetailService.deleteRoutineDetail
@@ -338,6 +375,13 @@ describe("SessionExerciseGroup", () => {
     });
 
     describe("routine", () => {
+      beforeEach(() => {
+        mockedRoutineDetailService.addSetToRoutine.mockResolvedValue({
+          ...mockRDs[mockRDs.length - 1],
+          id: 66,
+        });
+      });
+
       it("Add Set 버튼을 클릭하면 세트가 추가된다", async () => {
         renderSessionExerciseGroup({ details: mockRDs });
 
@@ -351,7 +395,13 @@ describe("SessionExerciseGroup", () => {
         expect(mockedRoutineDetailService.addSetToRoutine).toHaveBeenCalledWith(
           mockRDs[mockRDs.length - 1]
         );
-        expect(mockReload).toHaveBeenCalledTimes(1);
+        expect(mockAddDetailToGroup).toHaveBeenCalledWith(
+          {
+            ...mockRDs[mockRDs.length - 1],
+            id: 66,
+          },
+          mockRDs[mockRDs.length - 1]
+        );
 
         expect(mockWorkoutDetailService.addSetToWorkout).not.toHaveBeenCalled();
       });
@@ -369,8 +419,9 @@ describe("SessionExerciseGroup", () => {
         expect(
           mockedRoutineDetailService.deleteRoutineDetail
         ).toHaveBeenCalledWith(mockRDs[mockRDs.length - 1].id);
-        expect(mockReorderAfterDelete).not.toHaveBeenCalled();
-
+        expect(mockRemoveDetailFromGroup).toHaveBeenCalledWith(
+          mockRDs[mockRDs.length - 1].id
+        );
         expect(
           mockWorkoutDetailService.deleteWorkoutDetail
         ).not.toHaveBeenCalled();

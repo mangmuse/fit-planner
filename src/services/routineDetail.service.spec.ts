@@ -112,18 +112,25 @@ describe("RoutineDetailService", () => {
 
   describe("addSetToRoutine", () => {
     it("전달받은 detail을 기반으로 다음세트를 생성한다", async () => {
-      const mockRd = mockRoutineDetail.unsynced;
-      mockAdapter.getAddSetToRoutineByLastSet.mockReturnValue(mockRd);
+      const mockRd = { ...mockRoutineDetail.unsynced };
+      const newSetInput = {
+        ...mockRd,
+        setOrder: mockRd.setOrder + 1,
+      };
+      mockAdapter.getAddSetToRoutineByLastSet.mockReturnValue(newSetInput);
       mockRepository.add.mockResolvedValueOnce(5);
       const result = await service.addSetToRoutine(mockRd);
+
       expect(mockAdapter.getAddSetToRoutineByLastSet).toHaveBeenCalledWith(
-        mockRd
+        mockRd,
+        "kg"
       );
-      expect(mockRepository.add).toHaveBeenCalledWith(mockRd);
+      expect(mockRepository.add).toHaveBeenCalledWith(newSetInput);
       expect(
         mockRoutineService.updateLocalRoutineUpdatedAt
       ).toHaveBeenCalledWith(mockRd.routineId);
-      expect(result).toBe(5);
+
+      expect(result).toEqual({ ...newSetInput, id: 5 });
     });
 
     it("다음 세트 생성도중 에러가 발생한 경우 해당 에러를 전파한다", async () => {
@@ -172,7 +179,8 @@ describe("RoutineDetailService", () => {
 
       expect(mockAdapter.getNewRoutineDetails).toHaveBeenCalledWith(
         selectedExercises,
-        expect.objectContaining({ routineId, startOrder })
+        expect.objectContaining({ routineId, startOrder }),
+        "kg"
       );
       expect(mockRepository.bulkAdd).toHaveBeenCalledWith(newDetails);
       expect(

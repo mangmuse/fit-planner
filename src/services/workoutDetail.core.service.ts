@@ -58,12 +58,17 @@ export class WorkoutDetailCoreService implements IWorkoutDetailCoreService {
   public async addLocalWorkoutDetailsByWorkoutId(
     workoutId: number,
     startOrder: number,
-    selectedExercises: { id: number; name: string }[]
+    selectedExercises: { id: number; name: string }[],
+    weightUnit: "kg" | "lbs" = "kg"
   ): Promise<number> {
-    const newDetails = this.adapter.getNewWorkoutDetails(selectedExercises, {
-      workoutId,
-      startOrder,
-    });
+    const newDetails = this.adapter.getNewWorkoutDetails(
+      selectedExercises,
+      {
+        workoutId,
+        startOrder,
+      },
+      weightUnit
+    );
     const workoutDetails = await this.repository.bulkAdd(newDetails);
 
     return workoutDetails;
@@ -76,16 +81,23 @@ export class WorkoutDetailCoreService implements IWorkoutDetailCoreService {
     await this.repository.bulkAdd(mappedDetails);
   }
 
-  public async addSetToWorkout(lastSet: Saved<LocalWorkoutDetail>): Promise<number> {
-    const addSetInput = this.adapter.getAddSetToWorkoutByLastSet(lastSet);
+  public async addSetToWorkout(
+    lastSet: Saved<LocalWorkoutDetail>,
+    weightUnit: "kg" | "lbs" = "kg"
+  ): Promise<Saved<LocalWorkoutDetail>> {
+    const addSetInput = this.adapter.getAddSetToWorkoutByLastSet(
+      lastSet,
+      weightUnit
+    );
     const newSet = await this.repository.add(addSetInput);
-    return newSet;
+    return { ...addSetInput, id: newSet };
   }
 
   public async addLocalWorkoutDetailsByUserDate(
     userId: string,
     date: string,
-    selectedExercises: { id: number | undefined; name: string }[]
+    selectedExercises: { id: number | undefined; name: string }[],
+    weightUnit: "kg" | "lbs" = "kg"
   ): Promise<number> {
     if (selectedExercises.length === 0) {
       return 0;
@@ -95,10 +107,14 @@ export class WorkoutDetailCoreService implements IWorkoutDetailCoreService {
 
     const startOrder = await this.getStartExerciseOrder(workoutId);
 
-    const newDetails = this.adapter.getNewWorkoutDetails(selectedExercises, {
-      workoutId,
-      startOrder,
-    });
+    const newDetails = this.adapter.getNewWorkoutDetails(
+      selectedExercises,
+      {
+        workoutId,
+        startOrder,
+      },
+      weightUnit
+    );
 
     const workoutDetails = await this.repository.bulkAdd(newDetails);
     return workoutDetails;

@@ -4,7 +4,12 @@ import { mockExercise } from "@/__mocks__/exercise.mock";
 import { mockWorkoutDetail } from "@/__mocks__/workoutDetail.mock";
 import SessionTableHeader from "./SessionTableHeader";
 import { useModal } from "@/providers/contexts/ModalContext";
-import { LocalExercise, LocalWorkoutDetail } from "@/types/models";
+import {
+  LocalExercise,
+  LocalWorkoutDetail,
+  LocalRoutineDetail,
+  Saved,
+} from "@/types/models";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
@@ -12,9 +17,7 @@ const mockUseModal = jest.mocked(useModal);
 
 describe("SessionTableHeader", () => {
   const mockOpenModal = jest.fn();
-  const mockReload = jest.fn();
 
-  const mockExerciseData: LocalExercise = mockExercise.list[0];
   const mockPrevDetails: LocalWorkoutDetail[] = [
     { ...mockWorkoutDetail.past, id: 1 },
     { ...mockWorkoutDetail.past, id: 2 },
@@ -31,15 +34,13 @@ describe("SessionTableHeader", () => {
   });
 
   const renderSessionTableHeader = (props?: {
-    exercise?: LocalExercise;
     prevDetails?: LocalWorkoutDetail[];
+    detail?: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>;
     isRoutine?: boolean;
   }) => {
     const defaultProps = {
-      exercise: mockExerciseData,
       prevDetails: mockPrevDetails,
-      details: [],
-      reload: mockReload,
+      detail: { ...mockPrevDetails[0], id: 1 },
       isRoutine: false,
     };
     render(<SessionTableHeader {...defaultProps} {...props} />);
@@ -56,15 +57,23 @@ describe("SessionTableHeader", () => {
     });
 
     it("exercise.unit이 lbs일 때 lbs가 표시된다", () => {
-      const exerciseWithLbs = { ...mockExerciseData, unit: "lbs" as const };
-      renderSessionTableHeader({ exercise: exerciseWithLbs });
+      const detailWithLbs = {
+        ...mockPrevDetails[0],
+        id: 1,
+        weightUnit: "lbs" as const,
+      };
+      renderSessionTableHeader({ detail: detailWithLbs });
 
       expect(screen.getByText("lbs")).toBeInTheDocument();
     });
 
-    it("exercise.unit이 kg일 때 kg가 표시된다", () => {
-      const exerciseWithKg = { ...mockExerciseData, unit: "kg" as const };
-      renderSessionTableHeader({ exercise: exerciseWithKg });
+    it("detail.weightUnit이 kg일 때 kg가 표시된다", () => {
+      const detailWithKg = {
+        ...mockPrevDetails[0],
+        id: 1,
+        weightUnit: "kg" as const,
+      };
+      renderSessionTableHeader({ detail: detailWithKg });
 
       expect(screen.getByText("kg")).toBeInTheDocument();
     });

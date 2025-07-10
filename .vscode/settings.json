@@ -9,12 +9,14 @@
   "eslint.nodePath": ".yarn/sdks",
   "typescript.tsdk": ".yarn/sdks/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsserver.maxTsServerMemory": 2048,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+  "typescript.tsserver.watchOptions": {
+    "watchFile": "dynamicPriorityPolling"
+  },
 
   "jest.runMode": "on-demand",
-  "jest.autoRun": {
-    "watch": false,
-    "onSave": "off"
-  },
+  "jest.autoRun": "off",
   "jest.autoRevealOutput": "on-run",
   "jest.showCoverageOnLoad": false,
   "jest.autoEnable": true,
@@ -24,7 +26,18 @@
     "**/.git/objects/**": true,
     "**/.git/subtree-cache/**": true,
     "**/node_modules/*/**": true,
-    "**/.yarn/**": true
+    "**/.yarn/**": true,
+    "**/.next/**": true,
+    "**/coverage/**": true,
+    "**/dist/**": true,
+    "**/.turbo/**": true
+  },
+  "eslint.runtime": "node",
+  "eslint.options": {
+    "cache": true
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
   },
   "jest.virtualFolders": [
     {

@@ -14,7 +14,10 @@ import {
 import { useModal } from "@/providers/contexts/ModalContext";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import ExercisesContainer from "@/app/(main)/workout/[date]/exercises/_components/ExercisesContainer";
-import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
+import {
+  isWorkoutDetail,
+  isWorkoutDetails,
+} from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import {
   exerciseService,
   routineDetailService,
@@ -22,6 +25,7 @@ import {
 } from "@/lib/di";
 import ExerciseMemo from "@/app/(main)/_shared/session/exerciseMemo/ExerciseMemo";
 import GroupOptionItem from "@/app/(main)/_shared/session/exerciseGroup/GroupOptionItem";
+import { convertKgtoLbs, convertLbstoKg } from "@/util/weightConversion";
 
 type SessionDetailGroupOptions = {
   exercise: Saved<LocalExercise>;
@@ -30,6 +34,9 @@ type SessionDetailGroupOptions = {
   loadExercises: () => Promise<void>;
   reload: () => Promise<void>;
   reorderAfterDelete: (deletedExerciseOrder: number) => Promise<void>;
+  updateMultipleDetailsInGroups: (
+    updatedDetails: (Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>)[]
+  ) => void;
 };
 
 const units = ["kg", "lbs"] as const;
@@ -39,14 +46,21 @@ const SessionDetailGroupOptions = ({
   details,
   loadExercises,
   reload,
-  reorderAfterDelete,
+  updateMultipleDetailsInGroups,
 }: SessionDetailGroupOptions) => {
   const [unit, setUnit] = useState<(typeof units)[number]>(
-    exercise.unit || "kg"
+    details[0]?.weightUnit || "kg"
+  );
+  const [currentWeights, setCurrentWeights] = useState<number[]>(
+    details.map((d) => d.weight || 0)
   );
   const { closeBottomSheet, openBottomSheet } = useBottomSheet();
   const { openModal, showError } = useModal();
   const isMounted = useRef(false);
+
+  useEffect(() => {
+    setCurrentWeights(details.map((d) => d.weight || 0));
+  }, [details]);
 
   const handleOpenMemo = () => {
     closeBottomSheet();
@@ -60,24 +74,11 @@ const SessionDetailGroupOptions = ({
 
   const deleteAndLoadDetails = async () => {
     try {
-      console.log("[SessionDetailGroupOptions] 삭제할 details:", {
-        count: details.length,
-        exerciseOrder: details[0]?.exerciseOrder,
-        details: details.map((d) => ({
-          id: d.id,
-          exerciseId: d.exerciseId,
-          exerciseName: d.exerciseName,
-          exerciseOrder: d.exerciseOrder,
-          setOrder: d.setOrder,
-        })),
-      });
-
       if (isWorkoutDetails(details)) {
         await workoutDetailService.deleteWorkoutDetails(details);
       } else {
         await routineDetailService.deleteRoutineDetails(details);
       }
-      await reorderAfterDelete(details[0].exerciseOrder);
       await reload();
     } catch (e) {
       console.error(
@@ -114,23 +115,48 @@ const SessionDetailGroupOptions = ({
     });
   };
 
-  const updateUnit = async () => {
+  const handleUnitChange = async (newUnit: (typeof units)[number]) => {
+    if (newUnit === unit) return;
+
+    const prevUnit = unit;
+
+    setUnit(newUnit);
+
     try {
-      await exerciseService.updateLocalExercise({ ...exercise, unit });
-      await loadExercises();
+      const newWeights = currentWeights.map((weight) =>
+        prevUnit === "kg" ? convertKgtoLbs(weight) : convertLbstoKg(weight)
+      );
+
+      const updatePromise = details.map((detail, index) => {
+        const updatedDetail = {
+          ...detail,
+          weight: newWeights[index],
+          weightUnit: newUnit,
+        };
+
+        if (isWorkoutDetail(detail)) {
+          return workoutDetailService.updateLocalWorkoutDetail(updatedDetail);
+        } else {
+          return routineDetailService.updateLocalRoutineDetail(updatedDetail);
+        }
+      });
+
+      await Promise.all(updatePromise);
+
+      const updatedDetails = details.map((detail, index) => ({
+        ...detail,
+        weight: newWeights[index],
+        weightUnit: newUnit,
+      }));
+
+      setCurrentWeights(newWeights);
+      updateMultipleDetailsInGroups(updatedDetails);
     } catch (e) {
-      console.error("[SessionDetailGroupOptions] updateUnit Error", e);
+      console.error("[SessionDetailGroupOptions] handleUnitChange Error", e);
+      setUnit(prevUnit);
       showError("단위 변경에 실패했습니다");
     }
   };
-
-  useEffect(() => {
-    if (!loadExercises) return;
-    if (isMounted.current) {
-      updateUnit();
-    }
-    isMounted.current = true;
-  }, [unit]);
 
   return (
     <div className="flex flex-col ">
@@ -152,7 +178,7 @@ const SessionDetailGroupOptions = ({
                 "text-white": unit !== u,
               }
             )}
-            onClick={() => setUnit(u)}
+            onClick={() => handleUnitChange(u)}
           >
             {u}
           </button>

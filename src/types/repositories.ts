@@ -107,6 +107,10 @@ export interface IWorkoutDetailRepository {
   findAllDoneByExerciseId: (
     exerciseId: number
   ) => Promise<Saved<LocalWorkoutDetail>[]>;
+  findAllByWorkoutIdAndExerciseId: (
+    workoutId: number,
+    exerciseId: number
+  ) => Promise<Saved<LocalWorkoutDetail>[]>;
   add: (toInsert: Omit<LocalWorkoutDetail, "id">) => Promise<number>;
   bulkAdd: (toInsert: Omit<LocalWorkoutDetail, "id">[]) => Promise<number>;
   update: (

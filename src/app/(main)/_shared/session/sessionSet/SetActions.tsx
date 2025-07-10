@@ -7,25 +7,30 @@ import { useModal } from "@/providers/contexts/ModalContext";
 import { LocalRoutineDetail, LocalWorkoutDetail, Saved } from "@/types/models";
 
 export type SetActionsProps = {
-  reorderAfterDelete: (deletedExerciseOrder: number) => Promise<void>;
   lastValue: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>;
-  reload: () => Promise<void>;
+  addDetailToGroup: (
+    newDetail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>,
+    lastDetail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>
+  ) => void;
+  removeDetailFromGroup: (detailId: number) => void;
 };
 
 const SetActions = ({
   lastValue,
-  reload,
-  reorderAfterDelete,
+  addDetailToGroup,
+  removeDetailFromGroup,
 }: SetActionsProps) => {
   const { showError } = useModal();
   const handleAddSet = async () => {
     try {
+      let newDetail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>;
       if (isWorkoutDetail(lastValue)) {
-        await workoutDetailService.addSetToWorkout(lastValue);
+        newDetail = await workoutDetailService.addSetToWorkout(lastValue);
       } else {
-        await routineDetailService.addSetToRoutine(lastValue);
+        newDetail = await routineDetailService.addSetToRoutine(lastValue);
       }
-      reload();
+
+      addDetailToGroup(newDetail, lastValue);
     } catch (e) {
       console.error("[SetActions] Error", e);
       showError("세트 추가에 실패했습니다");
@@ -34,12 +39,14 @@ const SetActions = ({
 
   const handleDeleteSet = async () => {
     try {
+      const detailId = lastValue.id ?? 0;
       if (isWorkoutDetail(lastValue)) {
-        await workoutDetailService.deleteWorkoutDetail(lastValue.id ?? 0);
+        await workoutDetailService.deleteWorkoutDetail(detailId);
       } else {
-        await routineDetailService.deleteRoutineDetail(lastValue.id ?? 0);
+        await routineDetailService.deleteRoutineDetail(detailId);
       }
-      reload();
+
+      removeDetailFromGroup(detailId);
     } catch (e) {
       console.error("[SetActions] Error", e);
       showError("세트 삭제에 실패했습니다");

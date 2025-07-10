@@ -12,7 +12,7 @@ import useLoadDetails from "@/hooks/useLoadDetails";
 import { useModal } from "@/providers/contexts/ModalContext";
 import ErrorState from "@/components/ErrorState";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useMemo, useCallback } from "react";
 import {
   routineDetailService,
   routineService,
@@ -31,6 +31,11 @@ import {
 import SessionExerciseGroup from "@/app/(main)/_shared/session/exerciseGroup/SessionExerciseGroup";
 import SessionSequence from "@/app/(main)/_shared/session/sessionSequence/SessionSequence";
 import LoadPastSessionSheet from "@/app/(main)/_shared/session/pastSession/LoadPastSessionSheet";
+import {
+  calculateTotalVolume,
+  calculateVolumeFromDetails,
+} from "@/util/volumeCalculator";
+import { useWeightUnitPreference } from "@/hooks/useWeightUnitPreference";
 
 type SessionContainerProps = {
   type: "ROUTINE" | "RECORD";
@@ -53,8 +58,11 @@ const SessionContainer = ({
     reload,
     workout,
     allDetails,
-    setAllDetails,
     setWorkout,
+    updateDetailInGroups,
+    updateMultipleDetailsInGroups,
+    addDetailToGroup,
+    removeDetailFromGroup,
   } = useLoadDetails({
     type,
     userId: userId ?? "",
@@ -63,9 +71,29 @@ const SessionContainer = ({
   });
   const { openBottomSheet, isOpen: isBottomSheetOpen } = useBottomSheet();
   const { openModal, isOpen: isModalOpen, showError } = useModal();
+  const [weightUnit] = useWeightUnitPreference();
   const router = useRouter();
   const pathname = usePathname();
-  const handleOpenLocalWorkoutSheet = () => {
+
+  const occurrenceData = useMemo(() => {
+    const countMap = new Map<number, number>();
+    const exerciseOrderToOccurrenceMap = new Map();
+    workoutGroups.forEach((group) => {
+      const exerciseId = group.details[0].exerciseId;
+      const count = countMap.get(exerciseId) || 0;
+      countMap.set(exerciseId, count + 1);
+      exerciseOrderToOccurrenceMap.set(group.exerciseOrder, count + 1);
+    });
+
+    return exerciseOrderToOccurrenceMap;
+  }, [workoutGroups]);
+
+  const totalCurrentVolume = useMemo(
+    () => calculateTotalVolume(workoutGroups, weightUnit),
+    [workoutGroups, weightUnit]
+  );
+
+  const handleOpenLocalWorkoutSheet = useCallback(() => {
     openBottomSheet({
       height: "100dvh",
       rounded: false,
@@ -79,72 +107,49 @@ const SessionContainer = ({
         />
       ),
     });
-  };
+  }, [openBottomSheet, type, routineId, workoutGroups.length, date, reload]);
 
-  const reorderAfterDelete = async (
-    deletedExerciseOrder: number
-  ): Promise<void> => {
-    try {
-      console.log("[SessionContainer] reorderAfterDelete 시작:", {
-        deletedExerciseOrder,
-        currentAllDetailsCount: allDetails.length,
-        type,
-      });
+  const reorderAfterDelete = useCallback(
+    async (deletedExerciseOrder: number): Promise<void> => {
+      try {
+        let latestDetails: (LocalWorkoutDetail | LocalRoutineDetail)[] = [];
 
-      let latestDetails: (LocalWorkoutDetail | LocalRoutineDetail)[] = [];
+        if (type === "RECORD" && userId && date) {
+          latestDetails = await workoutDetailService.getLocalWorkoutDetails(
+            userId,
+            date
+          );
+        } else if (type === "ROUTINE" && routineId) {
+          latestDetails =
+            await routineDetailService.getLocalRoutineDetails(routineId);
+        }
 
-      if (type === "RECORD" && userId && date) {
-        latestDetails = await workoutDetailService.getLocalWorkoutDetails(
-          userId,
-          date
+        const affectedDetails = latestDetails.filter(
+          (d) => d.exerciseOrder > deletedExerciseOrder
         );
-      } else if (type === "ROUTINE" && routineId) {
-        latestDetails =
-          await routineDetailService.getLocalRoutineDetails(routineId);
+
+        await Promise.all(
+          affectedDetails.map((detail) => {
+            const updated = {
+              ...detail,
+              exerciseOrder: detail.exerciseOrder - 1,
+            };
+            if (isWorkoutDetail(detail)) {
+              return workoutDetailService.updateLocalWorkoutDetail(updated);
+            } else {
+              return routineDetailService.updateLocalRoutineDetail(updated);
+            }
+          })
+        );
+      } catch (e) {
+        console.error("[SessionContainer] reorderAfterDelete Error", e);
+        showError("운동 상태를 동기화하는 데 실패했습니다");
       }
+    },
+    [type, userId, date, routineId, showError]
+  );
 
-      console.log("[SessionContainer] 최신 details 조회 결과:", {
-        latestDetailsCount: latestDetails.length,
-        exerciseOrders: latestDetails
-          .map((d) => d.exerciseOrder)
-          .filter((v, i, a) => a.indexOf(v) === i)
-          .sort(),
-      });
-
-      const affectedDetails = latestDetails.filter(
-        (d) => d.exerciseOrder > deletedExerciseOrder
-      );
-
-      console.log("[SessionContainer] 영향받는 details:", {
-        affectedCount: affectedDetails.length,
-        affectedExerciseOrders: affectedDetails
-          .map((d) => d.exerciseOrder)
-          .filter((v, i, a) => a.indexOf(v) === i)
-          .sort(),
-      });
-
-      await Promise.all(
-        affectedDetails.map((detail) => {
-          const updated = {
-            ...detail,
-            exerciseOrder: detail.exerciseOrder - 1,
-          };
-          if (isWorkoutDetail(detail)) {
-            return workoutDetailService.updateLocalWorkoutDetail(updated);
-          } else {
-            return routineDetailService.updateLocalRoutineDetail(updated);
-          }
-        })
-      );
-
-      console.log("[SessionContainer] reorderAfterDelete 완료");
-    } catch (e) {
-      console.error("[SessionContainer] reorderAfterDelete Error", e);
-      showError("운동 상태를 동기화하는 데 실패했습니다");
-    }
-  };
-
-  const handleDeleteAll = async () => {
+  const handleDeleteAll = useCallback(async () => {
     try {
       async function deleteAll() {
         let targetPath = "/";
@@ -180,9 +185,18 @@ const SessionContainer = ({
       console.error("[SessionContainer] Error", e);
       showError("운동 전체 삭제에 실패했습니다");
     }
-  };
+  }, [
+    type,
+    allDetails,
+    workout?.id,
+    routineId,
+    router,
+    setWorkout,
+    openModal,
+    showError,
+  ]);
 
-  const handleCompleteWorkout = async () => {
+  const handleCompleteWorkout = useCallback(async () => {
     try {
       if (type !== "RECORD") return;
       if (!workout?.id) {
@@ -200,15 +214,29 @@ const SessionContainer = ({
       console.error("[SessionContainer] Error", e);
       showError("운동 완료 처리에 실패했습니다");
     }
-  };
+  }, [type, workout?.id, router, showError]);
 
-  const handleClickCompleteBtn = () =>
-    openModal({
-      type: "confirm",
-      title: "운동 완료",
-      message: "운동을 완료하시겠습니까?",
-      onConfirm: async () => handleCompleteWorkout(),
-    });
+  const handleClickCompleteBtn = useCallback(
+    () =>
+      openModal({
+        type: "confirm",
+        title: "운동 완료",
+        message: "운동을 완료하시겠습니까?",
+        onConfirm: async () => handleCompleteWorkout(),
+      }),
+    [openModal, handleCompleteWorkout]
+  );
+
+  const handleOpenSequenceSheet = useCallback(
+    () =>
+      openBottomSheet({
+        height: "100dvh",
+        children: (
+          <SessionSequence detailGroups={workoutGroups} reload={reload} />
+        ),
+      }),
+    [openBottomSheet, workoutGroups, reload]
+  );
 
   const exercisePath =
     type === "RECORD"
@@ -256,17 +284,7 @@ const SessionContainer = ({
                   <Trash2 className="w-6 h-6 text-text-muted" />
                 </button>
                 <button
-                  onClick={() =>
-                    openBottomSheet({
-                      height: "100dvh",
-                      children: (
-                        <SessionSequence
-                          detailGroups={workoutGroups}
-                          reload={reload}
-                        />
-                      ),
-                    })
-                  }
+                  onClick={handleOpenSequenceSheet}
                   className="p-2 hover:bg-bg-surface rounded-lg transition-colors"
                   aria-label="순서 변경"
                 >
@@ -275,14 +293,31 @@ const SessionContainer = ({
               </div>
             </div>
           )}
+
+          {workoutGroups.length > 0 && (
+            <div className="bg-bg-surface rounded-lg p-3 mb-4">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-text-muted">총 볼륨</span>
+                <span className="text-lg font-semibold">
+                  {totalCurrentVolume.toLocaleString()}{weightUnit}
+                </span>
+              </div>
+            </div>
+          )}
+
           <ul className="flex flex-col gap-2.5 scrollbar-none">
             {workoutGroups.map(({ exerciseOrder, details }) => (
               <SessionExerciseGroup
                 key={`${exerciseOrder}-${details[0]?.exerciseId}`}
                 details={details}
                 reorderAfterDelete={reorderAfterDelete}
+                occurrence={occurrenceData.get(exerciseOrder)}
                 exerciseOrder={exerciseOrder}
                 reload={reload}
+                updateDetailInGroups={updateDetailInGroups}
+                updateMultipleDetailsInGroups={updateMultipleDetailsInGroups}
+                removeDetailFromGroup={removeDetailFromGroup}
+                addDetailToGroup={addDetailToGroup}
               />
             ))}
           </ul>

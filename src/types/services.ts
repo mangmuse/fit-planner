@@ -28,16 +28,21 @@ export interface IWorkoutDetailCoreService {
   addLocalWorkoutDetailsByWorkoutId: (
     workoutId: number,
     startOrder: number,
-    selectedExercises: { id: number; name: string }[]
+    selectedExercises: { id: number; name: string }[],
+    weightUnit?: "kg" | "lbs"
   ) => Promise<number>;
   addPastWorkoutDetailsToWorkout: (
     mappedDetails: LocalWorkoutDetail[]
   ) => Promise<void>;
-  addSetToWorkout: (lastSet: LocalWorkoutDetail) => Promise<number>;
+  addSetToWorkout: (
+    lastSet: Saved<LocalWorkoutDetail>,
+    weightUnit?: "kg" | "lbs"
+  ) => Promise<Saved<LocalWorkoutDetail>>;
   addLocalWorkoutDetailsByUserDate: (
     userId: string,
     date: string,
-    selectedExercises: { id: number | undefined; name: string }[]
+    selectedExercises: { id: number | undefined; name: string }[],
+    weightUnit?: "kg" | "lbs"
   ) => Promise<number>;
   updateLocalWorkoutDetail: (
     updateWorkoutInput: Partial<LocalWorkoutDetail>
@@ -69,6 +74,11 @@ export interface IWorkoutDetailQueryService {
   getLatestWorkoutDetailByDetail: (
     detail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>
   ) => Promise<Saved<LocalWorkoutDetail> | void>;
+
+  getLocalWorkoutDetailsByWorkoutIdAndExerciseId: (
+    workoutId: number,
+    exerciseId: number
+  ) => Promise<Saved<LocalWorkoutDetail>[]>;
 }
 
 export interface IWorkoutDetailService
@@ -163,11 +173,15 @@ export interface IRoutineDetailService {
   ) => Promise<Saved<LocalRoutineDetail>[]>;
 
   addLocalRoutineDetail: (detailInput: LocalRoutineDetail) => Promise<void>;
-  addSetToRoutine: (lastSet: Saved<LocalRoutineDetail>) => Promise<number>;
+  addSetToRoutine: (
+    lastSet: Saved<LocalRoutineDetail>,
+    weightUnit?: "kg" | "lbs"
+  ) => Promise<Saved<LocalRoutineDetail>>;
   addLocalRoutineDetailsByWorkoutId: (
     routineId: number,
     startOrder: number,
-    selectedExercises: { id: number; name: string }[]
+    selectedExercises: { id: number; name: string }[],
+    weightUnit?: "kg" | "lbs"
   ) => Promise<void>;
   addPastWorkoutDetailsToRoutine: (
     mappedDetails: LocalRoutineDetail[]

@@ -116,6 +116,7 @@ model WorkoutDetail {
   reps          Int?
   setOrder      Int
   isDone        Boolean   @default(false)
+  weightUnit    Unit      @default(kg)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime? @updatedAt
   setType       SetType   @default(NORMAL)
@@ -145,6 +146,7 @@ model RoutineDetail {
   exerciseOrder Int
   reps          Int?
   setOrder      Int
+  weightUnit    Unit      @default(kg)
   createdAt     DateTime  @default(now())
   setType       SetType   @default(NORMAL)
   updatedAt     DateTime? @updatedAt

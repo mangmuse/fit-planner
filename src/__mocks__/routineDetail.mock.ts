@@ -9,6 +9,7 @@ export const createBaseRoutineDetailMock = (
   overrides?: Partial<LocalRoutineDetail>
 ): LocalRoutineDetail => ({
   ...INITIAL_ROUTINE_DETAIL_BASE,
+  weightUnit: "kg",
   createdAt: new Date().toISOString(),
   ...overrides,
 });
@@ -23,6 +24,7 @@ export const createServerRoutineDetailMock = (
   setOrder: 1,
   exerciseOrder: 1,
   weight: 50,
+  weightUnit: "kg",
   reps: 10,
   rpe: 0,
   setType: "NORMAL",

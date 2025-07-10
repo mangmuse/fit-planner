@@ -18,6 +18,7 @@ import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import { routineDetailService, workoutDetailService } from "@/lib/di";
 import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import useExerciseFilters from "@/hooks/exercises/useExerciseFilters";
+import { useWeightUnitPreference } from "@/hooks/useWeightUnitPreference";
 
 type ExercisesContainerProps = {
   type: "ROUTINE" | "RECORD";
@@ -35,6 +36,7 @@ export default function ExercisesContainer({
 }: ExercisesContainerProps) {
   const { data: session } = useSession();
   const userId = session?.user?.id;
+  const [weightUnit] = useWeightUnitPreference();
 
   const { openModal, showError } = useModal();
   const router = useRouter();
@@ -70,7 +72,8 @@ export default function ExercisesContainer({
         await workoutDetailService.addLocalWorkoutDetailsByUserDate(
           userId,
           date,
-          selectedExercises
+          selectedExercises,
+          weightUnit
         );
         router.replace(`/workout/${date}`);
       } else {
@@ -85,7 +88,8 @@ export default function ExercisesContainer({
         await routineDetailService.addLocalRoutineDetailsByWorkoutId(
           Number(routineId),
           startOrder,
-          selectedExercises
+          selectedExercises,
+          weightUnit
         );
         router.replace(`/routines/${routineId}`);
       }
@@ -103,7 +107,8 @@ export default function ExercisesContainer({
         await workoutDetailService.addLocalWorkoutDetailsByWorkoutId(
           workoutId,
           startOrder,
-          selectedExercises
+          selectedExercises,
+          weightUnit
         );
 
         await workoutDetailService.deleteWorkoutDetails(currentDetails);
@@ -112,7 +117,8 @@ export default function ExercisesContainer({
         await routineDetailService.addLocalRoutineDetailsByWorkoutId(
           routineId,
           startOrder,
-          selectedExercises
+          selectedExercises,
+          weightUnit
         );
 
         await routineDetailService.deleteRoutineDetails(currentDetails);

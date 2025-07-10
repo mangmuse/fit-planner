@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`volumeCalculator calculateTotalVolume 올바르게 볼륨을 계산한다 kg 단위로 올바르게 볼륨을 계산한다 1`] = `14000`;
+
+exports[`volumeCalculator calculateTotalVolume 올바르게 볼륨을 계산한다 lbs 단위로 올바르게 볼륨을 계산한다 1`] = `30870`;
+
+exports[`volumeCalculator calculateTotalVolume 올바르게 볼륨을 계산한다 서로 다른 weightUnit이 혼합된 경우 올바르게 볼륨을 계산한다 1`] = `55000`;
+
+exports[`volumeCalculator calculateVolumeFromDetails routineDetail 올바르게 볼륨을 계산한다 1`] = `14000`;
+
+exports[`volumeCalculator calculateVolumeFromDetails routineDetail 올바르게 볼륨을 계산한다 2`] = `0`;
+
+exports[`volumeCalculator calculateVolumeFromDetails workoutDetail 서로 다른 weightUnit이 혼합된 경우 올바르게 볼륨을 계산한다 kg 단위로 올바르게 볼륨을 계산한다 1`] = `2814.0589569160998`;
+
+exports[`volumeCalculator calculateVolumeFromDetails workoutDetail 서로 다른 weightUnit이 혼합된 경우 올바르게 볼륨을 계산한다 lbs 단위로 올바르게 볼륨을 계산한다 1`] = `11025`;
+
+exports[`volumeCalculator calculateVolumeFromDetails workoutDetail 올바르게 볼륨을 계산한다 1`] = `14000`;
+
+exports[`volumeCalculator calculateVolumeFromDetails workoutDetail 올바르게 볼륨을 계산한다 2`] = `0`;
+
+exports[`volumeCalculator calculateVolumeFromDetails 서로 다른 weightUnit이 혼합된 경우 올바르게 볼륨을 계산한다 kg 단위로 올바르게 볼륨을 계산한다 1`] = `2814.0589569160998`;
+
+exports[`volumeCalculator calculateVolumeFromDetails 서로 다른 weightUnit이 혼합된 경우 올바르게 볼륨을 계산한다 lbs 단위로 올바르게 볼륨을 계산한다 1`] = `11025`;
