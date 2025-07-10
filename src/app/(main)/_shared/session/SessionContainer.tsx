@@ -35,6 +35,7 @@ import {
   calculateTotalVolume,
   calculateVolumeFromDetails,
 } from "@/util/volumeCalculator";
+import { useWeightUnitPreference } from "@/hooks/useWeightUnitPreference";
 
 type SessionContainerProps = {
   type: "ROUTINE" | "RECORD";
@@ -70,6 +71,7 @@ const SessionContainer = ({
   });
   const { openBottomSheet, isOpen: isBottomSheetOpen } = useBottomSheet();
   const { openModal, isOpen: isModalOpen, showError } = useModal();
+  const [weightUnit] = useWeightUnitPreference();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -87,8 +89,8 @@ const SessionContainer = ({
   }, [workoutGroups]);
 
   const totalCurrentVolume = useMemo(
-    () => calculateTotalVolume(workoutGroups),
-    [workoutGroups]
+    () => calculateTotalVolume(workoutGroups, weightUnit),
+    [workoutGroups, weightUnit]
   );
 
   const handleOpenLocalWorkoutSheet = useCallback(() => {
@@ -297,7 +299,7 @@ const SessionContainer = ({
               <div className="flex items-center gap-2">
                 <span className="text-sm text-text-muted">총 볼륨</span>
                 <span className="text-lg font-semibold">
-                  {totalCurrentVolume.toLocaleString()}kg
+                  {totalCurrentVolume.toLocaleString()}{weightUnit}
                 </span>
               </div>
             </div>

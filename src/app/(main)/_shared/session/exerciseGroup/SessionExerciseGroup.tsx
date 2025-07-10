@@ -47,10 +47,11 @@ const SessionExerciseGroup = ({
   const lastDetail = details[details.length - 1];
 
   const exerciseId = useMemo(() => details[0]?.exerciseId, [details]);
+  const groupUnit = useMemo(() => details[0]?.weightUnit || "kg", [details]);
 
   const currentVolume = useMemo(
-    () => calculateVolumeFromDetails(details),
-    [details]
+    () => calculateVolumeFromDetails(details, groupUnit),
+    [details, groupUnit]
   );
 
   const {
@@ -85,8 +86,8 @@ const SessionExerciseGroup = ({
   }, [exerciseId, occurrence]);
 
   const prevVolume = useMemo(() => {
-    return calculateVolumeFromDetails(prevWorkoutDetails || []);
-  }, [prevWorkoutDetails]);
+    return calculateVolumeFromDetails(prevWorkoutDetails || [], groupUnit);
+  }, [prevWorkoutDetails, groupUnit]);
 
   const volumeDiff = currentVolume - prevVolume;
 
@@ -111,7 +112,7 @@ const SessionExerciseGroup = ({
           </h6>
           <div className="flex items-center gap-1.5 text-xs text-text-muted mt-1">
             <span className="font-normal">
-              {currentVolume.toLocaleString()}kg
+              {currentVolume.toLocaleString()}{groupUnit}
             </span>
             {volumeDiff !== 0 && (
               <span
@@ -120,7 +121,7 @@ const SessionExerciseGroup = ({
                 }`}
               >
                 {volumeDiff > 0 ? "+" : ""}
-                {volumeDiff.toLocaleString()}kg
+                {volumeDiff.toLocaleString()}{groupUnit}
               </span>
             )}
           </div>
