@@ -113,7 +113,8 @@ const SessionItem = ({
           onBlur={() =>
             weight !== editedWeight && handleUpdate({ weight: editedWeight })
           }
-          value={editedWeight ?? 0}
+          value={editedWeight ?? ""}
+          placeholder="0"
           className="w-9 h-5 rounded bg-transparent outline outline-1 outline-text-muted text-center focus:outline-primary [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />
       </td>
@@ -127,7 +128,8 @@ const SessionItem = ({
           onBlur={() =>
             reps !== editedReps && handleUpdate({ reps: editedReps })
           }
-          value={editedReps ?? 0}
+          value={editedReps ?? ""}
+          placeholder="0"
           className="w-9 h-5 rounded bg-transparent outline outline-1 outline-text-muted text-center focus:outline-primary [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />
       </td>
