@@ -21,7 +21,9 @@ export class WorkoutService implements IWorkoutService {
     return this.repository.findOneByServerId(serverId);
   }
 
-  public async getWorkoutWithLocalId(id: number): Promise<Saved<LocalWorkout> | undefined> {
+  public async getWorkoutWithLocalId(
+    id: number
+  ): Promise<Saved<LocalWorkout> | undefined> {
     return this.repository.findOneById(id);
   }
 
@@ -101,7 +103,7 @@ export class WorkoutService implements IWorkoutService {
       serverId: workout.id,
       date: getFormattedDateYMD(workout.date),
       isSynced: true,
-      status: "EMPTY" as const,
+      status: workout.status,
       createdAt: workout.createdAt,
       updatedAt: null,
     }));

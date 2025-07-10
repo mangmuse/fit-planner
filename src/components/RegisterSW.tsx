@@ -3,6 +3,11 @@ import { useEffect } from "react";
 
 const RegisterSW = () => {
   useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      console.info("Service Worker registration skipped in development");
+      return;
+    }
+
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
         .register("/sw.js")
