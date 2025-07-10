@@ -49,9 +49,13 @@ export class RoutineDetailService implements IRoutineDetailService {
   }
 
   public async addSetToRoutine(
-    lastSet: Saved<LocalRoutineDetail>
+    lastSet: Saved<LocalRoutineDetail>,
+    weightUnit: "kg" | "lbs" = "kg"
   ): Promise<Saved<LocalRoutineDetail>> {
-    const addSetInput = this.adapter.getAddSetToRoutineByLastSet(lastSet);
+    const addSetInput = this.adapter.getAddSetToRoutineByLastSet(
+      lastSet,
+      weightUnit
+    );
     const newSet = await this.repository.add(addSetInput);
 
     await this.routineService.updateLocalRoutineUpdatedAt(
@@ -63,12 +67,17 @@ export class RoutineDetailService implements IRoutineDetailService {
   public async addLocalRoutineDetailsByWorkoutId(
     routineId: number,
     startOrder: number,
-    selectedExercises: { id: number; name: string }[]
+    selectedExercises: { id: number; name: string }[],
+    weightUnit: "kg" | "lbs" = "kg"
   ): Promise<void> {
-    const newDetails = this.adapter.getNewRoutineDetails(selectedExercises, {
-      routineId,
-      startOrder,
-    });
+    const newDetails = this.adapter.getNewRoutineDetails(
+      selectedExercises,
+      {
+        routineId,
+        startOrder,
+      },
+      weightUnit
+    );
     await this.repository.bulkAdd(newDetails);
     await this.routineService.updateLocalRoutineUpdatedAt(routineId);
   }

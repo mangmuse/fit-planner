@@ -10,7 +10,7 @@ import {
 
 export const INITIAL_WORKOUT_DETAIL_BASE: Omit<
   LocalWorkoutDetail,
-  "createdAt"
+  "createdAt" | "weightUnit"
 > = {
   serverId: null,
   weight: 0,
@@ -26,15 +26,17 @@ export const INITIAL_WORKOUT_DETAIL_BASE: Omit<
   workoutId: 0,
 };
 export class WorkoutdetailAdapter implements IWorkoutDetailAdapter {
-  getInitialWorkoutDetail(): LocalWorkoutDetail {
+  getInitialWorkoutDetail(weightUnit: "kg" | "lbs" = "kg"): LocalWorkoutDetail {
     return {
       ...INITIAL_WORKOUT_DETAIL_BASE,
+      weightUnit,
       createdAt: new Date().toISOString(),
     };
   }
 
   createWorkoutDetail(
-    override: Partial<LocalWorkoutDetail>
+    override: Partial<LocalWorkoutDetail>,
+    weightUnit: "kg" | "lbs" = "kg"
   ): LocalWorkoutDetail {
     const { exerciseName, exerciseId, exerciseOrder, setOrder, workoutId } =
       override;
@@ -49,7 +51,8 @@ export class WorkoutdetailAdapter implements IWorkoutDetailAdapter {
         "exerciseName, exerciseId, exerciseOrder, setOrder, workoutId 는 필수 입력사항입니다."
       );
 
-    const defaultValue: LocalWorkoutDetail = this.getInitialWorkoutDetail();
+    const defaultValue: LocalWorkoutDetail =
+      this.getInitialWorkoutDetail(weightUnit);
 
     return {
       ...defaultValue,
@@ -60,10 +63,11 @@ export class WorkoutdetailAdapter implements IWorkoutDetailAdapter {
   mapPastWorkoutToWorkoutDetail(
     pastWorkoutDetail: LocalWorkoutDetail,
     targetWorkoutId: number,
-    newExerciseOrder: number
+    newExerciseOrder: number,
+    weightUnit: "kg" | "lbs" = "kg"
   ): LocalWorkoutDetail {
     // 같은 객체의 다른 메소드를 호출하도록 변경
-    const initialDetail = this.getInitialWorkoutDetail();
+    const initialDetail = this.getInitialWorkoutDetail(weightUnit);
 
     return {
       ...initialDetail,
@@ -79,7 +83,10 @@ export class WorkoutdetailAdapter implements IWorkoutDetailAdapter {
     };
   }
 
-  getAddSetToWorkoutByLastSet(lastSet: LocalWorkoutDetail): LocalWorkoutDetail {
+  getAddSetToWorkoutByLastSet(
+    lastSet: LocalWorkoutDetail,
+    weightUnit: "kg" | "lbs" = "kg"
+  ): LocalWorkoutDetail {
     const { id, rpe, setOrder, isSynced, isDone, updatedAt, ...rest } = lastSet;
     const addSetInput = {
       ...rest,
@@ -92,12 +99,13 @@ export class WorkoutdetailAdapter implements IWorkoutDetailAdapter {
     };
 
     // 같은 객체의 다른 메소드를 호출하도록 변경
-    return this.createWorkoutDetail(addSetInput);
+    return this.createWorkoutDetail(addSetInput, weightUnit);
   }
 
   getNewWorkoutDetails(
     selectedExercises: { id: number | undefined; name: string }[],
-    { workoutId, startOrder }: WD_NewInput
+    { workoutId, startOrder }: WD_NewInput,
+    weightUnit: "kg" | "lbs" = "kg"
   ): LocalWorkoutDetail[] {
     const newDetails: LocalWorkoutDetail[] = selectedExercises.map(
       ({ id, name }, idx) => {
@@ -113,7 +121,7 @@ export class WorkoutdetailAdapter implements IWorkoutDetailAdapter {
           exerciseName: name,
         };
         // 같은 객체의 다른 메소드를 호출하도록 변경
-        return this.createWorkoutDetail(newValue);
+        return this.createWorkoutDetail(newValue, weightUnit);
       }
     );
 
@@ -156,7 +164,8 @@ export class WorkoutdetailAdapter implements IWorkoutDetailAdapter {
 
   convertRoutineDetailToWorkoutDetailInput(
     routineDetail: LocalRoutineDetail,
-    workoutId: LocalWorkoutDetail["workoutId"]
+    workoutId: LocalWorkoutDetail["workoutId"],
+    weightUnit: "kg" | "lbs" = "kg"
   ): LocalWorkoutDetail {
     const { createdAt, updatedAt, isSynced, serverId, routineId, id, ...rest } =
       routineDetail;
@@ -166,6 +175,6 @@ export class WorkoutdetailAdapter implements IWorkoutDetailAdapter {
       workoutId,
     };
     // 같은 객체의 다른 메소드를 호출하도록 변경
-    return this.createWorkoutDetail(workoutDetail);
+    return this.createWorkoutDetail(workoutDetail, weightUnit);
   }
 }

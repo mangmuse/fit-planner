@@ -122,7 +122,8 @@ describe("RoutineDetailService", () => {
       const result = await service.addSetToRoutine(mockRd);
 
       expect(mockAdapter.getAddSetToRoutineByLastSet).toHaveBeenCalledWith(
-        mockRd
+        mockRd,
+        "kg"
       );
       expect(mockRepository.add).toHaveBeenCalledWith(newSetInput);
       expect(
@@ -178,7 +179,8 @@ describe("RoutineDetailService", () => {
 
       expect(mockAdapter.getNewRoutineDetails).toHaveBeenCalledWith(
         selectedExercises,
-        expect.objectContaining({ routineId, startOrder })
+        expect.objectContaining({ routineId, startOrder }),
+        "kg"
       );
       expect(mockRepository.bulkAdd).toHaveBeenCalledWith(newDetails);
       expect(

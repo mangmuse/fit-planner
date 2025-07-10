@@ -8,7 +8,7 @@ import {
 } from "@/types/models";
 export const INITIAL_ROUTINE_DETAIL_BASE: Omit<
   LocalRoutineDetail,
-  "createdAt"
+  "createdAt" | "weightUnit"
 > = {
   serverId: null,
   weight: 0,
@@ -25,15 +25,17 @@ export const INITIAL_ROUTINE_DETAIL_BASE: Omit<
 export class RoutineDetailAdapter implements IRoutineDetailAdapter {
   constructor() {}
 
-  getInitialRoutineDetail(): LocalRoutineDetail {
+  getInitialRoutineDetail(weightUnit: "kg" | "lbs" = "kg"): LocalRoutineDetail {
     return {
       ...INITIAL_ROUTINE_DETAIL_BASE,
+      weightUnit,
       createdAt: new Date().toISOString(),
     };
   }
 
   createRoutineDetail(
-    override: Partial<LocalRoutineDetail>
+    override: Partial<LocalRoutineDetail>,
+    weightUnit: "kg" | "lbs" = "kg"
   ): LocalRoutineDetail {
     const { exerciseName, exerciseId, exerciseOrder, setOrder, routineId } =
       override;
@@ -48,7 +50,7 @@ export class RoutineDetailAdapter implements IRoutineDetailAdapter {
         "exerciseName, exerciseId, exerciseOrder, setOrder, routineId 는 필수 입력사항입니다."
       );
 
-    const defaultValue = this.getInitialRoutineDetail();
+    const defaultValue = this.getInitialRoutineDetail(weightUnit);
 
     return {
       ...defaultValue,
@@ -58,7 +60,8 @@ export class RoutineDetailAdapter implements IRoutineDetailAdapter {
 
   getNewRoutineDetails(
     selectedExercises: { id: number | undefined; name: string }[],
-    { routineId, startOrder }: RD_NewInput
+    { routineId, startOrder }: RD_NewInput,
+    weightUnit: "kg" | "lbs" = "kg"
   ): LocalRoutineDetail[] {
     const newDetails: LocalRoutineDetail[] = selectedExercises.map(
       ({ id, name }, idx) => {
@@ -73,14 +76,17 @@ export class RoutineDetailAdapter implements IRoutineDetailAdapter {
           setOrder: 1,
           exerciseName: name,
         };
-        return this.createRoutineDetail(newValue);
+        return this.createRoutineDetail(newValue, weightUnit);
       }
     );
 
     return newDetails;
   }
 
-  getAddSetToRoutineByLastSet(lastSet: LocalRoutineDetail): LocalRoutineDetail {
+  getAddSetToRoutineByLastSet(
+    lastSet: LocalRoutineDetail,
+    weightUnit: "kg" | "lbs" = "kg"
+  ): LocalRoutineDetail {
     const { id, rpe, setOrder, isSynced, updatedAt, ...rest } = lastSet;
     const addSetInput = {
       ...rest,
@@ -91,15 +97,16 @@ export class RoutineDetailAdapter implements IRoutineDetailAdapter {
       createdAt: new Date().toISOString(),
     };
 
-    return this.createRoutineDetail(addSetInput);
+    return this.createRoutineDetail(addSetInput, weightUnit);
   }
 
   mapPastWorkoutToRoutineDetail(
     pastWorkoutDetail: LocalWorkoutDetail,
     targetRoutineId: number,
-    newExerciseOrder: number
+    newExerciseOrder: number,
+    weightUnit: "kg" | "lbs" = "kg"
   ): LocalRoutineDetail {
-    const initialDetail = this.getInitialRoutineDetail();
+    const initialDetail = this.getInitialRoutineDetail(weightUnit);
 
     // isDone 제외하고 나머지 필드 매핑
     return {
@@ -133,7 +140,8 @@ export class RoutineDetailAdapter implements IRoutineDetailAdapter {
 
   public cloneToCreateInput(
     inputDetail: LocalRoutineDetail,
-    newRoutineId: number
+    newRoutineId: number,
+    weightUnit: "kg" | "lbs" = "kg"
   ): LocalRoutineDetail {
     const { id, createdAt, updatedAt, ...rest } = inputDetail;
     return {
@@ -141,6 +149,7 @@ export class RoutineDetailAdapter implements IRoutineDetailAdapter {
       routineId: newRoutineId,
       serverId: null,
       isSynced: false,
+      weightUnit,
       createdAt: new Date().toISOString(),
       updatedAt: null,
     };

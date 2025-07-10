@@ -49,23 +49,29 @@ export interface IExerciseAdapter {
 }
 
 export interface IRoutineDetailAdapter {
-  getInitialRoutineDetail(): LocalRoutineDetail;
+  getInitialRoutineDetail(weightUnit?: "kg" | "lbs"): LocalRoutineDetail;
 
   createRoutineDetail(
-    override: Partial<LocalRoutineDetail>
+    override: Partial<LocalRoutineDetail>,
+    weightUnit?: "kg" | "lbs"
   ): LocalRoutineDetail;
 
   getNewRoutineDetails(
     selectedExercises: { id: number | undefined; name: string }[],
-    input: RD_NewInput
+    input: RD_NewInput,
+    weightUnit?: "kg" | "lbs"
   ): LocalRoutineDetail[];
 
-  getAddSetToRoutineByLastSet(lastSet: LocalRoutineDetail): LocalRoutineDetail;
+  getAddSetToRoutineByLastSet(
+    lastSet: LocalRoutineDetail,
+    weightUnit?: "kg" | "lbs"
+  ): LocalRoutineDetail;
 
   mapPastWorkoutToRoutineDetail(
     pastWorkoutDetail: LocalWorkoutDetail,
     targetRoutineId: number,
-    newExerciseOrder: number
+    newExerciseOrder: number,
+    weightUnit?: "kg" | "lbs"
   ): LocalRoutineDetail;
 
   mapLocalRoutineDetailToServer(
@@ -76,25 +82,32 @@ export interface IRoutineDetailAdapter {
 
   cloneToCreateInput(
     input: LocalRoutineDetail,
-    newRoutineId: number
+    newRoutineId: number,
+    weightUnit?: "kg" | "lbs"
   ): LocalRoutineDetail;
 }
 
 // --- WorkoutDetail Adapter Interface ---
 export interface IWorkoutDetailAdapter {
-  getInitialWorkoutDetail(): LocalWorkoutDetail;
+  getInitialWorkoutDetail(weightUnit?: "kg" | "lbs"): LocalWorkoutDetail;
   createWorkoutDetail(
-    override: Partial<LocalWorkoutDetail>
+    override: Partial<LocalWorkoutDetail>,
+    weightUnit?: "kg" | "lbs"
   ): LocalWorkoutDetail;
   mapPastWorkoutToWorkoutDetail(
     pastWorkoutDetail: LocalWorkoutDetail,
     targetWorkoutId: number,
-    newExerciseOrder: number
+    newExerciseOrder: number,
+    weightUnit?: "kg" | "lbs"
   ): LocalWorkoutDetail;
-  getAddSetToWorkoutByLastSet(lastSet: LocalWorkoutDetail): LocalWorkoutDetail;
+  getAddSetToWorkoutByLastSet(
+    lastSet: LocalWorkoutDetail,
+    weightUnit?: "kg" | "lbs"
+  ): LocalWorkoutDetail;
   getNewWorkoutDetails(
     selectedExercises: { id: number | undefined; name: string }[],
-    input: WD_NewInput
+    input: WD_NewInput,
+    weightUnit?: "kg" | "lbs"
   ): LocalWorkoutDetail[];
   mapLocalWorkoutDetailToServer(
     detail: LocalWorkoutDetail,
@@ -108,6 +121,7 @@ export interface IWorkoutDetailAdapter {
   ): LocalWorkoutDetail;
   convertRoutineDetailToWorkoutDetailInput(
     routineDetail: LocalRoutineDetail,
-    workoutId: LocalWorkoutDetail["workoutId"]
+    workoutId: LocalWorkoutDetail["workoutId"],
+    weightUnit?: "kg" | "lbs"
   ): LocalWorkoutDetail;
 }

@@ -9,13 +9,12 @@ import {
   LocalWorkoutDetailWithServerWorkoutId,
   Saved,
 } from "@/types/models";
-import { server } from "jest.setup";
-import { over } from "lodash";
 
 export const createBaseWorkoutDetailMock = (
   overrides?: Partial<LocalWorkoutDetail>
 ): LocalWorkoutDetail => ({
   ...INITIAL_WORKOUT_DETAIL_BASE,
+  weightUnit: "kg",
   createdAt: new Date().toISOString(),
   ...overrides,
 });
@@ -28,6 +27,7 @@ export const createServerWorkoutDetailMock = (
   createdAt: new Date().toISOString(),
   setOrder: 1,
   setType: "NORMAL",
+  weightUnit: "kg",
   exerciseOrder: 1,
   exerciseName: "Mock Exercise",
   rpe: null,

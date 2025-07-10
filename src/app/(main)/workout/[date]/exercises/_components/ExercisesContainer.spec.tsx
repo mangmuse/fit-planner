@@ -82,6 +82,7 @@ const mockCurrentDetails: Saved<LocalWorkoutDetail>[] = [
     exerciseOrder: 1,
     setOrder: 1,
     weight: 100,
+    weightUnit: "kg",
     reps: 10,
     rpe: null,
     isDone: false,
@@ -149,9 +150,12 @@ describe("Characterization Tests", () => {
 
       expect(
         mockWorkoutDetailService.addLocalWorkoutDetailsByUserDate
-      ).toHaveBeenCalledWith("user123", "2024-01-01", [
-        { id: 1, name: "벤치프레스" },
-      ]);
+      ).toHaveBeenCalledWith(
+        "user123",
+        "2024-01-01",
+        [{ id: 1, name: "벤치프레스" }],
+        "kg"
+      );
     });
 
     it("에러 발생 시 모달로 에러 메시지가 표시된다", async () => {
@@ -208,7 +212,7 @@ describe("Characterization Tests", () => {
       ).toHaveBeenCalledWith(123);
       expect(
         mockRoutineDetailService.addLocalRoutineDetailsByWorkoutId
-      ).toHaveBeenCalledWith(123, 1, [{ id: 1, name: "벤치프레스" }]);
+      ).toHaveBeenCalledWith(123, 1, [{ id: 1, name: "벤치프레스" }], "kg");
     });
   });
 

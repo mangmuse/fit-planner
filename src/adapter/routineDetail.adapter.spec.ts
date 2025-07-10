@@ -1,18 +1,20 @@
-import { createMockExercise } from "@/__mocks__/exercise.mock";
-import { createBaseRoutineMock } from "@/__mocks__/routine.mock";
+import { mockExercise } from "@/__mocks__/exercise.mock";
 import {
   createBaseRoutineDetailMock,
   mockRoutineDetail,
 } from "@/__mocks__/routineDetail.mock";
+import { mockWorkout } from "@/__mocks__/workout.mock";
 import { mockWorkoutDetail } from "@/__mocks__/workoutDetail.mock";
 
+import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
 import {
   RoutineDetailAdapter,
   INITIAL_ROUTINE_DETAIL_BASE,
 } from "@/adapter/routineDetail.adapter";
+import { createMockExercise } from "@/__mocks__/exercise.mock";
+import { createBaseRoutineMock } from "@/__mocks__/routine.mock";
 
 const routineDetailAdapter = new RoutineDetailAdapter();
-import { LocalRoutineDetail } from "@/types/models";
 
 describe("getInitialWorkoutDetail", () => {
   it("초기 routine detail 객체를 반환한다", () => {
@@ -83,7 +85,8 @@ describe("getNewRoutineDetails", () => {
 
     const result = routineDetailAdapter.getNewRoutineDetails(
       selectedExercises,
-      newWorkoutInput
+      newWorkoutInput,
+      "kg"
     );
 
     expect(result).toHaveLength(2);
@@ -91,19 +94,27 @@ describe("getNewRoutineDetails", () => {
     expect(result[0].exerciseOrder).toBe(10);
     expect(result[1].exerciseName).toBe("스쿼트");
     expect(result[1].exerciseOrder).toBe(11);
-    expect(createDetailSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
+    expect(createDetailSpy).toHaveBeenNthCalledWith(
+      1,
+      {
+        exerciseId: 1,
         routineId: 100,
-        exerciseName: "벤치프레스",
         exerciseOrder: 10,
-      })
+        setOrder: 1,
+        exerciseName: "벤치프레스",
+      },
+      "kg"
     );
-    expect(createDetailSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
+    expect(createDetailSpy).toHaveBeenNthCalledWith(
+      2,
+      {
+        exerciseId: 2,
         routineId: 100,
-        exerciseName: "스쿼트",
         exerciseOrder: 11,
-      })
+        setOrder: 1,
+        exerciseName: "스쿼트",
+      },
+      "kg"
     );
   });
 });
@@ -115,27 +126,30 @@ describe("getAddSetToRoutineByLastSet", () => {
       .spyOn(routineDetailAdapter, "createRoutineDetail")
       .mockImplementation((input) => createBaseRoutineDetailMock(input));
 
-    routineDetailAdapter.getAddSetToRoutineByLastSet(lastSet);
+    routineDetailAdapter.getAddSetToRoutineByLastSet(lastSet, "kg");
 
     expect(createDetailSpy).toHaveBeenCalledTimes(1);
 
-    expect(createDetailSpy).toHaveBeenCalledWith({
-      // 복사되어야 하는 속성
-      exerciseId: lastSet.exerciseId,
-      exerciseName: lastSet.exerciseName,
-      exerciseOrder: lastSet.exerciseOrder,
-      setType: lastSet.setType,
-      weight: lastSet.weight,
-      reps: lastSet.reps,
-      routineId: lastSet.routineId,
+    expect(createDetailSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        // 복사되어야 하는 속성
+        exerciseId: lastSet.exerciseId,
+        exerciseName: lastSet.exerciseName,
+        exerciseOrder: lastSet.exerciseOrder,
+        setType: lastSet.setType,
+        weight: lastSet.weight,
+        reps: lastSet.reps,
+        routineId: lastSet.routineId,
 
-      // 초기화 되어야하는 속성
-      rpe: 0,
-      serverId: null,
-      isSynced: false,
-      setOrder: lastSet.setOrder + 1,
-      createdAt: expect.any(String),
-    });
+        // 초기화 되어야하는 속성
+        rpe: 0,
+        serverId: null,
+        isSynced: false,
+        setOrder: lastSet.setOrder + 1,
+        createdAt: expect.any(String),
+      }),
+      "kg"
+    );
   });
 
   it("lastSet의 createdAt이 아닌, 함수 호출 시점의 새로운 createdAt 값으로 덮어쓴다", () => {
@@ -155,12 +169,13 @@ describe("getAddSetToRoutineByLastSet", () => {
         createBaseRoutineDetailMock(input)
       );
 
-    routineDetailAdapter.getAddSetToRoutineByLastSet(lastSet);
+    routineDetailAdapter.getAddSetToRoutineByLastSet(lastSet, "kg");
 
     expect(createDetailSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         createdAt: MOCK_NOW.toISOString(),
-      })
+      }),
+      "kg"
     );
 
     dateSpy.mockRestore();

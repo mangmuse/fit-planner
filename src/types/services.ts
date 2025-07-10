@@ -28,18 +28,21 @@ export interface IWorkoutDetailCoreService {
   addLocalWorkoutDetailsByWorkoutId: (
     workoutId: number,
     startOrder: number,
-    selectedExercises: { id: number; name: string }[]
+    selectedExercises: { id: number; name: string }[],
+    weightUnit?: "kg" | "lbs"
   ) => Promise<number>;
   addPastWorkoutDetailsToWorkout: (
     mappedDetails: LocalWorkoutDetail[]
   ) => Promise<void>;
   addSetToWorkout: (
-    lastSet: Saved<LocalWorkoutDetail>
+    lastSet: Saved<LocalWorkoutDetail>,
+    weightUnit?: "kg" | "lbs"
   ) => Promise<Saved<LocalWorkoutDetail>>;
   addLocalWorkoutDetailsByUserDate: (
     userId: string,
     date: string,
-    selectedExercises: { id: number | undefined; name: string }[]
+    selectedExercises: { id: number | undefined; name: string }[],
+    weightUnit?: "kg" | "lbs"
   ) => Promise<number>;
   updateLocalWorkoutDetail: (
     updateWorkoutInput: Partial<LocalWorkoutDetail>
@@ -171,12 +174,14 @@ export interface IRoutineDetailService {
 
   addLocalRoutineDetail: (detailInput: LocalRoutineDetail) => Promise<void>;
   addSetToRoutine: (
-    lastSet: Saved<LocalRoutineDetail>
+    lastSet: Saved<LocalRoutineDetail>,
+    weightUnit?: "kg" | "lbs"
   ) => Promise<Saved<LocalRoutineDetail>>;
   addLocalRoutineDetailsByWorkoutId: (
     routineId: number,
     startOrder: number,
-    selectedExercises: { id: number; name: string }[]
+    selectedExercises: { id: number; name: string }[],
+    weightUnit?: "kg" | "lbs"
   ) => Promise<void>;
   addPastWorkoutDetailsToRoutine: (
     mappedDetails: LocalRoutineDetail[]

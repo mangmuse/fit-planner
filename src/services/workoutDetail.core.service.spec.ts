@@ -238,7 +238,8 @@ describe("WorkoutDetailCoreService", () => {
 
       expect(mockAdapter.getNewWorkoutDetails).toHaveBeenCalledWith(
         selectedExercise,
-        { workoutId, startOrder }
+        { workoutId, startOrder },
+        "kg"
       );
       expect(result).toBe(2);
       expect(mockRepository.bulkAdd).toHaveBeenCalledWith([
@@ -323,7 +324,8 @@ describe("WorkoutDetailCoreService", () => {
       const result = await service.addSetToWorkout(lastSet);
 
       expect(mockAdapter.getAddSetToWorkoutByLastSet).toHaveBeenCalledWith(
-        lastSet
+        lastSet,
+        "kg"
       );
       expect(mockRepository.add).toHaveBeenCalledWith(newSetInput);
       expect(result).toEqual(newSet);
@@ -368,7 +370,8 @@ describe("WorkoutDetailCoreService", () => {
       expect(getExerciseOrderMock).toHaveBeenCalledWith(mockedWorkout.id);
       expect(mockAdapter.getNewWorkoutDetails).toHaveBeenCalledWith(
         selectedExercises,
-        { workoutId: mockedWorkout.id, startOrder }
+        { workoutId: mockedWorkout.id, startOrder },
+        "kg"
       );
       expect(mockRepository.bulkAdd).toHaveBeenCalledWith(newDetails);
 

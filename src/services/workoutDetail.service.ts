@@ -46,12 +46,14 @@ export class WorkoutDetailService implements IWorkoutDetailService {
   public addLocalWorkoutDetailsByWorkoutId(
     workoutId: number,
     startOrder: number,
-    selectedExercises: { id: number; name: string }[]
+    selectedExercises: { id: number; name: string }[],
+    weightUnit: "kg" | "lbs" = "kg"
   ): Promise<number> {
     return this.core.addLocalWorkoutDetailsByWorkoutId(
       workoutId,
       startOrder,
-      selectedExercises
+      selectedExercises,
+      weightUnit
     );
   }
 
@@ -62,20 +64,23 @@ export class WorkoutDetailService implements IWorkoutDetailService {
   }
 
   public addSetToWorkout(
-    lastSet: Saved<LocalWorkoutDetail>
+    lastSet: Saved<LocalWorkoutDetail>,
+    weightUnit: "kg" | "lbs" = "kg"
   ): Promise<Saved<LocalWorkoutDetail>> {
-    return this.core.addSetToWorkout(lastSet);
+    return this.core.addSetToWorkout(lastSet, weightUnit);
   }
 
   public addLocalWorkoutDetailsByUserDate(
     userId: string,
     date: string,
-    selectedExercises: { id: number | undefined; name: string }[]
+    selectedExercises: { id: number | undefined; name: string }[],
+    weightUnit: "kg" | "lbs" = "kg"
   ): Promise<number> {
     return this.core.addLocalWorkoutDetailsByUserDate(
       userId,
       date,
-      selectedExercises
+      selectedExercises,
+      weightUnit
     );
   }
 

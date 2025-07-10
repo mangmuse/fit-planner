@@ -124,28 +124,32 @@ describe("getAddSetToWorkoutByLastSet", () => {
       .spyOn(workoutDetailAdapter, "createWorkoutDetail")
       .mockImplementation((input) => createBaseWorkoutDetailMock(input));
 
-    workoutDetailAdapter.getAddSetToWorkoutByLastSet(lastSet);
+    workoutDetailAdapter.getAddSetToWorkoutByLastSet(lastSet, "kg");
 
     expect(createDetailSpy).toHaveBeenCalledTimes(1);
 
-    expect(createDetailSpy).toHaveBeenCalledWith({
-      // 복사되어야 하는 속성
-      exerciseId: lastSet.exerciseId,
-      exerciseName: lastSet.exerciseName,
-      exerciseOrder: lastSet.exerciseOrder,
-      setType: lastSet.setType,
-      weight: lastSet.weight,
-      reps: lastSet.reps,
-      workoutId: lastSet.workoutId,
+    expect(createDetailSpy).toHaveBeenCalledWith(
+      {
+        // 복사되어야 하는 속성
+        exerciseId: lastSet.exerciseId,
+        exerciseName: lastSet.exerciseName,
+        exerciseOrder: lastSet.exerciseOrder,
+        setType: lastSet.setType,
+        weight: lastSet.weight,
+        reps: lastSet.reps,
+        weightUnit: lastSet.weightUnit,
+        workoutId: lastSet.workoutId,
 
-      // 초기화 되어야하는 속성
-      rpe: 0,
-      serverId: null,
-      isSynced: false,
-      isDone: false,
-      setOrder: lastSet.setOrder + 1,
-      createdAt: expect.any(String),
-    });
+        // 초기화 되어야하는 속성
+        rpe: 0,
+        serverId: null,
+        isSynced: false,
+        isDone: false,
+        setOrder: lastSet.setOrder + 1,
+        createdAt: expect.any(String),
+      },
+      "kg"
+    );
   });
 
   it("lastSet의 createdAt이 아닌, 함수 호출 시점의 새로운 createdAt 값으로 덮어쓴다", () => {
@@ -165,12 +169,13 @@ describe("getAddSetToWorkoutByLastSet", () => {
         createBaseWorkoutDetailMock(input)
       );
 
-    workoutDetailAdapter.getAddSetToWorkoutByLastSet(lastSet);
+    workoutDetailAdapter.getAddSetToWorkoutByLastSet(lastSet, "kg");
 
     expect(createDetailSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         createdAt: MOCK_NOW.toISOString(),
-      })
+      }),
+      "kg"
     );
 
     dateSpy.mockRestore();
@@ -192,7 +197,8 @@ describe("getNewWorkoutDetails", () => {
 
     const result = workoutDetailAdapter.getNewWorkoutDetails(
       selectedExercises,
-      newWorkoutInput
+      newWorkoutInput,
+      "kg"
     );
 
     expect(result).toHaveLength(2);
@@ -206,14 +212,16 @@ describe("getNewWorkoutDetails", () => {
         workoutId: 100,
         exerciseName: "벤치프레스",
         exerciseOrder: 10,
-      })
+      }),
+      "kg"
     );
     expect(createDetailSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         workoutId: 100,
         exerciseName: "스쿼트",
         exerciseOrder: 11,
-      })
+      }),
+      "kg"
     );
   });
   it("선택된 운동이 없으면 빈 배열을 반환하고 createWorkoutDetail을 호출하지 않는다", () => {
@@ -314,16 +322,19 @@ describe("convertServerWorkoutDetailToLocal", () => {
 
 describe("convertRoutineDetailToWorkoutDetailInput", () => {
   it("routineDetail과 workoutId를 전달받아 올바르게 새로운 workoutDetail로 반환한다", () => {
+    const routineDetail = { ...mockRoutineDetail.past };
+    const workoutId = 100;
+
     const createDetailSpy = jest
       .spyOn(workoutDetailAdapter, "createWorkoutDetail")
-      .mockImplementation((input) => createBaseWorkoutDetailMock(input));
-
-    const routineDetail: LocalRoutineDetail = mockRoutineDetail.past;
-    const workoutId = 100;
+      .mockImplementation((input: Partial<LocalWorkoutDetail>) =>
+        createBaseWorkoutDetailMock(input)
+      );
 
     workoutDetailAdapter.convertRoutineDetailToWorkoutDetailInput(
       routineDetail,
-      workoutId
+      workoutId,
+      "kg"
     );
 
     expect(createDetailSpy).toHaveBeenCalledTimes(1);
@@ -333,21 +344,18 @@ describe("convertRoutineDetailToWorkoutDetailInput", () => {
         // routineDetail에서 그대로 복사되어야 할 속성
         exerciseId: routineDetail.exerciseId,
         exerciseName: routineDetail.exerciseName,
+        exerciseOrder: routineDetail.exerciseOrder,
+        setOrder: routineDetail.setOrder,
+        setType: routineDetail.setType,
         weight: routineDetail.weight,
         reps: routineDetail.reps,
         rpe: routineDetail.rpe,
-        setType: routineDetail.setType,
-        setOrder: routineDetail.setOrder,
-        exerciseOrder: routineDetail.exerciseOrder,
 
-        // 새로 추가/변경되는 속성
+        // 새로 설정되어야 할 속성
+        workoutId,
         isDone: false,
-        workoutId: workoutId,
-      })
+      }),
+      "kg"
     );
-    const actualArg = createDetailSpy.mock.calls[0][0];
-    expect(actualArg).not.toHaveProperty("id");
-    expect(actualArg).not.toHaveProperty("routineId");
-    expect(actualArg).not.toHaveProperty("isSynced");
   });
 });

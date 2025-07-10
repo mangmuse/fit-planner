@@ -15,6 +15,7 @@ exports[`GET /api/workout/detail userId가 올바른 타입이면 200 상태코�
     "setType": "NORMAL",
     "updatedAt": "2024-01-01T10:00:00.000Z",
     "weight": 60,
+    "weightUnit": "kg",
     "workoutId": "workout-1",
   },
   {
@@ -30,6 +31,7 @@ exports[`GET /api/workout/detail userId가 올바른 타입이면 200 상태코�
     "setType": "NORMAL",
     "updatedAt": "2024-01-01T10:00:00.000Z",
     "weight": 60,
+    "weightUnit": "kg",
     "workoutId": "workout-2",
   },
   {
@@ -45,6 +47,7 @@ exports[`GET /api/workout/detail userId가 올바른 타입이면 200 상태코�
     "setType": "NORMAL",
     "updatedAt": "2024-01-01T10:00:00.000Z",
     "weight": 60,
+    "weightUnit": "kg",
     "workoutId": "workout-3",
   },
 ]

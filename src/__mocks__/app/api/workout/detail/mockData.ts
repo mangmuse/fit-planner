@@ -9,6 +9,7 @@ export const createPrismaWorkoutDetailResponse = (
     workoutId: "workout-1",
     exerciseId: 1,
     weight: 60,
+    weightUnit: "kg",
     rpe: null,
     exerciseOrder: 1,
     reps: 10,
