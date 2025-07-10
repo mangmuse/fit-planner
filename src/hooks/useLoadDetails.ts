@@ -244,6 +244,41 @@ const useLoadDetails = ({
     });
   }, []);
 
+  const updateMultipleDetailsInGroups = useCallback(
+    (
+      updatedDetails: (Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>)[]
+    ) => {
+      const updatedDetailsMap = new Map(
+        updatedDetails.map((detail) => [detail.id, detail])
+      );
+
+      setWorkoutGroups((prevGroups) =>
+        prevGroups.map((group) => {
+          const hasChanges = group.details.some((detail) =>
+            updatedDetailsMap.has(detail.id)
+          );
+
+          if (!hasChanges) return group; // 참조 유지
+
+          return {
+            ...group,
+            details: group.details.map((detail) => {
+              const updatedDetail = updatedDetailsMap.get(detail.id);
+              return updatedDetail || detail;
+            }),
+          };
+        })
+      );
+
+      setAllDetails((prev) =>
+        prev.map((detail) => {
+          const updatedDetail = updatedDetailsMap.get(detail.id);
+          return updatedDetail || detail;
+        })
+      );
+    },
+    []
+  );
 
   return {
     error,
@@ -257,6 +292,7 @@ const useLoadDetails = ({
     updateDetailInGroups,
     addDetailToGroup,
     removeDetailFromGroup,
+    updateMultipleDetailsInGroups,
   };
 };
 

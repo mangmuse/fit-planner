@@ -57,9 +57,9 @@ const SessionContainer = ({
     reload,
     workout,
     allDetails,
-    setAllDetails,
     setWorkout,
     updateDetailInGroups,
+    updateMultipleDetailsInGroups,
     addDetailToGroup,
     removeDetailFromGroup,
   } = useLoadDetails({
@@ -313,6 +313,7 @@ const SessionContainer = ({
                 exerciseOrder={exerciseOrder}
                 reload={reload}
                 updateDetailInGroups={updateDetailInGroups}
+                updateMultipleDetailsInGroups={updateMultipleDetailsInGroups}
                 removeDetailFromGroup={removeDetailFromGroup}
                 addDetailToGroup={addDetailToGroup}
               />

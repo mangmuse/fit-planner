@@ -22,6 +22,9 @@ export type SessionExerciseGroupProps = {
   updateDetailInGroups: (
     updatedDetail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>
   ) => void;
+  updateMultipleDetailsInGroups: (
+    updatedDetails: (Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>)[]
+  ) => void;
   addDetailToGroup: (
     newDetail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>,
     lastDetail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>
@@ -36,6 +39,7 @@ const SessionExerciseGroup = ({
   occurrence,
   reorderAfterDelete,
   updateDetailInGroups,
+  updateMultipleDetailsInGroups,
   addDetailToGroup,
   removeDetailFromGroup,
 }: SessionExerciseGroupProps) => {
@@ -133,6 +137,7 @@ const SessionExerciseGroup = ({
                   loadExercises={reloadExercise}
                   details={details}
                   exercise={exercise}
+                  updateMultipleDetailsInGroups={updateMultipleDetailsInGroups}
                 />
               ),
             });
