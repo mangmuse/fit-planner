@@ -244,6 +244,7 @@ const useLoadDetails = ({
     });
   }, []);
 
+
   return {
     error,
     isLoading: isInitialLoading,

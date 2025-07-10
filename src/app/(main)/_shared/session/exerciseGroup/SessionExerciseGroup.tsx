@@ -145,10 +145,7 @@ const SessionExerciseGroup = ({
       <table className="w-full text-xs px-3">
         <SessionTableHeader
           prevDetails={prevWorkoutDetails || []}
-          exercise={exercise}
-          details={details}
-          reload={reload}
-          isRoutine={details[0] && "workoutId" in details[0] ? false : true}
+          detail={details[0]}
         />
         <tbody>
           {details.map((detail, idx) => (

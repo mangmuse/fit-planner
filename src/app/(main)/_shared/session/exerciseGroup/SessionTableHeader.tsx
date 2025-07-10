@@ -4,23 +4,21 @@ import {
   LocalExercise,
   LocalRoutineDetail,
   LocalWorkoutDetail,
+  Saved,
 } from "@/types/models";
 import Image from "next/image";
 import deletIcon from "public/delete.svg";
 
 type SessionTableHeaderProps = {
-  exercise: LocalExercise;
   prevDetails: LocalWorkoutDetail[];
-  details: LocalWorkoutDetail[] | LocalRoutineDetail[];
-  reload: () => Promise<void>;
+  detail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>;
 
   isRoutine?: boolean;
 };
 
 const SessionTableHeader = ({
-  exercise,
   prevDetails,
-  isRoutine = false,
+  detail,
 }: SessionTableHeaderProps) => {
   const { openModal } = useModal();
   const handleDisplayPrevDetailsModal = () => {
@@ -41,7 +39,7 @@ const SessionTableHeader = ({
         >
           Previous
         </th>
-        <th className="w-[17%]">{exercise.unit || "kg"}</th>
+        <th className="w-[17%]">{detail.weightUnit || "kg"}</th>
         <th className="w-[17%]">Reps</th>
         <th className="w-[14%]"></th>
       </tr>

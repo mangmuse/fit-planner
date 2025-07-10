@@ -18,12 +18,6 @@ jest.mock("framer-motion", () => ({
   },
 }));
 
-jest.mock("@/app/(main)/workout/_utils/checkIsWorkoutDetails", () => ({
-  isWorkoutDetails: jest.fn(
-    (details) => details.length === 0 || "workoutId" in details[0]
-  ),
-}));
-
 import { mockExercise } from "@/__mocks__/exercise.mock";
 import { mockWorkoutDetail } from "@/__mocks__/workoutDetail.mock";
 import { mockRoutineDetail } from "@/__mocks__/routineDetail.mock";
@@ -58,14 +52,18 @@ describe("SessionDetailGroupOptions", () => {
   const mockLoadExercises = jest.fn();
   const mockReload = jest.fn();
   const mockReorderAfterDelete = jest.fn();
+  const mockUpdateMultipleDetailsInGroups = jest.fn();
 
   const mockExerciseData: Saved<LocalExercise> = {
     ...mockExercise.list[0],
     id: 1,
   };
-  const mockWorkoutDetails: Saved<LocalWorkoutDetail>[] = [
-    { ...mockWorkoutDetail.past, exerciseOrder: 1 },
-  ];
+  const mockWD = {
+    ...mockWorkoutDetail.past,
+    exerciseOrder: 1,
+    weightUnit: "kg" as const,
+  };
+  const mockWorkoutDetails: Saved<LocalWorkoutDetail>[] = [mockWD];
   const mockRoutineDetails: Saved<LocalRoutineDetail>[] = [
     { ...mockRoutineDetail.past, exerciseOrder: 1 },
   ];
@@ -88,7 +86,9 @@ describe("SessionDetailGroupOptions", () => {
 
     mockExerciseService.updateLocalExercise.mockResolvedValue(1);
     mockWorkoutDetailService.deleteWorkoutDetails.mockResolvedValue();
+    mockWorkoutDetailService.updateLocalWorkoutDetail.mockResolvedValue();
     mockRoutineDetailService.deleteRoutineDetails.mockResolvedValue();
+    mockRoutineDetailService.updateLocalRoutineDetail.mockResolvedValue();
   });
 
   const renderSessionDetailGroupOptions = (props?: {
@@ -97,6 +97,9 @@ describe("SessionDetailGroupOptions", () => {
     loadExercises?: () => Promise<void>;
     reload?: () => Promise<void>;
     reorderAfterDelete?: (deletedExerciseOrder: number) => Promise<void>;
+    updateMultipleDetailsInGroups?: (
+      updatedDetails: (Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>)[]
+    ) => void;
   }) => {
     const defaultProps = {
       exercise: mockExerciseData,
@@ -104,6 +107,7 @@ describe("SessionDetailGroupOptions", () => {
       loadExercises: mockLoadExercises,
       reload: mockReload,
       reorderAfterDelete: mockReorderAfterDelete,
+      updateMultipleDetailsInGroups: mockUpdateMultipleDetailsInGroups,
       ...props,
     };
 
@@ -122,7 +126,7 @@ describe("SessionDetailGroupOptions", () => {
 
     it("단위 선택기를 올바른 초기 상태로 렌더링해야 한다", () => {
       renderSessionDetailGroupOptions({
-        exercise: { ...mockExerciseData, unit: "kg" },
+        details: [{ ...mockWD, weightUnit: "kg" }],
       });
 
       expect(screen.getByRole("button", { name: "kg" })).toBeInTheDocument();
@@ -134,7 +138,7 @@ describe("SessionDetailGroupOptions", () => {
 
     it("lbs 단위일 때 모션 위치가 lbs로 설정되어야 한다", () => {
       renderSessionDetailGroupOptions({
-        exercise: { ...mockExerciseData, unit: "lbs" },
+        details: [{ ...mockWD, weightUnit: "lbs" }],
       });
 
       const motionDiv = screen.getByTestId("motion-unit-selector");
@@ -226,21 +230,23 @@ describe("SessionDetailGroupOptions", () => {
     it("단위 버튼 클릭 시 상태가 변경되고 API가 호출되어야 한다", async () => {
       const user = userEvent.setup();
       renderSessionDetailGroupOptions({
-        exercise: { ...mockExerciseData, unit: "kg" },
+        details: [{ ...mockWD, weightUnit: "kg" }],
+      });
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: "kg" })).toBeInTheDocument();
       });
 
       const lbsButton = screen.getByRole("button", { name: "lbs" });
       await user.click(lbsButton);
 
       await waitFor(() => {
-        expect(mockExerciseService.updateLocalExercise).toHaveBeenCalledTimes(
-          1
-        );
-        expect(mockExerciseService.updateLocalExercise).toHaveBeenCalledWith({
-          ...mockExerciseData,
-          unit: "lbs",
-        });
-        expect(mockLoadExercises).toHaveBeenCalledTimes(1);
+        expect(
+          mockWorkoutDetailService.updateLocalWorkoutDetail
+        ).toHaveBeenCalledTimes(1);
+        expect(mockUpdateMultipleDetailsInGroups).toHaveBeenCalledWith([
+          { ...mockWD, weightUnit: "lbs" },
+        ]);
       });
     });
 
@@ -265,12 +271,12 @@ describe("SessionDetailGroupOptions", () => {
   describe("에러 처리", () => {
     it("단위 변경 시 에러가 발생하면 showError를 호출해야 한다", async () => {
       const user = userEvent.setup();
-      mockExerciseService.updateLocalExercise.mockRejectedValue(
+      mockWorkoutDetailService.updateLocalWorkoutDetail.mockRejectedValue(
         new Error("DB 에러")
       );
 
       renderSessionDetailGroupOptions({
-        exercise: { ...mockExerciseData, unit: "kg" },
+        details: [{ ...mockWD, weightUnit: "kg" }],
       });
 
       const lbsButton = screen.getByRole("button", { name: "lbs" });

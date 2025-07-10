@@ -14,7 +14,10 @@ import {
 import { useModal } from "@/providers/contexts/ModalContext";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import ExercisesContainer from "@/app/(main)/workout/[date]/exercises/_components/ExercisesContainer";
-import { isWorkoutDetails } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
+import {
+  isWorkoutDetail,
+  isWorkoutDetails,
+} from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import {
   exerciseService,
   routineDetailService,
@@ -30,6 +33,9 @@ type SessionDetailGroupOptions = {
   loadExercises: () => Promise<void>;
   reload: () => Promise<void>;
   reorderAfterDelete: (deletedExerciseOrder: number) => Promise<void>;
+  updateMultipleDetailsInGroups: (
+    updatedDetails: (Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>)[]
+  ) => void;
 };
 
 const units = ["kg", "lbs"] as const;
@@ -39,10 +45,10 @@ const SessionDetailGroupOptions = ({
   details,
   loadExercises,
   reload,
-  reorderAfterDelete,
+  updateMultipleDetailsInGroups,
 }: SessionDetailGroupOptions) => {
   const [unit, setUnit] = useState<(typeof units)[number]>(
-    exercise.unit || "kg"
+    details[0]?.weightUnit || "kg"
   );
   const { closeBottomSheet, openBottomSheet } = useBottomSheet();
   const { openModal, showError } = useModal();
@@ -60,18 +66,6 @@ const SessionDetailGroupOptions = ({
 
   const deleteAndLoadDetails = async () => {
     try {
-      console.log("[SessionDetailGroupOptions] 삭제할 details:", {
-        count: details.length,
-        exerciseOrder: details[0]?.exerciseOrder,
-        details: details.map((d) => ({
-          id: d.id,
-          exerciseId: d.exerciseId,
-          exerciseName: d.exerciseName,
-          exerciseOrder: d.exerciseOrder,
-          setOrder: d.setOrder,
-        })),
-      });
-
       if (isWorkoutDetails(details)) {
         await workoutDetailService.deleteWorkoutDetails(details);
       } else {
@@ -113,23 +107,36 @@ const SessionDetailGroupOptions = ({
     });
   };
 
-  const updateUnit = async () => {
+  const handleUnitChange = async (newUnit: (typeof units)[number]) => {
+    if (newUnit === unit) return;
+
+    const prevUnit = unit;
+    setUnit(newUnit);
+
     try {
-      await exerciseService.updateLocalExercise({ ...exercise, unit });
-      await loadExercises();
+      const updatePromise = details.map((detail) => {
+        const updatedDetail = { ...detail, weightUnit: newUnit };
+        if (isWorkoutDetail(detail)) {
+          return workoutDetailService.updateLocalWorkoutDetail(updatedDetail);
+        } else {
+          return routineDetailService.updateLocalRoutineDetail(updatedDetail);
+        }
+      });
+
+      await Promise.all(updatePromise);
+
+      // reload() 대신 updateMultipleDetailsInGroups 사용하여 깜빡임 방지
+      const updatedDetails = details.map((detail) => ({
+        ...detail,
+        weightUnit: newUnit,
+      }));
+      updateMultipleDetailsInGroups(updatedDetails);
     } catch (e) {
-      console.error("[SessionDetailGroupOptions] updateUnit Error", e);
+      console.error("[SessionDetailGroupOptions] handleUnitChange Error", e);
+      setUnit(prevUnit); // 에러 시 이전 상태로 롤백
       showError("단위 변경에 실패했습니다");
     }
   };
-
-  useEffect(() => {
-    if (!loadExercises) return;
-    if (isMounted.current) {
-      updateUnit();
-    }
-    isMounted.current = true;
-  }, [unit]);
 
   return (
     <div className="flex flex-col ">
@@ -151,7 +158,7 @@ const SessionDetailGroupOptions = ({
                 "text-white": unit !== u,
               }
             )}
-            onClick={() => setUnit(u)}
+            onClick={() => handleUnitChange(u)}
           >
             {u}
           </button>
