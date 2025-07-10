@@ -32,6 +32,18 @@ describe("SettingsPageContainer", () => {
   });
 
   describe("렌더링", () => {
+    it("기본 무게 단위 설정이 올바르게 렌더링 되어야 한다", () => {
+      render(<SettingsPageContainer />);
+
+      const weightUnitSetting = screen.getByText("기본 무게 단위");
+      expect(weightUnitSetting).toBeInTheDocument();
+
+      const kgButton = screen.getByLabelText("kg 단위 선택");
+      const lbsButton = screen.getByLabelText("lbs 단위 선택");
+
+      expect(kgButton).toBeInTheDocument();
+      expect(lbsButton).toBeInTheDocument();
+    });
     it("계정 그룹의 아이템이 올바르게 렌더링 되어야 한다", () => {
       render(<SettingsPageContainer />);
 
