@@ -61,10 +61,10 @@ describe("SessionItem", () => {
       expect(setOrder).toHaveTextContent(mockWD.setOrder.toString());
 
       const weight = screen.getByTestId("weight");
-      expect(weight).toHaveValue(mockWD.weight?.toString() ?? "");
+      expect(weight).toHaveValue(mockWD.weight ?? 0);
 
       const reps = screen.getByTestId("reps");
-      expect(reps).toHaveValue(mockWD.reps?.toString() ?? "");
+      expect(reps).toHaveValue(mockWD.reps ?? 0);
 
       const checkbox = screen.getByRole("checkbox");
       expect(checkbox).toBeChecked();

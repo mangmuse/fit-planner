@@ -48,6 +48,7 @@ const mockWDs = [
     rpe: null,
     isDone: true,
     setOrder: 1,
+    weightUnit: "lbs" as const,
   },
   {
     ...mockWorkoutDetail.past,
@@ -59,6 +60,7 @@ const mockWDs = [
     rpe: null,
     isDone: true,
     setOrder: 2,
+    weightUnit: "lbs" as const,
   },
   {
     ...mockWorkoutDetail.past,
@@ -70,6 +72,7 @@ const mockWDs = [
     rpe: null,
     isDone: true,
     setOrder: 3,
+    weightUnit: "lbs" as const,
   },
 ];
 
@@ -158,6 +161,7 @@ describe("SessionExerciseGroup", () => {
       reorderAfterDelete: mockReorderAfterDelete,
       occurrence: 1,
       updateDetailInGroups: jest.fn(),
+      updateMultipleDetailsInGroups: jest.fn(),
       removeDetailFromGroup: mockRemoveDetailFromGroup,
       addDetailToGroup: mockAddDetailToGroup,
     };
@@ -215,10 +219,10 @@ describe("SessionExerciseGroup", () => {
 
         expect(setOrder).toHaveTextContent(mockWDs[0].setOrder.toString());
         expect(prevRecord).toHaveTextContent(
-          `${mockWDs[0].weight} ${mockEx.unit} x ${mockWDs[0].reps} 회`
+          `${mockWDs[0].weight} ${mockWDs[0].weightUnit} x ${mockWDs[0].reps} 회`
         );
-        expect(weight).toHaveValue(mockWDs[0].weight.toString());
-        expect(reps).toHaveValue(mockWDs[0].reps.toString());
+        expect(weight).toHaveValue(mockWDs[0].weight);
+        expect(reps).toHaveValue(mockWDs[0].reps);
 
         const checkbox = within(firstItem).getByRole("checkbox");
         expect(checkbox).toBeChecked();

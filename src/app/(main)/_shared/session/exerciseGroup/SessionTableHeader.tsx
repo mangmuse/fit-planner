@@ -1,13 +1,6 @@
 import PrevSessionDetails from "@/app/(main)/_shared/session/pastSession/PrevSessionDetails";
 import { useModal } from "@/providers/contexts/ModalContext";
-import {
-  LocalExercise,
-  LocalRoutineDetail,
-  LocalWorkoutDetail,
-  Saved,
-} from "@/types/models";
-import Image from "next/image";
-import deletIcon from "public/delete.svg";
+import { LocalRoutineDetail, LocalWorkoutDetail, Saved } from "@/types/models";
 
 type SessionTableHeaderProps = {
   prevDetails: LocalWorkoutDetail[];

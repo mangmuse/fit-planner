@@ -12,6 +12,7 @@ import { ChangeEventHandler, useState } from "react";
 import SetOrderCell from "@/app/(main)/_shared/session/sessionSet/SetOrderCell";
 import { routineDetailService, workoutDetailService } from "@/lib/di";
 import { useModal } from "@/providers/contexts/ModalContext";
+import { formatWeight, parseWeightInput } from "@/util/weightConversion";
 
 export type SessionItemProps = {
   exercise: LocalExercise;
@@ -42,8 +43,11 @@ const SessionItem = ({
   );
   const [editedReps, setEditedReps] = useState<number | null>(reps || null);
 
-  const handleChangeWeight: ChangeEventHandler<HTMLInputElement> = (e) =>
-    setEditedWeight(e.target.value ? ~~e.target.value : null);
+  const handleChangeWeight: ChangeEventHandler<HTMLInputElement> = (e) => {
+    const weightUnit = detail.weightUnit || "kg";
+    const parsedWeight = parseWeightInput(e.target.value, weightUnit);
+    setEditedWeight(parsedWeight);
+  };
   const handleChangeReps: ChangeEventHandler<HTMLInputElement> = (e) =>
     setEditedReps(e.target.value ? ~~e.target.value : null);
 
@@ -85,32 +89,38 @@ const SessionItem = ({
       <SetOrderCell loadLocalWorkoutDetails={reload} workoutDetail={detail} />
       <td data-testid="prev-record" className="text-center">
         {prevWorkoutDetail
-          ? `${prevWorkoutDetail.weight || 0} ${exercise.unit || "kg"} x ${
-              prevWorkoutDetail.reps
-            } 회`
+          ? `${formatWeight(
+              prevWorkoutDetail.weight || 0,
+              prevWorkoutDetail.weightUnit || "kg"
+            )} x ${prevWorkoutDetail.reps} 회`
           : "-"}
       </td>
       <td className="text-center">
         <input
           data-testid="weight"
+          type="number"
+          step={detail.weightUnit === "kg" ? "0.01" : "1"}
+          min="0"
           onChange={handleChangeWeight}
           onBlur={() =>
             weight !== editedWeight && handleUpdate({ weight: editedWeight })
           }
           value={editedWeight ?? 0}
-          className="w-9 h-5 rounded bg-transparent outline outline-1 outline-text-muted text-center focus:outline-primary"
+          className="w-9 h-5 rounded bg-transparent outline outline-1 outline-text-muted text-center focus:outline-primary [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />
       </td>
 
       <td className="text-center">
         <input
           data-testid="reps"
+          type="number"
+          min="0"
           onChange={handleChangeReps}
           onBlur={() =>
             reps !== editedReps && handleUpdate({ reps: editedReps })
           }
           value={editedReps ?? 0}
-          className="w-9 h-5 rounded bg-transparent outline outline-1 outline-text-muted text-center focus:outline-primary"
+          className="w-9 h-5 rounded bg-transparent outline outline-1 outline-text-muted text-center focus:outline-primary [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />
       </td>
       <td className="text-center  ">
