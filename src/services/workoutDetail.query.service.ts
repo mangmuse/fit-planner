@@ -94,7 +94,6 @@ export class WorkoutDetailQueryService implements IWorkoutDetailQueryService {
       const dateB = workoutIdToDateMap.get(b.workoutId) || "";
       return dateB.localeCompare(dateA);
     });
-    console.log(filtered, "filtered");
     return filtered[0];
   }
 
@@ -112,7 +111,6 @@ export class WorkoutDetailQueryService implements IWorkoutDetailQueryService {
       if (!currentWorkout?.date) return;
       referenceDate = new Date(currentWorkout.date);
     }
-    console.log(candidates, "candidates");
     const mostRecent = await this.pickMostRecentDetailBeforeDate(
       candidates,
       referenceDate
