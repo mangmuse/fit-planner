@@ -32,11 +32,12 @@ export const WeightUnitSetting = () => {
     <div className="flex items-center justify-between px-4 py-3">
       <div>
         <p className="text-white">기본 무게 단위</p>
-        <p className="text-text-muted text-sm">
-          새 운동 생성 시 사용되는 기본 단위
-        </p>
+        <p className="text-text-muted text-sm">새 운동 생성 시 기본 단위</p>
       </div>
-      <div className="flex bg-bg-secondary rounded-lg p-1 gap-1">
+      <div
+        aria-label={`현재 무게 단위: ${unit}`}
+        className="flex bg-bg-secondary rounded-lg p-1 gap-1"
+      >
         {UNITS.map((unitOption) => (
           <button
             key={unitOption}
