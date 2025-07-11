@@ -114,7 +114,7 @@ const SessionExerciseGroup = ({
             <span className="font-normal">
               {currentVolume.toLocaleString()}{groupUnit}
             </span>
-            {volumeDiff !== 0 && (
+            {prevWorkoutDetails && volumeDiff !== 0 && (
               <span
                 className={`font-medium ${
                   volumeDiff > 0 ? "text-green-500" : "text-red-500"
