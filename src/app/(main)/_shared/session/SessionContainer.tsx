@@ -63,6 +63,7 @@ const SessionContainer = ({
     updateMultipleDetailsInGroups,
     addDetailToGroup,
     removeDetailFromGroup,
+    removeMultipleDetailsInGroup,
   } = useLoadDetails({
     type,
     userId: userId ?? "",
@@ -299,7 +300,8 @@ const SessionContainer = ({
               <div className="flex items-center gap-2">
                 <span className="text-sm text-text-muted">총 볼륨</span>
                 <span className="text-lg font-semibold">
-                  {totalCurrentVolume.toLocaleString()}{weightUnit}
+                  {totalCurrentVolume.toLocaleString()}
+                  {weightUnit}
                 </span>
               </div>
             </div>
@@ -311,6 +313,7 @@ const SessionContainer = ({
                 key={`${exerciseOrder}-${details[0]?.exerciseId}`}
                 details={details}
                 reorderAfterDelete={reorderAfterDelete}
+                removeMultipleDetailsInGroup={removeMultipleDetailsInGroup}
                 occurrence={occurrenceData.get(exerciseOrder)}
                 exerciseOrder={exerciseOrder}
                 reload={reload}

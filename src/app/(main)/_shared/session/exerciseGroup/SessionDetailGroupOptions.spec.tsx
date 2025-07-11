@@ -54,6 +54,7 @@ describe("SessionDetailGroupOptions", () => {
   const mockReload = jest.fn();
   const mockReorderAfterDelete = jest.fn();
   const mockUpdateMultipleDetailsInGroups = jest.fn();
+  const mockRemoveMultipleDetailsInGroup = jest.fn();
 
   const mockExerciseData: Saved<LocalExercise> = {
     ...mockExercise.list[0],
@@ -109,6 +110,7 @@ describe("SessionDetailGroupOptions", () => {
       reload: mockReload,
       reorderAfterDelete: mockReorderAfterDelete,
       updateMultipleDetailsInGroups: mockUpdateMultipleDetailsInGroups,
+      removeMultipleDetailsInGroup: mockRemoveMultipleDetailsInGroup,
       ...props,
     };
 
@@ -205,7 +207,9 @@ describe("SessionDetailGroupOptions", () => {
         expect(
           mockWorkoutDetailService.deleteWorkoutDetails
         ).toHaveBeenCalledWith(mockWorkoutDetails);
-        expect(mockReload).toHaveBeenCalledTimes(1);
+        expect(mockRemoveMultipleDetailsInGroup).toHaveBeenCalledWith(
+          mockWorkoutDetails
+        );
       });
     });
 
@@ -224,7 +228,9 @@ describe("SessionDetailGroupOptions", () => {
         expect(
           mockRoutineDetailService.deleteRoutineDetails
         ).toHaveBeenCalledWith(mockRoutineDetails);
-        expect(mockReload).toHaveBeenCalledTimes(1);
+        expect(mockRemoveMultipleDetailsInGroup).toHaveBeenCalledWith(
+          mockRoutineDetails
+        );
       });
     });
 

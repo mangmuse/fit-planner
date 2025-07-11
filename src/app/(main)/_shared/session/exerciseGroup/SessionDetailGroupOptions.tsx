@@ -37,6 +37,9 @@ type SessionDetailGroupOptions = {
   updateMultipleDetailsInGroups: (
     updatedDetails: (Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>)[]
   ) => void;
+  removeMultipleDetailsInGroup: (
+    details: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[]
+  ) => void;
 };
 
 const units = ["kg", "lbs"] as const;
@@ -47,6 +50,7 @@ const SessionDetailGroupOptions = ({
   loadExercises,
   reload,
   updateMultipleDetailsInGroups,
+  removeMultipleDetailsInGroup,
 }: SessionDetailGroupOptions) => {
   const [unit, setUnit] = useState<(typeof units)[number]>(
     details[0]?.weightUnit || "kg"
@@ -79,7 +83,7 @@ const SessionDetailGroupOptions = ({
       } else {
         await routineDetailService.deleteRoutineDetails(details);
       }
-      await reload();
+      removeMultipleDetailsInGroup(details);
     } catch (e) {
       console.error(
         "[SessionDetailGroupOptions] deleteAndLoadDetails Error",

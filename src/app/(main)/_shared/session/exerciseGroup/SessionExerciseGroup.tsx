@@ -30,6 +30,9 @@ export type SessionExerciseGroupProps = {
     lastDetail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>
   ) => void;
   removeDetailFromGroup: (detailId: number) => void;
+  removeMultipleDetailsInGroup: (
+    details: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[]
+  ) => void;
 };
 
 const SessionExerciseGroup = ({
@@ -42,6 +45,7 @@ const SessionExerciseGroup = ({
   updateMultipleDetailsInGroups,
   addDetailToGroup,
   removeDetailFromGroup,
+  removeMultipleDetailsInGroup,
 }: SessionExerciseGroupProps) => {
   const { openBottomSheet } = useBottomSheet();
   const lastDetail = details[details.length - 1];
@@ -112,7 +116,8 @@ const SessionExerciseGroup = ({
           </h6>
           <div className="flex items-center gap-1.5 text-xs text-text-muted mt-1">
             <span className="font-normal">
-              {currentVolume.toLocaleString()}{groupUnit}
+              {currentVolume.toLocaleString()}
+              {groupUnit}
             </span>
             {prevWorkoutDetails && volumeDiff !== 0 && (
               <span
@@ -121,7 +126,8 @@ const SessionExerciseGroup = ({
                 }`}
               >
                 {volumeDiff > 0 ? "+" : ""}
-                {volumeDiff.toLocaleString()}{groupUnit}
+                {volumeDiff.toLocaleString()}
+                {groupUnit}
               </span>
             )}
           </div>
@@ -133,6 +139,7 @@ const SessionExerciseGroup = ({
               minHeight: 300,
               children: (
                 <SessionDetailGroupOptions
+                  removeMultipleDetailsInGroup={removeMultipleDetailsInGroup}
                   reload={reload}
                   reorderAfterDelete={reorderAfterDelete}
                   loadExercises={reloadExercise}

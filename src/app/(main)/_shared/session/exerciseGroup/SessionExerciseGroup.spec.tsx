@@ -118,6 +118,7 @@ describe("SessionExerciseGroup", () => {
   const mockAddDetailToGroup = jest.fn();
   const mockUpdateDetailInGroups = jest.fn();
   const mockRemoveDetailFromGroup = jest.fn();
+
   beforeEach(() => {
     jest.clearAllMocks();
 
@@ -157,6 +158,8 @@ describe("SessionExerciseGroup", () => {
     const defaultProps: SessionExerciseGroupProps = {
       details: mockWDs,
       exerciseOrder: mockExerciseOrder,
+
+      removeMultipleDetailsInGroup: jest.fn(),
       reload: mockReload,
       reorderAfterDelete: mockReorderAfterDelete,
       occurrence: 1,
