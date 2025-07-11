@@ -1,5 +1,6 @@
 "use client";
 
+import { useSessionData } from "@/app/(main)/_shared/session/SessionContainer";
 import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import { routineDetailService, workoutDetailService } from "@/lib/di";
 import { useModal } from "@/providers/contexts/ModalContext";
@@ -8,19 +9,16 @@ import { LocalRoutineDetail, LocalWorkoutDetail, Saved } from "@/types/models";
 
 export type SetActionsProps = {
   lastValue: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>;
-  addDetailToGroup: (
-    newDetail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>,
-    lastDetail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>
-  ) => void;
-  removeDetailFromGroup: (detailId: number) => void;
+  exerciseOrder: number;
 };
 
-const SetActions = ({
-  lastValue,
-  addDetailToGroup,
-  removeDetailFromGroup,
-}: SetActionsProps) => {
+const SetActions = ({ lastValue, exerciseOrder }: SetActionsProps) => {
   const { showError } = useModal();
+  const {
+    reorderExerciseOrderAfterDelete,
+    addDetailToGroup,
+    removeDetailFromGroup,
+  } = useSessionData();
   const handleAddSet = async () => {
     try {
       let newDetail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>;
@@ -46,6 +44,9 @@ const SetActions = ({
         await routineDetailService.deleteRoutineDetail(detailId);
       }
 
+      if (lastValue.setOrder === 1) {
+        await reorderExerciseOrderAfterDelete(exerciseOrder);
+      }
       removeDetailFromGroup(detailId);
     } catch (e) {
       console.error("[SetActions] Error", e);

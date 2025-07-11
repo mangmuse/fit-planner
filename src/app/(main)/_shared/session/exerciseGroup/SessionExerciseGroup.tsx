@@ -12,44 +12,28 @@ import { MoreHorizontal } from "lucide-react";
 import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
 import React, { useMemo } from "react";
 import { calculateVolumeFromDetails } from "@/util/volumeCalculator";
+import { useSessionData } from "@/app/(main)/_shared/session/SessionContainer";
 
 export type SessionExerciseGroupProps = {
   exerciseOrder: number;
   details: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[];
-  reload: () => Promise<void>;
-  reorderAfterDelete: (deletedExerciseOrder: number) => Promise<void>;
   occurrence: number;
-  updateDetailInGroups: (
-    updatedDetail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>
-  ) => void;
-  updateMultipleDetailsInGroups: (
-    updatedDetails: (Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>)[]
-  ) => void;
-  addDetailToGroup: (
-    newDetail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>,
-    lastDetail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>
-  ) => void;
-  removeDetailFromGroup: (detailId: number) => void;
-  removeMultipleDetailsInGroup: (
-    details: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[]
-  ) => void;
 };
 
 const SessionExerciseGroup = ({
   details,
   exerciseOrder,
-  reload,
   occurrence,
-  reorderAfterDelete,
-  updateDetailInGroups,
-  updateMultipleDetailsInGroups,
-  addDetailToGroup,
-  removeDetailFromGroup,
-  removeMultipleDetailsInGroup,
 }: SessionExerciseGroupProps) => {
+  const {
+    reload,
+    updateMultipleDetailsInGroups,
+
+    removeMultipleDetailsInGroup,
+    reorderExerciseOrderAfterDelete,
+  } = useSessionData();
   const { openBottomSheet } = useBottomSheet();
   const lastDetail = details[details.length - 1];
-
   const exerciseId = useMemo(() => details[0]?.exerciseId, [details]);
   const groupUnit = useMemo(() => details[0]?.weightUnit || "kg", [details]);
 
@@ -104,6 +88,24 @@ const SessionExerciseGroup = ({
   if (details.length === 0) return null;
   if (!exercise) return null;
 
+  const handleOpenMenu = () => {
+    openBottomSheet({
+      minHeight: 300,
+      children: (
+        <SessionDetailGroupOptions
+          exerciseOrder={exerciseOrder}
+          loadExercises={reloadExercise}
+          details={details}
+          exercise={exercise}
+          reload={reload}
+          updateMultipleDetailsInGroups={updateMultipleDetailsInGroups}
+          removeMultipleDetailsInGroup={removeMultipleDetailsInGroup}
+          reorderExerciseOrderAfterDelete={reorderExerciseOrderAfterDelete}
+        />
+      ),
+    });
+  };
+
   return (
     <div className="bg-bg-surface font-semibold rounded-xl mb-3 ">
       <div className="flex px-3 py-2.5 items-start justify-between">
@@ -134,22 +136,7 @@ const SessionExerciseGroup = ({
         </div>
         <button
           aria-label="운동 메뉴"
-          onClick={() => {
-            openBottomSheet({
-              minHeight: 300,
-              children: (
-                <SessionDetailGroupOptions
-                  removeMultipleDetailsInGroup={removeMultipleDetailsInGroup}
-                  reload={reload}
-                  reorderAfterDelete={reorderAfterDelete}
-                  loadExercises={reloadExercise}
-                  details={details}
-                  exercise={exercise}
-                  updateMultipleDetailsInGroups={updateMultipleDetailsInGroups}
-                />
-              ),
-            });
-          }}
+          onClick={handleOpenMenu}
           className="p-1.5 -mr-1 -mt-0.5 hover:bg-bg-base rounded-lg transition-colors"
         >
           <MoreHorizontal className="w-5 h-5 text-text-muted" />
@@ -164,23 +151,19 @@ const SessionExerciseGroup = ({
           {details.map((detail, idx) => (
             <SessionItem
               key={detail.id}
-              reload={reload}
-              reorderAfterDelete={reorderAfterDelete}
-              exercise={exercise}
-              removeDetailFromGroup={removeDetailFromGroup}
               detail={detail}
               prevWorkoutDetail={(prevWorkoutDetails || [])[idx]}
-              updateDetailInGroups={updateDetailInGroups}
+              group={{
+                exerciseOrder,
+                details,
+              }}
+              isLastSet={idx === details.length - 1}
             />
           ))}
         </tbody>
       </table>
       <div className="px-3 pb-3">
-        <SetActions
-          lastValue={lastDetail}
-          addDetailToGroup={addDetailToGroup}
-          removeDetailFromGroup={removeDetailFromGroup}
-        />
+        <SetActions exerciseOrder={exerciseOrder} lastValue={lastDetail} />
       </div>
     </div>
   );
