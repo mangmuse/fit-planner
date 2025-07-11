@@ -1,7 +1,11 @@
 "use client";
 
-import { getFormattedDateYMD, getMonthRange } from "@/util/formatDate";
-import dayjs from "dayjs";
+import {
+  getFormattedDateYMD,
+  getMonthRange,
+  getCurrentKoreanTime,
+} from "@/util/formatDate";
+import dayjs from "@/util/dayjsSetup";
 import { useEffect, useState } from "react";
 import rightArrow from "public/calendar-arrow-right.svg";
 import leftArrow from "public/calendar-arrow-left.svg";
@@ -15,7 +19,9 @@ import { workoutService } from "@/lib/di";
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"] as const;
 
 const WorkoutCalendar = () => {
-  const [currentDate, setCurrentDate] = useState<string>(getFormattedDateYMD());
+  const [currentDate, setCurrentDate] = useState<string>(
+    getFormattedDateYMD(getCurrentKoreanTime().toDate())
+  );
   const [daysStatus, setDaysStatus] = useState<{
     [date: string]: "PLANNED" | "IN_PROGRESS" | "COMPLETED";
   }>({});
