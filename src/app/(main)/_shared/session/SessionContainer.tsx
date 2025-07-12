@@ -7,12 +7,18 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Trash2, ChevronsUpDown } from "lucide-react";
 
-import useLoadDetails from "@/hooks/useLoadDetails";
+import useLoadDetails, { SessionGroup } from "@/hooks/useLoadDetails";
 
 import { useModal } from "@/providers/contexts/ModalContext";
 import ErrorState from "@/components/ErrorState";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useCallback } from "react";
+import {
+  useEffect,
+  useMemo,
+  useCallback,
+  createContext,
+  useContext,
+} from "react";
 import {
   routineDetailService,
   routineService,
@@ -27,6 +33,7 @@ import {
   LocalWorkout,
   LocalWorkoutDetail,
   LocalRoutineDetail,
+  Saved,
 } from "@/types/models";
 import SessionExerciseGroup from "@/app/(main)/_shared/session/exerciseGroup/SessionExerciseGroup";
 import SessionSequence from "@/app/(main)/_shared/session/sessionSequence/SessionSequence";
@@ -42,6 +49,40 @@ type SessionContainerProps = {
   routineId?: number;
   date?: string;
   formattedDate?: string | React.ReactNode;
+};
+
+export type SessionData = {
+  sessionGroup: SessionGroup[];
+  updateDetailInGroups: (
+    updatedDetail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>
+  ) => void;
+  removeMultipleDetailsInGroup: (
+    details: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[]
+  ) => void;
+  addDetailToGroup: (
+    newDetail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>,
+    lastDetail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>
+  ) => void;
+  removeDetailFromGroup: (detailId: number) => void;
+  updateMultipleDetailsInGroups: (
+    updatedDetails: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[]
+  ) => void;
+  reload: () => Promise<void>;
+  reorderExerciseOrderAfterDelete: (
+    deletedExerciseOrder: number
+  ) => Promise<void>;
+  reorderSetOrderAfterDelete: (
+    exerciseId: number,
+    deletedSetOrder: number
+  ) => Promise<void>;
+};
+const SessionDataContext = createContext<SessionData | null>(null);
+
+export const useSessionData = () => {
+  const context = useContext(SessionDataContext);
+  if (!context)
+    throw new Error("useSessionData must be used within SessionContainer");
+  return context;
 };
 
 const SessionContainer = ({
@@ -63,6 +104,7 @@ const SessionContainer = ({
     updateMultipleDetailsInGroups,
     addDetailToGroup,
     removeDetailFromGroup,
+    removeMultipleDetailsInGroup,
   } = useLoadDetails({
     type,
     userId: userId ?? "",
@@ -109,7 +151,7 @@ const SessionContainer = ({
     });
   }, [openBottomSheet, type, routineId, workoutGroups.length, date, reload]);
 
-  const reorderAfterDelete = useCallback(
+  const reorderExerciseOrderAfterDelete = useCallback(
     async (deletedExerciseOrder: number): Promise<void> => {
       try {
         let latestDetails: (LocalWorkoutDetail | LocalRoutineDetail)[] = [];
@@ -147,6 +189,53 @@ const SessionContainer = ({
       }
     },
     [type, userId, date, routineId, showError]
+  );
+  const reorderSetOrderAfterDelete = useCallback(
+    async (exerciseId: number, deletedSetOrder: number): Promise<void> => {
+      try {
+        let latestDetails: (
+          | Saved<LocalWorkoutDetail>
+          | Saved<LocalRoutineDetail>
+        )[] = [];
+
+        if (type === "RECORD" && userId && date) {
+          latestDetails = await workoutDetailService.getLocalWorkoutDetails(
+            userId,
+            date
+          );
+        } else if (type === "ROUTINE" && routineId) {
+          latestDetails =
+            await routineDetailService.getLocalRoutineDetails(routineId);
+        }
+
+        const affectedDetails = latestDetails.filter(
+          (d) => d.exerciseId === exerciseId && d.setOrder > deletedSetOrder
+        );
+
+        const updatedDetails = affectedDetails.map((detail) => ({
+          ...detail,
+          setOrder: detail.setOrder - 1,
+        }));
+
+        await Promise.all(
+          updatedDetails.map((detail) => {
+            if (isWorkoutDetail(detail)) {
+              return workoutDetailService.updateLocalWorkoutDetail(detail);
+            } else {
+              return routineDetailService.updateLocalRoutineDetail(detail);
+            }
+          })
+        );
+
+        if (updatedDetails.length > 0) {
+          updateMultipleDetailsInGroups(updatedDetails);
+        }
+      } catch (e) {
+        console.error("[SessionContainer] reorderSetOrderAfterDelete Error", e);
+        showError("세트 순서 업데이트에 실패했습니다");
+      }
+    },
+    [type, userId, date, routineId, showError, updateMultipleDetailsInGroups]
   );
 
   const handleDeleteAll = useCallback(async () => {
@@ -261,102 +350,124 @@ const SessionContainer = ({
     return () => window.removeEventListener("popstate", handlePopState);
   }, [pathname, isModalOpen]);
 
+  const contextValue = useMemo(
+    () => ({
+      sessionGroup: workoutGroups,
+      updateDetailInGroups,
+      removeMultipleDetailsInGroup,
+      addDetailToGroup,
+      removeDetailFromGroup,
+      updateMultipleDetailsInGroups,
+      reorderExerciseOrderAfterDelete,
+      reorderSetOrderAfterDelete,
+      reload,
+    }),
+    [
+      workoutGroups,
+      updateDetailInGroups,
+      removeMultipleDetailsInGroup,
+      addDetailToGroup,
+      removeDetailFromGroup,
+      updateMultipleDetailsInGroups,
+      reorderExerciseOrderAfterDelete,
+      reorderSetOrderAfterDelete,
+      reload,
+    ]
+  );
+
   if (isLoading) return null;
   if (error) return <ErrorState error={error} onRetry={reload} />;
   return (
-    <div>
-      {workoutGroups.length !== 0 ? (
-        <>
-          {(formattedDate || type === "ROUTINE") && (
-            <div className="flex justify-between items-center mb-6 ">
-              {formattedDate &&
-                (typeof formattedDate === "string" ? (
-                  <time className="text-2xl font-bold">{formattedDate}</time>
-                ) : (
-                  <div className="text-2xl font-bold">{formattedDate}</div>
-                ))}
-              <div className="flex gap-2">
-                <button
-                  onClick={handleDeleteAll}
-                  className="p-2 hover:bg-bg-surface rounded-lg transition-colors"
-                  aria-label="전체 삭제"
-                >
-                  <Trash2 className="w-6 h-6 text-text-muted" />
-                </button>
-                <button
-                  onClick={handleOpenSequenceSheet}
-                  className="p-2 hover:bg-bg-surface rounded-lg transition-colors"
-                  aria-label="순서 변경"
-                >
-                  <ChevronsUpDown className="w-6 h-6 text-text-muted" />
-                </button>
+    <SessionDataContext.Provider value={contextValue}>
+      <div>
+        {workoutGroups.length !== 0 ? (
+          <>
+            {(formattedDate || type === "ROUTINE") && (
+              <div className="flex justify-between items-center mb-6 ">
+                {formattedDate &&
+                  (typeof formattedDate === "string" ? (
+                    <time className="text-2xl font-bold">{formattedDate}</time>
+                  ) : (
+                    <div className="text-2xl font-bold">{formattedDate}</div>
+                  ))}
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleDeleteAll}
+                    className="p-2 hover:bg-bg-surface rounded-lg transition-colors"
+                    aria-label="전체 삭제"
+                  >
+                    <Trash2 className="w-6 h-6 text-text-muted" />
+                  </button>
+                  <button
+                    onClick={handleOpenSequenceSheet}
+                    className="p-2 hover:bg-bg-surface rounded-lg transition-colors"
+                    aria-label="순서 변경"
+                  >
+                    <ChevronsUpDown className="w-6 h-6 text-text-muted" />
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {workoutGroups.length > 0 && (
-            <div className="bg-bg-surface rounded-lg p-3 mb-4">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-text-muted">총 볼륨</span>
-                <span className="text-lg font-semibold">
-                  {totalCurrentVolume.toLocaleString()}{weightUnit}
-                </span>
+            {workoutGroups.length > 0 && (
+              <div className="bg-bg-surface rounded-lg p-3 mb-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-text-muted">총 볼륨</span>
+                  <span className="text-lg font-semibold">
+                    {totalCurrentVolume.toLocaleString()}
+                    {weightUnit}
+                  </span>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <ul className="flex flex-col gap-2.5 scrollbar-none">
-            {workoutGroups.map(({ exerciseOrder, details }) => (
-              <SessionExerciseGroup
-                key={`${exerciseOrder}-${details[0]?.exerciseId}`}
-                details={details}
-                reorderAfterDelete={reorderAfterDelete}
-                occurrence={occurrenceData.get(exerciseOrder)}
-                exerciseOrder={exerciseOrder}
-                reload={reload}
-                updateDetailInGroups={updateDetailInGroups}
-                updateMultipleDetailsInGroups={updateMultipleDetailsInGroups}
-                removeDetailFromGroup={removeDetailFromGroup}
-                addDetailToGroup={addDetailToGroup}
-              />
-            ))}
-          </ul>
+            <ul className="flex flex-col gap-2.5 scrollbar-none">
+              {workoutGroups.map(({ exerciseOrder, details }) => (
+                <SessionExerciseGroup
+                  key={`${exerciseOrder}-${details[0]?.exerciseId}`}
+                  details={details}
+                  occurrence={occurrenceData.get(exerciseOrder)}
+                  exerciseOrder={exerciseOrder}
+                />
+              ))}
+            </ul>
 
-          <div className="flex gap-2 mt-2">
-            <Link
-              href={exercisePath}
-              replace
-              className="flex-1 py-2.5 bg-bg-surface text-sm rounded-lg text-center hover:bg-bg-surface-variant transition-colors"
-            >
-              운동 추가
-            </Link>
-            <button
-              onClick={handleOpenLocalWorkoutSheet}
-              className="flex-1 py-2.5 bg-bg-surface text-sm rounded-lg hover:bg-bg-surface-variant transition-colors"
-            >
-              불러오기
-            </button>
-          </div>
-          {type === "RECORD" && workout?.status !== "COMPLETED" && (
-            <button
-              onClick={handleClickCompleteBtn}
-              className="w-full mt-6 py-3 bg-primary text-text-black font-semibold rounded-xl hover:bg-primary/90 active:scale-[0.98] transition-all duration-200"
-            >
-              운동 완료
-            </button>
-          )}
-        </>
-      ) : (
-        <>
-          {formattedDate && (
-            <div className="mb-6">
-              <time className="text-2xl font-bold">{formattedDate}</time>
+            <div className="flex gap-2 mt-2">
+              <Link
+                href={exercisePath}
+                replace
+                className="flex-1 py-2.5 bg-bg-surface text-sm rounded-lg text-center hover:bg-bg-surface-variant transition-colors"
+              >
+                운동 추가
+              </Link>
+              <button
+                onClick={handleOpenLocalWorkoutSheet}
+                className="flex-1 py-2.5 bg-bg-surface text-sm rounded-lg hover:bg-bg-surface-variant transition-colors"
+              >
+                불러오기
+              </button>
             </div>
-          )}
-          <SessionPlaceholder reloadDetails={reload} {...placeholderProps} />
-        </>
-      )}
-    </div>
+            {type === "RECORD" && workout?.status !== "COMPLETED" && (
+              <button
+                onClick={handleClickCompleteBtn}
+                className="w-full mt-6 py-3 bg-primary text-text-black font-semibold rounded-xl hover:bg-primary/90 active:scale-[0.98] transition-all duration-200"
+              >
+                운동 완료
+              </button>
+            )}
+          </>
+        ) : (
+          <>
+            {formattedDate && (
+              <div className="mb-6">
+                <time className="text-2xl font-bold">{formattedDate}</time>
+              </div>
+            )}
+            <SessionPlaceholder reloadDetails={reload} {...placeholderProps} />
+          </>
+        )}
+      </div>
+    </SessionDataContext.Provider>
   );
 };
 

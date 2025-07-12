@@ -16,11 +16,14 @@ import { LocalExercise, Saved } from "@/types/models";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
+import { useSessionData } from "@/app/(main)/_shared/session/SessionContainer";
+import { createMockSessionData } from "@/test-utils/mocks/sessionData.mock";
 
 jest.mock("@/lib/di");
 jest.mock("@/providers/contexts/BottomSheetContext");
 jest.mock("@/providers/contexts/ModalContext");
 jest.mock("@/app/(main)/workout/_utils/getGroupedDetails");
+jest.mock("@/app/(main)/_shared/session/SessionContainer");
 
 const mockedExerciseService = jest.mocked(exerciseService);
 const mockedWorkoutDetailService = jest.mocked(workoutDetailService);
@@ -28,6 +31,7 @@ const mockedRoutineDetailService = jest.mocked(routineDetailService);
 const mockedUseModal = jest.mocked(useModal);
 const mockedUseBottomSheet = jest.mocked(useBottomSheet);
 const mockedGetGroupedDetails = jest.mocked(getGroupedDetails);
+const mockedUseSessionData = jest.mocked(useSessionData);
 
 const mockEx: Saved<LocalExercise> = {
   ...mockExercise.bookmarked,
@@ -118,6 +122,7 @@ describe("SessionExerciseGroup", () => {
   const mockAddDetailToGroup = jest.fn();
   const mockUpdateDetailInGroups = jest.fn();
   const mockRemoveDetailFromGroup = jest.fn();
+
   beforeEach(() => {
     jest.clearAllMocks();
 
@@ -133,6 +138,14 @@ describe("SessionExerciseGroup", () => {
       isOpen: false,
       openModal: jest.fn(),
     });
+
+    mockedUseSessionData.mockReturnValue(
+      createMockSessionData({
+        updateDetailInGroups: mockUpdateDetailInGroups,
+        addDetailToGroup: mockAddDetailToGroup,
+        removeDetailFromGroup: mockRemoveDetailFromGroup,
+      })
+    );
 
     mockedExerciseService.getExerciseWithLocalId.mockResolvedValue(mockEx);
     mockedWorkoutDetailService.getLatestWorkoutDetailByDetail.mockResolvedValue(
@@ -157,13 +170,7 @@ describe("SessionExerciseGroup", () => {
     const defaultProps: SessionExerciseGroupProps = {
       details: mockWDs,
       exerciseOrder: mockExerciseOrder,
-      reload: mockReload,
-      reorderAfterDelete: mockReorderAfterDelete,
       occurrence: 1,
-      updateDetailInGroups: jest.fn(),
-      updateMultipleDetailsInGroups: jest.fn(),
-      removeDetailFromGroup: mockRemoveDetailFromGroup,
-      addDetailToGroup: mockAddDetailToGroup,
     };
     render(<SessionExerciseGroup {...defaultProps} {...props} />);
   };
@@ -277,10 +284,11 @@ describe("SessionExerciseGroup", () => {
       expect(children.props).toEqual(
         expect.objectContaining({
           reload: expect.any(Function),
-          reorderAfterDelete: expect.any(Function),
           loadExercises: expect.any(Function),
           details: mockWDs,
           exercise: mockEx,
+          updateMultipleDetailsInGroups: expect.any(Function),
+          removeMultipleDetailsInGroup: expect.any(Function),
         })
       );
     });

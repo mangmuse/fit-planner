@@ -13,28 +13,30 @@ import SetOrderCell from "@/app/(main)/_shared/session/sessionSet/SetOrderCell";
 import { routineDetailService, workoutDetailService } from "@/lib/di";
 import { useModal } from "@/providers/contexts/ModalContext";
 import { formatWeight, parseWeightInput } from "@/util/weightConversion";
+import { useSessionData } from "@/app/(main)/_shared/session/SessionContainer";
+import { SessionGroup } from "@/hooks/useLoadDetails";
 
 export type SessionItemProps = {
-  exercise: LocalExercise;
   detail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>;
   prevWorkoutDetail?: Saved<LocalWorkoutDetail>;
-  reorderAfterDelete: (deletedExerciseOrder: number) => Promise<void>;
-  reload: () => Promise<void>;
-  updateDetailInGroups: (
-    updatedDetail: LocalWorkoutDetail | LocalRoutineDetail
-  ) => void;
-  removeDetailFromGroup?: (detailId: number) => void;
+  group: SessionGroup;
+  isLastSet: boolean;
 };
 
 const SessionItem = ({
   detail,
-  exercise,
   prevWorkoutDetail,
-  reload,
-  removeDetailFromGroup,
-  reorderAfterDelete,
-  updateDetailInGroups,
+  group,
+  isLastSet,
 }: SessionItemProps) => {
+  const {
+    updateDetailInGroups,
+    removeDetailFromGroup,
+    reorderSetOrderAfterDelete,
+    reorderExerciseOrderAfterDelete,
+    reload,
+    sessionGroup,
+  } = useSessionData();
   const { weight, reps, id } = detail;
   const { showError } = useModal();
   const isDone = isWorkoutDetail(detail) ? detail.isDone : false;
@@ -83,7 +85,13 @@ const SessionItem = ({
     if (!isWorkoutDetail(detail) && detail.id) {
       try {
         await routineDetailService.deleteRoutineDetail(detail.id);
-        await reorderAfterDelete(detail.exerciseOrder);
+
+        if (isLastSet) {
+          await reorderExerciseOrderAfterDelete(group.exerciseOrder);
+        } else {
+          await reorderSetOrderAfterDelete(detail.exerciseId, detail.setOrder);
+        }
+
         removeDetailFromGroup?.(detail.id);
       } catch (e) {
         console.error("[SessionItem] Error", e);

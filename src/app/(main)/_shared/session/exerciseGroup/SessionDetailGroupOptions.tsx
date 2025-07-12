@@ -18,39 +18,45 @@ import {
   isWorkoutDetail,
   isWorkoutDetails,
 } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
-import {
-  exerciseService,
-  routineDetailService,
-  workoutDetailService,
-} from "@/lib/di";
+import { routineDetailService, workoutDetailService } from "@/lib/di";
 import ExerciseMemo from "@/app/(main)/_shared/session/exerciseMemo/ExerciseMemo";
 import GroupOptionItem from "@/app/(main)/_shared/session/exerciseGroup/GroupOptionItem";
 import { convertKgtoLbs, convertLbstoKg } from "@/util/weightConversion";
+import { useSessionData } from "@/app/(main)/_shared/session/SessionContainer";
 
-type SessionDetailGroupOptions = {
+export type SessionDetailGroupOptionsProps = {
   exercise: Saved<LocalExercise>;
+  exerciseOrder: number;
   details: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[];
-
   loadExercises: () => Promise<void>;
   reload: () => Promise<void>;
-  reorderAfterDelete: (deletedExerciseOrder: number) => Promise<void>;
   updateMultipleDetailsInGroups: (
-    updatedDetails: (Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>)[]
+    updatedDetails: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[]
   ) => void;
+  removeMultipleDetailsInGroup: (
+    details: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[]
+  ) => void;
+  reorderExerciseOrderAfterDelete: (
+    deletedExerciseOrder: number
+  ) => Promise<void>;
 };
 
 const units = ["kg", "lbs"] as const;
 
 const SessionDetailGroupOptions = ({
   exercise,
+  exerciseOrder,
   details,
   loadExercises,
   reload,
   updateMultipleDetailsInGroups,
-}: SessionDetailGroupOptions) => {
+  removeMultipleDetailsInGroup,
+  reorderExerciseOrderAfterDelete,
+}: SessionDetailGroupOptionsProps) => {
   const [unit, setUnit] = useState<(typeof units)[number]>(
     details[0]?.weightUnit || "kg"
   );
+  console.log(reorderExerciseOrderAfterDelete);
   const [currentWeights, setCurrentWeights] = useState<number[]>(
     details.map((d) => d.weight || 0)
   );
@@ -79,7 +85,8 @@ const SessionDetailGroupOptions = ({
       } else {
         await routineDetailService.deleteRoutineDetails(details);
       }
-      await reload();
+      await reorderExerciseOrderAfterDelete(exerciseOrder);
+      removeMultipleDetailsInGroup(details);
     } catch (e) {
       console.error(
         "[SessionDetailGroupOptions] deleteAndLoadDetails Error",

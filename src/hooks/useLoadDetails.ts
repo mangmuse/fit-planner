@@ -280,6 +280,23 @@ const useLoadDetails = ({
     []
   );
 
+  const removeMultipleDetailsInGroup = useCallback(
+    (details: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[]) => {
+      setWorkoutGroups((prevGroups) =>
+        prevGroups
+          .filter(
+            (group) =>
+              !details.some((d) => group.details.some((g) => g.id === d.id))
+          )
+          .map((group, idx) => ({
+            ...group,
+            exerciseOrder: idx + 1,
+          }))
+      );
+    },
+    []
+  );
+
   return {
     error,
     isLoading: isInitialLoading,
@@ -293,6 +310,7 @@ const useLoadDetails = ({
     addDetailToGroup,
     removeDetailFromGroup,
     updateMultipleDetailsInGroups,
+    removeMultipleDetailsInGroup,
   };
 };
 

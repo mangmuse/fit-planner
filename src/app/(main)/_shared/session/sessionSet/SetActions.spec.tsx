@@ -1,19 +1,23 @@
 jest.mock("@/lib/di");
 jest.mock("@/providers/contexts/ModalContext");
+jest.mock("@/app/(main)/_shared/session/SessionContainer");
 
 import { mockRoutineDetail } from "@/__mocks__/routineDetail.mock";
 import { mockWorkoutDetail } from "@/__mocks__/workoutDetail.mock";
+import { useSessionData } from "@/app/(main)/_shared/session/SessionContainer";
 import SetActions, {
   SetActionsProps,
 } from "@/app/(main)/_shared/session/sessionSet/SetActions";
 import { routineDetailService, workoutDetailService } from "@/lib/di";
 import { useModal } from "@/providers/contexts/ModalContext";
+import { createMockSessionData } from "@/test-utils/mocks/sessionData.mock";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 const mockWorkoutDetailService = jest.mocked(workoutDetailService);
 const mockRoutineDetailService = jest.mocked(routineDetailService);
 const mockUseModal = jest.mocked(useModal);
+const mockUseSessionData = jest.mocked(useSessionData);
 
 describe("SetActions", () => {
   const mockShowError = jest.fn();
@@ -22,6 +26,7 @@ describe("SetActions", () => {
   const mockRD = { ...mockRoutineDetail.past, id: 600 };
   const mockAddDetailToGroup = jest.fn();
   const mockRemoveDetailFromGroup = jest.fn();
+  const mockReorderExerciseOrderAfterDelete = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -31,13 +36,20 @@ describe("SetActions", () => {
       closeModal: jest.fn(),
       isOpen: false,
     });
+
+    mockUseSessionData.mockReturnValue(
+      createMockSessionData({
+        reorderExerciseOrderAfterDelete: mockReorderExerciseOrderAfterDelete,
+        addDetailToGroup: mockAddDetailToGroup,
+        removeDetailFromGroup: mockRemoveDetailFromGroup,
+      })
+    );
   });
 
   const renderSetActions = (props?: Partial<SetActionsProps>) => {
     const defaultProps: SetActionsProps = {
       lastValue: mockWD,
-      addDetailToGroup: mockAddDetailToGroup,
-      removeDetailFromGroup: mockRemoveDetailFromGroup,
+      exerciseOrder: 5,
     };
     render(<SetActions {...defaultProps} {...props} />);
   };
@@ -124,6 +136,7 @@ describe("SetActions", () => {
       );
 
       expect(mockRemoveDetailFromGroup).toHaveBeenCalledWith(mockRD.id);
+      expect(mockReorderExerciseOrderAfterDelete).toHaveBeenCalledWith(5);
 
       expect(
         mockWorkoutDetailService.deleteWorkoutDetail

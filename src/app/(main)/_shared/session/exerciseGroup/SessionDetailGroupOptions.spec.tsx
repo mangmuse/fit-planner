@@ -21,7 +21,6 @@ jest.mock("framer-motion", () => ({
 import { mockExercise } from "@/__mocks__/exercise.mock";
 import { mockWorkoutDetail } from "@/__mocks__/workoutDetail.mock";
 import { mockRoutineDetail } from "@/__mocks__/routineDetail.mock";
-import SessionDetailGroupOptions from "./SessionDetailGroupOptions";
 import { useModal } from "@/providers/contexts/ModalContext";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 import {
@@ -38,6 +37,9 @@ import {
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { KG_TO_LBS } from "@/util/weightConversion";
+import SessionDetailGroupOptions, {
+  SessionDetailGroupOptionsProps,
+} from "@/app/(main)/_shared/session/exerciseGroup/SessionDetailGroupOptions";
 
 const mockUseModal = jest.mocked(useModal);
 const mockUseBottomSheet = jest.mocked(useBottomSheet);
@@ -52,8 +54,9 @@ describe("SessionDetailGroupOptions", () => {
   const mockShowError = jest.fn();
   const mockLoadExercises = jest.fn();
   const mockReload = jest.fn();
-  const mockReorderAfterDelete = jest.fn();
+  const mockReorderExerciseOrderAfterDelete = jest.fn();
   const mockUpdateMultipleDetailsInGroups = jest.fn();
+  const mockRemoveMultipleDetailsInGroup = jest.fn();
 
   const mockExerciseData: Saved<LocalExercise> = {
     ...mockExercise.list[0],
@@ -92,23 +95,19 @@ describe("SessionDetailGroupOptions", () => {
     mockRoutineDetailService.updateLocalRoutineDetail.mockResolvedValue();
   });
 
-  const renderSessionDetailGroupOptions = (props?: {
-    exercise?: Saved<LocalExercise>;
-    details?: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[];
-    loadExercises?: () => Promise<void>;
-    reload?: () => Promise<void>;
-    reorderAfterDelete?: (deletedExerciseOrder: number) => Promise<void>;
-    updateMultipleDetailsInGroups?: (
-      updatedDetails: (Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>)[]
-    ) => void;
-  }) => {
-    const defaultProps = {
+  const renderSessionDetailGroupOptions = (
+    props?: Partial<SessionDetailGroupOptionsProps>
+  ) => {
+    const defaultProps: SessionDetailGroupOptionsProps = {
       exercise: mockExerciseData,
+      exerciseOrder: 1,
+      reorderExerciseOrderAfterDelete: mockReorderExerciseOrderAfterDelete,
       details: mockWorkoutDetails,
       loadExercises: mockLoadExercises,
       reload: mockReload,
-      reorderAfterDelete: mockReorderAfterDelete,
       updateMultipleDetailsInGroups: mockUpdateMultipleDetailsInGroups,
+      removeMultipleDetailsInGroup: mockRemoveMultipleDetailsInGroup,
+
       ...props,
     };
 
@@ -197,7 +196,10 @@ describe("SessionDetailGroupOptions", () => {
         onConfirm?.();
       });
 
-      renderSessionDetailGroupOptions({ details: mockWorkoutDetails });
+      renderSessionDetailGroupOptions({
+        details: mockWorkoutDetails,
+        exerciseOrder: 10,
+      });
 
       await user.click(screen.getByText("삭제하기"));
 
@@ -205,7 +207,11 @@ describe("SessionDetailGroupOptions", () => {
         expect(
           mockWorkoutDetailService.deleteWorkoutDetails
         ).toHaveBeenCalledWith(mockWorkoutDetails);
-        expect(mockReload).toHaveBeenCalledTimes(1);
+
+        expect(mockReorderExerciseOrderAfterDelete).toHaveBeenCalledWith(10);
+        expect(mockRemoveMultipleDetailsInGroup).toHaveBeenCalledWith(
+          mockWorkoutDetails
+        );
       });
     });
 
@@ -224,7 +230,9 @@ describe("SessionDetailGroupOptions", () => {
         expect(
           mockRoutineDetailService.deleteRoutineDetails
         ).toHaveBeenCalledWith(mockRoutineDetails);
-        expect(mockReload).toHaveBeenCalledTimes(1);
+        expect(mockRemoveMultipleDetailsInGroup).toHaveBeenCalledWith(
+          mockRoutineDetails
+        );
       });
     });
 
