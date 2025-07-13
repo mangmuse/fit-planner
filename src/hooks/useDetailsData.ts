@@ -5,12 +5,7 @@ import {
   workoutDetailService,
   workoutService,
 } from "@/lib/di";
-import {
-  LocalRoutineDetail,
-  LocalWorkout,
-  LocalWorkoutDetail,
-  Saved,
-} from "@/types/models";
+import { LocalWorkout, Saved } from "@/types/models";
 import { SessionDetailType } from "@/types/services";
 import { useCallback, useEffect, useState } from "react";
 
@@ -64,7 +59,6 @@ export const useDetailsData = (
         );
         currentWorkout = fetchedWorkout || null;
         if (!currentWorkout) {
-          // 최초 렌더링이나 workout이 아직 생성되지 않은 경우
           return;
         }
         setWorkout(currentWorkout);
@@ -85,7 +79,7 @@ export const useDetailsData = (
     (async () => {
       await loadLocalDetails();
     })();
-  }, [type, userId, date, routineId]);
+  }, [type, userId, date, routineId, loadLocalDetails]);
 
   useEffect(() => {
     if (type === "RECORD" && date) {

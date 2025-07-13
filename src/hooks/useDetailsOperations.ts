@@ -11,6 +11,19 @@ type UseDetailsOperationsProps = {
   setWorkoutGroups: Dispatch<SetStateAction<SessionGroup[]>>;
 };
 
+const insertDetailAfterLastDetail = <
+  T extends Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>,
+>(
+  details: T[],
+  lastDetail: T,
+  newDetail: T
+): T[] => {
+  const lastIndex = details.findIndex((d) => d.id === lastDetail.id);
+  const newDetails = [...details];
+  newDetails.splice(lastIndex + 1, 0, newDetail);
+  return newDetails;
+};
+
 export const useDetailsOperations = ({
   workoutGroups,
   setWorkoutGroups,
@@ -32,9 +45,8 @@ export const useDetailsOperations = ({
           };
         })
       );
-
     },
-    []
+    [setWorkoutGroups]
   );
 
   const addDetailToGroup = useCallback(
@@ -49,78 +61,79 @@ export const useDetailsOperations = ({
           );
           if (!hasLastDetail) return group;
 
-          if (isWorkoutDetails(group.details) && isWorkoutDetail(newDetail)) {
-            const lastIndex = group.details.findIndex(
-              (d) => d.id === lastDetail.id
-            );
-            const newDetails = [...group.details];
-            newDetails.splice(lastIndex + 1, 0, newDetail);
+          const isWorkoutGroup = isWorkoutDetails(group.details);
+          const isWorkoutNewDetail = isWorkoutDetail(newDetail);
 
-            return {
-              ...group,
-              details: newDetails,
-            };
-          } else if (
-            !isWorkoutDetails(group.details) &&
-            !isWorkoutDetail(newDetail)
-          ) {
-            const lastIndex = group.details.findIndex(
-              (d) => d.id === lastDetail.id
-            );
-            const newDetails = [...group.details];
-            newDetails.splice(lastIndex + 1, 0, newDetail);
-
-            return {
-              ...group,
-              details: newDetails,
-            };
+          if (isWorkoutGroup === isWorkoutNewDetail) {
+            if (isWorkoutGroup) {
+              const newDetails = insertDetailAfterLastDetail(
+                group.details as Saved<LocalWorkoutDetail>[],
+                lastDetail as Saved<LocalWorkoutDetail>,
+                newDetail as Saved<LocalWorkoutDetail>
+              );
+              return {
+                ...group,
+                details: newDetails,
+              };
+            } else {
+              const newDetails = insertDetailAfterLastDetail(
+                group.details as Saved<LocalRoutineDetail>[],
+                lastDetail as Saved<LocalRoutineDetail>,
+                newDetail as Saved<LocalRoutineDetail>
+              );
+              return {
+                ...group,
+                details: newDetails,
+              };
+            }
           }
 
           return group;
         })
       );
-
     },
-    []
+    [setWorkoutGroups]
   );
 
-  const removeDetailFromGroup = useCallback((detailId: number) => {
-    setWorkoutGroups((prevGroups: SessionGroup[]) => {
-      let deletedOrder: number | null = null;
+  const removeDetailFromGroup = useCallback(
+    (detailId: number) => {
+      setWorkoutGroups((prevGroups: SessionGroup[]) => {
+        let deletedOrder: number | null = null;
 
-      const filteredGroups = prevGroups
-        .map((group) => {
-          const hasDetail = group.details.some((d) => d.id === detailId);
-          if (!hasDetail) return group;
+        const filteredGroups = prevGroups
+          .map((group) => {
+            const hasDetail = group.details.some((d) => d.id === detailId);
+            if (!hasDetail) return group;
 
-          const newDetails = group.details.filter((d) => d.id !== detailId);
+            const newDetails = group.details.filter((d) => d.id !== detailId);
 
-          if (newDetails.length === 0) {
-            deletedOrder = group.exerciseOrder;
-            return null;
-          }
+            if (newDetails.length === 0) {
+              deletedOrder = group.exerciseOrder;
+              return null;
+            }
 
-          return {
+            return {
+              ...group,
+              details: newDetails,
+            };
+          })
+          .filter(Boolean) as SessionGroup[];
+
+        if (deletedOrder !== null) {
+          return filteredGroups.map((group) => ({
             ...group,
-            details: newDetails,
-          };
-        })
-        .filter(Boolean) as SessionGroup[];
+            exerciseOrder:
+              group.exerciseOrder > deletedOrder!
+                ? group.exerciseOrder - 1
+                : group.exerciseOrder,
+          }));
+        }
 
-      if (deletedOrder !== null) {
-        return filteredGroups.map((group) => ({
-          ...group,
-          exerciseOrder:
-            group.exerciseOrder > deletedOrder!
-              ? group.exerciseOrder - 1
-              : group.exerciseOrder,
-        }));
-      }
-
-      return filteredGroups;
-    });
-
-  }, []);
+        return filteredGroups;
+      });
+    },
+    [setWorkoutGroups]
+  );
 
   const updateMultipleDetailsInGroups = useCallback(
     (
@@ -147,9 +160,8 @@ export const useDetailsOperations = ({
           };
         })
       );
-
     },
-    []
+    [setWorkoutGroups]
   );
 
   const removeMultipleDetailsInGroup = useCallback(
@@ -166,7 +178,7 @@ export const useDetailsOperations = ({
           }))
       );
     },
-    []
+    [setWorkoutGroups]
   );
 
   return {
