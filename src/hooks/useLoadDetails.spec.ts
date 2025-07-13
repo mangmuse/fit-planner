@@ -17,6 +17,7 @@ import useLoadDetails from "@/hooks/useLoadDetails";
 import { renderHook, waitFor } from "@testing-library/react";
 import { mockRoutine } from "@/__mocks__/routine.mock";
 import { mockRoutineDetail } from "@/__mocks__/routineDetail.mock";
+import { getGroupedDetails } from "@/app/(main)/workout/_utils/getGroupedDetails";
 
 const mockWorkoutService =
   workoutService as unknown as jest.Mocked<IWorkoutService>;
@@ -105,9 +106,10 @@ describe("useLoadDetails", () => {
         date: "2025-06-29",
       })
     );
+    const expectedGroups = getGroupedDetails(mockWorkoutDetails);
     await waitFor(() => {
       expect(result.current.workout).toEqual(mockW);
-      expect(result.current.allDetails).toEqual(mockWorkoutDetails);
+      expect(result.current.workoutGroups).toEqual(expectedGroups);
       expect(result.current.workoutGroups[0].details.map((d) => d.id)).toEqual([
         3, 1,
       ]);
@@ -131,9 +133,10 @@ describe("useLoadDetails", () => {
         routineId: 1,
       })
     );
+    const expectedGroups = getGroupedDetails(mockRoutineDetails);
     await waitFor(() => {
       expect(result.current.workout).toBeNull();
-      expect(result.current.allDetails).toEqual(mockRoutineDetails);
+      expect(result.current.workoutGroups).toEqual(expectedGroups);
       expect(result.current.workoutGroups[0].details.map((d) => d.id)).toEqual([
         1, 2,
       ]);
