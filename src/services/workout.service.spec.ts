@@ -1,18 +1,14 @@
-import { createMockWorkoutApi } from "@/__mocks__/api/workout.api.mock";
-import { createMockWorkoutRepository } from "@/__mocks__/repositories/workout.repository.mock";
+import { mockWorkoutRepository, mockWorkoutApi } from "@/__mocks__/lib/di";
 import { mockWorkout } from "@/__mocks__/workout.mock";
 import { WorkoutService } from "@/services/workout.service";
 import { IWorkoutService } from "@/types/services";
-
-const mockRepository = createMockWorkoutRepository();
-const mockApi = createMockWorkoutApi();
 
 describe("WorkoutService", () => {
   let service: IWorkoutService;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new WorkoutService(mockRepository, mockApi);
+    service = new WorkoutService(mockWorkoutRepository, mockWorkoutApi);
   });
 
   describe("core service", () => {
@@ -21,12 +17,12 @@ describe("WorkoutService", () => {
       const userId = "user-123";
       const mockWorkouts = [mockWorkout.planned];
       it("전달받은 유저의 모든 workouts를 가져온다", async () => {
-        mockRepository.findAllByUserIdOrderByDate.mockResolvedValue(
+        mockWorkoutRepository.findAllByUserIdOrderByDate.mockResolvedValue(
           mockWorkouts
         );
         const result = await service.getAllWorkouts(userId);
         expect(result).toEqual(mockWorkouts);
-        expect(mockRepository.findAllByUserIdOrderByDate).toHaveBeenCalledWith(
+        expect(mockWorkoutRepository.findAllByUserIdOrderByDate).toHaveBeenCalledWith(
           userId
         );
       });
@@ -40,10 +36,10 @@ describe("WorkoutService", () => {
       }
 
       it("serverId에 해당하는 workout을 반환한다", async () => {
-        mockRepository.findOneByServerId.mockResolvedValueOnce(mockW);
+        mockWorkoutRepository.findOneByServerId.mockResolvedValueOnce(mockW);
         const result = await service.getWorkoutWithServerId(serverId);
         expect(result).toEqual(mockW);
-        expect(mockRepository.findOneByServerId).toHaveBeenCalledWith(serverId);
+        expect(mockWorkoutRepository.findOneByServerId).toHaveBeenCalledWith(serverId);
       });
     });
     describe("getWorkoutWithLocalId", () => {
@@ -54,10 +50,10 @@ describe("WorkoutService", () => {
       }
 
       it("serverId에 해당하는 workout을 반환한다", async () => {
-        mockRepository.findOneById.mockResolvedValueOnce(mockW);
+        mockWorkoutRepository.findOneById.mockResolvedValueOnce(mockW);
         const result = await service.getWorkoutWithLocalId(mockId);
         expect(result).toEqual(mockW);
-        expect(mockRepository.findOneById).toHaveBeenCalledWith(mockId);
+        expect(mockWorkoutRepository.findOneById).toHaveBeenCalledWith(mockId);
       });
     });
 
@@ -66,13 +62,13 @@ describe("WorkoutService", () => {
       const mockDate = "2023-10-01";
       const mockW = { ...mockWorkout.planned, date: mockDate };
       it("유저ID와 날짜에 해당하는 workout을 반환한다", async () => {
-        mockRepository.findOneByUserIdAndDate.mockResolvedValueOnce(mockW);
+        mockWorkoutRepository.findOneByUserIdAndDate.mockResolvedValueOnce(mockW);
         const result = await service.getWorkoutByUserIdAndDate(
           mockUserId,
           mockDate
         );
         expect(result).toEqual(mockW);
-        expect(mockRepository.findOneByUserIdAndDate).toHaveBeenCalledWith(
+        expect(mockWorkoutRepository.findOneByUserIdAndDate).toHaveBeenCalledWith(
           mockUserId,
           mockDate
         );
@@ -92,10 +88,10 @@ describe("WorkoutService", () => {
         serverId: null,
       };
       it("userId와 date에 해당하는 workout이 있을경우 그 workout을 바로 리턴한다", async () => {
-        mockRepository.findOneByUserIdAndDate.mockResolvedValueOnce(mockW);
+        mockWorkoutRepository.findOneByUserIdAndDate.mockResolvedValueOnce(mockW);
         const result = await service.addLocalWorkout(userId, date);
         expect(result).toEqual(mockW);
-        expect(mockRepository.findOneByUserIdAndDate).toHaveBeenCalledWith(
+        expect(mockWorkoutRepository.findOneByUserIdAndDate).toHaveBeenCalledWith(
           userId,
           date
         );
@@ -104,7 +100,7 @@ describe("WorkoutService", () => {
       it("해당하는 workout이 없을경우 새로운 workout을 생성하고 리턴한다", async () => {
         const mockId = 3;
 
-        mockRepository.add.mockResolvedValueOnce(mockId);
+        mockWorkoutRepository.add.mockResolvedValueOnce(mockId);
         const mockGetWorkoutWithLocalId = jest
           .spyOn(service, "getWorkoutWithLocalId")
           .mockResolvedValueOnce(mockW);
@@ -116,7 +112,7 @@ describe("WorkoutService", () => {
 
         expect(result).toEqual(mockW);
         expect(mockGetWorkout).toHaveBeenCalledWith(userId, date);
-        expect(mockRepository.add).toHaveBeenCalledWith(addInput);
+        expect(mockWorkoutRepository.add).toHaveBeenCalledWith(addInput);
         expect(mockGetWorkoutWithLocalId).toHaveBeenCalledWith(mockId);
       });
 
@@ -133,7 +129,7 @@ describe("WorkoutService", () => {
         await expect(service.addLocalWorkout(userId, date)).rejects.toThrow(
           mockError
         );
-        expect(mockRepository.add).toHaveBeenCalledWith(addInput);
+        expect(mockWorkoutRepository.add).toHaveBeenCalledWith(addInput);
       });
     });
 
@@ -145,9 +141,9 @@ describe("WorkoutService", () => {
           updatedAt: expect.any(String),
           isSynced: false,
         };
-        mockRepository.update.mockResolvedValueOnce(1);
+        mockWorkoutRepository.update.mockResolvedValueOnce(1);
         await service.updateLocalWorkout(mockW);
-        expect(mockRepository.update).toHaveBeenCalledWith(
+        expect(mockWorkoutRepository.update).toHaveBeenCalledWith(
           mockW.id,
           mockUpdateInput
         );
@@ -158,12 +154,12 @@ describe("WorkoutService", () => {
         await expect(service.updateLocalWorkout(mockW)).rejects.toThrow(
           mockError
         );
-        expect(mockRepository.update).not.toHaveBeenCalled();
+        expect(mockWorkoutRepository.update).not.toHaveBeenCalled();
       });
 
       it("업데이트 도중 에러가 발생한경우 전파한다", async () => {
         const mockError = new Error("업데이트 실패");
-        mockRepository.update.mockRejectedValueOnce(mockError);
+        mockWorkoutRepository.update.mockRejectedValueOnce(mockError);
         await expect(service.updateLocalWorkout(mockW)).rejects.toThrow(
           mockError
         );
@@ -174,12 +170,12 @@ describe("WorkoutService", () => {
       const mockId = 1;
       it("workout을 삭제한다", async () => {
         await service.deleteLocalWorkout(mockId);
-        expect(mockRepository.delete).toHaveBeenCalledWith(mockId);
+        expect(mockWorkoutRepository.delete).toHaveBeenCalledWith(mockId);
       });
 
       it("삭제 도중 에러가 발생한경우 전파한다", async () => {
         const mockError = new Error("삭제 실패");
-        mockRepository.delete.mockRejectedValueOnce(mockError);
+        mockWorkoutRepository.delete.mockRejectedValueOnce(mockError);
         await expect(service.deleteLocalWorkout(mockId)).rejects.toThrow(
           mockError
         );
@@ -191,8 +187,8 @@ describe("WorkoutService", () => {
     // describe("syncToServerWorkouts", () => {
     //   const mockAllWorkouts = [mockWorkout.planned, mockWorkout.synced];
     //   it("모든 local workouts를 서버에 동기화한다", async () => {
-    //     mockRepository.findAll.mockResolvedValue(mockAllWorkouts);
-    //     mockApi.postWorkoutsToServer.mockResolvedValue({
+    //     mockWorkoutRepository.findAll.mockResolvedValue(mockAllWorkouts);
+    //     mockWorkoutApi.postWorkoutsToServer.mockResolvedValue({
     //       success: true,
     //       updated: [
     //         { localId: mockWorkout.planned.id!, serverId: "server-123" },
@@ -200,11 +196,11 @@ describe("WorkoutService", () => {
     //     });
     //     await service.syncToServerWorkouts();
 
-    //     expect(mockRepository.findAll).toHaveBeenCalled();
-    //     expect(mockApi.postWorkoutsToServer).toHaveBeenCalledWith([
+    //     expect(mockWorkoutRepository.findAll).toHaveBeenCalled();
+    //     expect(mockWorkoutApi.postWorkoutsToServer).toHaveBeenCalledWith([
     //       mockWorkout.planned,
     //     ]);
-    //     expect(mockRepository.update).toHaveBeenCalledWith(
+    //     expect(mockWorkoutRepository.update).toHaveBeenCalledWith(
     //       mockWorkout.planned.id!,
     //       {
     //         serverId: "server-123",
@@ -214,17 +210,17 @@ describe("WorkoutService", () => {
     //   });
 
     //   it("local workouts이 없을경우 api 호출은 하지만 update는 하지않는다", async () => {
-    //     mockRepository.findAll.mockResolvedValue([]);
-    //     mockApi.postWorkoutsToServer.mockResolvedValue({
+    //     mockWorkoutRepository.findAll.mockResolvedValue([]);
+    //     mockWorkoutApi.postWorkoutsToServer.mockResolvedValue({
     //       success: true,
     //       updated: [],
     //     });
 
     //     await service.syncToServerWorkouts();
 
-    //     expect(mockRepository.findAll).toHaveBeenCalled();
-    //     expect(mockApi.postWorkoutsToServer).toHaveBeenCalledWith([]);
-    //     expect(mockRepository.update).not.toHaveBeenCalled();
+    //     expect(mockWorkoutRepository.findAll).toHaveBeenCalled();
+    //     expect(mockWorkoutApi.postWorkoutsToServer).toHaveBeenCalledWith([]);
+    //     expect(mockWorkoutRepository.update).not.toHaveBeenCalled();
     //   });
     // });
 
@@ -232,13 +228,13 @@ describe("WorkoutService", () => {
       const userId = "user-123";
       it("서버의 데이터로 덮어씌운다", async () => {
         const serverData = [{ ...mockWorkout.server, date: "2025-10-01" }];
-        mockApi.fetchWorkoutsFromServer.mockResolvedValue(serverData);
+        mockWorkoutApi.fetchWorkoutsFromServer.mockResolvedValue(serverData);
 
-        mockRepository.bulkAdd.mockResolvedValue(serverData.length);
+        mockWorkoutRepository.bulkAdd.mockResolvedValue(serverData.length);
         await service.overwriteWithServerWorkouts(userId);
-        expect(mockApi.fetchWorkoutsFromServer).toHaveBeenCalledWith(userId);
-        expect(mockRepository.clear).toHaveBeenCalled();
-        expect(mockRepository.bulkAdd).toHaveBeenCalledWith(
+        expect(mockWorkoutApi.fetchWorkoutsFromServer).toHaveBeenCalledWith(userId);
+        expect(mockWorkoutRepository.clear).toHaveBeenCalled();
+        expect(mockWorkoutRepository.bulkAdd).toHaveBeenCalledWith(
           serverData.map((workout) => ({
             id: undefined,
             userId: workout.userId,
@@ -253,22 +249,22 @@ describe("WorkoutService", () => {
       });
 
       it("서버 데이터가 빈배열인경우 clear를 하지않고 리턴한다", async () => {
-        mockApi.fetchWorkoutsFromServer.mockResolvedValue([]);
+        mockWorkoutApi.fetchWorkoutsFromServer.mockResolvedValue([]);
         await service.overwriteWithServerWorkouts(userId);
-        expect(mockApi.fetchWorkoutsFromServer).toHaveBeenCalledWith(userId);
-        expect(mockRepository.clear).not.toHaveBeenCalled();
-        expect(mockRepository.bulkAdd).not.toHaveBeenCalled();
+        expect(mockWorkoutApi.fetchWorkoutsFromServer).toHaveBeenCalledWith(userId);
+        expect(mockWorkoutRepository.clear).not.toHaveBeenCalled();
+        expect(mockWorkoutRepository.bulkAdd).not.toHaveBeenCalled();
       });
 
       it("서버에서 데이터를 가져오는 도중 에러가 발생할경우 해당 에러를 전파한다", async () => {
         const mockError = new Error("서버 에러");
-        mockApi.fetchWorkoutsFromServer.mockRejectedValue(mockError);
+        mockWorkoutApi.fetchWorkoutsFromServer.mockRejectedValue(mockError);
         await expect(
           service.overwriteWithServerWorkouts(userId)
         ).rejects.toThrow(mockError);
-        expect(mockApi.fetchWorkoutsFromServer).toHaveBeenCalledWith(userId);
-        expect(mockRepository.clear).not.toHaveBeenCalled();
-        expect(mockRepository.bulkAdd).not.toHaveBeenCalled();
+        expect(mockWorkoutApi.fetchWorkoutsFromServer).toHaveBeenCalledWith(userId);
+        expect(mockWorkoutRepository.clear).not.toHaveBeenCalled();
+        expect(mockWorkoutRepository.bulkAdd).not.toHaveBeenCalled();
       });
     });
   });
@@ -283,7 +279,7 @@ describe("WorkoutService", () => {
           { ...mockWorkout.planned, date: "2025-10-20" },
         ];
 
-        mockRepository.findAllByDateRangeExcludeEmpty.mockResolvedValue(
+        mockWorkoutRepository.findAllByDateRangeExcludeEmpty.mockResolvedValue(
           mockWorkouts
         );
 
@@ -291,7 +287,7 @@ describe("WorkoutService", () => {
 
         expect(result).toEqual(mockWorkouts);
         expect(
-          mockRepository.findAllByDateRangeExcludeEmpty
+          mockWorkoutRepository.findAllByDateRangeExcludeEmpty
         ).toHaveBeenCalledWith(startDate, endDate);
       });
     });

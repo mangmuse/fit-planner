@@ -1,14 +1,10 @@
 import { mock } from "node:test";
-import { createMockWorkoutRepository } from "@/__mocks__/repositories/workout.repository.mock";
-import { createMockWorkoutDetailRepository } from "@/__mocks__/repositories/workoutDetail.repository.mock";
+import { mockWorkoutRepository, mockWorkoutDetailRepository } from "@/__mocks__/lib/di";
 import { mockWorkout } from "@/__mocks__/workout.mock";
 import { mockWorkoutDetail } from "@/__mocks__/workoutDetail.mock";
 import { WorkoutDetailQueryService } from "@/services/workoutDetail.query.service";
 import { LocalWorkoutDetail, Saved } from "@/types/models";
 import { IWorkoutDetailQueryService } from "@/types/services";
-
-const mockRepository = createMockWorkoutDetailRepository();
-const mockWorkoutRepository = createMockWorkoutRepository();
 
 describe("WorkoutDetailQueryService", () => {
   let service: IWorkoutDetailQueryService;
@@ -17,7 +13,7 @@ describe("WorkoutDetailQueryService", () => {
     jest.clearAllMocks();
 
     service = new WorkoutDetailQueryService(
-      mockRepository,
+      mockWorkoutDetailRepository,
       mockWorkoutRepository
     );
   });
@@ -31,20 +27,20 @@ describe("WorkoutDetailQueryService", () => {
       workoutId,
     };
     it("인자로 전달받은 workoutDetail이 속해있는 그룹을 반환한다", async () => {
-      mockRepository.findAllByWorkoutIdAndExerciseOrder.mockResolvedValue([
+      mockWorkoutDetailRepository.findAllByWorkoutIdAndExerciseOrder.mockResolvedValue([
         detail,
       ]);
 
       service.getWorkoutGroupByWorkoutDetail(detail);
 
       expect(
-        mockRepository.findAllByWorkoutIdAndExerciseOrder
+        mockWorkoutDetailRepository.findAllByWorkoutIdAndExerciseOrder
       ).toHaveBeenCalledWith(workoutId, exerciseOrder);
     });
 
     it("workoutGroup을 찾는도중 에러가 발생한경우 해당 에러를 그대로 전파한다", async () => {
       const mockError = new Error("DB Error");
-      mockRepository.findAllByWorkoutIdAndExerciseOrder.mockRejectedValue(
+      mockWorkoutDetailRepository.findAllByWorkoutIdAndExerciseOrder.mockRejectedValue(
         mockError
       );
       await expect(
@@ -58,7 +54,7 @@ describe("WorkoutDetailQueryService", () => {
       const details: Saved<LocalWorkoutDetail>[] = [
         { ...mockWorkoutDetail.past, workoutId, exerciseOrder },
       ];
-      mockRepository.findAllByWorkoutIdAndExerciseOrder.mockResolvedValue(
+      mockWorkoutDetailRepository.findAllByWorkoutIdAndExerciseOrder.mockResolvedValue(
         details
       );
 
@@ -70,7 +66,7 @@ describe("WorkoutDetailQueryService", () => {
 
       expect(result).toEqual(details);
       expect(
-        mockRepository.findAllByWorkoutIdAndExerciseOrder
+        mockWorkoutDetailRepository.findAllByWorkoutIdAndExerciseOrder
       ).toHaveBeenCalledWith(workoutId, exerciseOrder);
     });
   });
@@ -86,7 +82,7 @@ describe("WorkoutDetailQueryService", () => {
         { ...mockWorkoutDetail.past, workoutId: 100, exerciseOrder: 1 },
         { ...mockWorkoutDetail.past, workoutId: 200, exerciseOrder: 2 },
       ];
-      mockRepository.findAllByWorkoutIdAndExerciseOrderPairs.mockResolvedValue(
+      mockWorkoutDetailRepository.findAllByWorkoutIdAndExerciseOrderPairs.mockResolvedValue(
         details
       );
 
@@ -97,13 +93,13 @@ describe("WorkoutDetailQueryService", () => {
 
       expect(result).toEqual(details);
       expect(
-        mockRepository.findAllByWorkoutIdAndExerciseOrderPairs
+        mockWorkoutDetailRepository.findAllByWorkoutIdAndExerciseOrderPairs
       ).toHaveBeenCalledWith(pairs);
     });
 
     it("repository에서 에러가 발생하면 해당 에러를 그대로 전파한다", async () => {
       const mockError = new Error("DB 조회 실패");
-      mockRepository.findAllByWorkoutIdAndExerciseOrderPairs.mockRejectedValue(
+      mockWorkoutDetailRepository.findAllByWorkoutIdAndExerciseOrderPairs.mockRejectedValue(
         mockError
       );
 
@@ -144,7 +140,7 @@ describe("WorkoutDetailQueryService", () => {
         },
       ];
 
-      mockRepository.findAllDoneByExerciseId.mockResolvedValue(candidates);
+      mockWorkoutDetailRepository.findAllDoneByExerciseId.mockResolvedValue(candidates);
       mockWorkoutRepository.findOneById
         .mockResolvedValueOnce(currentWorkout)
         .mockResolvedValueOnce({
@@ -171,14 +167,14 @@ describe("WorkoutDetailQueryService", () => {
     });
 
     it("과거 기록이 없을경우 undefined를 반환한다", async () => {
-      mockRepository.findAllDoneByExerciseId.mockResolvedValue([]);
+      mockWorkoutDetailRepository.findAllDoneByExerciseId.mockResolvedValue([]);
       const result =
         await service.getLatestWorkoutDetailByDetail(currentDetail);
       expect(result).toBeUndefined();
     });
     it("repository 조회 중 에러가 발생하면, 해당 에러를 그대로 전파한다", async () => {
       const mockError = new Error("DB Error");
-      mockRepository.findAllDoneByExerciseId.mockRejectedValue(mockError);
+      mockWorkoutDetailRepository.findAllDoneByExerciseId.mockRejectedValue(mockError);
 
       await expect(
         service.getLatestWorkoutDetailByDetail(currentDetail)

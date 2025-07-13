@@ -1,9 +1,11 @@
 import { createServerWorkoutDetailMock } from "./../__mocks__/workoutDetail.mock";
-import { createMockWorkoutDetailRepository } from "@/__mocks__/repositories/workoutDetail.repository.mock";
-import { createMockWorkoutDetailAdapter } from "@/__mocks__/adapters/workoutDetail.adapter.mock";
-import { createMockWorkoutDetailApi } from "@/__mocks__/api/workoutDetail.api.mock";
-import { createMockExerciseService } from "@/__mocks__/services/exercise.service.mock";
-import { createMockWorkoutService } from "@/__mocks__/services/workout.service.mock";
+import { 
+  mockWorkoutDetailRepository,
+  mockWorkoutDetailAdapter,
+  mockWorkoutDetailApi,
+  mockExerciseService,
+  mockWorkoutService
+} from "@/__mocks__/lib/di";
 import { IWorkoutDetailSyncService } from "@/types/services";
 import { WorkoutDetailSyncService } from "@/services/workoutDetail.sync.service";
 import { mockWorkoutDetail } from "@/__mocks__/workoutDetail.mock";
@@ -11,21 +13,15 @@ import { mockExercise } from "@/__mocks__/exercise.mock";
 import { mockWorkout } from "@/__mocks__/workout.mock";
 import { LocalExercise, LocalWorkout, Saved } from "@/types/models";
 
-const mockRepository = createMockWorkoutDetailRepository();
-const mockAdapter = createMockWorkoutDetailAdapter();
-const mockApi = createMockWorkoutDetailApi();
-const mockExerciseService = createMockExerciseService();
-const mockWorkoutService = createMockWorkoutService();
-
 describe("WorkoutDetailSyncService", () => {
   let service: IWorkoutDetailSyncService;
 
   beforeEach(() => {
     jest.clearAllMocks();
     service = new WorkoutDetailSyncService(
-      mockRepository,
-      mockAdapter,
-      mockApi,
+      mockWorkoutDetailRepository,
+      mockWorkoutDetailAdapter,
+      mockWorkoutDetailApi,
       mockExerciseService,
       mockWorkoutService
     );
@@ -42,21 +38,21 @@ describe("WorkoutDetailSyncService", () => {
     const mockEx: Saved<LocalExercise> = mockExercise.synced;
     const mockWo: Saved<LocalWorkout> = mockWorkout.synced;
     it("서버 데이터를 받아 매핑하여 로컬DB에 덮어씌운다", async () => {
-      mockApi.fetchWorkoutDetailsFromServer.mockResolvedValue(mockServerData);
+      mockWorkoutDetailApi.fetchWorkoutDetailsFromServer.mockResolvedValue(mockServerData);
 
       mockExerciseService.getExerciseWithServerId.mockResolvedValue(mockEx);
       mockWorkoutService.getWorkoutWithServerId.mockResolvedValue(mockWo);
 
-      mockAdapter.createOverwriteWorkoutDetailPayload.mockReturnValue(
+      mockWorkoutDetailAdapter.createOverwriteWorkoutDetailPayload.mockReturnValue(
         mockDetail
       );
 
       await service.overwriteWithServerWorkoutDetails(userId);
-      expect(mockApi.fetchWorkoutDetailsFromServer).toHaveBeenCalledWith(
+      expect(mockWorkoutDetailApi.fetchWorkoutDetailsFromServer).toHaveBeenCalledWith(
         userId
       );
-      expect(mockRepository.clear).toHaveBeenCalled();
-      expect(mockRepository.bulkAdd).toHaveBeenCalledWith([mockDetail]);
+      expect(mockWorkoutDetailRepository.clear).toHaveBeenCalled();
+      expect(mockWorkoutDetailRepository.bulkAdd).toHaveBeenCalledWith([mockDetail]);
       expect(mockExerciseService.getExerciseWithServerId).toHaveBeenCalledWith(
         mockServerData[0].exerciseId
       );
@@ -64,12 +60,12 @@ describe("WorkoutDetailSyncService", () => {
         mockServerData[0].workoutId
       );
       expect(
-        mockAdapter.createOverwriteWorkoutDetailPayload
+        mockWorkoutDetailAdapter.createOverwriteWorkoutDetailPayload
       ).toHaveBeenCalledWith(mockServerData[0], mockEx, mockWo);
     });
 
     it("매핑에 필요한 exercise나 workout을 찾지 못하면 에러를 던지고, DB를 초기화하지 않는다", async () => {
-      mockApi.fetchWorkoutDetailsFromServer.mockResolvedValue(mockServerData);
+      mockWorkoutDetailApi.fetchWorkoutDetailsFromServer.mockResolvedValue(mockServerData);
       mockExerciseService.getExerciseWithServerId.mockResolvedValueOnce(
         undefined
       );
@@ -82,17 +78,17 @@ describe("WorkoutDetailSyncService", () => {
         service.overwriteWithServerWorkoutDetails(userId)
       ).rejects.toThrow(mockError);
 
-      expect(mockRepository.clear).not.toHaveBeenCalled();
-      expect(mockRepository.bulkAdd).not.toHaveBeenCalled();
+      expect(mockWorkoutDetailRepository.clear).not.toHaveBeenCalled();
+      expect(mockWorkoutDetailRepository.bulkAdd).not.toHaveBeenCalled();
     });
 
     it("덮어씌우는 도중 에러 발생시 해당 에러를 그대로 전파한다", async () => {
-      mockApi.fetchWorkoutDetailsFromServer.mockResolvedValue(mockServerData);
+      mockWorkoutDetailApi.fetchWorkoutDetailsFromServer.mockResolvedValue(mockServerData);
       mockExerciseService.getExerciseWithServerId.mockResolvedValue(mockEx);
       mockWorkoutService.getWorkoutWithServerId.mockResolvedValue(mockWo);
 
       const mockError = new Error("DB Error");
-      mockRepository.bulkAdd.mockRejectedValue(mockError);
+      mockWorkoutDetailRepository.bulkAdd.mockRejectedValue(mockError);
       await expect(
         service.overwriteWithServerWorkoutDetails(userId)
       ).rejects.toThrow(mockError);
@@ -106,17 +102,17 @@ describe("WorkoutDetailSyncService", () => {
   //       { ...mockWorkoutDetail.past, id: 1, isSynced: true },
   //       { ...mockWorkoutDetail.past, id: 2, isSynced: true },
   //     ];
-  //     mockRepository.findAll.mockResolvedValue(syncedDetails);
-  //     mockApi.postWorkoutDetailsToServer.mockResolvedValue({
+  //     mockWorkoutDetailRepository.findAll.mockResolvedValue(syncedDetails);
+  //     mockWorkoutDetailApi.postWorkoutDetailsToServer.mockResolvedValue({
   //       success: true,
   //       updated: [],
   //     });
 
   //     await service.syncToServerWorkoutDetails();
 
-  //     expect(mockRepository.findAll).toHaveBeenCalledTimes(1);
-  //     expect(mockApi.postWorkoutDetailsToServer).toHaveBeenCalledWith([]);
-  //     expect(mockRepository.update).not.toHaveBeenCalled();
+  //     expect(mockWorkoutDetailRepository.findAll).toHaveBeenCalledTimes(1);
+  //     expect(mockWorkoutDetailApi.postWorkoutDetailsToServer).toHaveBeenCalledWith([]);
+  //     expect(mockWorkoutDetailRepository.update).not.toHaveBeenCalled();
   //   });
 
   //   it("unsynced 데이터를 서버에 동기화하고 로컬 DB를 업데이트한다", async () => {
@@ -155,18 +151,18 @@ describe("WorkoutDetailSyncService", () => {
   //       ],
   //     };
 
-  //     mockRepository.findAll.mockResolvedValue(allDetails);
+  //     mockWorkoutDetailRepository.findAll.mockResolvedValue(allDetails);
   //     mockExerciseService.getExerciseWithLocalId.mockResolvedValue(mockEx);
   //     mockWorkoutService.getWorkoutWithLocalId.mockResolvedValue(mockWo);
-  //     mockAdapter.mapLocalWorkoutDetailToServer.mockReturnValue(mappedPayload);
-  //     mockApi.postWorkoutDetailsToServer.mockResolvedValue(apiResponse);
+  //     mockWorkoutDetailAdapter.mapLocalWorkoutDetailToServer.mockReturnValue(mappedPayload);
+  //     mockWorkoutDetailApi.postWorkoutDetailsToServer.mockResolvedValue(apiResponse);
 
   //     mockExerciseService.getExerciseWithServerId.mockResolvedValue(mockEx);
   //     mockWorkoutService.getWorkoutWithServerId.mockResolvedValue(mockWo);
 
   //     await service.syncToServerWorkoutDetails();
 
-  //     expect(mockRepository.findAll).toHaveBeenCalledTimes(1);
+  //     expect(mockWorkoutDetailRepository.findAll).toHaveBeenCalledTimes(1);
 
   //     expect(mockExerciseService.getExerciseWithLocalId).toHaveBeenCalledWith(
   //       unsyncedDetail.exerciseId
@@ -174,13 +170,13 @@ describe("WorkoutDetailSyncService", () => {
   //     expect(mockWorkoutService.getWorkoutWithLocalId).toHaveBeenCalledWith(
   //       unsyncedDetail.workoutId
   //     );
-  //     expect(mockAdapter.mapLocalWorkoutDetailToServer).toHaveBeenCalledWith(
+  //     expect(mockWorkoutDetailAdapter.mapLocalWorkoutDetailToServer).toHaveBeenCalledWith(
   //       unsyncedDetail,
   //       mockEx,
   //       mockWo
   //     );
 
-  //     expect(mockApi.postWorkoutDetailsToServer).toHaveBeenCalledWith([
+  //     expect(mockWorkoutDetailApi.postWorkoutDetailsToServer).toHaveBeenCalledWith([
   //       mappedPayload,
   //     ]);
 
@@ -190,7 +186,7 @@ describe("WorkoutDetailSyncService", () => {
   //     expect(mockWorkoutService.getWorkoutWithServerId).toHaveBeenCalledWith(
   //       "wo-server-1"
   //     );
-  //     expect(mockRepository.update).toHaveBeenCalledWith(unsyncedDetail.id, {
+  //     expect(mockWorkoutDetailRepository.update).toHaveBeenCalledWith(unsyncedDetail.id, {
   //       serverId: "server-detail-123",
   //       isSynced: true,
   //       exerciseId: mockEx.id,
@@ -208,7 +204,7 @@ describe("WorkoutDetailSyncService", () => {
   //     };
   //     const mockWo = mockWorkout.synced;
 
-  //     mockRepository.findAll.mockResolvedValue(allDetails);
+  //     mockWorkoutDetailRepository.findAll.mockResolvedValue(allDetails);
   //     mockExerciseService.getExerciseWithLocalId.mockResolvedValue(mockEx);
   //     mockWorkoutService.getWorkoutWithLocalId.mockResolvedValue(mockWo);
 
@@ -219,8 +215,8 @@ describe("WorkoutDetailSyncService", () => {
 
   //   it("API 전송 도중 에러가 발생하면 해당 에러를 전파한다", async () => {
   //     const mockError = new Error("API 전송 실패");
-  //     mockApi.postWorkoutDetailsToServer.mockRejectedValue(mockError);
-  //     mockRepository.findAll.mockResolvedValue([unsyncedDetail]);
+  //     mockWorkoutDetailApi.postWorkoutDetailsToServer.mockRejectedValue(mockError);
+  //     mockWorkoutDetailRepository.findAll.mockResolvedValue([unsyncedDetail]);
   //     mockExerciseService.getExerciseWithLocalId.mockResolvedValue(
   //       mockExercise.synced
   //     );
@@ -231,7 +227,7 @@ describe("WorkoutDetailSyncService", () => {
   //     await expect(service.syncToServerWorkoutDetails()).rejects.toThrow(
   //       mockError
   //     );
-  //     expect(mockRepository.update).not.toHaveBeenCalled();
+  //     expect(mockWorkoutDetailRepository.update).not.toHaveBeenCalled();
   //   });
   // });
 });

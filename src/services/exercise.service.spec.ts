@@ -1,20 +1,18 @@
-import { createMockExerciseAdapter } from "@/__mocks__/adapters/exercise.adapter.mock";
-import { createMockExerciseApi } from "@/__mocks__/api/exercise.api.mock";
+import { 
+  mockExerciseRepository,
+  mockExerciseAdapter,
+  mockExerciseApi
+} from "@/__mocks__/lib/di";
 import { mockExercise } from "@/__mocks__/exercise.mock";
-import { createMockExerciseRepository } from "@/__mocks__/repositories/exercise.repository.mock";
 import { ExerciseService } from "@/services/exercise.service";
 import { ClientExercise, LocalExercise, Saved } from "@/types/models";
 import { IExerciseService } from "@/types/services";
-
-const mockRepository = createMockExerciseRepository();
-const mockAdapter = createMockExerciseAdapter();
-const mockApi = createMockExerciseApi();
 
 describe("ExerciseService", () => {
   let service: IExerciseService;
   beforeEach(() => {
     jest.clearAllMocks();
-    service = new ExerciseService(mockRepository, mockAdapter, mockApi);
+    service = new ExerciseService(mockExerciseRepository, mockExerciseAdapter, mockExerciseApi);
   });
 
   describe("core service", () => {
@@ -22,23 +20,23 @@ describe("ExerciseService", () => {
       it("서버 ID로 운동을 찾는다", async () => {
         const serverId = 123;
         const mockEx = mockExercise.synced;
-        mockRepository.findOneByServerId.mockResolvedValue(mockEx);
+        mockExerciseRepository.findOneByServerId.mockResolvedValue(mockEx);
 
         const result = await service.getExerciseWithServerId(serverId);
 
         expect(result).toEqual(mockEx);
-        expect(mockRepository.findOneByServerId).toHaveBeenCalledWith(serverId);
+        expect(mockExerciseRepository.findOneByServerId).toHaveBeenCalledWith(serverId);
       });
     });
 
     describe("getAllLocalExercises", () => {
       it("모든 운동을 가져온다", async () => {
         const mockExercises: Saved<LocalExercise>[] = [mockExercise.synced];
-        mockRepository.findAll.mockResolvedValue(mockExercises);
+        mockExerciseRepository.findAll.mockResolvedValue(mockExercises);
         const result = await service.getAllLocalExercises("user-123");
         expect(result).toEqual(mockExercises);
-        expect(mockRepository.findAll).toHaveBeenCalledTimes(1);
-        expect(mockRepository.findAll).toHaveBeenCalledWith("user-123");
+        expect(mockExerciseRepository.findAll).toHaveBeenCalledTimes(1);
+        expect(mockExerciseRepository.findAll).toHaveBeenCalledWith("user-123");
       });
     });
 
@@ -46,12 +44,12 @@ describe("ExerciseService", () => {
       it("로컬 ID로 운동을 찾는다", async () => {
         const localId = 5;
         const mockEx = mockExercise.synced;
-        mockRepository.findOneById.mockResolvedValue(mockEx);
+        mockExerciseRepository.findOneById.mockResolvedValue(mockEx);
 
         const result = await service.getExerciseWithLocalId(localId);
 
         expect(result).toEqual(mockEx);
-        expect(mockRepository.findOneById).toHaveBeenCalledWith(localId);
+        expect(mockExerciseRepository.findOneById).toHaveBeenCalledWith(localId);
       });
     });
 
@@ -75,7 +73,7 @@ describe("ExerciseService", () => {
       };
       it("새로운 운동을 추가한다", async () => {
         await service.addLocalExercise(newExercise);
-        expect(mockRepository.add).toHaveBeenCalledWith(toInsert);
+        expect(mockExerciseRepository.add).toHaveBeenCalledWith(toInsert);
       });
 
       it("userId가 없으면 에러를 던진다", async () => {
@@ -91,7 +89,7 @@ describe("ExerciseService", () => {
       it("운동 추가도중 에러 발생시 에러를 전파한다", async () => {
         const mockError = new Error("운동 추가 실패");
 
-        mockRepository.add.mockRejectedValue(mockError);
+        mockExerciseRepository.add.mockRejectedValue(mockError);
 
         await expect(service.addLocalExercise(newExercise)).rejects.toThrow(
           mockError
@@ -106,9 +104,9 @@ describe("ExerciseService", () => {
         isBookmarked: true,
       };
       it("운동을 업데이트한다", async () => {
-        mockRepository.update.mockResolvedValue(1);
+        mockExerciseRepository.update.mockResolvedValue(1);
         await service.updateLocalExercise(updateInput);
-        expect(mockRepository.update).toHaveBeenCalledWith(updateInput.id, {
+        expect(mockExerciseRepository.update).toHaveBeenCalledWith(updateInput.id, {
           ...updateInput,
           isSynced: false,
         });
@@ -122,7 +120,7 @@ describe("ExerciseService", () => {
 
       it("운동 업데이트 도중 에러 발생시 해당 에러를 전파한다", async () => {
         const mockError = new Error("업데이트 실패");
-        mockRepository.update.mockRejectedValueOnce(mockError);
+        mockExerciseRepository.update.mockRejectedValueOnce(mockError);
         await expect(service.updateLocalExercise(updateInput)).rejects.toThrow(
           mockError
         );
@@ -133,11 +131,11 @@ describe("ExerciseService", () => {
       it("북마크를 토글한다", async () => {
         const localId = 5;
         const nextValue = true;
-        mockRepository.update.mockResolvedValueOnce(5);
+        mockExerciseRepository.update.mockResolvedValueOnce(5);
 
         await service.toggleLocalBookmark(localId, nextValue);
 
-        expect(mockRepository.update).toHaveBeenCalledWith(localId, {
+        expect(mockExerciseRepository.update).toHaveBeenCalledWith(localId, {
           isBookmarked: nextValue,
           isSynced: false,
           updatedAt: expect.any(String),
@@ -148,7 +146,7 @@ describe("ExerciseService", () => {
         const mockError = new Error("북마크 토글 실패");
         const localId = 5;
         const nextValue = true;
-        mockRepository.update.mockRejectedValueOnce(mockError);
+        mockExerciseRepository.update.mockRejectedValueOnce(mockError);
 
         await expect(
           service.toggleLocalBookmark(localId, nextValue)
@@ -170,26 +168,26 @@ describe("ExerciseService", () => {
       ];
 
       it("exercise 를 서버 데이터로 덮어쓴다", async () => {
-        mockApi.fetchExercisesFromServer.mockResolvedValue(mockServerData);
+        mockExerciseApi.fetchExercisesFromServer.mockResolvedValue(mockServerData);
 
         await service.overwriteWithServerExercises(userId);
 
-        expect(mockApi.fetchExercisesFromServer).toHaveBeenCalledWith(userId);
-        expect(mockRepository.clear).toHaveBeenCalledTimes(1);
-        expect(mockRepository.bulkAdd).toHaveBeenCalledWith(mockToInsert);
+        expect(mockExerciseApi.fetchExercisesFromServer).toHaveBeenCalledWith(userId);
+        expect(mockExerciseRepository.clear).toHaveBeenCalledTimes(1);
+        expect(mockExerciseRepository.bulkAdd).toHaveBeenCalledWith(mockToInsert);
       });
 
       it("서버 데이터가 없으면 아무것도 하지 않는다", async () => {
-        mockApi.fetchExercisesFromServer.mockResolvedValue([]);
+        mockExerciseApi.fetchExercisesFromServer.mockResolvedValue([]);
         await service.overwriteWithServerExercises(userId);
-        expect(mockApi.fetchExercisesFromServer).toHaveBeenCalledWith(userId);
-        expect(mockRepository.clear).not.toHaveBeenCalled();
-        expect(mockRepository.bulkAdd).not.toHaveBeenCalled();
+        expect(mockExerciseApi.fetchExercisesFromServer).toHaveBeenCalledWith(userId);
+        expect(mockExerciseRepository.clear).not.toHaveBeenCalled();
+        expect(mockExerciseRepository.bulkAdd).not.toHaveBeenCalled();
       });
 
       it("api 통신 도중 에러 발생시 해당 에러를 전파한다", async () => {
         const mockError = new Error("서버 통신 실패");
-        mockApi.fetchExercisesFromServer.mockRejectedValue(mockError);
+        mockExerciseApi.fetchExercisesFromServer.mockRejectedValue(mockError);
         await expect(
           service.overwriteWithServerExercises(userId)
         ).rejects.toThrow(mockError);
@@ -202,30 +200,30 @@ describe("ExerciseService", () => {
       const merged: Saved<LocalExercise>[] = [mockExercise.synced];
       const userId = "user-123";
       it("서버 데이터를 로컬데이터에 머지한다", async () => {
-        mockApi.fetchExercisesFromServer.mockResolvedValue(serverData);
-        mockRepository.findAll.mockResolvedValue(localData);
-        mockAdapter.mergeServerExerciseData.mockReturnValue(merged);
+        mockExerciseApi.fetchExercisesFromServer.mockResolvedValue(serverData);
+        mockExerciseRepository.findAll.mockResolvedValue(localData);
+        mockExerciseAdapter.mergeServerExerciseData.mockReturnValue(merged);
 
         await service.syncExercisesFromServerLocalFirst(userId);
 
-        expect(mockApi.fetchExercisesFromServer).toHaveBeenCalledWith(userId);
-        expect(mockRepository.findAll).toHaveBeenCalledTimes(1);
-        expect(mockAdapter.mergeServerExerciseData).toHaveBeenCalledWith(
+        expect(mockExerciseApi.fetchExercisesFromServer).toHaveBeenCalledWith(userId);
+        expect(mockExerciseRepository.findAll).toHaveBeenCalledTimes(1);
+        expect(mockExerciseAdapter.mergeServerExerciseData).toHaveBeenCalledWith(
           serverData,
           localData
         );
-        expect(mockRepository.clear).toHaveBeenCalledTimes(1);
-        expect(mockRepository.bulkPut).toHaveBeenCalledWith(merged);
+        expect(mockExerciseRepository.clear).toHaveBeenCalledTimes(1);
+        expect(mockExerciseRepository.bulkPut).toHaveBeenCalledWith(merged);
       });
 
       it("서버 데이터가 없으면 아무것도 하지 않는다", async () => {
-        mockApi.fetchExercisesFromServer.mockResolvedValue([]);
+        mockExerciseApi.fetchExercisesFromServer.mockResolvedValue([]);
         await service.syncExercisesFromServerLocalFirst(userId);
 
-        expect(mockRepository.findAll).not.toHaveBeenCalled();
-        expect(mockApi.fetchExercisesFromServer).toHaveBeenCalledWith(userId);
-        expect(mockRepository.clear).not.toHaveBeenCalled();
-        expect(mockRepository.bulkPut).not.toHaveBeenCalled();
+        expect(mockExerciseRepository.findAll).not.toHaveBeenCalled();
+        expect(mockExerciseApi.fetchExercisesFromServer).toHaveBeenCalledWith(userId);
+        expect(mockExerciseRepository.clear).not.toHaveBeenCalled();
+        expect(mockExerciseRepository.bulkPut).not.toHaveBeenCalled();
       });
     });
 
@@ -318,12 +316,12 @@ describe("ExerciseService", () => {
     //   };
 
     //   it("local exercise들을 서버에 동기화한다", async () => {
-    //     mockRepository.findAllUnsynced.mockResolvedValue(unsyncedDetails);
-    //     mockApi.postExercisesToServer.mockResolvedValue(mockServerResponse);
+    //     mockExerciseRepository.findAllUnsynced.mockResolvedValue(unsyncedDetails);
+    //     mockExerciseApi.postExercisesToServer.mockResolvedValue(mockServerResponse);
 
     //     await service.syncToServerExercises(userId);
 
-    //     expect(mockRepository.update).toHaveBeenCalledWith(5, {
+    //     expect(mockExerciseRepository.update).toHaveBeenCalledWith(5, {
     //       isSynced: true,
     //       serverId: mockServerResponse.updated[0].serverId,
     //     });
@@ -335,22 +333,22 @@ describe("ExerciseService", () => {
     //       success: true,
     //       updated: [],
     //     };
-    //     mockRepository.findAllUnsynced.mockResolvedValue(unsynced);
-    //     mockApi.postExercisesToServer.mockResolvedValue(data);
+    //     mockExerciseRepository.findAllUnsynced.mockResolvedValue(unsynced);
+    //     mockExerciseApi.postExercisesToServer.mockResolvedValue(data);
 
     //     await service.syncToServerExercises(userId);
 
-    //     expect(mockApi.postExercisesToServer).toHaveBeenCalledWith(
+    //     expect(mockExerciseApi.postExercisesToServer).toHaveBeenCalledWith(
     //       unsynced,
     //       userId
     //     );
-    //     expect(mockRepository.update).not.toHaveBeenCalled();
+    //     expect(mockExerciseRepository.update).not.toHaveBeenCalled();
     //   });
 
     //   it("서버 통신 도중 에러 발생시 해당 에러를 전파한다", async () => {
     //     const mockError = new Error("서버 통신 실패");
-    //     mockRepository.findAllUnsynced.mockResolvedValue(unsyncedDetails);
-    //     mockApi.postExercisesToServer.mockRejectedValue(mockError);
+    //     mockExerciseRepository.findAllUnsynced.mockResolvedValue(unsyncedDetails);
+    //     mockExerciseApi.postExercisesToServer.mockRejectedValue(mockError);
     //     await expect(service.syncToServerExercises(userId)).rejects.toThrow(
     //       mockError
     //     );

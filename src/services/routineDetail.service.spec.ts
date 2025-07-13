@@ -1,8 +1,10 @@
-import { createMockRoutineDetailRepository } from "@/__mocks__/repositories/routineDetail.repository.mock";
-import { createMockRoutineDetailAdapter } from "@/__mocks__/adapters/routineDetail.adapter.mock";
-import { createMockRoutineDetailApi } from "@/__mocks__/api/routineDetail.api.mock";
-import { createMockExerciseService } from "@/__mocks__/services/exercise.service.mock";
-import { createMockRoutineService } from "@/__mocks__/services/routine.service.mock";
+import { 
+  mockRoutineDetailRepository,
+  mockRoutineDetailAdapter,
+  mockRoutineDetailApi,
+  mockExerciseService,
+  mockRoutineService
+} from "@/__mocks__/lib/di";
 import { RoutineDetailService } from "@/services/routineDetail.service";
 import { IRoutineDetailService } from "@/types/services";
 import { mockRoutineDetail } from "@/__mocks__/routineDetail.mock";
@@ -17,12 +19,6 @@ import {
   Saved,
 } from "@/types/models";
 
-const mockRepository = createMockRoutineDetailRepository();
-const mockAdapter = createMockRoutineDetailAdapter();
-const mockApi = createMockRoutineDetailApi();
-const mockExerciseService = createMockExerciseService();
-const mockRoutineService = createMockRoutineService();
-
 describe("RoutineDetailService", () => {
   let service: IRoutineDetailService;
 
@@ -31,9 +27,9 @@ describe("RoutineDetailService", () => {
     service = new RoutineDetailService(
       mockExerciseService,
       mockRoutineService,
-      mockRepository,
-      mockAdapter,
-      mockApi
+      mockRoutineDetailRepository,
+      mockRoutineDetailAdapter,
+      mockRoutineDetailApi
     );
   });
 
@@ -41,11 +37,11 @@ describe("RoutineDetailService", () => {
     it("전달된 routineId에 해당하는 routineDetails를 반환한다", async () => {
       const routineId = 5;
       const mockDetails = [mockRoutineDetail.past];
-      mockRepository.findAllByRoutineId.mockResolvedValue(mockDetails);
+      mockRoutineDetailRepository.findAllByRoutineId.mockResolvedValue(mockDetails);
 
       const result = await service.getLocalRoutineDetails(routineId);
 
-      expect(mockRepository.findAllByRoutineId).toHaveBeenCalledWith(routineId);
+      expect(mockRoutineDetailRepository.findAllByRoutineId).toHaveBeenCalledWith(routineId);
       expect(result).toEqual(mockDetails);
     });
   });
@@ -53,11 +49,11 @@ describe("RoutineDetailService", () => {
   describe("addLocalRoutineDetail", () => {
     it("전달받은 routineDetail을 추가한다", async () => {
       const detailInput = mockRoutineDetail.unsynced;
-      mockRepository.add.mockResolvedValueOnce(1);
+      mockRoutineDetailRepository.add.mockResolvedValueOnce(1);
 
       await service.addLocalRoutineDetail(detailInput);
 
-      expect(mockRepository.add).toHaveBeenCalledWith(detailInput);
+      expect(mockRoutineDetailRepository.add).toHaveBeenCalledWith(detailInput);
       expect(
         mockRoutineService.updateLocalRoutineUpdatedAt
       ).toHaveBeenCalledWith(detailInput.routineId);
@@ -65,7 +61,7 @@ describe("RoutineDetailService", () => {
 
     it("routineDetail 추가 도중 에러가 발생할경우 해당 에러를 전파한다", async () => {
       const mockError = new Error("DB Error");
-      mockRepository.add.mockRejectedValue(mockError);
+      mockRoutineDetailRepository.add.mockRejectedValue(mockError);
       const detailInput = mockRoutineDetail.createInput();
       await expect(service.addLocalRoutineDetail(detailInput)).rejects.toThrow(
         mockError
@@ -80,12 +76,12 @@ describe("RoutineDetailService", () => {
         { ...mockRoutineDetail.past, routineId: 1 },
         { ...mockRoutineDetail.past, routineId: 3 },
       ];
-      mockRepository.findAllByRoutineIds.mockResolvedValue(mockDetails);
+      mockRoutineDetailRepository.findAllByRoutineIds.mockResolvedValue(mockDetails);
 
       const result =
         await service.getAllLocalRoutineDetailsByRoutineIds(routineIds);
 
-      expect(mockRepository.findAllByRoutineIds).toHaveBeenCalledWith(
+      expect(mockRoutineDetailRepository.findAllByRoutineIds).toHaveBeenCalledWith(
         routineIds
       );
       expect(result).toEqual(mockDetails);
@@ -93,7 +89,7 @@ describe("RoutineDetailService", () => {
 
     it("routineIds에 일치하는 detail이 없으면 빈 배열을 반환한다", async () => {
       const routineIds = [1, 2, 3];
-      mockRepository.findAllByRoutineIds.mockResolvedValue([]);
+      mockRoutineDetailRepository.findAllByRoutineIds.mockResolvedValue([]);
 
       const result =
         await service.getAllLocalRoutineDetailsByRoutineIds(routineIds);
@@ -103,7 +99,7 @@ describe("RoutineDetailService", () => {
 
     it("findAllByRoutineIds 에서 에러가 발생한경우 해당 에러를 그대로 전파한다", async () => {
       const mockError = new Error("DB 조회 실패");
-      mockRepository.findAllByRoutineIds.mockRejectedValue(mockError);
+      mockRoutineDetailRepository.findAllByRoutineIds.mockRejectedValue(mockError);
       await expect(
         service.getAllLocalRoutineDetailsByRoutineIds([1, 2, 3])
       ).rejects.toThrow(mockError);
@@ -117,15 +113,15 @@ describe("RoutineDetailService", () => {
         ...mockRd,
         setOrder: mockRd.setOrder + 1,
       };
-      mockAdapter.getAddSetToRoutineByLastSet.mockReturnValue(newSetInput);
-      mockRepository.add.mockResolvedValueOnce(5);
+      mockRoutineDetailAdapter.getAddSetToRoutineByLastSet.mockReturnValue(newSetInput);
+      mockRoutineDetailRepository.add.mockResolvedValueOnce(5);
       const result = await service.addSetToRoutine(mockRd);
 
-      expect(mockAdapter.getAddSetToRoutineByLastSet).toHaveBeenCalledWith(
+      expect(mockRoutineDetailAdapter.getAddSetToRoutineByLastSet).toHaveBeenCalledWith(
         mockRd,
         "kg"
       );
-      expect(mockRepository.add).toHaveBeenCalledWith(newSetInput);
+      expect(mockRoutineDetailRepository.add).toHaveBeenCalledWith(newSetInput);
       expect(
         mockRoutineService.updateLocalRoutineUpdatedAt
       ).toHaveBeenCalledWith(mockRd.routineId);
@@ -135,10 +131,10 @@ describe("RoutineDetailService", () => {
 
     it("다음 세트 생성도중 에러가 발생한 경우 해당 에러를 전파한다", async () => {
       const mockError = new Error("DB Error");
-      mockAdapter.getAddSetToRoutineByLastSet.mockReturnValue(
+      mockRoutineDetailAdapter.getAddSetToRoutineByLastSet.mockReturnValue(
         mockRoutineDetail.unsynced
       );
-      mockRepository.add.mockRejectedValue(mockError);
+      mockRoutineDetailRepository.add.mockRejectedValue(mockError);
       await expect(
         service.addSetToRoutine(mockRoutineDetail.unsynced)
       ).rejects.toThrow(mockError);
@@ -168,8 +164,8 @@ describe("RoutineDetailService", () => {
         }),
       ];
 
-      mockAdapter.getNewRoutineDetails.mockReturnValue(newDetails);
-      mockRepository.bulkAdd.mockResolvedValue(newDetails.length);
+      mockRoutineDetailAdapter.getNewRoutineDetails.mockReturnValue(newDetails);
+      mockRoutineDetailRepository.bulkAdd.mockResolvedValue(newDetails.length);
 
       await service.addLocalRoutineDetailsByWorkoutId(
         routineId,
@@ -177,12 +173,12 @@ describe("RoutineDetailService", () => {
         selectedExercises
       );
 
-      expect(mockAdapter.getNewRoutineDetails).toHaveBeenCalledWith(
+      expect(mockRoutineDetailAdapter.getNewRoutineDetails).toHaveBeenCalledWith(
         selectedExercises,
         expect.objectContaining({ routineId, startOrder }),
         "kg"
       );
-      expect(mockRepository.bulkAdd).toHaveBeenCalledWith(newDetails);
+      expect(mockRoutineDetailRepository.bulkAdd).toHaveBeenCalledWith(newDetails);
       expect(
         mockRoutineService.updateLocalRoutineUpdatedAt
       ).toHaveBeenCalledWith(routineId);
@@ -190,7 +186,7 @@ describe("RoutineDetailService", () => {
 
     it("운동 생성 도중 에러 발생시 해당 에러를 전파한다", async () => {
       const mockExerciseError = new Error("운동 생성 실패");
-      mockRepository.bulkAdd.mockRejectedValue(mockExerciseError);
+      mockRoutineDetailRepository.bulkAdd.mockRejectedValue(mockExerciseError);
       await expect(
         service.addLocalRoutineDetailsByWorkoutId(
           routineId,
@@ -218,11 +214,11 @@ describe("RoutineDetailService", () => {
     ];
 
     it("전달받은 mappedDetails 배열로 bulkAdd를 호출한다", async () => {
-      mockRepository.bulkAdd.mockResolvedValue(mappedDetails.length);
+      mockRoutineDetailRepository.bulkAdd.mockResolvedValue(mappedDetails.length);
 
       await service.addPastWorkoutDetailsToRoutine(mappedDetails);
 
-      expect(mockRepository.bulkAdd).toHaveBeenCalledWith(mappedDetails);
+      expect(mockRoutineDetailRepository.bulkAdd).toHaveBeenCalledWith(mappedDetails);
       expect(
         mockRoutineService.updateLocalRoutineUpdatedAt
       ).toHaveBeenCalledWith(mappedDetails[0].routineId);
@@ -231,12 +227,12 @@ describe("RoutineDetailService", () => {
     it("빈 배열을 전달할 경우 repository를 호출하지 않고 즉시 반환한다", async () => {
       await service.addPastWorkoutDetailsToRoutine([]);
 
-      expect(mockRepository.bulkAdd).not.toHaveBeenCalled();
+      expect(mockRoutineDetailRepository.bulkAdd).not.toHaveBeenCalled();
     });
 
     it("bulkAdd 도중 에러가 발생할 경우 해당 에러를 그대로 전파한다", async () => {
       const mockError = new Error("bulkAdd 실패");
-      mockRepository.bulkAdd.mockRejectedValue(mockError);
+      mockRoutineDetailRepository.bulkAdd.mockRejectedValue(mockError);
 
       await expect(
         service.addPastWorkoutDetailsToRoutine(mappedDetails)
@@ -254,19 +250,19 @@ describe("RoutineDetailService", () => {
         exerciseName: mockOriginalDetail.exerciseName,
       });
 
-      mockAdapter.cloneToCreateInput.mockReturnValue(newDetailInput);
-      mockRepository.add.mockResolvedValueOnce(1);
+      mockRoutineDetailAdapter.cloneToCreateInput.mockReturnValue(newDetailInput);
+      mockRoutineDetailRepository.add.mockResolvedValueOnce(1);
 
       await service.cloneRoutineDetailWithNewRoutineId(
         mockOriginalDetail,
         newRoutineId
       );
 
-      expect(mockAdapter.cloneToCreateInput).toHaveBeenCalledWith(
+      expect(mockRoutineDetailAdapter.cloneToCreateInput).toHaveBeenCalledWith(
         mockOriginalDetail,
         newRoutineId
       );
-      expect(mockRepository.add).toHaveBeenCalledWith(newDetailInput);
+      expect(mockRoutineDetailRepository.add).toHaveBeenCalledWith(newDetailInput);
       expect(
         mockRoutineService.updateLocalRoutineUpdatedAt
       ).toHaveBeenCalledWith(newRoutineId);
@@ -277,10 +273,10 @@ describe("RoutineDetailService", () => {
       const mockOriginalDetail = mockRoutineDetail.past;
       const newRoutineId = 20;
 
-      mockAdapter.cloneToCreateInput.mockReturnValue(
+      mockRoutineDetailAdapter.cloneToCreateInput.mockReturnValue(
         mockRoutineDetail.createInput({ routineId: newRoutineId })
       );
-      mockRepository.add.mockRejectedValue(mockError);
+      mockRoutineDetailRepository.add.mockRejectedValue(mockError);
 
       await expect(
         service.cloneRoutineDetailWithNewRoutineId(
@@ -299,11 +295,11 @@ describe("RoutineDetailService", () => {
       exerciseName: "테스트 운동",
     };
     it("전달받은 인자로 routineDetail을 업데이트한다", async () => {
-      mockRepository.update.mockResolvedValueOnce(5);
+      mockRoutineDetailRepository.update.mockResolvedValueOnce(5);
 
       await service.updateLocalRoutineDetail(updateInput);
 
-      expect(mockRepository.update).toHaveBeenCalledWith(
+      expect(mockRoutineDetailRepository.update).toHaveBeenCalledWith(
         updateInput.id,
         updateInput
       );
@@ -325,7 +321,7 @@ describe("RoutineDetailService", () => {
     it("업데이트 도중 에러가 발생한 경우 해당 에러를 전파한다", async () => {
       const mockError = new Error("DB Error");
 
-      mockRepository.update.mockRejectedValueOnce(mockError);
+      mockRoutineDetailRepository.update.mockRejectedValueOnce(mockError);
 
       await expect(
         service.updateLocalRoutineDetail(updateInput)
@@ -335,16 +331,16 @@ describe("RoutineDetailService", () => {
   describe("deleteRoutineDetail", () => {
     const detailId = 5;
     it("전달받은 detailId에 해당하는 routineDetail을 삭제한다", async () => {
-      mockRepository.delete.mockResolvedValueOnce(undefined);
+      mockRoutineDetailRepository.delete.mockResolvedValueOnce(undefined);
 
       await service.deleteRoutineDetail(detailId);
 
-      expect(mockRepository.delete).toHaveBeenCalledWith(detailId);
+      expect(mockRoutineDetailRepository.delete).toHaveBeenCalledWith(detailId);
     });
 
     it("삭제 도중 에러가 발생한 경우 해당 에러를 전파한다", async () => {
       const mockError = new Error("DB Error");
-      mockRepository.delete.mockRejectedValueOnce(mockError);
+      mockRoutineDetailRepository.delete.mockRejectedValueOnce(mockError);
 
       await expect(service.deleteRoutineDetail(detailId)).rejects.toThrow(
         mockError
@@ -358,11 +354,11 @@ describe("RoutineDetailService", () => {
         { ...mockRoutineDetail.past, id: 1 },
         { ...mockRoutineDetail.past, id: 2 },
       ];
-      mockRepository.bulkDelete.mockResolvedValueOnce(undefined);
+      mockRoutineDetailRepository.bulkDelete.mockResolvedValueOnce(undefined);
 
       await service.deleteRoutineDetails(details);
 
-      expect(mockRepository.bulkDelete).toHaveBeenCalledWith([1, 2]);
+      expect(mockRoutineDetailRepository.bulkDelete).toHaveBeenCalledWith([1, 2]);
       expect(
         mockRoutineService.updateLocalRoutineUpdatedAt
       ).toHaveBeenCalledWith(details[0].routineId);
@@ -373,7 +369,7 @@ describe("RoutineDetailService", () => {
       const details: Saved<LocalRoutineDetail>[] = [
         { ...mockRoutineDetail.past },
       ];
-      mockRepository.bulkDelete.mockRejectedValueOnce(mockError);
+      mockRoutineDetailRepository.bulkDelete.mockRejectedValueOnce(mockError);
 
       await expect(service.deleteRoutineDetails(details)).rejects.toThrow(
         mockError
@@ -389,24 +385,24 @@ describe("RoutineDetailService", () => {
     ];
 
     it("전달받은 routineId에 일치하는 모든 detail과 routine을 삭제한다", async () => {
-      mockRepository.findAllByRoutineId.mockResolvedValue(details);
+      mockRoutineDetailRepository.findAllByRoutineId.mockResolvedValue(details);
 
       await service.deleteDetailsByRoutineId(routineId);
 
-      expect(mockRepository.findAllByRoutineId).toHaveBeenCalledWith(routineId);
-      expect(mockRepository.bulkDelete).toHaveBeenCalledWith([1, 2]);
+      expect(mockRoutineDetailRepository.findAllByRoutineId).toHaveBeenCalledWith(routineId);
+      expect(mockRoutineDetailRepository.bulkDelete).toHaveBeenCalledWith([1, 2]);
       expect(mockRoutineService.deleteLocalRoutine).toHaveBeenCalledWith(
         routineId
       );
     });
 
     it("전달받은 routineId에 해당하는 detail이 없는경우에도 routine을 삭제한다", async () => {
-      mockRepository.findAllByRoutineId.mockResolvedValue([]);
+      mockRoutineDetailRepository.findAllByRoutineId.mockResolvedValue([]);
 
       await service.deleteDetailsByRoutineId(routineId);
 
-      expect(mockRepository.findAllByRoutineId).toHaveBeenCalledWith(routineId);
-      expect(mockRepository.bulkDelete).toHaveBeenCalledWith([]);
+      expect(mockRoutineDetailRepository.findAllByRoutineId).toHaveBeenCalledWith(routineId);
+      expect(mockRoutineDetailRepository.bulkDelete).toHaveBeenCalledWith([]);
       expect(mockRoutineService.deleteLocalRoutine).toHaveBeenCalledWith(
         routineId
       );
@@ -414,8 +410,8 @@ describe("RoutineDetailService", () => {
 
     it("삭제 도중 에러가 발생하면 해당 에러를 그대로 전파한다", async () => {
       const mockError = new Error("삭제 실패");
-      mockRepository.findAllByRoutineId.mockResolvedValue(details);
-      mockRepository.bulkDelete.mockRejectedValueOnce(mockError);
+      mockRoutineDetailRepository.findAllByRoutineId.mockResolvedValue(details);
+      mockRoutineDetailRepository.bulkDelete.mockRejectedValueOnce(mockError);
 
       await expect(service.deleteDetailsByRoutineId(routineId)).rejects.toThrow(
         mockError
@@ -451,17 +447,17 @@ describe("RoutineDetailService", () => {
         },
       ];
 
-      mockApi.fetchRoutineDetailsFromServer.mockResolvedValue(mockServerData);
+      mockRoutineDetailApi.fetchRoutineDetailsFromServer.mockResolvedValue(mockServerData);
       mockExerciseService.getExerciseWithServerId.mockResolvedValue(mockEx);
       mockRoutineService.getRoutineByServerId.mockResolvedValue(mockR);
-      mockRepository.bulkAdd.mockResolvedValueOnce(1);
+      mockRoutineDetailRepository.bulkAdd.mockResolvedValueOnce(1);
 
       await service.overwriteWithServerRoutineDetails(userId);
-      expect(mockApi.fetchRoutineDetailsFromServer).toHaveBeenCalledWith(
+      expect(mockRoutineDetailApi.fetchRoutineDetailsFromServer).toHaveBeenCalledWith(
         userId
       );
-      expect(mockRepository.clear).toHaveBeenCalled();
-      expect(mockRepository.bulkAdd).toHaveBeenCalledWith(mockToInsert);
+      expect(mockRoutineDetailRepository.clear).toHaveBeenCalled();
+      expect(mockRoutineDetailRepository.bulkAdd).toHaveBeenCalledWith(mockToInsert);
     });
 
     it("매핑에 필요한 exercise나 workout을 찾지 못하면 에러를 던지고, DB를 초기화하지 않는다", async () => {
@@ -469,7 +465,7 @@ describe("RoutineDetailService", () => {
         "exerciseId 또는 routineId가 일치하는 데이터를 찾을 수 없습니다"
       );
 
-      mockApi.fetchRoutineDetailsFromServer.mockResolvedValue(mockServerData);
+      mockRoutineDetailApi.fetchRoutineDetailsFromServer.mockResolvedValue(mockServerData);
       mockExerciseService.getExerciseWithServerId.mockResolvedValueOnce(
         undefined
       );
@@ -478,17 +474,17 @@ describe("RoutineDetailService", () => {
       await expect(
         service.overwriteWithServerRoutineDetails(userId)
       ).rejects.toThrow(mockError);
-      expect(mockRepository.clear).not.toHaveBeenCalled();
-      expect(mockRepository.bulkAdd).not.toHaveBeenCalled();
+      expect(mockRoutineDetailRepository.clear).not.toHaveBeenCalled();
+      expect(mockRoutineDetailRepository.bulkAdd).not.toHaveBeenCalled();
     });
 
     it("덮어씌우는 도중 에러 발생시 해당 에러를 그대로 전파한다", async () => {
       const mockError = new Error("DB Error");
 
-      mockApi.fetchRoutineDetailsFromServer.mockResolvedValue(mockServerData);
+      mockRoutineDetailApi.fetchRoutineDetailsFromServer.mockResolvedValue(mockServerData);
       mockExerciseService.getExerciseWithServerId.mockResolvedValue(mockEx);
       mockRoutineService.getRoutineByServerId.mockResolvedValue(mockR);
-      mockRepository.bulkAdd.mockRejectedValueOnce(mockError);
+      mockRoutineDetailRepository.bulkAdd.mockRejectedValueOnce(mockError);
 
       await expect(
         service.overwriteWithServerRoutineDetails(userId)
@@ -506,17 +502,17 @@ describe("RoutineDetailService", () => {
   //       { ...mockRoutineDetail.past, id: 1, isSynced: true },
   //       { ...mockRoutineDetail.past, id: 2, isSynced: true },
   //     ];
-  //     mockRepository.findAll.mockResolvedValue(syncedDetails);
-  //     mockApi.postRoutineDetailsToServer.mockResolvedValue({
+  //     mockRoutineDetailRepository.findAll.mockResolvedValue(syncedDetails);
+  //     mockRoutineDetailApi.postRoutineDetailsToServer.mockResolvedValue({
   //       success: true,
   //       updated: [],
   //     });
 
   //     await service.syncToServerRoutineDetails();
 
-  //     expect(mockRepository.findAll).toHaveBeenCalledTimes(1);
-  //     expect(mockApi.postRoutineDetailsToServer).toHaveBeenCalledWith([]);
-  //     expect(mockRepository.update).not.toHaveBeenCalled();
+  //     expect(mockRoutineDetailRepository.findAll).toHaveBeenCalledTimes(1);
+  //     expect(mockRoutineDetailApi.postRoutineDetailsToServer).toHaveBeenCalledWith([]);
+  //     expect(mockRoutineDetailRepository.update).not.toHaveBeenCalled();
   //   });
 
   //   it("unsynced 데이터를 서버에 동기화하고 로컬 DB를 업데이트한다", async () => {
@@ -544,18 +540,18 @@ describe("RoutineDetailService", () => {
   //       ],
   //     };
 
-  //     mockRepository.findAll.mockResolvedValue(allDetails);
+  //     mockRoutineDetailRepository.findAll.mockResolvedValue(allDetails);
   //     mockExerciseService.getExerciseWithLocalId.mockResolvedValue(mockEx);
   //     mockRoutineService.getRoutineByLocalId.mockResolvedValue(mockRo);
-  //     mockAdapter.mapLocalRoutineDetailToServer.mockReturnValue(mappedPayload);
-  //     mockApi.postRoutineDetailsToServer.mockResolvedValue(apiResponse);
+  //     mockRoutineDetailAdapter.mapLocalRoutineDetailToServer.mockReturnValue(mappedPayload);
+  //     mockRoutineDetailApi.postRoutineDetailsToServer.mockResolvedValue(apiResponse);
 
   //     mockExerciseService.getExerciseWithServerId.mockResolvedValue(mockEx);
   //     mockRoutineService.getRoutineByServerId.mockResolvedValue(mockRo);
 
   //     await service.syncToServerRoutineDetails();
 
-  //     expect(mockRepository.findAll).toHaveBeenCalledTimes(1);
+  //     expect(mockRoutineDetailRepository.findAll).toHaveBeenCalledTimes(1);
 
   //     expect(mockExerciseService.getExerciseWithLocalId).toHaveBeenCalledWith(
   //       unsyncedDetail.exerciseId
@@ -563,13 +559,13 @@ describe("RoutineDetailService", () => {
   //     expect(mockRoutineService.getRoutineByLocalId).toHaveBeenCalledWith(
   //       unsyncedDetail.routineId
   //     );
-  //     expect(mockAdapter.mapLocalRoutineDetailToServer).toHaveBeenCalledWith(
+  //     expect(mockRoutineDetailAdapter.mapLocalRoutineDetailToServer).toHaveBeenCalledWith(
   //       unsyncedDetail,
   //       mockEx,
   //       mockRo
   //     );
 
-  //     expect(mockApi.postRoutineDetailsToServer).toHaveBeenCalledWith([
+  //     expect(mockRoutineDetailApi.postRoutineDetailsToServer).toHaveBeenCalledWith([
   //       mappedPayload,
   //     ]);
 
@@ -579,7 +575,7 @@ describe("RoutineDetailService", () => {
   //     expect(mockRoutineService.getRoutineByServerId).toHaveBeenCalledWith(
   //       mockRo.serverId
   //     );
-  //     expect(mockRepository.update).toHaveBeenCalledWith(unsyncedDetail.id, {
+  //     expect(mockRoutineDetailRepository.update).toHaveBeenCalledWith(unsyncedDetail.id, {
   //       serverId: "server-detail-123",
   //       isSynced: true,
   //       exerciseId: mockEx.id,
@@ -594,7 +590,7 @@ describe("RoutineDetailService", () => {
   //       serverId: null,
   //     };
 
-  //     mockRepository.findAll.mockResolvedValue(allDetails);
+  //     mockRoutineDetailRepository.findAll.mockResolvedValue(allDetails);
   //     mockExerciseService.getExerciseWithLocalId.mockResolvedValue(
   //       mockExNoServerId
   //     );
@@ -605,15 +601,15 @@ describe("RoutineDetailService", () => {
 
   //   it("API 전송 도중 에러가 발생하면 해당 에러를 전파한다", async () => {
   //     const mockError = new Error("");
-  //     mockApi.postRoutineDetailsToServer.mockRejectedValue(mockError);
-  //     mockRepository.findAll.mockResolvedValue([unsyncedDetail]);
+  //     mockRoutineDetailApi.postRoutineDetailsToServer.mockRejectedValue(mockError);
+  //     mockRoutineDetailRepository.findAll.mockResolvedValue([unsyncedDetail]);
   //     mockExerciseService.getExerciseWithLocalId.mockResolvedValue(mockEx);
   //     mockRoutineService.getRoutineByLocalId.mockResolvedValue(mockRo);
 
   //     await expect(service.syncToServerRoutineDetails()).rejects.toThrow(
   //       mockError
   //     );
-  //     expect(mockRepository.update).not.toHaveBeenCalled();
+  //     expect(mockRoutineDetailRepository.update).not.toHaveBeenCalled();
   //   });
   // });
 
@@ -675,18 +671,18 @@ describe("RoutineDetailService", () => {
           setOrder: 4,
         },
       ];
-      mockRepository.findAllByRoutineId.mockResolvedValue(details);
-      mockAdapter.getReorderedDetailsAfterSetDelete.mockReturnValue(
+      mockRoutineDetailRepository.findAllByRoutineId.mockResolvedValue(details);
+      mockRoutineDetailAdapter.getReorderedDetailsAfterSetDelete.mockReturnValue(
         mappedDetails
       );
 
       await service.reorderSetOrderAfterDelete(routineId, exerciseId, 2);
 
-      expect(mockRepository.findAllByRoutineId).toHaveBeenCalledWith(routineId);
+      expect(mockRoutineDetailRepository.findAllByRoutineId).toHaveBeenCalledWith(routineId);
       expect(
-        mockAdapter.getReorderedDetailsAfterSetDelete
+        mockRoutineDetailAdapter.getReorderedDetailsAfterSetDelete
       ).toHaveBeenCalledWith(details, exerciseId, 2);
-      expect(mockRepository.bulkPut).toHaveBeenCalledWith(mappedDetails);
+      expect(mockRoutineDetailRepository.bulkPut).toHaveBeenCalledWith(mappedDetails);
       expect(
         mockRoutineService.updateLocalRoutineUpdatedAt
       ).toHaveBeenCalledWith(routineId);
@@ -702,13 +698,13 @@ describe("RoutineDetailService", () => {
           setOrder: 1,
         },
       ];
-      mockRepository.findAllByRoutineId.mockResolvedValue(details);
-      mockAdapter.getReorderedDetailsAfterSetDelete.mockReturnValue([]);
+      mockRoutineDetailRepository.findAllByRoutineId.mockResolvedValue(details);
+      mockRoutineDetailAdapter.getReorderedDetailsAfterSetDelete.mockReturnValue([]);
 
       await service.reorderSetOrderAfterDelete(routineId, exerciseId, 1);
 
-      expect(mockRepository.findAllByRoutineId).toHaveBeenCalledWith(routineId);
-      expect(mockRepository.bulkPut).not.toHaveBeenCalled();
+      expect(mockRoutineDetailRepository.findAllByRoutineId).toHaveBeenCalledWith(routineId);
+      expect(mockRoutineDetailRepository.bulkPut).not.toHaveBeenCalled();
       expect(
         mockRoutineService.updateLocalRoutineUpdatedAt
       ).not.toHaveBeenCalled();
@@ -735,11 +731,11 @@ describe("RoutineDetailService", () => {
         },
       ];
 
-      mockRepository.findAllByRoutineId.mockResolvedValue(details);
-      mockAdapter.getReorderedDetailsAfterSetDelete.mockReturnValue(
+      mockRoutineDetailRepository.findAllByRoutineId.mockResolvedValue(details);
+      mockRoutineDetailAdapter.getReorderedDetailsAfterSetDelete.mockReturnValue(
         mappedDetails
       );
-      mockRepository.bulkPut.mockRejectedValueOnce(mockError);
+      mockRoutineDetailRepository.bulkPut.mockRejectedValueOnce(mockError);
 
       await expect(
         service.reorderSetOrderAfterDelete(routineId, exerciseId, 2)
@@ -762,18 +758,18 @@ describe("RoutineDetailService", () => {
         { ...mockRoutineDetail.past, id: 3, routineId, exerciseOrder: 3 },
         { ...mockRoutineDetail.past, id: 4, routineId, exerciseOrder: 4 },
       ];
-      mockRepository.findAllByRoutineId.mockResolvedValue(details);
-      mockAdapter.getReorderedDetailsAfterExerciseDelete.mockReturnValue(
+      mockRoutineDetailRepository.findAllByRoutineId.mockResolvedValue(details);
+      mockRoutineDetailAdapter.getReorderedDetailsAfterExerciseDelete.mockReturnValue(
         mappedDetails
       );
 
       await service.reorderExerciseOrderAfterDelete(routineId, 2);
 
-      expect(mockRepository.findAllByRoutineId).toHaveBeenCalledWith(routineId);
+      expect(mockRoutineDetailRepository.findAllByRoutineId).toHaveBeenCalledWith(routineId);
       expect(
-        mockAdapter.getReorderedDetailsAfterExerciseDelete
+        mockRoutineDetailAdapter.getReorderedDetailsAfterExerciseDelete
       ).toHaveBeenCalledWith(details, 2);
-      expect(mockRepository.bulkPut).toHaveBeenCalledWith(mappedDetails);
+      expect(mockRoutineDetailRepository.bulkPut).toHaveBeenCalledWith(mappedDetails);
       expect(
         mockRoutineService.updateLocalRoutineUpdatedAt
       ).toHaveBeenCalledWith(routineId);
@@ -786,13 +782,13 @@ describe("RoutineDetailService", () => {
         { ...mockRoutineDetail.past, id: 3, routineId, exerciseOrder: 3 },
         { ...mockRoutineDetail.past, id: 4, routineId, exerciseOrder: 4 },
       ];
-      mockRepository.findAllByRoutineId.mockResolvedValue(details);
-      mockAdapter.getReorderedDetailsAfterExerciseDelete.mockReturnValue([]);
+      mockRoutineDetailRepository.findAllByRoutineId.mockResolvedValue(details);
+      mockRoutineDetailAdapter.getReorderedDetailsAfterExerciseDelete.mockReturnValue([]);
 
       await service.reorderExerciseOrderAfterDelete(routineId, 1);
 
-      expect(mockRepository.findAllByRoutineId).toHaveBeenCalledWith(routineId);
-      expect(mockRepository.bulkPut).not.toHaveBeenCalled();
+      expect(mockRoutineDetailRepository.findAllByRoutineId).toHaveBeenCalledWith(routineId);
+      expect(mockRoutineDetailRepository.bulkPut).not.toHaveBeenCalled();
       expect(
         mockRoutineService.updateLocalRoutineUpdatedAt
       ).not.toHaveBeenCalled();
@@ -807,11 +803,11 @@ describe("RoutineDetailService", () => {
         { ...mockRoutineDetail.past, id: 2, routineId, exerciseOrder: 2 },
       ];
 
-      mockRepository.findAllByRoutineId.mockResolvedValue(details);
-      mockAdapter.getReorderedDetailsAfterExerciseDelete.mockReturnValue(
+      mockRoutineDetailRepository.findAllByRoutineId.mockResolvedValue(details);
+      mockRoutineDetailAdapter.getReorderedDetailsAfterExerciseDelete.mockReturnValue(
         mappedDetails
       );
-      mockRepository.bulkPut.mockRejectedValueOnce(mockError);
+      mockRoutineDetailRepository.bulkPut.mockRejectedValueOnce(mockError);
 
       await expect(
         service.reorderExerciseOrderAfterDelete(routineId, 2)
