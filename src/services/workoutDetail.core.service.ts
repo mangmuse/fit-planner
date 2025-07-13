@@ -174,7 +174,7 @@ export class WorkoutDetailCoreService implements IWorkoutDetailCoreService {
     workoutId: number,
     exerciseId: number,
     deletedSetOrder: number
-  ): Promise<void> {
+  ): Promise<Saved<LocalWorkoutDetail>[]> {
     const details = await this.repository.findAllByWorkoutId(workoutId);
     const updatedDetails = this.adapter.getReorderedDetailsAfterSetDelete(
       details,
@@ -185,5 +185,6 @@ export class WorkoutDetailCoreService implements IWorkoutDetailCoreService {
     if (updatedDetails.length > 0) {
       await this.updateWorkoutDetails(updatedDetails);
     }
+    return updatedDetails;
   }
 }

@@ -154,7 +154,7 @@ export class RoutineDetailService implements IRoutineDetailService {
     routineId: number,
     exerciseId: number,
     deletedSetOrder: number
-  ): Promise<void> {
+  ): Promise<Saved<LocalRoutineDetail>[]> {
     const details = await this.repository.findAllByRoutineId(routineId);
     const updatedDetails = this.adapter.getReorderedDetailsAfterSetDelete(
       details,
@@ -166,6 +166,7 @@ export class RoutineDetailService implements IRoutineDetailService {
       await this.repository.bulkPut(updatedDetails);
       await this.routineService.updateLocalRoutineUpdatedAt(routineId);
     }
+    return updatedDetails;
   }
   // ===== SYNC ===== //
   private async mapDetailsToPayload(

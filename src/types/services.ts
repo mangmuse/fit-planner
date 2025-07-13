@@ -62,7 +62,7 @@ export interface IWorkoutDetailCoreService {
     workoutId: number,
     exerciseId: number,
     deletedSetOrder: number
-  ) => Promise<void>;
+  ) => Promise<Saved<LocalWorkoutDetail>[]>;
 }
 
 export interface IWorkoutDetailSyncService {
@@ -214,7 +214,7 @@ export interface IRoutineDetailService {
     routineId: number,
     exerciseId: number,
     deletedSetOrder: number
-  ) => Promise<void>;
+  ) => Promise<Saved<LocalRoutineDetail>[]>;
 
   // --- Sync Service ---
   // syncToServerRoutineDetails: () => Promise<void>;

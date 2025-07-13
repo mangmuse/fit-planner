@@ -97,7 +97,6 @@ const SessionContainer = ({
     workoutGroups,
     reload,
     workout,
-    allDetails,
     setWorkout,
     updateDetailInGroups,
     updateMultipleDetailsInGroups,
@@ -164,46 +163,51 @@ const SessionContainer = ({
             deletedExerciseOrder
           );
         }
-        reload();
       } catch (e) {
         console.error("[SessionContainer] reorderAfterDelete Error", e);
         showError("운동 상태를 동기화하는 데 실패했습니다");
       }
     },
-    [type, workout?.id, routineId, showError, reload]
+    [type, workout?.id, routineId, showError]
   );
   const reorderSetOrderAfterDelete = useCallback(
     async (exerciseId: number, deletedSetOrder: number): Promise<void> => {
+      let updatedDetails:
+        | Saved<LocalWorkoutDetail>[]
+        | Saved<LocalRoutineDetail>[] = [];
       try {
         if (type === "RECORD" && workout?.id) {
-          await workoutDetailService.reorderSetOrderAfterDelete(
-            workout.id,
-            exerciseId,
-            deletedSetOrder
-          );
+          updatedDetails =
+            await workoutDetailService.reorderSetOrderAfterDelete(
+              workout.id,
+              exerciseId,
+              deletedSetOrder
+            );
         } else if (type === "ROUTINE" && routineId) {
-          await routineDetailService.reorderSetOrderAfterDelete(
-            routineId,
-            exerciseId,
-            deletedSetOrder
-          );
+          updatedDetails =
+            await routineDetailService.reorderSetOrderAfterDelete(
+              routineId,
+              exerciseId,
+              deletedSetOrder
+            );
         }
-        reload();
+        updateMultipleDetailsInGroups(updatedDetails);
       } catch (e) {
         console.error("[SessionContainer] reorderSetOrderAfterDelete Error", e);
         showError("세트 순서 업데이트에 실패했습니다");
       }
     },
-    [type, workout?.id, routineId, showError, reload]
+    [type, workout?.id, routineId, updateMultipleDetailsInGroups, showError]
   );
 
   const handleDeleteAll = useCallback(async () => {
     try {
       async function deleteAll() {
         let targetPath = "/";
-        if (type === "RECORD" && isWorkoutDetails(allDetails) && workout?.id) {
+
+        if (type === "RECORD" && workout?.id) {
           await workoutDetailService.deleteDetailsByWorkoutId(workout.id);
-        } else if (!isWorkoutDetails(allDetails) && routineId) {
+        } else if (type === "ROUTINE" && routineId) {
           await routineDetailService.deleteDetailsByRoutineId(routineId);
           targetPath = `/routines`;
         }
@@ -221,16 +225,7 @@ const SessionContainer = ({
       console.error("[SessionContainer] Error", e);
       showError("운동 전체 삭제에 실패했습니다");
     }
-  }, [
-    type,
-    allDetails,
-    workout?.id,
-    routineId,
-    router,
-    setWorkout,
-    openModal,
-    showError,
-  ]);
+  }, [type, workout?.id, routineId, router, setWorkout, openModal, showError]);
 
   const handleCompleteWorkout = useCallback(async () => {
     try {
@@ -271,7 +266,7 @@ const SessionContainer = ({
           <SessionSequence detailGroups={workoutGroups} reload={reload} />
         ),
       }),
-    [openBottomSheet, workoutGroups, reload, type]
+    [openBottomSheet, workoutGroups, reload]
   );
 
   const exercisePath =
@@ -295,7 +290,7 @@ const SessionContainer = ({
 
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [pathname, isModalOpen]);
+  }, [pathname, isModalOpen, isBottomSheetOpen, router]);
 
   const contextValue = useMemo(
     () => ({

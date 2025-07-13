@@ -7,10 +7,10 @@ import {
 import { WorkoutDetailCoreService } from "@/services/workoutDetail.core.service";
 import { LocalWorkoutDetail, Saved } from "@/types/models";
 import { IWorkoutDetailCoreService, IWorkoutService } from "@/types/services";
-import { 
-  mockWorkoutDetailRepository, 
-  mockWorkoutDetailAdapter, 
-  mockWorkoutService 
+import {
+  mockWorkoutDetailRepository,
+  mockWorkoutDetailAdapter,
+  mockWorkoutService,
 } from "@/__mocks__/lib/di";
 
 describe("WorkoutDetailCoreService", () => {
@@ -45,16 +45,16 @@ describe("WorkoutDetailCoreService", () => {
         existingWorkout
       );
 
-      (mockWorkoutDetailRepository.findAllByWorkoutId as jest.Mock).mockResolvedValue(
-        mockDetails
-      );
+      (
+        mockWorkoutDetailRepository.findAllByWorkoutId as jest.Mock
+      ).mockResolvedValue(mockDetails);
 
       const result = await service.getLocalWorkoutDetails(userId, date);
 
       expect(mockWorkoutService.addLocalWorkout).not.toHaveBeenCalled();
-      expect(mockWorkoutDetailRepository.findAllByWorkoutId).toHaveBeenCalledWith(
-        existingWorkout.id
-      );
+      expect(
+        mockWorkoutDetailRepository.findAllByWorkoutId
+      ).toHaveBeenCalledWith(existingWorkout.id);
       expect(result).toEqual(mockDetails);
     });
 
@@ -65,7 +65,9 @@ describe("WorkoutDetailCoreService", () => {
 
       const result = await service.getLocalWorkoutDetails(userId, date);
 
-      expect(mockWorkoutDetailRepository.findAllByWorkoutId).not.toHaveBeenCalled();
+      expect(
+        mockWorkoutDetailRepository.findAllByWorkoutId
+      ).not.toHaveBeenCalled();
       expect(mockWorkoutService.addLocalWorkout).toHaveBeenCalledWith(
         userId,
         date
@@ -90,15 +92,17 @@ describe("WorkoutDetailCoreService", () => {
       const details: Saved<LocalWorkoutDetail>[] = [
         { ...mockWorkoutDetail.past, workoutId },
       ];
-      mockWorkoutDetailRepository.findAllByWorkoutIds.mockResolvedValue(details);
+      mockWorkoutDetailRepository.findAllByWorkoutIds.mockResolvedValue(
+        details
+      );
 
       const result = await service.getAllLocalWorkoutDetailsByWorkoutIds([
         workoutId,
       ]);
 
-      expect(mockWorkoutDetailRepository.findAllByWorkoutIds).toHaveBeenCalledWith([
-        workoutId,
-      ]);
+      expect(
+        mockWorkoutDetailRepository.findAllByWorkoutIds
+      ).toHaveBeenCalledWith([workoutId]);
       expect(result).toEqual(details);
     });
 
@@ -112,7 +116,9 @@ describe("WorkoutDetailCoreService", () => {
 
     it("findAllByWorkoutIds 에서 에러가 발생한경우 해당 에러를 그대로 전파한다", async () => {
       const mockError = new Error("DB 조회 실패");
-      mockWorkoutDetailRepository.findAllByWorkoutIds.mockRejectedValue(mockError);
+      mockWorkoutDetailRepository.findAllByWorkoutIds.mockRejectedValue(
+        mockError
+      );
       await expect(
         service.getAllLocalWorkoutDetailsByWorkoutIds([workoutId])
       ).rejects.toThrow(mockError);
@@ -128,7 +134,9 @@ describe("WorkoutDetailCoreService", () => {
 
       const result = await service.getLocalWorkoutDetailsByWorkoutId(workoutId);
 
-      expect(mockWorkoutDetailRepository.findAllByWorkoutId).toHaveBeenCalledWith(workoutId);
+      expect(
+        mockWorkoutDetailRepository.findAllByWorkoutId
+      ).toHaveBeenCalledWith(workoutId);
       expect(result).toEqual(details);
     });
 
@@ -137,13 +145,17 @@ describe("WorkoutDetailCoreService", () => {
       mockWorkoutDetailRepository.findAllByWorkoutId.mockResolvedValue(details);
       const result = await service.getLocalWorkoutDetailsByWorkoutId(workoutId);
 
-      expect(mockWorkoutDetailRepository.findAllByWorkoutId).toHaveBeenCalledWith(workoutId);
+      expect(
+        mockWorkoutDetailRepository.findAllByWorkoutId
+      ).toHaveBeenCalledWith(workoutId);
       expect(result).toEqual(details);
     });
 
     it("findAllByWorkoutId 에서 에러가 발생한경우 해당 에러를 그대로 전파한다", async () => {
       const mockError = new Error("DB 조회 실패");
-      mockWorkoutDetailRepository.findAllByWorkoutId.mockRejectedValue(mockError);
+      mockWorkoutDetailRepository.findAllByWorkoutId.mockRejectedValue(
+        mockError
+      );
       await expect(
         service.getLocalWorkoutDetailsByWorkoutId(workoutId)
       ).rejects.toThrow(mockError);
@@ -234,11 +246,9 @@ describe("WorkoutDetailCoreService", () => {
         selectedExercise
       );
 
-      expect(mockWorkoutDetailAdapter.getNewWorkoutDetails).toHaveBeenCalledWith(
-        selectedExercise,
-        { workoutId, startOrder },
-        "kg"
-      );
+      expect(
+        mockWorkoutDetailAdapter.getNewWorkoutDetails
+      ).toHaveBeenCalledWith(selectedExercise, { workoutId, startOrder }, "kg");
       expect(result).toBe(2);
       expect(mockWorkoutDetailRepository.bulkAdd).toHaveBeenCalledWith([
         mockWorkoutDetail1,
@@ -276,11 +286,15 @@ describe("WorkoutDetailCoreService", () => {
     ];
 
     it("전달받은 mappedDetails 배열로 bulkAdd를 호출한다", async () => {
-      mockWorkoutDetailRepository.bulkAdd.mockResolvedValue(mappedDetails.length);
+      mockWorkoutDetailRepository.bulkAdd.mockResolvedValue(
+        mappedDetails.length
+      );
 
       await service.addPastWorkoutDetailsToWorkout(mappedDetails);
 
-      expect(mockWorkoutDetailRepository.bulkAdd).toHaveBeenCalledWith(mappedDetails);
+      expect(mockWorkoutDetailRepository.bulkAdd).toHaveBeenCalledWith(
+        mappedDetails
+      );
     });
 
     it("빈 배열을 전달할 경우 repository를 호출하지 않고 즉시 반환한다", async () => {
@@ -316,22 +330,25 @@ describe("WorkoutDetailCoreService", () => {
     };
 
     it("전달받은 마지막세트를 기반으로 다음세트를 생성하며 해당 세트를 반환한다", async () => {
-      mockWorkoutDetailAdapter.getAddSetToWorkoutByLastSet.mockReturnValue(newSetInput);
+      mockWorkoutDetailAdapter.getAddSetToWorkoutByLastSet.mockReturnValue(
+        newSetInput
+      );
       mockWorkoutDetailRepository.add.mockResolvedValue(555);
 
       const result = await service.addSetToWorkout(lastSet);
 
-      expect(mockWorkoutDetailAdapter.getAddSetToWorkoutByLastSet).toHaveBeenCalledWith(
-        lastSet,
-        "kg"
-      );
+      expect(
+        mockWorkoutDetailAdapter.getAddSetToWorkoutByLastSet
+      ).toHaveBeenCalledWith(lastSet, "kg");
       expect(mockWorkoutDetailRepository.add).toHaveBeenCalledWith(newSetInput);
       expect(result).toEqual(newSet);
     });
 
     it("다음세트 생성중 에러가 발생할경우 해당 에러를 그대로 전파한다", async () => {
       const mockError = new Error("DB 추가 실패");
-      mockWorkoutDetailAdapter.getAddSetToWorkoutByLastSet.mockReturnValue(newSetInput);
+      mockWorkoutDetailAdapter.getAddSetToWorkoutByLastSet.mockReturnValue(
+        newSetInput
+      );
       mockWorkoutDetailRepository.add.mockRejectedValue(mockError);
       await expect(service.addSetToWorkout(lastSet)).rejects.toThrow(mockError);
     });
@@ -366,12 +383,16 @@ describe("WorkoutDetailCoreService", () => {
         date
       );
       expect(getExerciseOrderMock).toHaveBeenCalledWith(mockedWorkout.id);
-      expect(mockWorkoutDetailAdapter.getNewWorkoutDetails).toHaveBeenCalledWith(
+      expect(
+        mockWorkoutDetailAdapter.getNewWorkoutDetails
+      ).toHaveBeenCalledWith(
         selectedExercises,
         { workoutId: mockedWorkout.id, startOrder },
         "kg"
       );
-      expect(mockWorkoutDetailRepository.bulkAdd).toHaveBeenCalledWith(newDetails);
+      expect(mockWorkoutDetailRepository.bulkAdd).toHaveBeenCalledWith(
+        newDetails
+      );
 
       expect(result).toBe(newDetails.length);
     });
@@ -384,7 +405,9 @@ describe("WorkoutDetailCoreService", () => {
       );
       expect(result).toBe(0);
       expect(mockWorkoutService.addLocalWorkout).not.toHaveBeenCalled();
-      expect(mockWorkoutDetailAdapter.getNewWorkoutDetails).not.toHaveBeenCalled();
+      expect(
+        mockWorkoutDetailAdapter.getNewWorkoutDetails
+      ).not.toHaveBeenCalled();
       expect(mockWorkoutDetailRepository.bulkAdd).not.toHaveBeenCalled();
     });
 
@@ -443,7 +466,9 @@ describe("WorkoutDetailCoreService", () => {
 
     it("전달받은 details 배열로 bulkPut을 호출한다", async () => {
       await service.updateWorkoutDetails(updatedDetails);
-      expect(mockWorkoutDetailRepository.bulkPut).toHaveBeenCalledWith(updatedDetails);
+      expect(mockWorkoutDetailRepository.bulkPut).toHaveBeenCalledWith(
+        updatedDetails
+      );
     });
 
     it("업데이트 도중 에러가 발생하면 해당 에러를 그대로 전파한다", async () => {
@@ -509,7 +534,9 @@ describe("WorkoutDetailCoreService", () => {
       mockWorkoutDetailRepository.findAllByWorkoutId.mockResolvedValue(details);
 
       await service.deleteDetailsByWorkoutId(workoutId);
-      expect(mockWorkoutDetailRepository.bulkDelete).toHaveBeenCalledWith([1, 2]);
+      expect(mockWorkoutDetailRepository.bulkDelete).toHaveBeenCalledWith([
+        1, 2,
+      ]);
       expect(mockWorkoutService.deleteLocalWorkout).toHaveBeenCalledWith(
         workoutId
       );
@@ -519,7 +546,9 @@ describe("WorkoutDetailCoreService", () => {
 
       await service.deleteDetailsByWorkoutId(workoutId);
 
-      expect(mockWorkoutDetailRepository.findAllByWorkoutId).toHaveBeenCalledWith(workoutId);
+      expect(
+        mockWorkoutDetailRepository.findAllByWorkoutId
+      ).toHaveBeenCalledWith(workoutId);
       expect(mockWorkoutDetailRepository.bulkDelete).toHaveBeenCalledWith([]);
       expect(mockWorkoutService.deleteLocalWorkout).toHaveBeenCalledWith(
         workoutId
@@ -560,11 +589,15 @@ describe("WorkoutDetailCoreService", () => {
 
       await service.reorderExerciseOrderAfterDelete(workoutId, 2);
 
-      expect(mockWorkoutDetailRepository.findAllByWorkoutId).toHaveBeenCalledWith(workoutId);
+      expect(
+        mockWorkoutDetailRepository.findAllByWorkoutId
+      ).toHaveBeenCalledWith(workoutId);
       expect(
         mockWorkoutDetailAdapter.getReorderedDetailsAfterExerciseDelete
       ).toHaveBeenCalledWith(details, 2);
-      expect(mockWorkoutDetailRepository.bulkPut).toHaveBeenCalledWith(mappedDetails);
+      expect(mockWorkoutDetailRepository.bulkPut).toHaveBeenCalledWith(
+        mappedDetails
+      );
     });
 
     it("exerciseOrder가 삭제된 detail보다 큰 details가 없는경우 업데이트하지 않는다 ", async () => {
@@ -575,11 +608,18 @@ describe("WorkoutDetailCoreService", () => {
         { ...mockWorkoutDetail.past, id: 4, workoutId, exerciseOrder: 4 },
       ];
       mockWorkoutDetailRepository.findAllByWorkoutId.mockResolvedValue(details);
-      mockWorkoutDetailAdapter.getReorderedDetailsAfterExerciseDelete.mockReturnValue([]);
+      mockWorkoutDetailAdapter.getReorderedDetailsAfterExerciseDelete.mockReturnValue(
+        []
+      );
 
-      await service.reorderExerciseOrderAfterDelete(workoutId, 1);
+      const result = await service.reorderExerciseOrderAfterDelete(
+        workoutId,
+        1
+      );
 
-      expect(mockWorkoutDetailRepository.findAllByWorkoutId).toHaveBeenCalledWith(workoutId);
+      expect(
+        mockWorkoutDetailRepository.findAllByWorkoutId
+      ).toHaveBeenCalledWith(workoutId);
       expect(mockWorkoutDetailRepository.bulkPut).not.toHaveBeenCalled();
     });
 
@@ -668,8 +708,79 @@ describe("WorkoutDetailCoreService", () => {
 
       await service.reorderSetOrderAfterDelete(workoutId, exerciseId, 2);
 
-      expect(mockWorkoutDetailRepository.findAllByWorkoutId).toHaveBeenCalledWith(workoutId);
-      expect(mockWorkoutDetailRepository.bulkPut).toHaveBeenCalledWith(mappedDetails);
+      expect(
+        mockWorkoutDetailRepository.findAllByWorkoutId
+      ).toHaveBeenCalledWith(workoutId);
+      expect(mockWorkoutDetailRepository.bulkPut).toHaveBeenCalledWith(
+        mappedDetails
+      );
+    });
+    it("업데이트된 details를 반환한다", async () => {
+      const details = [
+        {
+          ...mockWorkoutDetail.past,
+          id: 1,
+          workoutId,
+          exerciseId,
+          setOrder: 1,
+        },
+        {
+          ...mockWorkoutDetail.past,
+          id: 2,
+          workoutId,
+          exerciseId,
+          setOrder: 3,
+        },
+        {
+          ...mockWorkoutDetail.past,
+          id: 3,
+          workoutId,
+          exerciseId,
+          setOrder: 4,
+        },
+        {
+          ...mockWorkoutDetail.past,
+          id: 4,
+          workoutId,
+          exerciseId,
+          setOrder: 5,
+        },
+      ];
+      const mappedDetails = [
+        {
+          ...mockWorkoutDetail.past,
+          id: 2,
+          workoutId,
+          exerciseId,
+          setOrder: 2,
+        },
+        {
+          ...mockWorkoutDetail.past,
+          id: 3,
+          workoutId,
+          exerciseId,
+          setOrder: 3,
+        },
+        {
+          ...mockWorkoutDetail.past,
+          id: 4,
+          workoutId,
+          exerciseId,
+          setOrder: 4,
+        },
+      ];
+      mockWorkoutDetailRepository.findAllByWorkoutId.mockResolvedValue(details);
+      mockWorkoutDetailAdapter.getReorderedDetailsAfterSetDelete.mockReturnValue(
+        mappedDetails
+      );
+
+      const result = await service.reorderSetOrderAfterDelete(
+        workoutId,
+        exerciseId,
+        2
+      );
+
+      expect(result).toEqual(mappedDetails);
     });
 
     it("setOrder가 삭제된 detail보다 큰 detail이 없는경우 업데이트하지 않는다", async () => {
@@ -683,12 +794,21 @@ describe("WorkoutDetailCoreService", () => {
         },
       ];
       mockWorkoutDetailRepository.findAllByWorkoutId.mockResolvedValue(details);
-      mockWorkoutDetailAdapter.getReorderedDetailsAfterSetDelete.mockReturnValue([]);
+      mockWorkoutDetailAdapter.getReorderedDetailsAfterSetDelete.mockReturnValue(
+        []
+      );
 
-      await service.reorderSetOrderAfterDelete(workoutId, exerciseId, 1);
+      const result = await service.reorderSetOrderAfterDelete(
+        workoutId,
+        exerciseId,
+        1
+      );
 
-      expect(mockWorkoutDetailRepository.findAllByWorkoutId).toHaveBeenCalledWith(workoutId);
+      expect(
+        mockWorkoutDetailRepository.findAllByWorkoutId
+      ).toHaveBeenCalledWith(workoutId);
       expect(mockWorkoutDetailRepository.bulkPut).not.toHaveBeenCalled();
+      expect(result).toEqual([]);
     });
 
     it("재정렬 도중 에러가 발생하면 해당 에러를 전파한다", async () => {

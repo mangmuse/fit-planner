@@ -124,7 +124,7 @@ export class WorkoutDetailService implements IWorkoutDetailService {
     workoutId: number,
     exerciseId: number,
     deletedSetOrder: number
-  ): Promise<void> {
+  ): Promise<Saved<LocalWorkoutDetail>[]> {
     return this.core.reorderSetOrderAfterDelete(
       workoutId,
       exerciseId,
