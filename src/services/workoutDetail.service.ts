@@ -100,8 +100,36 @@ export class WorkoutDetailService implements IWorkoutDetailService {
     return this.core.deleteWorkoutDetail(lastSetId);
   }
 
-  public deleteWorkoutDetails(details: LocalWorkoutDetail[]): Promise<void> {
+  public deleteWorkoutDetails(
+    details: Saved<LocalWorkoutDetail>[]
+  ): Promise<void> {
     return this.core.deleteWorkoutDetails(details);
+  }
+
+  public deleteDetailsByWorkoutId(workoutId: number): Promise<void> {
+    return this.core.deleteDetailsByWorkoutId(workoutId);
+  }
+
+  public reorderExerciseOrderAfterDelete(
+    workoutId: number,
+    deletedExerciseOrder: number
+  ): Promise<void> {
+    return this.core.reorderExerciseOrderAfterDelete(
+      workoutId,
+      deletedExerciseOrder
+    );
+  }
+
+  public reorderSetOrderAfterDelete(
+    workoutId: number,
+    exerciseId: number,
+    deletedSetOrder: number
+  ): Promise<void> {
+    return this.core.reorderSetOrderAfterDelete(
+      workoutId,
+      exerciseId,
+      deletedSetOrder
+    );
   }
 
   // --- Query ---

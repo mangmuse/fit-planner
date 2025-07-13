@@ -122,13 +122,51 @@ export class RoutineDetailService implements IRoutineDetailService {
   public async deleteRoutineDetails(
     details: Saved<LocalRoutineDetail>[]
   ): Promise<void> {
-    const ids = details.map((detail) => {
-      return detail.id;
-    });
+    const ids = details.map((detail) => detail.id);
     await this.repository.bulkDelete(ids);
     await this.routineService.updateLocalRoutineUpdatedAt(details[0].routineId);
   }
 
+  public async deleteDetailsByRoutineId(routineId: number): Promise<void> {
+    const details = await this.repository.findAllByRoutineId(routineId);
+    const ids = details.map((detail) => detail.id);
+    await this.repository.bulkDelete(ids);
+    await this.routineService.deleteLocalRoutine(routineId);
+  }
+
+  public async reorderExerciseOrderAfterDelete(
+    routineId: number,
+    deletedExerciseOrder: number
+  ): Promise<void> {
+    const details = await this.repository.findAllByRoutineId(routineId);
+    const updatedDetails = this.adapter.getReorderedDetailsAfterExerciseDelete(
+      details,
+      deletedExerciseOrder
+    );
+
+    if (updatedDetails.length > 0) {
+      await this.repository.bulkPut(updatedDetails);
+      await this.routineService.updateLocalRoutineUpdatedAt(routineId);
+    }
+  }
+
+  public async reorderSetOrderAfterDelete(
+    routineId: number,
+    exerciseId: number,
+    deletedSetOrder: number
+  ): Promise<void> {
+    const details = await this.repository.findAllByRoutineId(routineId);
+    const updatedDetails = this.adapter.getReorderedDetailsAfterSetDelete(
+      details,
+      exerciseId,
+      deletedSetOrder
+    );
+
+    if (updatedDetails.length > 0) {
+      await this.repository.bulkPut(updatedDetails);
+      await this.routineService.updateLocalRoutineUpdatedAt(routineId);
+    }
+  }
   // ===== SYNC ===== //
   private async mapDetailsToPayload(
     details: LocalRoutineDetail[]

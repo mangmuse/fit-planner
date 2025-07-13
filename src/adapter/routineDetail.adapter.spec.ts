@@ -356,3 +356,98 @@ describe("cloneToCreateInput", () => {
     expect(result).toMatchObject(expectedObject);
   });
 });
+
+describe("getReorderedDetailsAfterExerciseDelete", () => {
+  it("exerciseOrder가 삭제된 detail의 exerciseOrder보다 큰 detail의 exerciseOrder를 1 감소시킨다", () => {
+    const details = [
+      { ...mockRoutineDetail.past, exerciseOrder: 1 },
+      { ...mockRoutineDetail.past, exerciseOrder: 3 },
+      { ...mockRoutineDetail.past, exerciseOrder: 4 },
+      { ...mockRoutineDetail.past, exerciseOrder: 5 },
+    ];
+
+    const result = routineDetailAdapter.getReorderedDetailsAfterExerciseDelete(
+      details,
+      2
+    );
+
+    expect(result).toEqual([
+      { ...mockRoutineDetail.past, exerciseOrder: 2 },
+      { ...mockRoutineDetail.past, exerciseOrder: 3 },
+      { ...mockRoutineDetail.past, exerciseOrder: 4 },
+    ]);
+  });
+
+  it("exerciseOrder가 삭제된 detail보다 큰 detail이 없는경우 빈 배열을 반환한다", () => {
+    const details = [
+      { ...mockRoutineDetail.past, exerciseOrder: 1 },
+      { ...mockRoutineDetail.past, exerciseOrder: 2 },
+    ];
+
+    const result = routineDetailAdapter.getReorderedDetailsAfterExerciseDelete(
+      details,
+      2
+    );
+
+    expect(result).toEqual([]);
+  });
+});
+
+describe("getReorderedDetailsAfterSetDelete", () => {
+  it("setOrder가 삭제된 detail의 setOrder보다 큰 detail의 setOrder를 1 감소시킨다", () => {
+    const exerciseId = 123;
+    const details = [
+      { ...mockRoutineDetail.past, setOrder: 1, exerciseId },
+      { ...mockRoutineDetail.past, setOrder: 3, exerciseId },
+      { ...mockRoutineDetail.past, setOrder: 4, exerciseId },
+      { ...mockRoutineDetail.past, setOrder: 5, exerciseId },
+    ];
+
+    const result = routineDetailAdapter.getReorderedDetailsAfterSetDelete(
+      details,
+      exerciseId,
+      2
+    );
+
+    expect(result).toEqual([
+      { ...mockRoutineDetail.past, setOrder: 2, exerciseId },
+      { ...mockRoutineDetail.past, setOrder: 3, exerciseId },
+      { ...mockRoutineDetail.past, setOrder: 4, exerciseId },
+    ]);
+  });
+
+  it("exerciseId가 다른 detail은 변경하지 않는다", () => {
+    const exerciseId = 123;
+    const details = [
+      { ...mockRoutineDetail.past, setOrder: 1, exerciseId },
+      { ...mockRoutineDetail.past, setOrder: 3, exerciseId },
+      { ...mockRoutineDetail.past, setOrder: 3, exerciseId: 456 },
+      { ...mockRoutineDetail.past, setOrder: 4, exerciseId: 456 },
+    ];
+
+    const result = routineDetailAdapter.getReorderedDetailsAfterSetDelete(
+      details,
+      exerciseId,
+      2
+    );
+
+    expect(result).toEqual([
+      { ...mockRoutineDetail.past, setOrder: 2, exerciseId },
+    ]);
+  });
+
+  it("setOrder가 삭제된 detail보다 큰 detail이 없는경우 빈 배열을 반환한다", () => {
+    const details = [
+      { ...mockRoutineDetail.past, setOrder: 1 },
+      { ...mockRoutineDetail.past, setOrder: 2 },
+    ];
+
+    const result = routineDetailAdapter.getReorderedDetailsAfterSetDelete(
+      details,
+      1,
+      2
+    );
+
+    expect(result).toEqual([]);
+  });
+});

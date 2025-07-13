@@ -142,11 +142,48 @@ export class WorkoutDetailCoreService implements IWorkoutDetailCoreService {
     details: Saved<LocalWorkoutDetail>[]
   ): Promise<void> {
     if (details.length === 0) return;
-    const ids = details.map((detail) => {
-      if (!detail.id) throw new Error("id가 없습니다");
-      return detail.id;
-    });
+    const ids = details.map((detail) => detail.id);
 
     await this.repository.bulkDelete(ids);
+  }
+
+  public async deleteDetailsByWorkoutId(workoutId: number): Promise<void> {
+    const details = await this.repository.findAllByWorkoutId(workoutId);
+
+    const ids = details.map((detail) => detail.id);
+    await this.repository.bulkDelete(ids);
+    await this.workoutService.deleteLocalWorkout(workoutId);
+  }
+
+  public async reorderExerciseOrderAfterDelete(
+    workoutId: number,
+    deletedExerciseOrder: number
+  ): Promise<void> {
+    const details = await this.repository.findAllByWorkoutId(workoutId);
+    const updatedDetails = this.adapter.getReorderedDetailsAfterExerciseDelete(
+      details,
+      deletedExerciseOrder
+    );
+
+    if (updatedDetails.length > 0) {
+      await this.updateWorkoutDetails(updatedDetails);
+    }
+  }
+
+  public async reorderSetOrderAfterDelete(
+    workoutId: number,
+    exerciseId: number,
+    deletedSetOrder: number
+  ): Promise<void> {
+    const details = await this.repository.findAllByWorkoutId(workoutId);
+    const updatedDetails = this.adapter.getReorderedDetailsAfterSetDelete(
+      details,
+      exerciseId,
+      deletedSetOrder
+    );
+
+    if (updatedDetails.length > 0) {
+      await this.updateWorkoutDetails(updatedDetails);
+    }
   }
 }

@@ -9,4 +9,6 @@ export const createMockRoutineDetailAdapter =
     mapPastWorkoutToRoutineDetail: jest.fn(),
     mapLocalRoutineDetailToServer: jest.fn(),
     cloneToCreateInput: jest.fn(),
+    getReorderedDetailsAfterExerciseDelete: jest.fn(),
+    getReorderedDetailsAfterSetDelete: jest.fn(),
   });

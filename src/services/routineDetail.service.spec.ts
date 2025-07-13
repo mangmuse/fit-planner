@@ -381,6 +381,50 @@ describe("RoutineDetailService", () => {
     });
   });
 
+  describe("deleteDetailsByRoutineId", () => {
+    const routineId = 123;
+    const details: Saved<LocalRoutineDetail>[] = [
+      { ...mockRoutineDetail.past, id: 1, routineId },
+      { ...mockRoutineDetail.past, id: 2, routineId },
+    ];
+
+    it("전달받은 routineId에 일치하는 모든 detail과 routine을 삭제한다", async () => {
+      mockRepository.findAllByRoutineId.mockResolvedValue(details);
+
+      await service.deleteDetailsByRoutineId(routineId);
+
+      expect(mockRepository.findAllByRoutineId).toHaveBeenCalledWith(routineId);
+      expect(mockRepository.bulkDelete).toHaveBeenCalledWith([1, 2]);
+      expect(mockRoutineService.deleteLocalRoutine).toHaveBeenCalledWith(
+        routineId
+      );
+    });
+
+    it("전달받은 routineId에 해당하는 detail이 없는경우에도 routine을 삭제한다", async () => {
+      mockRepository.findAllByRoutineId.mockResolvedValue([]);
+
+      await service.deleteDetailsByRoutineId(routineId);
+
+      expect(mockRepository.findAllByRoutineId).toHaveBeenCalledWith(routineId);
+      expect(mockRepository.bulkDelete).toHaveBeenCalledWith([]);
+      expect(mockRoutineService.deleteLocalRoutine).toHaveBeenCalledWith(
+        routineId
+      );
+    });
+
+    it("삭제 도중 에러가 발생하면 해당 에러를 그대로 전파한다", async () => {
+      const mockError = new Error("삭제 실패");
+      mockRepository.findAllByRoutineId.mockResolvedValue(details);
+      mockRepository.bulkDelete.mockRejectedValueOnce(mockError);
+
+      await expect(service.deleteDetailsByRoutineId(routineId)).rejects.toThrow(
+        mockError
+      );
+
+      expect(mockRoutineService.deleteLocalRoutine).not.toHaveBeenCalled();
+    });
+  });
+
   describe("overwriteWithServerRoutineDetails", () => {
     const userId = "user-123";
     const mockEx = mockExercise.synced;
@@ -572,4 +616,206 @@ describe("RoutineDetailService", () => {
   //     expect(mockRepository.update).not.toHaveBeenCalled();
   //   });
   // });
+
+  describe("reorderSetOrderAfterDelete", () => {
+    const routineId = 123;
+    const exerciseId = 456;
+
+    it("setOrder가 삭제된 detail의 setOrder보다 큰 detail의 setOrder을 1씩 감소시켜야한다", async () => {
+      const details = [
+        {
+          ...mockRoutineDetail.past,
+          id: 1,
+          routineId,
+          exerciseId,
+          setOrder: 1,
+        },
+        {
+          ...mockRoutineDetail.past,
+          id: 2,
+          routineId,
+          exerciseId,
+          setOrder: 3,
+        },
+        {
+          ...mockRoutineDetail.past,
+          id: 3,
+          routineId,
+          exerciseId,
+          setOrder: 4,
+        },
+        {
+          ...mockRoutineDetail.past,
+          id: 4,
+          routineId,
+          exerciseId,
+          setOrder: 5,
+        },
+      ];
+      const mappedDetails = [
+        {
+          ...mockRoutineDetail.past,
+          id: 2,
+          routineId,
+          exerciseId,
+          setOrder: 2,
+        },
+        {
+          ...mockRoutineDetail.past,
+          id: 3,
+          routineId,
+          exerciseId,
+          setOrder: 3,
+        },
+        {
+          ...mockRoutineDetail.past,
+          id: 4,
+          routineId,
+          exerciseId,
+          setOrder: 4,
+        },
+      ];
+      mockRepository.findAllByRoutineId.mockResolvedValue(details);
+      mockAdapter.getReorderedDetailsAfterSetDelete.mockReturnValue(
+        mappedDetails
+      );
+
+      await service.reorderSetOrderAfterDelete(routineId, exerciseId, 2);
+
+      expect(mockRepository.findAllByRoutineId).toHaveBeenCalledWith(routineId);
+      expect(
+        mockAdapter.getReorderedDetailsAfterSetDelete
+      ).toHaveBeenCalledWith(details, exerciseId, 2);
+      expect(mockRepository.bulkPut).toHaveBeenCalledWith(mappedDetails);
+      expect(
+        mockRoutineService.updateLocalRoutineUpdatedAt
+      ).toHaveBeenCalledWith(routineId);
+    });
+
+    it("setOrder가 삭제된 detail보다 큰 detail이 없는경우 업데이트하지 않는다", async () => {
+      const details = [
+        {
+          ...mockRoutineDetail.past,
+          id: 1,
+          routineId,
+          exerciseId,
+          setOrder: 1,
+        },
+      ];
+      mockRepository.findAllByRoutineId.mockResolvedValue(details);
+      mockAdapter.getReorderedDetailsAfterSetDelete.mockReturnValue([]);
+
+      await service.reorderSetOrderAfterDelete(routineId, exerciseId, 1);
+
+      expect(mockRepository.findAllByRoutineId).toHaveBeenCalledWith(routineId);
+      expect(mockRepository.bulkPut).not.toHaveBeenCalled();
+      expect(
+        mockRoutineService.updateLocalRoutineUpdatedAt
+      ).not.toHaveBeenCalled();
+    });
+
+    it("재정렬 도중 에러가 발생하면 해당 에러를 전파한다", async () => {
+      const mockError = new Error("재정렬 실패");
+      const details = [
+        {
+          ...mockRoutineDetail.past,
+          id: 2,
+          routineId,
+          exerciseId,
+          setOrder: 3,
+        },
+      ];
+      const mappedDetails = [
+        {
+          ...mockRoutineDetail.past,
+          id: 2,
+          routineId,
+          exerciseId,
+          setOrder: 2,
+        },
+      ];
+
+      mockRepository.findAllByRoutineId.mockResolvedValue(details);
+      mockAdapter.getReorderedDetailsAfterSetDelete.mockReturnValue(
+        mappedDetails
+      );
+      mockRepository.bulkPut.mockRejectedValueOnce(mockError);
+
+      await expect(
+        service.reorderSetOrderAfterDelete(routineId, exerciseId, 2)
+      ).rejects.toThrow(mockError);
+    });
+  });
+
+  describe("reorderExerciseOrderAfterDelete", () => {
+    const routineId = 123;
+
+    it("exerciseOrder가 삭제된 detail의 exerciseOrder보다 큰 detail의 exerciseOrder을 1씩 감소시켜야한다", async () => {
+      const details = [
+        { ...mockRoutineDetail.past, id: 1, routineId, exerciseOrder: 1 },
+        { ...mockRoutineDetail.past, id: 2, routineId, exerciseOrder: 3 },
+        { ...mockRoutineDetail.past, id: 3, routineId, exerciseOrder: 4 },
+        { ...mockRoutineDetail.past, id: 4, routineId, exerciseOrder: 5 },
+      ];
+      const mappedDetails = [
+        { ...mockRoutineDetail.past, id: 2, routineId, exerciseOrder: 2 },
+        { ...mockRoutineDetail.past, id: 3, routineId, exerciseOrder: 3 },
+        { ...mockRoutineDetail.past, id: 4, routineId, exerciseOrder: 4 },
+      ];
+      mockRepository.findAllByRoutineId.mockResolvedValue(details);
+      mockAdapter.getReorderedDetailsAfterExerciseDelete.mockReturnValue(
+        mappedDetails
+      );
+
+      await service.reorderExerciseOrderAfterDelete(routineId, 2);
+
+      expect(mockRepository.findAllByRoutineId).toHaveBeenCalledWith(routineId);
+      expect(
+        mockAdapter.getReorderedDetailsAfterExerciseDelete
+      ).toHaveBeenCalledWith(details, 2);
+      expect(mockRepository.bulkPut).toHaveBeenCalledWith(mappedDetails);
+      expect(
+        mockRoutineService.updateLocalRoutineUpdatedAt
+      ).toHaveBeenCalledWith(routineId);
+    });
+
+    it("exerciseOrder가 삭제된 detail보다 큰 details가 없는경우 업데이트하지 않는다", async () => {
+      const details = [
+        { ...mockRoutineDetail.past, id: 1, routineId, exerciseOrder: 1 },
+        { ...mockRoutineDetail.past, id: 2, routineId, exerciseOrder: 2 },
+        { ...mockRoutineDetail.past, id: 3, routineId, exerciseOrder: 3 },
+        { ...mockRoutineDetail.past, id: 4, routineId, exerciseOrder: 4 },
+      ];
+      mockRepository.findAllByRoutineId.mockResolvedValue(details);
+      mockAdapter.getReorderedDetailsAfterExerciseDelete.mockReturnValue([]);
+
+      await service.reorderExerciseOrderAfterDelete(routineId, 1);
+
+      expect(mockRepository.findAllByRoutineId).toHaveBeenCalledWith(routineId);
+      expect(mockRepository.bulkPut).not.toHaveBeenCalled();
+      expect(
+        mockRoutineService.updateLocalRoutineUpdatedAt
+      ).not.toHaveBeenCalled();
+    });
+
+    it("재정렬 도중 에러가 발생하면 해당 에러를 전파한다", async () => {
+      const mockError = new Error("재정렬 실패");
+      const details = [
+        { ...mockRoutineDetail.past, id: 2, routineId, exerciseOrder: 3 },
+      ];
+      const mappedDetails = [
+        { ...mockRoutineDetail.past, id: 2, routineId, exerciseOrder: 2 },
+      ];
+
+      mockRepository.findAllByRoutineId.mockResolvedValue(details);
+      mockAdapter.getReorderedDetailsAfterExerciseDelete.mockReturnValue(
+        mappedDetails
+      );
+      mockRepository.bulkPut.mockRejectedValueOnce(mockError);
+
+      await expect(
+        service.reorderExerciseOrderAfterDelete(routineId, 2)
+      ).rejects.toThrow(mockError);
+    });
+  });
 });

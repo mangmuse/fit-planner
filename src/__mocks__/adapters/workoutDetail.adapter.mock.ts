@@ -9,4 +9,6 @@ export const createMockWorkoutDetailAdapter = (): jest.Mocked<IWorkoutDetailAdap
   getNewWorkoutDetails: jest.fn(),
   mapLocalWorkoutDetailToServer: jest.fn(),
   mapPastWorkoutToWorkoutDetail: jest.fn(),
+  getReorderedDetailsAfterExerciseDelete: jest.fn(),
+  getReorderedDetailsAfterSetDelete: jest.fn(),
 });

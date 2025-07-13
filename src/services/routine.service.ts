@@ -20,11 +20,15 @@ export class RoutineService implements IRoutineService {
     return this.repository.findAllByUserId(userId);
   }
 
-  async getRoutineByServerId(serverId: string): Promise<Saved<LocalRoutine> | void> {
+  async getRoutineByServerId(
+    serverId: string
+  ): Promise<Saved<LocalRoutine> | void> {
     return this.repository.findOneByServerId(serverId);
   }
 
-  async getRoutineByLocalId(localId: number): Promise<Saved<LocalRoutine> | void> {
+  async getRoutineByLocalId(
+    localId: number
+  ): Promise<Saved<LocalRoutine> | void> {
     return this.repository.findOneById(localId);
   }
 
