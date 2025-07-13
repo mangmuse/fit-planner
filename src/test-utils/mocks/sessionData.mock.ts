@@ -1,5 +1,6 @@
 import { SessionData } from "@/app/(main)/_shared/session/SessionContainer";
 import { LocalRoutineDetail, LocalWorkoutDetail, Saved } from "@/types/models";
+import { SessionDetailType } from "@/types/services";
 
 export type SessionDataMock = {
   updateDetailInGroups: jest.Mock;
@@ -20,6 +21,7 @@ export const createMockSessionData = (
   overrides?: Partial<SessionData>
 ): SessionData => {
   return {
+    type: "RECORD" as SessionDetailType,
     updateDetailInGroups: jest.fn(),
     updateMultipleDetailsInGroups: jest.fn(),
     addDetailToGroup: jest.fn(),

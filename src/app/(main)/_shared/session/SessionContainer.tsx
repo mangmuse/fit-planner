@@ -38,11 +38,9 @@ import {
 import SessionExerciseGroup from "@/app/(main)/_shared/session/exerciseGroup/SessionExerciseGroup";
 import SessionSequence from "@/app/(main)/_shared/session/sessionSequence/SessionSequence";
 import LoadPastSessionSheet from "@/app/(main)/_shared/session/pastSession/LoadPastSessionSheet";
-import {
-  calculateTotalVolume,
-  calculateVolumeFromDetails,
-} from "@/util/volumeCalculator";
+import { calculateTotalVolume } from "@/util/volumeCalculator";
 import { useWeightUnitPreference } from "@/hooks/useWeightUnitPreference";
+import { SessionDetailType } from "@/types/services";
 
 type SessionContainerProps = {
   type: "ROUTINE" | "RECORD";
@@ -53,6 +51,7 @@ type SessionContainerProps = {
 
 export type SessionData = {
   sessionGroup: SessionGroup[];
+  type: SessionDetailType;
   updateDetailInGroups: (
     updatedDetail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>
   ) => void;
@@ -98,7 +97,6 @@ const SessionContainer = ({
     workoutGroups,
     reload,
     workout,
-    allDetails,
     setWorkout,
     updateDetailInGroups,
     updateMultipleDetailsInGroups,
@@ -154,110 +152,63 @@ const SessionContainer = ({
   const reorderExerciseOrderAfterDelete = useCallback(
     async (deletedExerciseOrder: number): Promise<void> => {
       try {
-        let latestDetails: (LocalWorkoutDetail | LocalRoutineDetail)[] = [];
-
-        if (type === "RECORD" && userId && date) {
-          latestDetails = await workoutDetailService.getLocalWorkoutDetails(
-            userId,
-            date
+        if (type === "RECORD" && workout?.id) {
+          await workoutDetailService.reorderExerciseOrderAfterDelete(
+            workout.id,
+            deletedExerciseOrder
           );
         } else if (type === "ROUTINE" && routineId) {
-          latestDetails =
-            await routineDetailService.getLocalRoutineDetails(routineId);
+          await routineDetailService.reorderExerciseOrderAfterDelete(
+            routineId,
+            deletedExerciseOrder
+          );
         }
-
-        const affectedDetails = latestDetails.filter(
-          (d) => d.exerciseOrder > deletedExerciseOrder
-        );
-
-        await Promise.all(
-          affectedDetails.map((detail) => {
-            const updated = {
-              ...detail,
-              exerciseOrder: detail.exerciseOrder - 1,
-            };
-            if (isWorkoutDetail(detail)) {
-              return workoutDetailService.updateLocalWorkoutDetail(updated);
-            } else {
-              return routineDetailService.updateLocalRoutineDetail(updated);
-            }
-          })
-        );
       } catch (e) {
         console.error("[SessionContainer] reorderAfterDelete Error", e);
         showError("운동 상태를 동기화하는 데 실패했습니다");
       }
     },
-    [type, userId, date, routineId, showError]
+    [type, workout?.id, routineId, showError]
   );
   const reorderSetOrderAfterDelete = useCallback(
     async (exerciseId: number, deletedSetOrder: number): Promise<void> => {
+      let updatedDetails:
+        | Saved<LocalWorkoutDetail>[]
+        | Saved<LocalRoutineDetail>[] = [];
       try {
-        let latestDetails: (
-          | Saved<LocalWorkoutDetail>
-          | Saved<LocalRoutineDetail>
-        )[] = [];
-
-        if (type === "RECORD" && userId && date) {
-          latestDetails = await workoutDetailService.getLocalWorkoutDetails(
-            userId,
-            date
-          );
+        if (type === "RECORD" && workout?.id) {
+          updatedDetails =
+            await workoutDetailService.reorderSetOrderAfterDelete(
+              workout.id,
+              exerciseId,
+              deletedSetOrder
+            );
         } else if (type === "ROUTINE" && routineId) {
-          latestDetails =
-            await routineDetailService.getLocalRoutineDetails(routineId);
+          updatedDetails =
+            await routineDetailService.reorderSetOrderAfterDelete(
+              routineId,
+              exerciseId,
+              deletedSetOrder
+            );
         }
-
-        const affectedDetails = latestDetails.filter(
-          (d) => d.exerciseId === exerciseId && d.setOrder > deletedSetOrder
-        );
-
-        const updatedDetails = affectedDetails.map((detail) => ({
-          ...detail,
-          setOrder: detail.setOrder - 1,
-        }));
-
-        await Promise.all(
-          updatedDetails.map((detail) => {
-            if (isWorkoutDetail(detail)) {
-              return workoutDetailService.updateLocalWorkoutDetail(detail);
-            } else {
-              return routineDetailService.updateLocalRoutineDetail(detail);
-            }
-          })
-        );
-
-        if (updatedDetails.length > 0) {
-          updateMultipleDetailsInGroups(updatedDetails);
-        }
+        updateMultipleDetailsInGroups(updatedDetails);
       } catch (e) {
         console.error("[SessionContainer] reorderSetOrderAfterDelete Error", e);
         showError("세트 순서 업데이트에 실패했습니다");
       }
     },
-    [type, userId, date, routineId, showError, updateMultipleDetailsInGroups]
+    [type, workout?.id, routineId, updateMultipleDetailsInGroups, showError]
   );
 
   const handleDeleteAll = useCallback(async () => {
     try {
       async function deleteAll() {
         let targetPath = "/";
-        if (type === "RECORD" && isWorkoutDetails(allDetails) && workout?.id) {
-          if (allDetails.length === 0) return;
-          await workoutDetailService.deleteWorkoutDetails(allDetails);
-          await workoutService.deleteLocalWorkout(workout.id);
-        } else if (
-          type === "ROUTINE" &&
-          !isWorkoutDetails(allDetails) &&
-          routineId
-        ) {
-          if (allDetails.length === 0) return;
-          if (!routineId) {
-            console.error("루틴 ID를 찾을 수 없습니다");
-            return;
-          }
-          await routineDetailService.deleteRoutineDetails(allDetails);
-          await routineService.deleteLocalRoutine(routineId);
+
+        if (type === "RECORD" && workout?.id) {
+          await workoutDetailService.deleteDetailsByWorkoutId(workout.id);
+        } else if (type === "ROUTINE" && routineId) {
+          await routineDetailService.deleteDetailsByRoutineId(routineId);
           targetPath = `/routines`;
         }
 
@@ -274,16 +225,7 @@ const SessionContainer = ({
       console.error("[SessionContainer] Error", e);
       showError("운동 전체 삭제에 실패했습니다");
     }
-  }, [
-    type,
-    allDetails,
-    workout?.id,
-    routineId,
-    router,
-    setWorkout,
-    openModal,
-    showError,
-  ]);
+  }, [type, workout?.id, routineId, router, setWorkout, openModal, showError]);
 
   const handleCompleteWorkout = useCallback(async () => {
     try {
@@ -348,11 +290,12 @@ const SessionContainer = ({
 
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [pathname, isModalOpen]);
+  }, [pathname, isModalOpen, isBottomSheetOpen, router]);
 
   const contextValue = useMemo(
     () => ({
       sessionGroup: workoutGroups,
+      type,
       updateDetailInGroups,
       removeMultipleDetailsInGroup,
       addDetailToGroup,
@@ -364,6 +307,7 @@ const SessionContainer = ({
     }),
     [
       workoutGroups,
+      type,
       updateDetailInGroups,
       removeMultipleDetailsInGroup,
       addDetailToGroup,

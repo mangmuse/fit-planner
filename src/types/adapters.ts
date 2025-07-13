@@ -85,6 +85,15 @@ export interface IRoutineDetailAdapter {
     newRoutineId: number,
     weightUnit?: "kg" | "lbs"
   ): LocalRoutineDetail;
+  getReorderedDetailsAfterExerciseDelete(
+    details: Saved<LocalRoutineDetail>[],
+    deletedExerciseOrder: number
+  ): Saved<LocalRoutineDetail>[];
+  getReorderedDetailsAfterSetDelete(
+    details: Saved<LocalRoutineDetail>[],
+    exerciseId: number,
+    deletedSetOrder: number
+  ): Saved<LocalRoutineDetail>[];
 }
 
 // --- WorkoutDetail Adapter Interface ---
@@ -124,4 +133,13 @@ export interface IWorkoutDetailAdapter {
     workoutId: LocalWorkoutDetail["workoutId"],
     weightUnit?: "kg" | "lbs"
   ): LocalWorkoutDetail;
+  getReorderedDetailsAfterExerciseDelete(
+    details: Saved<LocalWorkoutDetail>[],
+    deletedExerciseOrder: number
+  ): Saved<LocalWorkoutDetail>[];
+  getReorderedDetailsAfterSetDelete(
+    details: Saved<LocalWorkoutDetail>[],
+    exerciseId: number,
+    deletedSetOrder: number
+  ): Saved<LocalWorkoutDetail>[];
 }

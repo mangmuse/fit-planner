@@ -6,6 +6,7 @@ import {
   LocalWorkout,
   LocalWorkoutDetail,
   LocalWorkoutDetailWithServerWorkoutId,
+  Saved,
 } from "@/types/models";
 
 export const INITIAL_WORKOUT_DETAIL_BASE: Omit<
@@ -176,5 +177,30 @@ export class WorkoutdetailAdapter implements IWorkoutDetailAdapter {
     };
     // 같은 객체의 다른 메소드를 호출하도록 변경
     return this.createWorkoutDetail(workoutDetail, weightUnit);
+  }
+
+  getReorderedDetailsAfterExerciseDelete(
+    details: Saved<LocalWorkoutDetail>[],
+    deletedExerciseOrder: number
+  ): Saved<LocalWorkoutDetail>[] {
+    return details
+      .filter((d) => d.exerciseOrder > deletedExerciseOrder)
+      .map((detail) => ({
+        ...detail,
+        exerciseOrder: detail.exerciseOrder - 1,
+      }));
+  }
+
+  getReorderedDetailsAfterSetDelete(
+    details: Saved<LocalWorkoutDetail>[],
+    exerciseId: number,
+    deletedSetOrder: number
+  ): Saved<LocalWorkoutDetail>[] {
+    return details
+      .filter((d) => d.exerciseId === exerciseId && d.setOrder > deletedSetOrder)
+      .map((detail) => ({
+        ...detail,
+        setOrder: detail.setOrder - 1,
+      }));
   }
 }

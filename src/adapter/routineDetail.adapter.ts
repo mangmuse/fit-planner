@@ -5,6 +5,7 @@ import {
   LocalRoutineDetail,
   LocalRoutineDetailWithServerRoutineId,
   LocalWorkoutDetail,
+  Saved,
 } from "@/types/models";
 export const INITIAL_ROUTINE_DETAIL_BASE: Omit<
   LocalRoutineDetail,
@@ -153,5 +154,30 @@ export class RoutineDetailAdapter implements IRoutineDetailAdapter {
       createdAt: new Date().toISOString(),
       updatedAt: null,
     };
+  }
+
+  getReorderedDetailsAfterExerciseDelete(
+    details: Saved<LocalRoutineDetail>[],
+    deletedExerciseOrder: number
+  ): Saved<LocalRoutineDetail>[] {
+    return details
+      .filter((d) => d.exerciseOrder > deletedExerciseOrder)
+      .map((detail) => ({
+        ...detail,
+        exerciseOrder: detail.exerciseOrder - 1,
+      }));
+  }
+
+  getReorderedDetailsAfterSetDelete(
+    details: Saved<LocalRoutineDetail>[],
+    exerciseId: number,
+    deletedSetOrder: number
+  ): Saved<LocalRoutineDetail>[] {
+    return details
+      .filter((d) => d.exerciseId === exerciseId && d.setOrder > deletedSetOrder)
+      .map((detail) => ({
+        ...detail,
+        setOrder: detail.setOrder - 1,
+      }));
   }
 }

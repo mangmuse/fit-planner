@@ -52,7 +52,17 @@ export interface IWorkoutDetailCoreService {
   ) => Promise<Saved<LocalWorkoutDetail>[]>;
   updateWorkoutDetails: (updatedDetails: LocalWorkoutDetail[]) => Promise<void>;
   deleteWorkoutDetail: (lastSetId: number) => Promise<void>;
-  deleteWorkoutDetails: (details: LocalWorkoutDetail[]) => Promise<void>;
+  deleteWorkoutDetails: (details: Saved<LocalWorkoutDetail>[]) => Promise<void>;
+  deleteDetailsByWorkoutId: (workoutId: number) => Promise<void>;
+  reorderExerciseOrderAfterDelete: (
+    workoutId: number,
+    deletedExerciseOrder: number
+  ) => Promise<void>;
+  reorderSetOrderAfterDelete: (
+    workoutId: number,
+    exerciseId: number,
+    deletedSetOrder: number
+  ) => Promise<Saved<LocalWorkoutDetail>[]>;
 }
 
 export interface IWorkoutDetailSyncService {
@@ -195,8 +205,20 @@ export interface IRoutineDetailService {
   ) => Promise<void>;
   deleteRoutineDetail: (detailId: number) => Promise<void>;
   deleteRoutineDetails: (details: Saved<LocalRoutineDetail>[]) => Promise<void>;
+  deleteDetailsByRoutineId: (routineId: number) => Promise<void>;
+  reorderExerciseOrderAfterDelete: (
+    routineId: number,
+    deletedExerciseOrder: number
+  ) => Promise<void>;
+  reorderSetOrderAfterDelete: (
+    routineId: number,
+    exerciseId: number,
+    deletedSetOrder: number
+  ) => Promise<Saved<LocalRoutineDetail>[]>;
 
   // --- Sync Service ---
   // syncToServerRoutineDetails: () => Promise<void>;
   overwriteWithServerRoutineDetails: (userId: string) => Promise<void>;
 }
+
+export type SessionDetailType = "RECORD" | "ROUTINE";
