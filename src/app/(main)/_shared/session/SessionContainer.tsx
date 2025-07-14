@@ -21,14 +21,9 @@ import {
 } from "react";
 import {
   routineDetailService,
-  routineService,
   workoutDetailService,
   workoutService,
 } from "@/lib/di";
-import {
-  isWorkoutDetail,
-  isWorkoutDetails,
-} from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
 import {
   LocalWorkout,
   LocalWorkoutDetail,
