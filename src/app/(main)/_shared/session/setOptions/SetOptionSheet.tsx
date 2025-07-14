@@ -1,7 +1,7 @@
 import RPESelector from "@/app/(main)/_shared/session/setOptions/RPESelector";
 import SetTypeSelector from "@/app/(main)/_shared/session/setOptions/SetTypeSelector";
 import { LocalRoutineDetail, LocalWorkoutDetail } from "@/types/models";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 
 import { WorkoutSetType } from "@/app/(main)/workout/constants";
 import { isWorkoutDetail } from "@/app/(main)/workout/_utils/checkIsWorkoutDetails";
@@ -16,23 +16,15 @@ const SetOptionSheet = ({ detail }: SetOptionSheetProps) => {
   const [setType, setSetType] = useState(detail.setType || "NORMAL");
   const [rpe, setRpe] = useState<number | null>(detail.rpe);
   const { showError } = useModal();
-  const isMounted = useRef(false);
 
-  const handleSetTypeChange = (type: WorkoutSetType["value"]) => {
-    if (type === setType) return;
-    setSetType(type === setType ? "NORMAL" : type);
-  };
-  const handleChangeRPE = (value: number) => {
-    if (rpe === value) return;
-    setRpe(rpe === value ? null : value);
-  };
-
-  const updateDetail = async () => {
+  const updateDetail = async (updateData: {
+    setType: WorkoutSetType["value"];
+    rpe: number | null;
+  }) => {
     try {
-      const updateInput: Partial<LocalWorkoutDetail> = {
+      const updateInput: Partial<LocalWorkoutDetail | LocalRoutineDetail> = {
         ...detail,
-        setType,
-        rpe,
+        ...updateData,
       };
       if (isWorkoutDetail(detail)) {
         await workoutDetailService.updateLocalWorkoutDetail(updateInput);
@@ -44,13 +36,17 @@ const SetOptionSheet = ({ detail }: SetOptionSheetProps) => {
       showError("업데이트에 실패헀습니다");
     }
   };
-  useEffect(() => {
-    if (isMounted.current) {
-      updateDetail();
-    } else {
-      isMounted.current = true;
-    }
-  }, [setType, rpe]);
+
+  const handleSetTypeChange = (type: WorkoutSetType["value"]) => {
+    if (type === setType) return;
+    updateDetail({ setType: type, rpe });
+    setSetType(type === setType ? "NORMAL" : type);
+  };
+  const handleChangeRPE = (value: number) => {
+    if (rpe === value) return;
+    updateDetail({ setType, rpe: value });
+    setRpe(rpe === value ? null : value);
+  };
 
   return (
     <div className="flex flex-col">

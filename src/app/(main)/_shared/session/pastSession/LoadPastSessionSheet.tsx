@@ -161,7 +161,7 @@ const LoadPastSessionSheet = ({
 
   useEffect(() => {
     return () => reset();
-  }, []);
+  }, [reset]);
 
   if (error) {
     return (
