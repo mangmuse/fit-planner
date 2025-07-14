@@ -1,7 +1,7 @@
 import { exerciseService } from "@/lib/di";
 
 import { LocalExercise } from "@/types/models";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type UseExercisesProps = {
   userId?: string;
@@ -28,7 +28,7 @@ const useExercises = ({ userId }: UseExercisesProps) => {
     }
   }
 
-  const loadExercises = async () => {
+  const loadExercises = useCallback(async () => {
     try {
       if (!userId) return;
 
@@ -44,11 +44,11 @@ const useExercises = ({ userId }: UseExercisesProps) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
     loadExercises();
-  }, [userId]);
+  }, [loadExercises]);
 
   const returnValue = {
     error,

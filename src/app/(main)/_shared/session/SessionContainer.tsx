@@ -18,6 +18,7 @@ import {
   useCallback,
   createContext,
   useContext,
+  ReactNode,
 } from "react";
 import {
   routineDetailService,
@@ -36,12 +37,13 @@ import LoadPastSessionSheet from "@/app/(main)/_shared/session/pastSession/LoadP
 import { calculateTotalVolume } from "@/util/volumeCalculator";
 import { useWeightUnitPreference } from "@/hooks/useWeightUnitPreference";
 import { SessionDetailType } from "@/types/services";
+import SessionHeader from "@/app/(main)/_shared/session/SessionHeader";
 
 type SessionContainerProps = {
   type: "ROUTINE" | "RECORD";
   routineId?: number;
   date?: string;
-  formattedDate?: string | React.ReactNode;
+  formattedDate?: string | ReactNode;
 };
 
 export type SessionData = {
@@ -322,32 +324,14 @@ const SessionContainer = ({
         {workoutGroups.length !== 0 ? (
           <>
             {(formattedDate || type === "ROUTINE") && (
-              <div className="flex justify-between items-center mb-6 ">
-                {formattedDate &&
-                  (typeof formattedDate === "string" ? (
-                    <time className="text-2xl font-bold">{formattedDate}</time>
-                  ) : (
-                    <div className="text-2xl font-bold">{formattedDate}</div>
-                  ))}
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleDeleteAll}
-                    className="p-2 hover:bg-bg-surface rounded-lg transition-colors"
-                    aria-label="전체 삭제"
-                  >
-                    <Trash2 className="w-6 h-6 text-text-muted" />
-                  </button>
-                  <button
-                    onClick={handleOpenSequenceSheet}
-                    className="p-2 hover:bg-bg-surface rounded-lg transition-colors"
-                    aria-label="순서 변경"
-                  >
-                    <ChevronsUpDown className="w-6 h-6 text-text-muted" />
-                  </button>
-                </div>
-              </div>
+              <SessionHeader
+                formattedDate={formattedDate}
+                handleDeleteAll={handleDeleteAll}
+                handleOpenSequenceSheet={handleOpenSequenceSheet}
+              />
             )}
 
+            {/* 총 볼륨 */}
             {workoutGroups.length > 0 && (
               <div className="bg-bg-surface rounded-lg p-3 mb-4">
                 <div className="flex items-center gap-2">

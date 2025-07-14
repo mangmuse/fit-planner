@@ -1,5 +1,6 @@
 "use client";
-import { signIn, signOut, useSession } from "next-auth/react";
+
+import { signIn } from "next-auth/react";
 
 import Image from "next/image";
 
@@ -13,7 +14,6 @@ export default function SocialLoginButtons({
   onKakaoLogin,
 }: SocialLoginButtonsProps) {
   const handleSignIn = () => signIn("google", { callbackUrl: "/" });
-  const handleSignOut = () => signOut();
   return (
     <div className="space-y-3">
       <button

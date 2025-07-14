@@ -34,7 +34,6 @@ function SessionPlaceholder({
   date,
   reloadDetails,
 }: SessionPlaceholderProps) {
-  const pathname = usePathname();
   const { openBottomSheet } = useBottomSheet();
   const { showError } = useModal();
 
