@@ -40,7 +40,7 @@ const BottomSheet = ({
     return () => {
       window.removeEventListener("popstate", handlePopState);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, closeBottomSheet]);
 
   useEffect(() => {
     if (isOpen) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Pencil } from "lucide-react";
 import { useModal } from "@/providers/contexts/ModalContext";
 import EditRoutineNameForm from "@/app/(main)/routines/_components/routineForm/EditRoutineNameForm";
@@ -12,17 +12,20 @@ const RoutineForm = () => {
   const { openModal } = useModal();
   const [name, setName] = useState<string>("");
   const { routineId } = useParams();
-
-  const loadName = async () => {
-    const routine = await routineService.getRoutineByLocalId(Number(routineId));
-    if (routine) {
-      setName(routine.name);
+  const loadName = useCallback(async () => {
+    if (routineId) {
+      const routine = await routineService.getRoutineByLocalId(
+        Number(routineId)
+      );
+      if (routine) {
+        setName(routine.name);
+      }
     }
-  };
+  }, [routineId]);
 
   useEffect(() => {
     loadName();
-  }, []);
+  }, [loadName]);
 
   const handleClickEditBtn = () => {
     openModal({
