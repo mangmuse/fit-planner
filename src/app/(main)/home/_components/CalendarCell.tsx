@@ -1,6 +1,8 @@
 import clsx from "clsx";
 import dayjs from "dayjs";
 import Link from "next/link";
+import { getCurrentKoreanDateYMD } from "@/util/formatDate";
+import { useEffect, useState } from "react";
 
 export type CalendarCellProps = {
   day: number | null;
@@ -19,18 +21,23 @@ const CalendarCell = ({
   daysStatus,
   isWeekend,
 }: CalendarCellProps) => {
+  const [isToday, setIsToday] = useState(false);
+
+  const dateStr = day
+    ? dayjs().year(year).month(month).date(day).format("YYYY-MM-DD")
+    : "";
+
+  useEffect(() => {
+    if (day && dateStr) {
+      setIsToday(getCurrentKoreanDateYMD() === dateStr);
+    }
+  }, [dateStr, day]);
+
   if (!day) {
     return <td className="h-10" />;
   }
 
-  const dateStr = dayjs()
-    .year(year)
-    .month(month)
-    .date(day)
-    .format("YYYY-MM-DD");
-
   const dayStatus = daysStatus[dateStr];
-  const isToday = dayjs().format("YYYY-MM-DD") === dateStr;
 
   const getDayClass = () => {
     return clsx(

@@ -33,3 +33,11 @@ export const getCurrentKoreanTime = () => {
 export const formatToKoreanTime = (date?: Date | string) => {
   return dayjs(date).tz("Asia/Seoul");
 };
+
+export const getCurrentKoreanDateYMD = () => {
+  return dayjs().tz("Asia/Seoul").format("YYYY-MM-DD");
+};
+
+export const getCurrentKoreanDateFormatted = () => {
+  return dayjs().tz("Asia/Seoul").format("M월 D일 dddd");
+};

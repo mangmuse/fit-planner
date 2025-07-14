@@ -5,23 +5,33 @@ import StartWorkoutSection from "./StartWorkoutSection";
 import mockRouter from "next-router-mock";
 import { MemoryRouterProvider } from "next-router-mock/dist/MemoryRouterProvider";
 import userEvent from "@testing-library/user-event";
-import { getFormattedDateYMD, getCurrentKoreanTime } from "@/util/formatDate";
+import { 
+  getCurrentKoreanDateYMD, 
+  getCurrentKoreanDateFormatted 
+} from "@/util/formatDate";
 
 jest.mock("@/util/formatDate", () => ({
   ...jest.requireActual("@/util/formatDate"),
-  getCurrentKoreanTime: jest.fn(),
+  getCurrentKoreanDateYMD: jest.fn(),
+  getCurrentKoreanDateFormatted: jest.fn(),
 }));
 
-const mockGetCurrentKoreanTime = getCurrentKoreanTime as jest.MockedFunction<
-  typeof getCurrentKoreanTime
+const mockGetCurrentKoreanDateYMD = getCurrentKoreanDateYMD as jest.MockedFunction<
+  typeof getCurrentKoreanDateYMD
+>;
+const mockGetCurrentKoreanDateFormatted = getCurrentKoreanDateFormatted as jest.MockedFunction<
+  typeof getCurrentKoreanDateFormatted
 >;
 
 describe("StartWorkoutSection", () => {
   const testDate = new Date(2024, 0, 1);
   const mockDayjs = dayjs(testDate);
+  const mockFormattedDate = "1월 1일 월요일";
+  const mockDateYMD = "2024-01-01";
 
   beforeEach(() => {
-    mockGetCurrentKoreanTime.mockReturnValue(mockDayjs);
+    mockGetCurrentKoreanDateYMD.mockReturnValue(mockDateYMD);
+    mockGetCurrentKoreanDateFormatted.mockReturnValue(mockFormattedDate);
   });
 
   afterEach(() => {
@@ -32,8 +42,7 @@ describe("StartWorkoutSection", () => {
     const Component = await StartWorkoutSection();
     render(Component, { wrapper: MemoryRouterProvider });
 
-    const formattedDate = mockDayjs.format("M월 D일 dddd");
-    expect(screen.getByText(formattedDate)).toBeInTheDocument();
+    expect(screen.getByText(mockFormattedDate)).toBeInTheDocument();
   });
 
   it("오늘의 운동 시작하기 버튼 클릭 시 /workout:date 경로로 이동한다", async () => {
@@ -46,7 +55,6 @@ describe("StartWorkoutSection", () => {
     const button = screen.getByRole("link");
     await userEvent.click(button);
 
-    const today = getFormattedDateYMD(mockDayjs.toDate());
-    expect(mockRouter.asPath).toEqual(`/workout/${today}`);
+    expect(mockRouter.asPath).toEqual(`/workout/${mockDateYMD}`);
   });
 });
