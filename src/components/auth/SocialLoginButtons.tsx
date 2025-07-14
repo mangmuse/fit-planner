@@ -1,10 +1,6 @@
 "use client";
-import {
-  getCurrentKoreanTime,
-  getFormattedDate,
-  getFormattedDateYMD,
-} from "@/util/formatDate";
-import { signIn, signOut, useSession } from "next-auth/react";
+
+import { signIn } from "next-auth/react";
 
 import Image from "next/image";
 
@@ -17,12 +13,7 @@ export default function SocialLoginButtons({
   onGoogleLogin,
   onKakaoLogin,
 }: SocialLoginButtonsProps) {
-  const now = getCurrentKoreanTime();
-  const formattedDate = getFormattedDate(now.toISOString());
-  const today = getFormattedDateYMD(now.toDate());
-  console.log(formattedDate, today);
   const handleSignIn = () => signIn("google", { callbackUrl: "/" });
-  const handleSignOut = () => signOut();
   return (
     <div className="space-y-3">
       <button

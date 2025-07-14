@@ -1,22 +1,20 @@
-"use client";
-
+import Link from "next/link";
 import {
   getFormattedDate,
   getFormattedDateYMD,
   getCurrentKoreanTime,
 } from "@/util/formatDate";
-import Link from "next/link";
 
-const StartWorkoutSection = () => {
+export const dynamic = "force-dynamic";
+
+const StartWorkoutSection = async () => {
   const now = getCurrentKoreanTime();
   const formattedDate = getFormattedDate(now.toISOString());
   const today = getFormattedDateYMD(now.toDate());
 
   return (
     <section className="flex flex-col justify-between p-4 mb-6 w-full h-28 rounded-[20px] bg-bg-surface shadow-sm">
-      <p className="text-base" suppressHydrationWarning>
-        {formattedDate}
-      </p>
+      <p className="text-base">{formattedDate}</p>
       <Link
         href={`/workout/${today}`}
         className="flex text-base justify-center items-center w-full font-semibold h-11 rounded-xl bg-primary text-text-black hover:bg-opacity-90 transition-colors"
