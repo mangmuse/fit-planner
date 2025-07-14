@@ -1,6 +1,8 @@
 import StartWorkoutSection from "./_components/StartWorkoutSection";
 import WorkoutCalendar from "./_components/WorkoutCalendar";
 
+export const dynamic = "force-dynamic";
+
 const HomePage = () => {
   return (
     <main className="px-4 pt-12 pb-20">

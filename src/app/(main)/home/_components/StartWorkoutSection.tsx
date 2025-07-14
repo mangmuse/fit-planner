@@ -1,16 +1,14 @@
 import Link from "next/link";
 import {
-  getFormattedDate,
-  getFormattedDateYMD,
-  getCurrentKoreanTime,
+  getCurrentKoreanDateYMD,
+  getCurrentKoreanDateFormatted,
 } from "@/util/formatDate";
 
 export const dynamic = "force-dynamic";
 
 const StartWorkoutSection = async () => {
-  const now = getCurrentKoreanTime();
-  const formattedDate = getFormattedDate(now.toISOString());
-  const today = getFormattedDateYMD(now.toDate());
+  const formattedDate = getCurrentKoreanDateFormatted();
+  const today = getCurrentKoreanDateYMD();
 
   return (
     <section className="flex flex-col justify-between p-4 mb-6 w-full h-28 rounded-[20px] bg-bg-surface shadow-sm">
