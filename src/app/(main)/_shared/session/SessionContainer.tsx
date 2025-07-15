@@ -5,7 +5,6 @@ import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
 
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { Trash2, ChevronsUpDown } from "lucide-react";
 
 import useLoadDetails, { SessionGroup } from "@/hooks/useLoadDetails";
 

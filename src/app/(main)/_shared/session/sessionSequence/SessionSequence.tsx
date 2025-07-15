@@ -38,7 +38,6 @@ const SessionSequence = ({
   detailGroups: initialGroups,
   reload,
 }: SessionSequenceProps) => {
-  // TODO: 드래그 종료 시 아이템이 원위치로 돌아갔다가 재배치되는 시각적 문제 해결
   const { closeBottomSheet } = useBottomSheet();
   const { showError } = useModal();
   const [groups, setGroups] = useState<DetailGroup[]>(initialGroups);

@@ -1,5 +1,5 @@
 import SearchBar from "@/app/(main)/workout/[date]/exercises/_components/SearchBar";
-import { render } from "@/test-utils/test-utils";
+import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 describe("SearchBar", () => {

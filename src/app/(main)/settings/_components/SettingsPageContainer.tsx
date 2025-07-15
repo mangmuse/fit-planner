@@ -11,7 +11,6 @@ import ProgressSpinner from "@/components/ProgressSpinner";
 
 const SettingsPageContainer = () => {
   const { data: session } = useSession();
-  // console.log(session);
   const userId = session?.user?.id;
   const { showError, openModal, closeModal } = useModal();
 
