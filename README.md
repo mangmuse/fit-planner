@@ -31,6 +31,13 @@
 
 </details>
 
+<details>
+<summary>동기화</summary>
+
+![루틴 관리](./gifs/sync.gif)
+
+</details>
+
 ## 💡 주요 기술 결정 및 트러블슈팅
 
 - **오프라인 지원을 위한 아키텍처 설계**: (문제/해결 요약)
