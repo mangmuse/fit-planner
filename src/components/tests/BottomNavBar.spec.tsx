@@ -18,7 +18,6 @@ describe("BottomNavBar", () => {
 
     expect(screen.getByText("홈")).toBeInTheDocument();
     expect(screen.getByText("루틴")).toBeInTheDocument();
-    expect(screen.getByText("분석")).toBeInTheDocument();
     expect(screen.getByText("설정")).toBeInTheDocument();
   });
 
@@ -35,10 +34,7 @@ describe("BottomNavBar", () => {
       "href",
       "/routines"
     );
-    expect(screen.getByRole("link", { name: "분석" })).toHaveAttribute(
-      "href",
-      "/analytics"
-    );
+
     expect(screen.getByRole("link", { name: "설정" })).toHaveAttribute(
       "href",
       "/settings"
@@ -51,8 +47,17 @@ describe("BottomNavBar", () => {
 
       render(<BottomNavBar />);
 
-      const homeItem = screen.getByRole("listitem", { name: "활성화" });
-      expect(homeItem).toBeInTheDocument();
+      const homeLink = screen.getByRole("link", { name: "홈" });
+      const homeItem = homeLink.querySelector("li");
+      expect(homeItem).toHaveAttribute("aria-label", "활성화");
+
+      const routinesLink = screen.getByRole("link", { name: "루틴" });
+      const routinesItem = routinesLink.querySelector("li");
+      expect(routinesItem).toHaveAttribute("aria-label", "비활성화");
+
+      const settingsLink = screen.getByRole("link", { name: "설정" });
+      const settingsItem = settingsLink.querySelector("li");
+      expect(settingsItem).toHaveAttribute("aria-label", "비활성화");
     });
 
     it("/routines 경로에서 루틴 아이템이 활성화된다", () => {
@@ -60,8 +65,35 @@ describe("BottomNavBar", () => {
 
       render(<BottomNavBar />);
 
-      const activeItem = screen.getByRole("listitem", { name: "활성화" });
-      expect(activeItem).toBeInTheDocument();
+      const homeLink = screen.getByRole("link", { name: "홈" });
+      const homeItem = homeLink.querySelector("li");
+      expect(homeItem).toHaveAttribute("aria-label", "비활성화");
+
+      const routinesLink = screen.getByRole("link", { name: "루틴" });
+      const routinesItem = routinesLink.querySelector("li");
+      expect(routinesItem).toHaveAttribute("aria-label", "활성화");
+
+      const settingsLink = screen.getByRole("link", { name: "설정" });
+      const settingsItem = settingsLink.querySelector("li");
+      expect(settingsItem).toHaveAttribute("aria-label", "비활성화");
+    });
+
+    it("/settings 경로에서 설정 아이템이 활성화된다", () => {
+      mockedUsePathname.mockReturnValue("/settings");
+
+      render(<BottomNavBar />);
+
+      const homeLink = screen.getByRole("link", { name: "홈" });
+      const homeItem = homeLink.querySelector("li");
+      expect(homeItem).toHaveAttribute("aria-label", "비활성화");
+
+      const routinesLink = screen.getByRole("link", { name: "루틴" });
+      const routinesItem = routinesLink.querySelector("li");
+      expect(routinesItem).toHaveAttribute("aria-label", "비활성화");
+
+      const settingsLink = screen.getByRole("link", { name: "설정" });
+      const settingsItem = settingsLink.querySelector("li");
+      expect(settingsItem).toHaveAttribute("aria-label", "활성화");
     });
   });
 

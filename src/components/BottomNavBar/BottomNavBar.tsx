@@ -1,10 +1,10 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Home, Folder, BarChart3, Settings } from "lucide-react";
+import { Home, Folder, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import BottomNavBarItem from "./BottomNavBarItem";
-type NavBarItem = "home" | "routines" | "analytics" | "settings";
+type NavBarItem = "home" | "routines" | "settings";
 
 const BottomNavBar = () => {
   const pathname = usePathname();
@@ -14,7 +14,7 @@ const BottomNavBar = () => {
     setCurrentPage(currentPathname);
   }, [pathname]);
 
-  if (!["/home", "/routines", "/analytics", "/settings"].includes(pathname)) {
+  if (!["/home", "/routines", "/settings"].includes(pathname)) {
     return null;
   }
 
@@ -31,12 +31,6 @@ const BottomNavBar = () => {
         icon={Folder}
         label="루틴"
         isActive={currentPage === "routines"}
-      />
-      <BottomNavBarItem
-        path="/analytics"
-        icon={BarChart3}
-        label="분석"
-        isActive={currentPage === "analytics"}
       />
       <BottomNavBarItem
         path="/settings"
