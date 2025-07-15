@@ -56,7 +56,6 @@ const SessionDetailGroupOptions = ({
   const [unit, setUnit] = useState<(typeof units)[number]>(
     details[0]?.weightUnit || "kg"
   );
-  console.log(reorderExerciseOrderAfterDelete);
   const [currentWeights, setCurrentWeights] = useState<number[]>(
     details.map((d) => d.weight || 0)
   );

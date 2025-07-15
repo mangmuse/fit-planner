@@ -13,7 +13,6 @@ type ExerciseMemoProps = {
 };
 
 const ExerciseMemo = ({ exercise, loadExercises }: ExerciseMemoProps) => {
-  // TODO: 메모 추가 후 리로드하는로직에서 전체 운동을 다시 불러오는부분 개선 필요
   const { closeModal } = useModal();
   const existingMemo = exercise.exerciseMemo;
   const initialMemo = existingMemo?.fixed?.content || "";
