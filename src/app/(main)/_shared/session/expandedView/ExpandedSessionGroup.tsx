@@ -21,33 +21,11 @@ const ExpandedSessionGroup = ({
 }: ExpandedWorkoutGroupProps) => {
   const exerciseName = sessionGroup.details[0].exerciseName;
 
-  const {
-    data: exercise,
-    error,
-    execute,
-  } = useAsync(
-    () =>
-      exerciseService.getExerciseWithLocalId(
-        sessionGroup.details[0].exerciseId
-      ),
-    [sessionGroup.details[0].exerciseId]
-  );
-
-  const exerciseUnit = exercise?.unit || "kg";
-
   const handleToggleSelect = () => {
     const workoutId = sessionGroup.details[0].workoutId;
     const exerciseOrder = sessionGroup.exerciseOrder;
     onToggleSelect(workoutId, exerciseOrder);
   };
-
-  if (error)
-    return (
-      <ErrorState
-        error="운동 정보를 불러오는 중 오류가 발생했습니다"
-        onRetry={execute}
-      />
-    );
 
   return (
     <div className="bg-bg-secondary rounded-lg p-3">
@@ -64,11 +42,7 @@ const ExpandedSessionGroup = ({
           <ul className="flex flex-col gap-1">
             {sessionGroup.details.length > 0 &&
               sessionGroup.details.map((detail) => (
-                <ExpandedSessionItem
-                  key={detail.id}
-                  workoutDetail={detail}
-                  exerciseUnit={exerciseUnit}
-                />
+                <ExpandedSessionItem key={detail.id} workoutDetail={detail} />
               ))}
           </ul>
         </div>
