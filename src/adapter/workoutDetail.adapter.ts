@@ -27,7 +27,9 @@ export const INITIAL_WORKOUT_DETAIL_BASE: Omit<
   workoutId: 0,
 };
 export class WorkoutdetailAdapter implements IWorkoutDetailAdapter {
-  getInitialWorkoutDetail(weightUnit: "kg" | "lbs" = "kg"): LocalWorkoutDetail {
+  public getInitialWorkoutDetail(
+    weightUnit: "kg" | "lbs" = "kg"
+  ): LocalWorkoutDetail {
     return {
       ...INITIAL_WORKOUT_DETAIL_BASE,
       weightUnit,
@@ -35,7 +37,7 @@ export class WorkoutdetailAdapter implements IWorkoutDetailAdapter {
     };
   }
 
-  createWorkoutDetail(
+  public createWorkoutDetail(
     override: Partial<LocalWorkoutDetail>,
     weightUnit: "kg" | "lbs" = "kg"
   ): LocalWorkoutDetail {
@@ -61,14 +63,14 @@ export class WorkoutdetailAdapter implements IWorkoutDetailAdapter {
     };
   }
 
-  mapPastWorkoutToWorkoutDetail(
+  public mapPastWorkoutToWorkoutDetail(
     pastWorkoutDetail: LocalWorkoutDetail,
     targetWorkoutId: number,
-    newExerciseOrder: number,
-    weightUnit: "kg" | "lbs" = "kg"
+    newExerciseOrder: number
   ): LocalWorkoutDetail {
-    // 같은 객체의 다른 메소드를 호출하도록 변경
-    const initialDetail = this.getInitialWorkoutDetail(weightUnit);
+    const initialDetail = this.getInitialWorkoutDetail(
+      pastWorkoutDetail.weightUnit
+    );
 
     return {
       ...initialDetail,
@@ -81,10 +83,11 @@ export class WorkoutdetailAdapter implements IWorkoutDetailAdapter {
       reps: pastWorkoutDetail.reps,
       rpe: pastWorkoutDetail.rpe,
       setType: pastWorkoutDetail.setType,
+      weightUnit: pastWorkoutDetail.weightUnit,
     };
   }
 
-  getAddSetToWorkoutByLastSet(
+  public getAddSetToWorkoutByLastSet(
     lastSet: LocalWorkoutDetail,
     weightUnit: "kg" | "lbs" = "kg"
   ): LocalWorkoutDetail {
@@ -103,7 +106,7 @@ export class WorkoutdetailAdapter implements IWorkoutDetailAdapter {
     return this.createWorkoutDetail(addSetInput, weightUnit);
   }
 
-  getNewWorkoutDetails(
+  public getNewWorkoutDetails(
     selectedExercises: { id: number | undefined; name: string }[],
     { workoutId, startOrder }: WD_NewInput,
     weightUnit: "kg" | "lbs" = "kg"
@@ -197,7 +200,9 @@ export class WorkoutdetailAdapter implements IWorkoutDetailAdapter {
     deletedSetOrder: number
   ): Saved<LocalWorkoutDetail>[] {
     return details
-      .filter((d) => d.exerciseId === exerciseId && d.setOrder > deletedSetOrder)
+      .filter(
+        (d) => d.exerciseId === exerciseId && d.setOrder > deletedSetOrder
+      )
       .map((detail) => ({
         ...detail,
         setOrder: detail.setOrder - 1,

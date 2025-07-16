@@ -19,6 +19,7 @@ export const INITIAL_ROUTINE_DETAIL_BASE: Omit<
   setOrder: 1,
   exerciseOrder: 1,
   setType: "NORMAL",
+
   exerciseName: "",
   exerciseId: 0,
   routineId: -9999,
@@ -26,7 +27,7 @@ export const INITIAL_ROUTINE_DETAIL_BASE: Omit<
 export class RoutineDetailAdapter implements IRoutineDetailAdapter {
   constructor() {}
 
-  getInitialRoutineDetail(weightUnit: "kg" | "lbs" = "kg"): LocalRoutineDetail {
+  getInitialRoutineDetail(weightUnit: "kg" | "lbs"): LocalRoutineDetail {
     return {
       ...INITIAL_ROUTINE_DETAIL_BASE,
       weightUnit,
@@ -104,15 +105,17 @@ export class RoutineDetailAdapter implements IRoutineDetailAdapter {
   mapPastWorkoutToRoutineDetail(
     pastWorkoutDetail: LocalWorkoutDetail,
     targetRoutineId: number,
-    newExerciseOrder: number,
-    weightUnit: "kg" | "lbs" = "kg"
+    newExerciseOrder: number
   ): LocalRoutineDetail {
-    const initialDetail = this.getInitialRoutineDetail(weightUnit);
+    const initialDetail = this.getInitialRoutineDetail(
+      pastWorkoutDetail.weightUnit
+    );
 
     // isDone 제외하고 나머지 필드 매핑
     return {
       ...initialDetail,
       routineId: targetRoutineId,
+
       exerciseId: pastWorkoutDetail.exerciseId,
       exerciseName: pastWorkoutDetail.exerciseName,
       exerciseOrder: newExerciseOrder,
@@ -121,6 +124,7 @@ export class RoutineDetailAdapter implements IRoutineDetailAdapter {
       reps: pastWorkoutDetail.reps,
       rpe: pastWorkoutDetail.rpe,
       setType: pastWorkoutDetail.setType,
+      weightUnit: pastWorkoutDetail.weightUnit,
     };
   }
 
@@ -174,7 +178,9 @@ export class RoutineDetailAdapter implements IRoutineDetailAdapter {
     deletedSetOrder: number
   ): Saved<LocalRoutineDetail>[] {
     return details
-      .filter((d) => d.exerciseId === exerciseId && d.setOrder > deletedSetOrder)
+      .filter(
+        (d) => d.exerciseId === exerciseId && d.setOrder > deletedSetOrder
+      )
       .map((detail) => ({
         ...detail,
         setOrder: detail.setOrder - 1,

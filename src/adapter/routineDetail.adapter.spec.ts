@@ -18,7 +18,7 @@ const routineDetailAdapter = new RoutineDetailAdapter();
 
 describe("getInitialWorkoutDetail", () => {
   it("초기 routine detail 객체를 반환한다", () => {
-    const result = routineDetailAdapter.getInitialRoutineDetail();
+    const result = routineDetailAdapter.getInitialRoutineDetail("kg");
 
     const expectedBase = INITIAL_ROUTINE_DETAIL_BASE;
 
