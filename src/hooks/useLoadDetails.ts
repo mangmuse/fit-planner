@@ -1,7 +1,6 @@
 import { LocalRoutineDetail, LocalWorkoutDetail, Saved } from "@/types/models";
 
 import { useDetailsData } from "@/hooks/useDetailsData";
-import { useDetailsOperations } from "@/hooks/useDetailsOperations";
 
 type UseLoadDetailsProps = {
   type: "RECORD" | "ROUTINE";
@@ -29,10 +28,6 @@ const useLoadDetails = ({
   );
   const { workout, workoutGroups } = data;
   const { setWorkout } = setData;
-  // const operations = useDetailsOperations({
-  //   setWorkoutGroups,
-  //   workoutGroups,
-  // });
 
   return {
     error,
@@ -41,7 +36,6 @@ const useLoadDetails = ({
     workoutGroups,
     reload,
     setWorkout,
-    // ...operations,
   };
 };
 
