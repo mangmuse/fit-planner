@@ -41,6 +41,7 @@ function SessionPlaceholder({ type, userId, date }: SessionPlaceholderProps) {
       height: "100dvh",
       children: (
         <RoutineList
+          userId={userId || ""}
           excludeRoutineId={routineId ? Number(routineId) : undefined}
           onPick={handlePickRoutine}
         />

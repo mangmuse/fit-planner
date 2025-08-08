@@ -23,6 +23,7 @@ import ExerciseMemo from "@/app/(main)/_shared/session/exerciseMemo/ExerciseMemo
 import GroupOptionItem from "@/app/(main)/_shared/session/exerciseGroup/GroupOptionItem";
 import { convertKgtoLbs, convertLbstoKg } from "@/util/weightConversion";
 import { useSessionData } from "@/app/(main)/_shared/session/SessionContainer";
+import { useSession } from "next-auth/react";
 
 export type SessionDetailGroupOptionsProps = {
   exercise: Saved<LocalExercise>;
@@ -45,6 +46,7 @@ const SessionDetailGroupOptions = ({
 
   reorderExerciseOrderAfterDelete,
 }: SessionDetailGroupOptionsProps) => {
+  const userId = useSession().data?.user?.id;
   const [unit, setUnit] = useState<(typeof units)[number]>(
     details[0]?.weightUnit || "kg"
   );
@@ -53,7 +55,6 @@ const SessionDetailGroupOptions = ({
   );
   const { closeBottomSheet, openBottomSheet } = useBottomSheet();
   const { openModal, showError } = useModal();
-  const isMounted = useRef(false);
 
   useEffect(() => {
     setCurrentWeights(details.map((d) => d.weight || 0));
@@ -105,6 +106,7 @@ const SessionDetailGroupOptions = ({
         <ExercisesContainer
           type={isWorkoutDetails(details) ? "RECORD" : "ROUTINE"}
           currentDetails={details}
+          userId={userId || ""}
           allowMultipleSelection={false}
         />
       ),

@@ -7,6 +7,7 @@ import { LocalRoutine, Saved } from "@/types/models";
 jest.mock("@/lib/di");
 
 const mockedRoutineService = jest.mocked(routineService);
+const mockUserId = "user123";
 
 describe("RoutineList", () => {
   beforeEach(() => {
@@ -21,7 +22,7 @@ describe("RoutineList", () => {
       ];
       mockedRoutineService.getAllLocalRoutines.mockResolvedValue(mockRoutines);
 
-      render(<RoutineList />);
+      render(<RoutineList userId={mockUserId} />);
 
       await waitFor(() => {
         expect(screen.getByText("루틴 1")).toBeInTheDocument();
@@ -32,7 +33,7 @@ describe("RoutineList", () => {
     it("루틴이 없을 때 빈 상태를 표시한다", async () => {
       mockedRoutineService.getAllLocalRoutines.mockResolvedValue([]);
 
-      render(<RoutineList />);
+      render(<RoutineList userId={mockUserId} />);
 
       await waitFor(() => {
         expect(screen.getByText("아직 루틴이 없습니다")).toBeInTheDocument();
@@ -45,7 +46,7 @@ describe("RoutineList", () => {
       ];
       mockedRoutineService.getAllLocalRoutines.mockResolvedValue(mockRoutines);
 
-      render(<RoutineList excludeRoutineId={1} />);
+      render(<RoutineList userId={mockUserId} excludeRoutineId={1} />);
 
       await waitFor(() => {
         expect(screen.getByText("아직 루틴이 없습니다")).toBeInTheDocument();
@@ -59,7 +60,7 @@ describe("RoutineList", () => {
       ];
       mockedRoutineService.getAllLocalRoutines.mockResolvedValue(mockRoutines);
 
-      render(<RoutineList excludeRoutineId={2} />);
+      render(<RoutineList userId={mockUserId} excludeRoutineId={2} />);
 
       await waitFor(() => {
         expect(screen.getByText("루틴 1")).toBeInTheDocument();
@@ -71,7 +72,7 @@ describe("RoutineList", () => {
       const MOCK_ERROR = new Error("DB에서 에러 발생");
       mockedRoutineService.getAllLocalRoutines.mockRejectedValue(MOCK_ERROR);
 
-      render(<RoutineList />);
+      render(<RoutineList userId={mockUserId} />);
 
       await waitFor(() => {
         expect(screen.getByText(MOCK_ERROR.message)).toBeInTheDocument();

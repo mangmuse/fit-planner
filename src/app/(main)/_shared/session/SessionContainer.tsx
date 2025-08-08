@@ -23,7 +23,12 @@ import {
   workoutDetailService,
   workoutService,
 } from "@/lib/di";
-import { LocalWorkout } from "@/types/models";
+import {
+  LocalRoutineDetail,
+  LocalWorkout,
+  LocalWorkoutDetail,
+  Saved,
+} from "@/types/models";
 import SessionExerciseGroup from "@/app/(main)/_shared/session/exerciseGroup/SessionExerciseGroup";
 import SessionSequence from "@/app/(main)/_shared/session/sessionSequence/SessionSequence";
 import LoadPastSessionSheet from "@/app/(main)/_shared/session/pastSession/LoadPastSessionSheet";
@@ -31,15 +36,15 @@ import { calculateTotalVolume } from "@/util/volumeCalculator";
 import { useWeightUnitPreference } from "@/hooks/useWeightUnitPreference";
 import { SessionDetailType } from "@/types/services";
 import SessionHeader from "@/app/(main)/_shared/session/SessionHeader";
-import { ErrorBoundary } from "react-error-boundary";
-import ErrorFallback from "@/components/ErrorFallback";
 import ErrorState from "@/components/ErrorState";
 
 type SessionContainerProps = {
   type: "ROUTINE" | "RECORD";
   routineId?: number;
+  initialSessionDetails?: Saved<LocalWorkoutDetail | LocalRoutineDetail>[];
   date?: string;
   formattedDate?: string | ReactNode;
+  userId: string;
 };
 
 export type SessionData = {
@@ -67,9 +72,9 @@ const SessionContainer = ({
   type,
   date,
   routineId,
+  userId,
   formattedDate,
 }: SessionContainerProps) => {
-  const userId = useSession().data?.user?.id;
   const { error, isLoading, workoutGroups, reload, workout, setWorkout } =
     useLoadDetails({
       type,

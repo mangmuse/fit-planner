@@ -7,11 +7,17 @@ import { useModal } from "@/providers/contexts/ModalContext";
 import EditRoutineNameForm from "@/app/(main)/routines/_components/routineForm/EditRoutineNameForm";
 import { routineService } from "@/lib/di";
 import SessionContainer from "@/app/(main)/_shared/session/SessionContainer";
+import { LocalRoutineDetail, Saved } from "@/types/models";
 
-const RoutineForm = () => {
+type RoutineFormProps = {
+  initialSessionDetails?: Saved<LocalRoutineDetail>[];
+  routineId: number;
+  userId: string;
+};
+
+const RoutineForm = ({ userId, routineId }: RoutineFormProps) => {
   const { openModal } = useModal();
   const [name, setName] = useState<string>("");
-  const { routineId } = useParams();
   const loadName = useCallback(async () => {
     if (routineId) {
       const routine = await routineService.getRoutineByLocalId(
@@ -57,6 +63,7 @@ const RoutineForm = () => {
       type="ROUTINE"
       routineId={Number(routineId)}
       formattedDate={routineTitle}
+      userId={userId}
     />
   );
 };

@@ -86,6 +86,7 @@ describe("SessionDataContext", () => {
 
     const defaultProps = {
       type: "RECORD" as const,
+      userId: "user123",
       date: "2025-07-14",
       formattedDate: "2025년 7월 14일",
     };

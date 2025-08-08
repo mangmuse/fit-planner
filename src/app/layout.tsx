@@ -18,6 +18,11 @@ export const metadata: Metadata = {
   title: "Fit Planner - 운동 기록 관리",
   description: "운동 루틴 관리와 기록을 위한 앱",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.svg",
+  },
 };
 
 export const viewport = {

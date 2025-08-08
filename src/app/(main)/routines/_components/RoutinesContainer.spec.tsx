@@ -4,7 +4,6 @@ import RoutinesContainer from "./RoutinesContainer";
 import { useRouter } from "next/navigation";
 import RoutineList from "@/app/(main)/routines/_components/routineList/RoutineList";
 
-// 1. 의존성 모킹
 jest.mock("next/navigation");
 jest.mock("@/app/(main)/routines/_components/routineList/RoutineList", () => {
   return {
@@ -14,6 +13,7 @@ jest.mock("@/app/(main)/routines/_components/routineList/RoutineList", () => {
 });
 
 const mockedUseRouter = jest.mocked(useRouter);
+const mockUserId = "user123";
 
 describe("RoutinesContainer", () => {
   const mockPush = jest.fn();
@@ -32,7 +32,7 @@ describe("RoutinesContainer", () => {
   });
 
   it("새 루틴 버튼과 RoutineList 컴포넌트를 렌더링해야 한다", () => {
-    render(<RoutinesContainer />);
+    render(<RoutinesContainer userId={mockUserId} />);
 
     expect(
       screen.getByRole("button", { name: /새 루틴/i })
@@ -41,7 +41,7 @@ describe("RoutinesContainer", () => {
   });
 
   it("새 루틴 버튼을 클릭하면 /routines/create 페이지로 이동해야 한다", async () => {
-    render(<RoutinesContainer />);
+    render(<RoutinesContainer userId={mockUserId} />);
     const addButton = screen.getByRole("button", { name: /새 루틴/i });
 
     await user.click(addButton);

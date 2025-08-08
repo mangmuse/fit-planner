@@ -115,7 +115,7 @@ jest.mock("next/navigation", () => ({
   }),
   usePathname: () => "/workout/2024-01-01",
 }));
-
+const mockUserId = "user123";
 const mockWorkoutDetails: LocalWorkoutDetail[] = [
   workoutDetailMockData.new({
     id: 1,
@@ -208,6 +208,7 @@ describe("SessionContainer - 규정 테스트", () => {
     it("운동 데이터가 있을 때 모든 UI 요소가 표시된다", async () => {
       render(
         <SessionContainer
+          userId={mockUserId}
           type="RECORD"
           date="2024-01-01"
           formattedDate="2024년 1월 1일"
@@ -238,6 +239,7 @@ describe("SessionContainer - 규정 테스트", () => {
 
       render(
         <SessionContainer
+          userId={mockUserId}
           type="RECORD"
           date="2024-01-01"
           formattedDate="2024년 1월 1일"
@@ -260,6 +262,7 @@ describe("SessionContainer - 규정 테스트", () => {
 
       render(
         <SessionContainer
+          userId={mockUserId}
           type="RECORD"
           date="2024-01-01"
           formattedDate="2024년 1월 1일"
@@ -279,7 +282,9 @@ describe("SessionContainer - 규정 테스트", () => {
         routineDetailService.getLocalRoutineDetails as jest.Mock
       ).mockResolvedValue(mockWorkoutDetails);
 
-      render(<SessionContainer type="ROUTINE" routineId={123} />);
+      render(
+        <SessionContainer userId={mockUserId} type="ROUTINE" routineId={123} />
+      );
 
       await waitFor(() => {
         expect(screen.getByText("운동 추가")).toBeInTheDocument();
@@ -294,6 +299,7 @@ describe("SessionContainer - 규정 테스트", () => {
 
       render(
         <SessionContainer
+          userId={mockUserId}
           type="RECORD"
           date="2024-01-01"
           formattedDate="2024년 1월 1일"
@@ -321,6 +327,7 @@ describe("SessionContainer - 규정 테스트", () => {
 
       render(
         <SessionContainer
+          userId={mockUserId}
           type="RECORD"
           date="2024-01-01"
           formattedDate="2024년 1월 1일"
@@ -346,6 +353,7 @@ describe("SessionContainer - 규정 테스트", () => {
 
       render(
         <SessionContainer
+          userId={mockUserId}
           type="RECORD"
           date="2024-01-01"
           formattedDate="2024년 1월 1일"
@@ -370,6 +378,7 @@ describe("SessionContainer - 규정 테스트", () => {
 
       render(
         <SessionContainer
+          userId={mockUserId}
           type="RECORD"
           date="2024-01-01"
           formattedDate="2024년 1월 1일"
@@ -403,6 +412,7 @@ describe("SessionContainer - 규정 테스트", () => {
 
       render(
         <SessionContainer
+          userId={mockUserId}
           type="RECORD"
           date="2024-01-01"
           formattedDate="2024년 1월 1일"
@@ -424,6 +434,7 @@ describe("SessionContainer - 규정 테스트", () => {
       it("formattedDate가 문자열일 때 time 태그로 렌더링된다", async () => {
         render(
           <SessionContainer
+            userId={mockUserId}
             type="RECORD"
             date="2024-01-01"
             formattedDate="2024년 1월 1일"
@@ -441,6 +452,7 @@ describe("SessionContainer - 규정 테스트", () => {
 
         render(
           <SessionContainer
+            userId={mockUserId}
             type="RECORD"
             date="2024-01-01"
             formattedDate={CustomDate}
