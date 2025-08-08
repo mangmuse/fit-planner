@@ -111,18 +111,14 @@ describe("SessionSequence", () => {
 
   describe("렌더링", () => {
     it("초기 운동 목록이 올바르게 표시된다", () => {
-      render(
-        <SessionSequence detailGroups={mockDetailGroups} reload={mockReload} />
-      );
+      render(<SessionSequence detailGroups={mockDetailGroups} />);
 
       expect(screen.getByText("벤치프레스")).toBeInTheDocument();
       expect(screen.getByText("스쿼트")).toBeInTheDocument();
     });
 
     it("순서 변경 완료 버튼이 표시된다", () => {
-      render(
-        <SessionSequence detailGroups={mockDetailGroups} reload={mockReload} />
-      );
+      render(<SessionSequence detailGroups={mockDetailGroups} />);
 
       expect(
         screen.getByRole("button", { name: "순서 변경 완료" })
@@ -132,9 +128,7 @@ describe("SessionSequence", () => {
 
   describe("드래그 앤 드롭", () => {
     it("드래그 앤 드롭으로 순서를 변경하면 화면에 즉시 반영된다", () => {
-      render(
-        <SessionSequence detailGroups={mockDetailGroups} reload={mockReload} />
-      );
+      render(<SessionSequence detailGroups={mockDetailGroups} />);
 
       let items = screen.getAllByRole("listitem");
       expect(items[0]).toHaveTextContent("벤치프레스");
@@ -154,9 +148,7 @@ describe("SessionSequence", () => {
     });
 
     it("드래그를 취소하면 순서가 변경되지 않는다", () => {
-      render(
-        <SessionSequence detailGroups={mockDetailGroups} reload={mockReload} />
-      );
+      render(<SessionSequence detailGroups={mockDetailGroups} />);
 
       const items = screen.getAllByRole("listitem");
       expect(items[0]).toHaveTextContent("벤치프레스");
@@ -180,9 +172,7 @@ describe("SessionSequence", () => {
   describe("순서 변경 저장", () => {
     it("순서 변경 완료 버튼 클릭 시 올바른 서비스가 호출된다", async () => {
       const user = userEvent.setup();
-      render(
-        <SessionSequence detailGroups={mockDetailGroups} reload={mockReload} />
-      );
+      render(<SessionSequence detailGroups={mockDetailGroups} />);
 
       const saveButton = screen.getByRole("button", { name: "순서 변경 완료" });
       await user.click(saveButton);
@@ -206,15 +196,12 @@ describe("SessionSequence", () => {
 
     it("저장 후 reload와 closeBottomSheet가 호출된다", async () => {
       const user = userEvent.setup();
-      render(
-        <SessionSequence detailGroups={mockDetailGroups} reload={mockReload} />
-      );
+      render(<SessionSequence detailGroups={mockDetailGroups} />);
 
       const saveButton = screen.getByRole("button", { name: "순서 변경 완료" });
       await user.click(saveButton);
 
       await waitFor(() => {
-        expect(mockReload).toHaveBeenCalledTimes(1);
         expect(mockCloseBottomSheet).toHaveBeenCalledTimes(1);
       });
     });
@@ -238,12 +225,7 @@ describe("SessionSequence", () => {
         },
       ];
 
-      render(
-        <SessionSequence
-          detailGroups={multipleDetailsGroups}
-          reload={mockReload}
-        />
-      );
+      render(<SessionSequence detailGroups={multipleDetailsGroups} />);
 
       const saveButton = screen.getByRole("button", { name: "순서 변경 완료" });
       await user.click(saveButton);
@@ -267,9 +249,7 @@ describe("SessionSequence", () => {
         new Error("API Error")
       );
 
-      render(
-        <SessionSequence detailGroups={mockDetailGroups} reload={mockReload} />
-      );
+      render(<SessionSequence detailGroups={mockDetailGroups} />);
 
       const saveButton = screen.getByRole("button", { name: "순서 변경 완료" });
 
@@ -287,9 +267,7 @@ describe("SessionSequence", () => {
 
     it("순서 변경 후 저장하면 변경된 순서로 서비스가 호출된다", async () => {
       const user = userEvent.setup();
-      render(
-        <SessionSequence detailGroups={mockDetailGroups} reload={mockReload} />
-      );
+      render(<SessionSequence detailGroups={mockDetailGroups} />);
 
       if (mockOnDragEnd) {
         mockOnDragEnd({

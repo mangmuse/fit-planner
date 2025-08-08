@@ -159,7 +159,6 @@ describe("LoadPastSessionSheet", () => {
     const defaultRecordProps: LoadPastSessionSheetProps = {
       type: "RECORD",
       date: "2025-01-01",
-      reload: mockReload,
       startExerciseOrder: 5,
     };
     return renderComponent({ ...defaultRecordProps, ...props });
@@ -170,7 +169,6 @@ describe("LoadPastSessionSheet", () => {
     const defaultRoutineProps: LoadPastSessionSheetProps = {
       type: "ROUTINE",
       routineId: 123,
-      reload: mockReload,
       startExerciseOrder: 5,
     };
     return renderComponent({ ...defaultRoutineProps, ...props });
@@ -273,8 +271,6 @@ describe("LoadPastSessionSheet", () => {
             mockedRoutineDetailService.addPastWorkoutDetailsToRoutine
           ).not.toHaveBeenCalled();
         });
-
-        expect(mockReload).toHaveBeenCalled();
       });
 
       it("운동 추가 도중 에러 발생시 에러 모달을 표시한다 (RECORD)", async () => {
@@ -351,8 +347,6 @@ describe("LoadPastSessionSheet", () => {
             mockedWorkoutDetailService.addPastWorkoutDetailsToWorkout
           ).not.toHaveBeenCalled();
         });
-
-        expect(mockReload).toHaveBeenCalled();
       });
 
       it("운동 추가 도중 에러 발생시 에러 모달을 표시한다 (ROUTINE)", async () => {

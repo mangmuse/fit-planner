@@ -22,7 +22,6 @@ import ErrorState from "@/components/ErrorState";
 
 export type LoadPastSessionSheetProps = {
   type: "ROUTINE" | "RECORD";
-  reload: () => Promise<void>;
   startExerciseOrder: number;
   routineId?: number;
   date?: string;
@@ -32,7 +31,6 @@ const LoadPastSessionSheet = ({
   type,
   date,
   routineId,
-  reload,
   startExerciseOrder,
 }: LoadPastSessionSheetProps) => {
   const { data: session } = useSession();
@@ -151,7 +149,6 @@ const LoadPastSessionSheet = ({
         await addDetailsToRoutine(allDetails, startExerciseOrder);
       }
 
-      await reload();
       closeBottomSheet();
     } catch (e) {
       console.error("[LoadPastSessionSheet] handleAddSelectedWorkout:", e);

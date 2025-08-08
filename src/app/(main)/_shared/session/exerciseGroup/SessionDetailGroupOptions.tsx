@@ -29,13 +29,7 @@ export type SessionDetailGroupOptionsProps = {
   exerciseOrder: number;
   details: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[];
   loadExercises: () => Promise<void>;
-  reload: () => Promise<void>;
-  updateMultipleDetailsInGroups: (
-    updatedDetails: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[]
-  ) => void;
-  removeMultipleDetailsInGroup: (
-    details: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[]
-  ) => void;
+
   reorderExerciseOrderAfterDelete: (
     deletedExerciseOrder: number
   ) => Promise<void>;
@@ -48,9 +42,7 @@ const SessionDetailGroupOptions = ({
   exerciseOrder,
   details,
   loadExercises,
-  reload,
-  updateMultipleDetailsInGroups,
-  removeMultipleDetailsInGroup,
+
   reorderExerciseOrderAfterDelete,
 }: SessionDetailGroupOptionsProps) => {
   const [unit, setUnit] = useState<(typeof units)[number]>(
@@ -85,7 +77,6 @@ const SessionDetailGroupOptions = ({
         await routineDetailService.deleteRoutineDetails(details);
       }
       await reorderExerciseOrderAfterDelete(exerciseOrder);
-      removeMultipleDetailsInGroup(details);
     } catch (e) {
       console.error(
         "[SessionDetailGroupOptions] deleteAndLoadDetails Error",
@@ -115,7 +106,6 @@ const SessionDetailGroupOptions = ({
           type={isWorkoutDetails(details) ? "RECORD" : "ROUTINE"}
           currentDetails={details}
           allowMultipleSelection={false}
-          reloadDetails={reload}
         />
       ),
     });
@@ -156,7 +146,6 @@ const SessionDetailGroupOptions = ({
       }));
 
       setCurrentWeights(newWeights);
-      updateMultipleDetailsInGroups(updatedDetails);
     } catch (e) {
       console.error("[SessionDetailGroupOptions] handleUnitChange Error", e);
       setUnit(prevUnit);

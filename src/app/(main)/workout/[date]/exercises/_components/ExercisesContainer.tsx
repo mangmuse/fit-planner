@@ -25,14 +25,12 @@ type ExercisesContainerProps = {
   routineId?: number;
   allowMultipleSelection?: boolean;
   currentDetails?: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[];
-  reloadDetails?: () => Promise<void>;
 };
 
 export default function ExercisesContainer({
   type,
   allowMultipleSelection = true,
   currentDetails,
-  reloadDetails,
 }: ExercisesContainerProps) {
   const { data: session } = useSession();
   const userId = session?.user?.id;
@@ -123,7 +121,6 @@ export default function ExercisesContainer({
 
         await routineDetailService.deleteRoutineDetails(currentDetails);
       }
-      await reloadDetails?.();
       closeBottomSheet();
     } catch (e) {
       console.error("[ExercisesContainer] Error", e);

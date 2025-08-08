@@ -22,11 +22,6 @@ export const createMockSessionData = (
 ): SessionData => {
   return {
     type: "RECORD" as SessionDetailType,
-    updateDetailInGroups: jest.fn(),
-    updateMultipleDetailsInGroups: jest.fn(),
-    addDetailToGroup: jest.fn(),
-    removeDetailFromGroup: jest.fn(),
-    removeMultipleDetailsInGroup: jest.fn(),
     reload: jest.fn(),
     reorderExerciseOrderAfterDelete: jest.fn(),
     reorderSetOrderAfterDelete: jest.fn(),

@@ -30,7 +30,6 @@ describe("SetOrderCell", () => {
   const renderSetOrderCell = (props?: Partial<SetOrderCellProps>) => {
     const defaultProps: SetOrderCellProps = {
       workoutDetail: mockWD,
-      loadLocalWorkoutDetails: mockReload,
     };
     render(<SetOrderCell {...defaultProps} {...props} />);
   };
@@ -62,15 +61,11 @@ describe("SetOrderCell", () => {
       const setOrder = screen.getByTestId("set-order");
       await userEvent.click(setOrder);
 
-      const { minHeight, children, onClose } =
-        mockOpenBottomSheet.mock.calls[0][0];
+      const { minHeight, children } = mockOpenBottomSheet.mock.calls[0][0];
 
       expect(minHeight).toBe(150);
       expect(children.type).toBe(SetOptionSheet);
       expect(children.props.detail).toEqual(mockWD);
-
-      await onClose();
-      expect(mockReload).toHaveBeenCalledTimes(1);
     });
   });
 });

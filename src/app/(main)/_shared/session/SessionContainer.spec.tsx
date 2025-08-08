@@ -11,17 +11,29 @@ import {
 } from "@/lib/di";
 import { useModal } from "@/providers/contexts/ModalContext";
 import { useBottomSheet } from "@/providers/contexts/BottomSheetContext";
+import { useLiveQuery } from "dexie-react-hooks";
+import { useSession } from "next-auth/react";
+import { useWeightUnitPreference } from "@/hooks/useWeightUnitPreference";
+
+jest.mock("dexie-react-hooks");
+jest.mock("next-auth/react");
+jest.mock("@/hooks/useWeightUnitPreference");
 
 jest.mock("@/lib/di", () => ({
   workoutService: {
     getWorkoutByUserIdAndDate: jest.fn(),
     updateLocalWorkout: jest.fn(),
     deleteLocalWorkout: jest.fn(),
+    addLocalWorkout: jest.fn(),
   },
   workoutDetailService: {
     getLocalWorkoutDetails: jest.fn(),
+    getLocalWorkoutDetailsByWorkoutId: jest.fn(),
     updateLocalWorkoutDetail: jest.fn(),
     deleteWorkoutDetails: jest.fn(),
+    deleteDetailsByWorkoutId: jest.fn(),
+    reorderExerciseOrderAfterDelete: jest.fn(),
+    reorderSetOrderAfterDelete: jest.fn(),
   },
   routineService: {
     deleteLocalRoutine: jest.fn(),
@@ -30,6 +42,9 @@ jest.mock("@/lib/di", () => ({
     getLocalRoutineDetails: jest.fn(),
     updateLocalRoutineDetail: jest.fn(),
     deleteRoutineDetails: jest.fn(),
+    deleteDetailsByRoutineId: jest.fn(),
+    reorderExerciseOrderAfterDelete: jest.fn(),
+    reorderSetOrderAfterDelete: jest.fn(),
   },
 }));
 
@@ -126,14 +141,26 @@ describe("SessionContainer - 규정 테스트", () => {
   const mockOpenModal = jest.fn();
   const mockOpenBottomSheet = jest.fn();
   const mockCloseBottomSheet = jest.fn();
+  const mockShowError = jest.fn();
+  const mockUseLiveQuery = useLiveQuery as jest.MockedFunction<
+    typeof useLiveQuery
+  >;
 
   beforeEach(() => {
     jest.clearAllMocks();
     mockPush.mockClear();
 
+    (useSession as jest.Mock).mockReturnValue({
+      data: { user: { id: "test-user-id" } },
+      status: "authenticated",
+    });
+
+    (useWeightUnitPreference as jest.Mock).mockReturnValue(["kg", jest.fn()]);
+
     (useModal as jest.Mock).mockReturnValue({
       openModal: mockOpenModal,
       isOpen: false,
+      showError: mockShowError,
     });
 
     (useBottomSheet as jest.Mock).mockReturnValue({
@@ -145,12 +172,36 @@ describe("SessionContainer - 규정 테스트", () => {
     (workoutService.getWorkoutByUserIdAndDate as jest.Mock).mockResolvedValue(
       mockWorkout
     );
+    (workoutService.addLocalWorkout as jest.Mock).mockResolvedValue(undefined);
+
     (
       workoutDetailService.getLocalWorkoutDetails as jest.Mock
     ).mockResolvedValue(mockWorkoutDetails);
     (
+      workoutDetailService.getLocalWorkoutDetailsByWorkoutId as jest.Mock
+    ).mockResolvedValue(mockWorkoutDetails);
+
+    (
       routineDetailService.getLocalRoutineDetails as jest.Mock
     ).mockResolvedValue([]);
+
+    mockUseLiveQuery.mockImplementation((_queryFn, deps) => {
+      if (!deps) return undefined;
+
+      const [type, id] = deps;
+
+      if (!type) return { data: [], error: null };
+
+      if (type === "RECORD" && id) {
+        return { data: mockWorkoutDetails, error: null };
+      }
+
+      if (type === "ROUTINE" && id) {
+        return { data: mockWorkoutDetails, error: null };
+      }
+
+      return { data: [], error: null };
+    });
   });
 
   describe("RECORD 타입 렌더링", () => {
@@ -165,8 +216,12 @@ describe("SessionContainer - 규정 테스트", () => {
 
       await waitFor(() => {
         expect(screen.getByText("2024년 1월 1일")).toBeInTheDocument();
-        expect(screen.getByRole("button", { name: "전체 삭제" })).toBeInTheDocument();
-        expect(screen.getByRole("button", { name: "순서 변경" })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: "전체 삭제" })
+        ).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: "순서 변경" })
+        ).toBeInTheDocument();
         expect(screen.getByText("운동 추가")).toBeInTheDocument();
         expect(screen.getByText("불러오기")).toBeInTheDocument();
         expect(screen.getByText("운동 완료")).toBeInTheDocument();
@@ -176,8 +231,10 @@ describe("SessionContainer - 규정 테스트", () => {
 
     it("운동 데이터가 없을 때 Placeholder가 표시된다", async () => {
       (
-        workoutDetailService.getLocalWorkoutDetails as jest.Mock
+        workoutDetailService.getLocalWorkoutDetailsByWorkoutId as jest.Mock
       ).mockResolvedValue([]);
+
+      mockUseLiveQuery.mockReturnValue({ data: [], error: null });
 
       render(
         <SessionContainer
@@ -244,7 +301,9 @@ describe("SessionContainer - 규정 테스트", () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: "전체 삭제" })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: "전체 삭제" })
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: "전체 삭제" }));
@@ -269,7 +328,9 @@ describe("SessionContainer - 규정 테스트", () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: "순서 변경" })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: "순서 변경" })
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: "순서 변경" }));
@@ -333,8 +394,12 @@ describe("SessionContainer - 규정 테스트", () => {
   describe("에러 처리", () => {
     it("데이터 로드 실패 시 에러 상태가 표시된다", async () => {
       (
-        workoutDetailService.getLocalWorkoutDetails as jest.Mock
+        workoutDetailService.getLocalWorkoutDetailsByWorkoutId as jest.Mock
       ).mockRejectedValue(new Error("Failed to load"));
+      mockUseLiveQuery.mockReturnValue({
+        data: [],
+        error: new Error("실패"),
+      });
 
       render(
         <SessionContainer
@@ -346,7 +411,7 @@ describe("SessionContainer - 규정 테스트", () => {
 
       await waitFor(() => {
         expect(
-          screen.getByText("운동 세부 정보를 불러오는데 실패했습니다")
+          screen.getByText("운동 정보를 불러오는데 실패했습니다")
         ).toBeInTheDocument();
       });
 

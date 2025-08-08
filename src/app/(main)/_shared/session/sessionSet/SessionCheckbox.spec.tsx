@@ -36,7 +36,6 @@ describe("SessionCheckbox", () => {
     const defaultProps: SessionCheckboxProps = {
       prevIsDone: false,
       detail: mockWD,
-      updateDetailInGroups: mockUpdateDetailInGroups,
     };
     render(<SessionCheckbox {...defaultProps} {...props} />);
   };
@@ -69,7 +68,6 @@ describe("SessionCheckbox", () => {
       expect(
         mockWorkoutDetailService.updateLocalWorkoutDetail
       ).toHaveBeenCalledWith(updatedDetail);
-      expect(mockUpdateDetailInGroups).toHaveBeenCalledWith(updatedDetail);
     });
 
     it("true -> false", async () => {
@@ -84,7 +82,6 @@ describe("SessionCheckbox", () => {
       expect(
         mockWorkoutDetailService.updateLocalWorkoutDetail
       ).toHaveBeenCalledWith(updatedDetail);
-      expect(mockUpdateDetailInGroups).toHaveBeenCalledWith(updatedDetail);
     });
   });
 

@@ -231,7 +231,6 @@ describe("Characterization Tests", () => {
           type="RECORD"
           allowMultipleSelection={false}
           currentDetails={mockCurrentDetails}
-          reloadDetails={mockReloadDetails}
         />
       );
 
@@ -256,7 +255,6 @@ describe("Characterization Tests", () => {
         expect(
           mockWorkoutDetailService.deleteWorkoutDetails
         ).toHaveBeenCalledWith(mockCurrentDetails);
-        expect(mockReloadDetails).toHaveBeenCalled();
         expect(mockCloseBottomSheet).toHaveBeenCalled();
       });
     });

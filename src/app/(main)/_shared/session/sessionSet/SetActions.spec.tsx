@@ -40,8 +40,6 @@ describe("SetActions", () => {
     mockUseSessionData.mockReturnValue(
       createMockSessionData({
         reorderExerciseOrderAfterDelete: mockReorderExerciseOrderAfterDelete,
-        addDetailToGroup: mockAddDetailToGroup,
-        removeDetailFromGroup: mockRemoveDetailFromGroup,
       })
     );
   });
@@ -71,13 +69,6 @@ describe("SetActions", () => {
         mockWD
       );
       expect(mockRoutineDetailService.addSetToRoutine).not.toHaveBeenCalled();
-      expect(mockAddDetailToGroup).toHaveBeenCalledWith(
-        {
-          ...mockWD,
-          id: 501,
-        },
-        mockWD
-      );
     });
 
     it("세트 삭제 버튼을 클릭하면 세트가 삭제된다", async () => {
@@ -93,8 +84,6 @@ describe("SetActions", () => {
       expect(
         mockRoutineDetailService.deleteRoutineDetail
       ).not.toHaveBeenCalled();
-
-      expect(mockRemoveDetailFromGroup).toHaveBeenCalledWith(mockWD.id);
     });
   });
   describe("lastValue가 routineDetail", () => {
@@ -114,14 +103,6 @@ describe("SetActions", () => {
         mockRD
       );
 
-      expect(mockAddDetailToGroup).toHaveBeenCalledWith(
-        {
-          ...mockRD,
-          id: 601,
-        },
-        mockRD
-      );
-
       expect(mockWorkoutDetailService.addSetToWorkout).not.toHaveBeenCalled();
     });
     it("세트 삭제 버튼을 클릭하면 세트가 삭제된다", async () => {
@@ -135,7 +116,6 @@ describe("SetActions", () => {
         mockRD.id
       );
 
-      expect(mockRemoveDetailFromGroup).toHaveBeenCalledWith(mockRD.id);
       expect(mockReorderExerciseOrderAfterDelete).toHaveBeenCalledWith(5);
 
       expect(

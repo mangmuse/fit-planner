@@ -5,9 +5,20 @@ import {
   workoutDetailService,
   workoutService,
 } from "@/lib/di";
-import { LocalWorkout, Saved } from "@/types/models";
+import {
+  LocalRoutineDetail,
+  LocalWorkout,
+  LocalWorkoutDetail,
+  Saved,
+} from "@/types/models";
 import { SessionDetailType } from "@/types/services";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
+import { useLiveQuery } from "dexie-react-hooks";
+
+type LiveQueryResult<T> = {
+  data: T;
+  error: Error | null;
+};
 
 export const useDetailsData = (
   type: SessionDetailType,
@@ -17,35 +28,114 @@ export const useDetailsData = (
 ) => {
   const [workout, setWorkout] = useState<Saved<LocalWorkout> | null>(null);
   const [error, setError] = useState<string | null>(null);
-
   const [isInitialLoading, setIsInitialLoading] = useState<boolean>(true);
-  const [workoutGroups, setWorkoutGroups] = useState<SessionGroup[]>([]);
+  const [refreshKey, setRefreshKey] = useState<number>(0);
 
-  const loadLocalDetails = useCallback(async () => {
+  const loadWorkout = useCallback(async () => {
+    if (type !== "RECORD" || !userId || !date) return null;
+
     try {
-      setIsInitialLoading(true);
-      if (type === "RECORD") {
-        if (!userId || !date) return;
-        const details = await workoutDetailService.getLocalWorkoutDetails(
+      let currentWorkout = await workoutService.getWorkoutByUserIdAndDate(
+        userId,
+        date
+      );
+      if (!currentWorkout) {
+        await workoutService.addLocalWorkout(userId, date);
+        currentWorkout = await workoutService.getWorkoutByUserIdAndDate(
           userId,
           date
         );
-        const adjustedGroups = getGroupedDetails(details);
-        setWorkoutGroups(adjustedGroups);
-      } else if (type === "ROUTINE") {
-        if (!userId || !routineId) return;
-        const details =
-          await routineDetailService.getLocalRoutineDetails(routineId);
-        const adjustedGroups = getGroupedDetails(details);
-        setWorkoutGroups(adjustedGroups);
       }
+      setWorkout(currentWorkout || null);
+      return currentWorkout;
     } catch (e) {
-      console.error(e);
-      setError("운동 세부 정보를 불러오는데 실패했습니다");
-    } finally {
+      console.error("[useDetailsData] Error:", e);
+      setError("운동 정보를 불러오는데 실패했습니다");
+      return null;
+    }
+  }, [type, userId, date]);
+
+  const workoutDetails = useLiveQuery<
+    LiveQueryResult<Saved<LocalWorkoutDetail>[]>
+  >(async () => {
+    if (type !== "RECORD" || !workout?.id) return { data: [], error: null };
+
+    try {
+      const details =
+        await workoutDetailService.getLocalWorkoutDetailsByWorkoutId(
+          workout.id
+        );
+
+      return { data: details, error: null };
+    } catch (e) {
+      console.error("[useDetailsData] Error:", e);
+      return { data: [], error: e };
+    }
+  }, [type, workout?.id, refreshKey]);
+
+  const routineDetails = useLiveQuery<
+    LiveQueryResult<Saved<LocalRoutineDetail>[]>
+  >(async () => {
+    if (type !== "ROUTINE" || !routineId) return { data: [], error: null };
+
+    try {
+      const details =
+        await routineDetailService.getLocalRoutineDetails(routineId);
+      return { data: details, error: null };
+    } catch (e) {
+      console.error("[useDetailsData] Error:", e);
+      return { data: [], error: e };
+    }
+  }, [type, routineId, refreshKey]);
+
+  const workoutGroups = useMemo<SessionGroup[]>(() => {
+    if (type === "RECORD") {
+      if (workoutDetails?.error) {
+        return [];
+      }
+      if (!workoutDetails?.data || workoutDetails.data.length === 0) return [];
+      return getGroupedDetails(workoutDetails.data);
+    } else if (type === "ROUTINE") {
+      if (routineDetails?.error) {
+        return [];
+      }
+      if (!routineDetails?.data || routineDetails.data.length === 0) return [];
+      return getGroupedDetails(routineDetails.data);
+    }
+    return [];
+  }, [type, workoutDetails, routineDetails]);
+
+  useEffect(() => {
+    if (workoutDetails?.error) {
+      setError("운동 정보를 불러오는데 실패했습니다");
+    } else if (routineDetails?.error) {
+      setError("루틴 정보를 불러오는데 실패했습니다");
+    }
+  }, [workoutDetails?.error, routineDetails?.error]);
+
+  useEffect(() => {
+    if (type === "RECORD" && userId && date) {
+      (async () => {
+        setIsInitialLoading(true);
+        await loadWorkout();
+        setIsInitialLoading(false);
+      })();
+    } else if (type === "ROUTINE") {
       setIsInitialLoading(false);
     }
-  }, [type, userId, date, routineId]);
+  }, [type, userId, date, loadWorkout]);
+
+  const reload = useCallback(async () => {
+    setError(null);
+
+    if (type === "RECORD" && userId && date) {
+      setIsInitialLoading(true);
+      await loadWorkout();
+      setIsInitialLoading(false);
+    }
+
+    setRefreshKey((prev) => prev + 1);
+  }, [type, userId, date, loadWorkout]);
 
   const syncWorkoutStatus = async () => {
     try {
@@ -74,18 +164,11 @@ export const useDetailsData = (
       setError("운동 상태를 동기화하는데 실패했습니다");
     }
   };
-
   useEffect(() => {
-    (async () => {
-      await loadLocalDetails();
-    })();
-  }, [type, userId, date, routineId, loadLocalDetails]);
-
-  useEffect(() => {
-    if (type === "RECORD" && date) {
+    if (type === "RECORD" && date && !isInitialLoading) {
       syncWorkoutStatus();
     }
-  }, [type, userId, date, routineId]);
+  }, [workoutGroups, type, date, isInitialLoading]);
 
   return {
     data: {
@@ -93,11 +176,10 @@ export const useDetailsData = (
       workoutGroups,
     },
     setData: {
-      setWorkoutGroups,
       setWorkout,
     },
     isLoading: isInitialLoading,
     error,
-    reload: loadLocalDetails,
+    reload,
   };
 };

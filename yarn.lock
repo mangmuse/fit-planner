@@ -4723,6 +4723,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dexie-react-hooks@npm:^1.1.7":
+  version: 1.1.7
+  resolution: "dexie-react-hooks@npm:1.1.7"
+  peerDependencies:
+    "@types/react": ">=16"
+    dexie: ^3.2 || ^4.0.1-alpha
+    react: ">=16"
+  checksum: 10c0/3ff38e715a52bff9132b483963246ea5372a282d9257c8c2bf8891c522fa0d761d1e362bb352eb63386f49ea9a55c52e1bcc5cce2019deb1eceba40d8a88631d
+  languageName: node
+  linkType: hard
+
 "dexie@npm:^4.0.11":
   version: 4.0.11
   resolution: "dexie@npm:4.0.11"
@@ -5656,6 +5667,7 @@ __metadata:
     clsx: "npm:^2.1.1"
     dayjs: "npm:^1.11.13"
     dexie: "npm:^4.0.11"
+    dexie-react-hooks: "npm:^1.1.7"
     eslint: "npm:^9"
     eslint-config-next: "npm:15.1.0"
     eslint-plugin-react-hooks: "npm:^5.1.0"

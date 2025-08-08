@@ -30,8 +30,6 @@ const SessionItem = ({
   isLastSet,
 }: SessionItemProps) => {
   const {
-    updateDetailInGroups,
-    removeDetailFromGroup,
     reorderSetOrderAfterDelete,
     reorderExerciseOrderAfterDelete,
     reload,
@@ -74,7 +72,6 @@ const SessionItem = ({
       } else {
         await routineDetailService.updateLocalRoutineDetail(updateWorkoutInput);
       }
-      updateDetailInGroups(updateWorkoutInput);
     } catch (e) {
       console.error("[SessionItem] Error", e);
       showError("운동 상태 업데이트에 실패했습니다");
@@ -91,8 +88,6 @@ const SessionItem = ({
         } else {
           await reorderSetOrderAfterDelete(detail.exerciseId, detail.setOrder);
         }
-
-        removeDetailFromGroup?.(detail.id);
       } catch (e) {
         console.error("[SessionItem] Error", e);
         showError("운동 삭제에 실패했습니다");
@@ -102,7 +97,7 @@ const SessionItem = ({
 
   return (
     <tr data-testid={`session-item`} className="h-9">
-      <SetOrderCell loadLocalWorkoutDetails={reload} workoutDetail={detail} />
+      <SetOrderCell workoutDetail={detail} />
       <td data-testid="prev-record" className="text-center">
         {prevWorkoutDetail
           ? `${formatWeight(
@@ -144,11 +139,7 @@ const SessionItem = ({
       <td className="text-center  ">
         <div className="flex justify-center items-center">
           {isWorkoutDetail(detail) ? (
-            <SessionCheckbox
-              prevIsDone={isDone}
-              updateDetailInGroups={updateDetailInGroups}
-              detail={detail}
-            />
+            <SessionCheckbox prevIsDone={isDone} detail={detail} />
           ) : (
             <button onClick={handleDelete} aria-label="삭제">
               <Trash2 className="w-5 h-5 text-warning" />

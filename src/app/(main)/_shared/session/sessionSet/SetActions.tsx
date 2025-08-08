@@ -14,11 +14,7 @@ export type SetActionsProps = {
 
 const SetActions = ({ lastValue, exerciseOrder }: SetActionsProps) => {
   const { showError } = useModal();
-  const {
-    reorderExerciseOrderAfterDelete,
-    addDetailToGroup,
-    removeDetailFromGroup,
-  } = useSessionData();
+  const { reorderExerciseOrderAfterDelete } = useSessionData();
   const handleAddSet = async () => {
     try {
       let newDetail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>;
@@ -27,8 +23,6 @@ const SetActions = ({ lastValue, exerciseOrder }: SetActionsProps) => {
       } else {
         newDetail = await routineDetailService.addSetToRoutine(lastValue);
       }
-
-      addDetailToGroup(newDetail, lastValue);
     } catch (e) {
       console.error("[SetActions] Error", e);
       showError("세트 추가에 실패했습니다");
@@ -47,7 +41,6 @@ const SetActions = ({ lastValue, exerciseOrder }: SetActionsProps) => {
       if (lastValue.setOrder === 1) {
         await reorderExerciseOrderAfterDelete(exerciseOrder);
       }
-      removeDetailFromGroup(detailId);
     } catch (e) {
       console.error("[SetActions] Error", e);
       showError("세트 삭제에 실패했습니다");

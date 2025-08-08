@@ -9,7 +9,6 @@ import Link from "next/link";
 import useLoadDetails, { SessionGroup } from "@/hooks/useLoadDetails";
 
 import { useModal } from "@/providers/contexts/ModalContext";
-import ErrorState from "@/components/ErrorState";
 import { usePathname, useRouter } from "next/navigation";
 import {
   useEffect,
@@ -24,12 +23,7 @@ import {
   workoutDetailService,
   workoutService,
 } from "@/lib/di";
-import {
-  LocalWorkout,
-  LocalWorkoutDetail,
-  LocalRoutineDetail,
-  Saved,
-} from "@/types/models";
+import { LocalWorkout } from "@/types/models";
 import SessionExerciseGroup from "@/app/(main)/_shared/session/exerciseGroup/SessionExerciseGroup";
 import SessionSequence from "@/app/(main)/_shared/session/sessionSequence/SessionSequence";
 import LoadPastSessionSheet from "@/app/(main)/_shared/session/pastSession/LoadPastSessionSheet";
@@ -37,6 +31,9 @@ import { calculateTotalVolume } from "@/util/volumeCalculator";
 import { useWeightUnitPreference } from "@/hooks/useWeightUnitPreference";
 import { SessionDetailType } from "@/types/services";
 import SessionHeader from "@/app/(main)/_shared/session/SessionHeader";
+import { ErrorBoundary } from "react-error-boundary";
+import ErrorFallback from "@/components/ErrorFallback";
+import ErrorState from "@/components/ErrorState";
 
 type SessionContainerProps = {
   type: "ROUTINE" | "RECORD";
@@ -48,27 +45,13 @@ type SessionContainerProps = {
 export type SessionData = {
   sessionGroup: SessionGroup[];
   type: SessionDetailType;
-  updateDetailInGroups: (
-    updatedDetail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>
-  ) => void;
-  removeMultipleDetailsInGroup: (
-    details: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[]
-  ) => void;
-  addDetailToGroup: (
-    newDetail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>,
-    lastDetail: Saved<LocalWorkoutDetail> | Saved<LocalRoutineDetail>
-  ) => void;
-  removeDetailFromGroup: (detailId: number) => void;
-  updateMultipleDetailsInGroups: (
-    updatedDetails: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[]
-  ) => void;
-  reload: () => Promise<void>;
-  reorderExerciseOrderAfterDelete: (
-    deletedExerciseOrder: number
-  ) => Promise<void>;
+  reload: () => void;
   reorderSetOrderAfterDelete: (
     exerciseId: number,
     deletedSetOrder: number
+  ) => Promise<void>;
+  reorderExerciseOrderAfterDelete: (
+    deletedExerciseOrder: number
   ) => Promise<void>;
 };
 const SessionDataContext = createContext<SessionData | null>(null);
@@ -87,24 +70,14 @@ const SessionContainer = ({
   formattedDate,
 }: SessionContainerProps) => {
   const userId = useSession().data?.user?.id;
-  const {
-    error,
-    isLoading,
-    workoutGroups,
-    reload,
-    workout,
-    setWorkout,
-    updateDetailInGroups,
-    updateMultipleDetailsInGroups,
-    addDetailToGroup,
-    removeDetailFromGroup,
-    removeMultipleDetailsInGroup,
-  } = useLoadDetails({
-    type,
-    userId: userId ?? "",
-    date,
-    routineId,
-  });
+  const { error, isLoading, workoutGroups, reload, workout, setWorkout } =
+    useLoadDetails({
+      type,
+      userId: userId ?? "",
+      date,
+      routineId,
+    });
+
   const { openBottomSheet, isOpen: isBottomSheetOpen } = useBottomSheet();
   const { openModal, isOpen: isModalOpen, showError } = useModal();
   const [weightUnit] = useWeightUnitPreference();
@@ -139,11 +112,10 @@ const SessionContainer = ({
           routineId={routineId}
           startExerciseOrder={workoutGroups.length + 1}
           date={date}
-          reload={reload}
         />
       ),
     });
-  }, [openBottomSheet, type, routineId, workoutGroups.length, date, reload]);
+  }, [openBottomSheet, type, routineId, workoutGroups.length, date]);
 
   const reorderExerciseOrderAfterDelete = useCallback(
     async (deletedExerciseOrder: number): Promise<void> => {
@@ -168,32 +140,26 @@ const SessionContainer = ({
   );
   const reorderSetOrderAfterDelete = useCallback(
     async (exerciseId: number, deletedSetOrder: number): Promise<void> => {
-      let updatedDetails:
-        | Saved<LocalWorkoutDetail>[]
-        | Saved<LocalRoutineDetail>[] = [];
       try {
         if (type === "RECORD" && workout?.id) {
-          updatedDetails =
-            await workoutDetailService.reorderSetOrderAfterDelete(
-              workout.id,
-              exerciseId,
-              deletedSetOrder
-            );
+          await workoutDetailService.reorderSetOrderAfterDelete(
+            workout.id,
+            exerciseId,
+            deletedSetOrder
+          );
         } else if (type === "ROUTINE" && routineId) {
-          updatedDetails =
-            await routineDetailService.reorderSetOrderAfterDelete(
-              routineId,
-              exerciseId,
-              deletedSetOrder
-            );
+          await routineDetailService.reorderSetOrderAfterDelete(
+            routineId,
+            exerciseId,
+            deletedSetOrder
+          );
         }
-        updateMultipleDetailsInGroups(updatedDetails);
       } catch (e) {
         console.error("[SessionContainer] reorderSetOrderAfterDelete Error", e);
         showError("세트 순서 업데이트에 실패했습니다");
       }
     },
-    [type, workout?.id, routineId, updateMultipleDetailsInGroups, showError]
+    [type, workout?.id, routineId, showError]
   );
 
   const handleDeleteAll = useCallback(async () => {
@@ -258,11 +224,9 @@ const SessionContainer = ({
     () =>
       openBottomSheet({
         height: "100dvh",
-        children: (
-          <SessionSequence detailGroups={workoutGroups} reload={reload} />
-        ),
+        children: <SessionSequence detailGroups={workoutGroups} />,
       }),
-    [openBottomSheet, workoutGroups, reload]
+    [openBottomSheet, workoutGroups]
   );
 
   const exercisePath =
@@ -292,11 +256,6 @@ const SessionContainer = ({
     () => ({
       sessionGroup: workoutGroups,
       type,
-      updateDetailInGroups,
-      removeMultipleDetailsInGroup,
-      addDetailToGroup,
-      removeDetailFromGroup,
-      updateMultipleDetailsInGroups,
       reorderExerciseOrderAfterDelete,
       reorderSetOrderAfterDelete,
       reload,
@@ -304,19 +263,15 @@ const SessionContainer = ({
     [
       workoutGroups,
       type,
-      updateDetailInGroups,
-      removeMultipleDetailsInGroup,
-      addDetailToGroup,
-      removeDetailFromGroup,
-      updateMultipleDetailsInGroups,
       reorderExerciseOrderAfterDelete,
       reorderSetOrderAfterDelete,
       reload,
     ]
   );
-
+  console.log(error);
   if (isLoading) return null;
   if (error) return <ErrorState error={error} onRetry={reload} />;
+
   return (
     <SessionDataContext.Provider value={contextValue}>
       <div>
@@ -385,7 +340,7 @@ const SessionContainer = ({
                 <time className="text-2xl font-bold">{formattedDate}</time>
               </div>
             )}
-            <SessionPlaceholder reloadDetails={reload} {...placeholderProps} />
+            <SessionPlaceholder {...placeholderProps} />
           </>
         )}
       </div>

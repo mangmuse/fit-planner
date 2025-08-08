@@ -48,12 +48,6 @@ describe("SessionDataContext", () => {
   const mockReload = jest.fn();
   const mockShowError = jest.fn();
 
-  const mockUpdateDetailInGroups = jest.fn();
-  const mockUpdateMultipleDetailsInGroups = jest.fn();
-  const mockAddDetailToGroup = jest.fn();
-  const mockRemoveDetailFromGroup = jest.fn();
-  const mockRemoveMultipleDetailsInGroup = jest.fn();
-
   beforeEach(() => {
     jest.clearAllMocks();
 
@@ -64,11 +58,6 @@ describe("SessionDataContext", () => {
       reload: mockReload,
       workout: mockWorkout.planned,
       setWorkout: jest.fn(),
-      updateDetailInGroups: mockUpdateDetailInGroups,
-      updateMultipleDetailsInGroups: mockUpdateMultipleDetailsInGroups,
-      addDetailToGroup: mockAddDetailToGroup,
-      removeDetailFromGroup: mockRemoveDetailFromGroup,
-      removeMultipleDetailsInGroup: mockRemoveMultipleDetailsInGroup,
     });
 
     mockedUseModal.mockReturnValue({
@@ -134,21 +123,6 @@ describe("SessionDataContext", () => {
     expect(contextData!.reload).toBe(mockReload);
   });
 
-  it("useLoadDetails에서 반환받은 모든 상태조작 메서드들을 그대로 반환해야 한다", () => {
-    const contextData = renderAndExtractContext();
-
-    expect(contextData).not.toBeNull();
-    expect(contextData!.updateDetailInGroups).toBe(mockUpdateDetailInGroups);
-    expect(contextData!.updateMultipleDetailsInGroups).toBe(
-      mockUpdateMultipleDetailsInGroups
-    );
-    expect(contextData!.addDetailToGroup).toBe(mockAddDetailToGroup);
-    expect(contextData!.removeDetailFromGroup).toBe(mockRemoveDetailFromGroup);
-    expect(contextData!.removeMultipleDetailsInGroup).toBe(
-      mockRemoveMultipleDetailsInGroup
-    );
-  });
-
   describe("reorderExerciseOrderAfterDelete", () => {
     it("RECORD 타입일 때 workoutDetailService.reorderExerciseOrderAfterDelete를 올바른 인자로 호출해야 한다", async () => {
       const contextData = renderAndExtractContext({ type: "RECORD" });
@@ -210,9 +184,6 @@ describe("SessionDataContext", () => {
       expect(
         mockedWorkoutDetailService.reorderSetOrderAfterDelete
       ).toHaveBeenCalledWith(mockWorkout.planned.id, 100, 2);
-      expect(mockUpdateMultipleDetailsInGroups).toHaveBeenCalledWith(
-        mockUpdatedDetails
-      );
     });
 
     it("ROUTINE 타입일 때 routineDetailService.reorderSetOrderAfterDelete를 올바른 인자로 호출해야 한다", async () => {
@@ -233,9 +204,6 @@ describe("SessionDataContext", () => {
       expect(
         mockedRoutineDetailService.reorderSetOrderAfterDelete
       ).toHaveBeenCalledWith(456, 200, 3);
-      expect(mockUpdateMultipleDetailsInGroups).toHaveBeenCalledWith(
-        mockUpdatedDetails
-      );
     });
 
     it("실패 시 에러 모달을 표시해야 한다", async () => {

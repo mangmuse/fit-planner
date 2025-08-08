@@ -44,7 +44,6 @@ const mockUseModal = jest.mocked(useModal);
 const mockLoadPastSessionSheet = jest.mocked(LoadPastSessionSheet);
 
 describe("SessionPlaceholder", () => {
-  const mockReloadDetails = jest.fn();
   let mockOpenBottomSheet: jest.Mock;
   let mockShowError: jest.Mock;
 
@@ -73,14 +72,12 @@ describe("SessionPlaceholder", () => {
       type: "RECORD";
       date: string;
       userId: string;
-      reloadDetails?: () => Promise<void>;
     }> = {}
   ) => {
     const defaultProps = {
       type: "RECORD" as const,
       userId: "1",
       date: "2024-01-01",
-      reloadDetails: mockReloadDetails,
     };
     const mergedProps = { ...defaultProps, ...props };
     mockUseParams.mockReturnValue({ routineId: undefined });
@@ -97,7 +94,6 @@ describe("SessionPlaceholder", () => {
   ) => {
     const defaultProps = {
       type: "ROUTINE" as const,
-      reloadDetails: mockReloadDetails,
     };
     const mergedProps = { ...defaultProps, ...props };
 
@@ -175,7 +171,6 @@ describe("SessionPlaceholder", () => {
     expect(routineDetailService.getLocalRoutineDetails).toHaveBeenCalledWith(
       123
     );
-    expect(mockReloadDetails).toHaveBeenCalledTimes(1);
     expect(
       workoutDetailAdapter.convertRoutineDetailToWorkoutDetailInput
     ).toHaveBeenCalledWith(mockRoutineDetail.past, mockW.id);
@@ -204,7 +199,6 @@ describe("SessionPlaceholder", () => {
 
     await onPick(456);
 
-    expect(mockReloadDetails).toHaveBeenCalledTimes(1);
     expect(routineDetailService.getLocalRoutineDetails).toHaveBeenCalledWith(
       456
     );
@@ -254,7 +248,6 @@ describe("SessionPlaceholder", () => {
       expect(children.props).toMatchObject({
         type: "RECORD",
         date: "2024-01-01",
-        reload: expect.any(Function),
         startExerciseOrder: 1,
       });
     });
@@ -278,20 +271,8 @@ describe("SessionPlaceholder", () => {
       expect(children.props).toMatchObject({
         type: "ROUTINE",
         routineId: 123,
-        reload: expect.any(Function),
         startExerciseOrder: 1,
       });
-    });
-
-    it("reloadDetails가 없을 때 빈 함수가 전달된다", async () => {
-      renderRecordPlaceholder({ reloadDetails: undefined });
-
-      const loadButton = screen.getByRole("button", { name: "불러오기" });
-      await userEvent.click(loadButton);
-
-      const { children } = mockOpenBottomSheet.mock.calls[0][0];
-      expect(children.props.reload).toBeDefined();
-      expect(typeof children.props.reload).toBe("function");
     });
   });
 

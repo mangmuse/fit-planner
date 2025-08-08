@@ -3,7 +3,7 @@ const ErrorState = ({
   onRetry,
 }: {
   error: string;
-  onRetry: () => Promise<void>;
+  onRetry: () => void;
 }) => {
   return (
     <div className="flex flex-col items-center justify-center h-40 gap-4">

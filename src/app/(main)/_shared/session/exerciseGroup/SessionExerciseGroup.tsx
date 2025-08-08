@@ -25,13 +25,7 @@ const SessionExerciseGroup = ({
   exerciseOrder,
   occurrence,
 }: SessionExerciseGroupProps) => {
-  const {
-    reload,
-    updateMultipleDetailsInGroups,
-
-    removeMultipleDetailsInGroup,
-    reorderExerciseOrderAfterDelete,
-  } = useSessionData();
+  const { reorderExerciseOrderAfterDelete } = useSessionData();
   const { openBottomSheet } = useBottomSheet();
   const lastDetail = details[details.length - 1];
   const exerciseId = useMemo(() => details[0]?.exerciseId, [details]);
@@ -97,9 +91,6 @@ const SessionExerciseGroup = ({
           loadExercises={reloadExercise}
           details={details}
           exercise={exercise}
-          reload={reload}
-          updateMultipleDetailsInGroups={updateMultipleDetailsInGroups}
-          removeMultipleDetailsInGroup={removeMultipleDetailsInGroup}
           reorderExerciseOrderAfterDelete={reorderExerciseOrderAfterDelete}
         />
       ),

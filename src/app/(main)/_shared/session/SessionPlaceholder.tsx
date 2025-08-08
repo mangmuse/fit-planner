@@ -18,22 +18,15 @@ import {
   Saved,
 } from "@/types/models";
 import Link from "next/link";
-import { useParams, usePathname } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Plus, Download, FileText } from "lucide-react";
 
 export type SessionPlaceholderProps = (
   | { type: "ROUTINE"; date?: undefined; userId?: undefined }
   | { type: "RECORD"; date: string; userId: string }
-) & {
-  reloadDetails?: () => Promise<void>;
-};
+) & {};
 
-function SessionPlaceholder({
-  type,
-  userId,
-  date,
-  reloadDetails,
-}: SessionPlaceholderProps) {
+function SessionPlaceholder({ type, userId, date }: SessionPlaceholderProps) {
   const { openBottomSheet } = useBottomSheet();
   const { showError } = useModal();
 
@@ -63,7 +56,6 @@ function SessionPlaceholder({
           type={type}
           date={date}
           routineId={routineId ? Number(routineId) : undefined}
-          reload={reloadDetails || (async () => {})}
           startExerciseOrder={1}
         />
       ),
@@ -119,8 +111,6 @@ function SessionPlaceholder({
       } else {
         await handlePickRoutineForRoutine(routineDetails);
       }
-
-      reloadDetails?.();
     } catch (e) {
       console.error(e);
       showError("루틴 가져오기에 실패했습니다.");

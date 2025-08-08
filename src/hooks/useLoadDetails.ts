@@ -28,11 +28,11 @@ const useLoadDetails = ({
     routineId
   );
   const { workout, workoutGroups } = data;
-  const { setWorkoutGroups, setWorkout } = setData;
-  const operations = useDetailsOperations({
-    setWorkoutGroups,
-    workoutGroups,
-  });
+  const { setWorkout } = setData;
+  // const operations = useDetailsOperations({
+  //   setWorkoutGroups,
+  //   workoutGroups,
+  // });
 
   return {
     error,
@@ -41,7 +41,7 @@ const useLoadDetails = ({
     workoutGroups,
     reload,
     setWorkout,
-    ...operations,
+    // ...operations,
   };
 };
 

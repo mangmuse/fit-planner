@@ -104,10 +104,6 @@ describe("SessionDetailGroupOptions", () => {
       reorderExerciseOrderAfterDelete: mockReorderExerciseOrderAfterDelete,
       details: mockWorkoutDetails,
       loadExercises: mockLoadExercises,
-      reload: mockReload,
-      updateMultipleDetailsInGroups: mockUpdateMultipleDetailsInGroups,
-      removeMultipleDetailsInGroup: mockRemoveMultipleDetailsInGroup,
-
       ...props,
     };
 
@@ -209,9 +205,6 @@ describe("SessionDetailGroupOptions", () => {
         ).toHaveBeenCalledWith(mockWorkoutDetails);
 
         expect(mockReorderExerciseOrderAfterDelete).toHaveBeenCalledWith(10);
-        expect(mockRemoveMultipleDetailsInGroup).toHaveBeenCalledWith(
-          mockWorkoutDetails
-        );
       });
     });
 
@@ -230,9 +223,6 @@ describe("SessionDetailGroupOptions", () => {
         expect(
           mockRoutineDetailService.deleteRoutineDetails
         ).toHaveBeenCalledWith(mockRoutineDetails);
-        expect(mockRemoveMultipleDetailsInGroup).toHaveBeenCalledWith(
-          mockRoutineDetails
-        );
       });
     });
 
@@ -261,10 +251,6 @@ describe("SessionDetailGroupOptions", () => {
         expect(
           mockWorkoutDetailService.updateLocalWorkoutDetail
         ).toHaveBeenCalledWith(updatedDetail);
-
-        expect(mockUpdateMultipleDetailsInGroups).toHaveBeenCalledWith([
-          updatedDetail,
-        ]);
       });
     });
 
