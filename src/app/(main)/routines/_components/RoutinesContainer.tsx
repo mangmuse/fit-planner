@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import addBtn from "public/add.svg";
 
-const RoutinesContainer = () => {
+const RoutinesContainer = ({ userId }: { userId: string }) => {
   const router = useRouter();
 
   const handleAddClick = () => router.push("/routines/create");
@@ -21,7 +21,7 @@ const RoutinesContainer = () => {
           <span>새 루틴</span>
         </button>
       </div>
-      <RoutineList />
+      <RoutineList userId={userId} />
     </>
   );
 };

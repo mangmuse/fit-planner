@@ -10,19 +10,18 @@ import { useAsync } from "@/hooks/useAsync";
 const RoutineList = ({
   onPick,
   excludeRoutineId,
+  userId,
 }: {
   onPick?: (routineId: number) => Promise<void>;
   excludeRoutineId?: number;
+  userId: string;
 }) => {
-  const userId = useSession().data?.user?.id;
-
   const {
     data: routines,
     isLoading,
     error,
     execute: loadRoutines,
   } = useAsync(async () => {
-    if (!userId) return [];
     return await routineService.getAllLocalRoutines(userId);
   }, [userId]);
 

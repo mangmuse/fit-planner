@@ -139,13 +139,7 @@ describe("SessionExerciseGroup", () => {
       openModal: jest.fn(),
     });
 
-    mockedUseSessionData.mockReturnValue(
-      createMockSessionData({
-        updateDetailInGroups: mockUpdateDetailInGroups,
-        addDetailToGroup: mockAddDetailToGroup,
-        removeDetailFromGroup: mockRemoveDetailFromGroup,
-      })
-    );
+    mockedUseSessionData.mockReturnValue(createMockSessionData());
 
     mockedExerciseService.getExerciseWithLocalId.mockResolvedValue(mockEx);
     mockedWorkoutDetailService.getLatestWorkoutDetailByDetail.mockResolvedValue(
@@ -283,12 +277,11 @@ describe("SessionExerciseGroup", () => {
       expect(children.type.name).toBe("SessionDetailGroupOptions");
       expect(children.props).toEqual(
         expect.objectContaining({
-          reload: expect.any(Function),
           loadExercises: expect.any(Function),
           details: mockWDs,
           exercise: mockEx,
-          updateMultipleDetailsInGroups: expect.any(Function),
-          removeMultipleDetailsInGroup: expect.any(Function),
+          reorderExerciseOrderAfterDelete: expect.any(Function),
+          exerciseOrder: mockExerciseOrder,
         })
       );
     });
@@ -311,13 +304,6 @@ describe("SessionExerciseGroup", () => {
         expect(mockWorkoutDetailService.addSetToWorkout).toHaveBeenCalledWith(
           mockWDs[mockWDs.length - 1]
         );
-        expect(mockAddDetailToGroup).toHaveBeenCalledWith(
-          {
-            ...mockWDs[mockWDs.length - 1],
-            id: 55,
-          },
-          mockWDs[mockWDs.length - 1]
-        );
 
         expect(
           mockedRoutineDetailService.addSetToRoutine
@@ -337,10 +323,6 @@ describe("SessionExerciseGroup", () => {
         expect(
           mockWorkoutDetailService.deleteWorkoutDetail
         ).toHaveBeenCalledWith(mockWDs[mockWDs.length - 1].id);
-
-        expect(mockRemoveDetailFromGroup).toHaveBeenCalledWith(
-          mockWDs[mockWDs.length - 1].id
-        );
 
         expect(
           mockedRoutineDetailService.deleteRoutineDetail
@@ -403,13 +385,6 @@ describe("SessionExerciseGroup", () => {
         expect(mockedRoutineDetailService.addSetToRoutine).toHaveBeenCalledWith(
           mockRDs[mockRDs.length - 1]
         );
-        expect(mockAddDetailToGroup).toHaveBeenCalledWith(
-          {
-            ...mockRDs[mockRDs.length - 1],
-            id: 66,
-          },
-          mockRDs[mockRDs.length - 1]
-        );
 
         expect(mockWorkoutDetailService.addSetToWorkout).not.toHaveBeenCalled();
       });
@@ -427,9 +402,7 @@ describe("SessionExerciseGroup", () => {
         expect(
           mockedRoutineDetailService.deleteRoutineDetail
         ).toHaveBeenCalledWith(mockRDs[mockRDs.length - 1].id);
-        expect(mockRemoveDetailFromGroup).toHaveBeenCalledWith(
-          mockRDs[mockRDs.length - 1].id
-        );
+
         expect(
           mockWorkoutDetailService.deleteWorkoutDetail
         ).not.toHaveBeenCalled();

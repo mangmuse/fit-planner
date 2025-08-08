@@ -31,12 +31,10 @@ export type DetailGroup = {
 
 type SessionSequenceProps = {
   detailGroups: DetailGroup[];
-  reload: () => Promise<void>;
 };
 
 const SessionSequence = ({
   detailGroups: initialGroups,
-  reload,
 }: SessionSequenceProps) => {
   const { closeBottomSheet } = useBottomSheet();
   const { showError } = useModal();
@@ -95,7 +93,6 @@ const SessionSequence = ({
         }
       }
 
-      await reload?.();
       closeBottomSheet();
     } catch (e) {
       console.error(e);

@@ -23,19 +23,14 @@ import ExerciseMemo from "@/app/(main)/_shared/session/exerciseMemo/ExerciseMemo
 import GroupOptionItem from "@/app/(main)/_shared/session/exerciseGroup/GroupOptionItem";
 import { convertKgtoLbs, convertLbstoKg } from "@/util/weightConversion";
 import { useSessionData } from "@/app/(main)/_shared/session/SessionContainer";
+import { useSession } from "next-auth/react";
 
 export type SessionDetailGroupOptionsProps = {
   exercise: Saved<LocalExercise>;
   exerciseOrder: number;
   details: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[];
   loadExercises: () => Promise<void>;
-  reload: () => Promise<void>;
-  updateMultipleDetailsInGroups: (
-    updatedDetails: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[]
-  ) => void;
-  removeMultipleDetailsInGroup: (
-    details: Saved<LocalWorkoutDetail>[] | Saved<LocalRoutineDetail>[]
-  ) => void;
+
   reorderExerciseOrderAfterDelete: (
     deletedExerciseOrder: number
   ) => Promise<void>;
@@ -48,11 +43,10 @@ const SessionDetailGroupOptions = ({
   exerciseOrder,
   details,
   loadExercises,
-  reload,
-  updateMultipleDetailsInGroups,
-  removeMultipleDetailsInGroup,
+
   reorderExerciseOrderAfterDelete,
 }: SessionDetailGroupOptionsProps) => {
+  const userId = useSession().data?.user?.id;
   const [unit, setUnit] = useState<(typeof units)[number]>(
     details[0]?.weightUnit || "kg"
   );
@@ -61,7 +55,6 @@ const SessionDetailGroupOptions = ({
   );
   const { closeBottomSheet, openBottomSheet } = useBottomSheet();
   const { openModal, showError } = useModal();
-  const isMounted = useRef(false);
 
   useEffect(() => {
     setCurrentWeights(details.map((d) => d.weight || 0));
@@ -85,7 +78,6 @@ const SessionDetailGroupOptions = ({
         await routineDetailService.deleteRoutineDetails(details);
       }
       await reorderExerciseOrderAfterDelete(exerciseOrder);
-      removeMultipleDetailsInGroup(details);
     } catch (e) {
       console.error(
         "[SessionDetailGroupOptions] deleteAndLoadDetails Error",
@@ -114,8 +106,8 @@ const SessionDetailGroupOptions = ({
         <ExercisesContainer
           type={isWorkoutDetails(details) ? "RECORD" : "ROUTINE"}
           currentDetails={details}
+          userId={userId || ""}
           allowMultipleSelection={false}
-          reloadDetails={reload}
         />
       ),
     });
@@ -156,7 +148,6 @@ const SessionDetailGroupOptions = ({
       }));
 
       setCurrentWeights(newWeights);
-      updateMultipleDetailsInGroups(updatedDetails);
     } catch (e) {
       console.error("[SessionDetailGroupOptions] handleUnitChange Error", e);
       setUnit(prevUnit);

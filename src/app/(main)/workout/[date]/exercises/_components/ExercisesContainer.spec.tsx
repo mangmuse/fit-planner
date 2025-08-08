@@ -38,6 +38,7 @@ jest.mock("@/providers/contexts/ModalContext", () => ({
     openModal: mockOpenModal,
   }),
 }));
+const mockUserId = "user123";
 
 const mockExercises: Saved<LocalExercise>[] = [
   {
@@ -52,7 +53,7 @@ const mockExercises: Saved<LocalExercise>[] = [
     createdAt: "2024-01-01T00:00:00.000Z",
     updatedAt: null,
     serverId: 1,
-    userId: "user123",
+    userId: mockUserId,
     exerciseMemo: null,
   },
   {
@@ -67,7 +68,7 @@ const mockExercises: Saved<LocalExercise>[] = [
     createdAt: "2024-01-01T00:00:00.000Z",
     updatedAt: null,
     serverId: 2,
-    userId: "user123",
+    userId: mockUserId,
     exerciseMemo: null,
   },
 ];
@@ -123,7 +124,13 @@ describe("Characterization Tests", () => {
     });
 
     it("초기 렌더링: 운동 목록이 올바르게 표시된다", async () => {
-      render(<ExercisesContainer type="RECORD" allowMultipleSelection />);
+      render(
+        <ExercisesContainer
+          type="RECORD"
+          userId={mockUserId}
+          allowMultipleSelection
+        />
+      );
 
       await waitFor(() => {
         expect(screen.getByText("벤치프레스")).toBeInTheDocument();
@@ -134,7 +141,13 @@ describe("Characterization Tests", () => {
     });
 
     it("운동 선택 후 추가 버튼 클릭 시 올바른 서비스가 호출된다", async () => {
-      render(<ExercisesContainer type="RECORD" allowMultipleSelection />);
+      render(
+        <ExercisesContainer
+          type="RECORD"
+          userId={mockUserId}
+          allowMultipleSelection
+        />
+      );
 
       await waitFor(() => {
         expect(screen.getByText("벤치프레스")).toBeInTheDocument();
@@ -163,7 +176,13 @@ describe("Characterization Tests", () => {
         new Error("Network Error")
       );
 
-      render(<ExercisesContainer type="RECORD" allowMultipleSelection />);
+      render(
+        <ExercisesContainer
+          type="RECORD"
+          userId={mockUserId}
+          allowMultipleSelection
+        />
+      );
 
       await waitFor(() => {
         expect(screen.getByText("벤치프레스")).toBeInTheDocument();
@@ -193,7 +212,13 @@ describe("Characterization Tests", () => {
     });
 
     it("루틴 운동 추가 시 올바른 서비스가 호출된다", async () => {
-      render(<ExercisesContainer type="ROUTINE" allowMultipleSelection />);
+      render(
+        <ExercisesContainer
+          type="ROUTINE"
+          userId={mockUserId}
+          allowMultipleSelection
+        />
+      );
 
       await waitFor(() => {
         expect(screen.getByText("벤치프레스")).toBeInTheDocument();
@@ -231,7 +256,7 @@ describe("Characterization Tests", () => {
           type="RECORD"
           allowMultipleSelection={false}
           currentDetails={mockCurrentDetails}
-          reloadDetails={mockReloadDetails}
+          userId={mockUserId}
         />
       );
 
@@ -256,7 +281,6 @@ describe("Characterization Tests", () => {
         expect(
           mockWorkoutDetailService.deleteWorkoutDetails
         ).toHaveBeenCalledWith(mockCurrentDetails);
-        expect(mockReloadDetails).toHaveBeenCalled();
         expect(mockCloseBottomSheet).toHaveBeenCalled();
       });
     });
@@ -268,7 +292,13 @@ describe("Characterization Tests", () => {
     });
 
     it("검색어 입력 시 필터링이 동작한다", async () => {
-      render(<ExercisesContainer type="RECORD" allowMultipleSelection />);
+      render(
+        <ExercisesContainer
+          type="RECORD"
+          userId={mockUserId}
+          allowMultipleSelection
+        />
+      );
 
       await waitFor(() => {
         expect(screen.getByText("벤치프레스")).toBeInTheDocument();
@@ -295,7 +325,13 @@ describe("Characterization Tests", () => {
     });
 
     it("추가 버튼 클릭 시 커스텀 운동 폼 모달이 열린다", async () => {
-      render(<ExercisesContainer type="RECORD" allowMultipleSelection />);
+      render(
+        <ExercisesContainer
+          type="RECORD"
+          userId={mockUserId}
+          allowMultipleSelection
+        />
+      );
 
       await waitFor(() => {
         expect(screen.getByText("벤치프레스")).toBeInTheDocument();
@@ -321,7 +357,13 @@ describe("Characterization Tests", () => {
         new Error("Network Error")
       );
 
-      render(<ExercisesContainer type="RECORD" allowMultipleSelection />);
+      render(
+        <ExercisesContainer
+          type="RECORD"
+          userId={mockUserId}
+          allowMultipleSelection
+        />
+      );
 
       await waitFor(() => {
         expect(

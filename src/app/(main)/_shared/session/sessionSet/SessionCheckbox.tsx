@@ -7,15 +7,10 @@ import { LocalWorkoutDetail, Saved } from "@/types/models";
 
 export type SessionCheckboxProps = {
   prevIsDone?: boolean;
-  updateDetailInGroups: (updatedDetail: Saved<LocalWorkoutDetail>) => void;
   detail: Saved<LocalWorkoutDetail>;
 };
 
-const SessionCheckbox = ({
-  prevIsDone,
-  updateDetailInGroups,
-  detail,
-}: SessionCheckboxProps) => {
+const SessionCheckbox = ({ prevIsDone, detail }: SessionCheckboxProps) => {
   const [isDone, setIsDone] = useState<boolean>(prevIsDone ?? false);
   const { showError } = useModal();
   const handleChange = async () => {
@@ -27,7 +22,6 @@ const SessionCheckbox = ({
         isDone: newValue,
       };
       await workoutDetailService.updateLocalWorkoutDetail(updatedDetail);
-      updateDetailInGroups(updatedDetail as Saved<LocalWorkoutDetail>);
     } catch (e) {
       console.error("[SessionCheckbox] Error", e);
       showError("운동 상태를 동기화하는데 실패했습니다");

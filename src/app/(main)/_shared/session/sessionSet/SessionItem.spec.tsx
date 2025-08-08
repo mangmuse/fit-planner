@@ -51,8 +51,6 @@ describe("SessionItem", () => {
       createMockSessionData({
         reorderExerciseOrderAfterDelete: mockReorderExerciseOrderAfterDelete,
         reorderSetOrderAfterDelete: mockReorderSetOrderAfterDelete,
-        updateDetailInGroups: mockUpdateDetailInGroups,
-        removeDetailFromGroup: mockRemoveDetailFromGroup,
         reload: mockReload,
       })
     );
@@ -136,8 +134,6 @@ describe("SessionItem", () => {
         mockWorkoutDetailService.updateLocalWorkoutDetail
       ).toHaveBeenCalledWith(updatedDetail);
 
-      expect(mockUpdateDetailInGroups).toHaveBeenCalledWith(updatedDetail);
-
       // RoutineDetail 관련 메서드는 호출되지 않음
       expect(
         mockRoutineDetailService.updateLocalRoutineDetail
@@ -161,8 +157,6 @@ describe("SessionItem", () => {
       expect(
         mockRoutineDetailService.updateLocalRoutineDetail
       ).toHaveBeenCalledWith(updatedDetail);
-
-      expect(mockUpdateDetailInGroups).toHaveBeenCalledWith(updatedDetail);
 
       // WorkoutDetail 관련 메서드는 호출되지 않음
       expect(
@@ -193,7 +187,6 @@ describe("SessionItem", () => {
         expect(
           mockRoutineDetailService.deleteRoutineDetail
         ).toHaveBeenCalledWith(mockRD.id);
-        expect(mockRemoveDetailFromGroup).toHaveBeenCalledWith(mockRD.id);
       });
 
       it("삭제된 세트가 해당 그룹의 마지막세트이면 exerciseOrder를 재정렬한다", async () => {
@@ -213,7 +206,6 @@ describe("SessionItem", () => {
         expect(
           mockRoutineDetailService.deleteRoutineDetail
         ).toHaveBeenCalledWith(mockRD.id);
-        expect(mockRemoveDetailFromGroup).toHaveBeenCalledWith(mockRD.id);
         expect(mockReorderExerciseOrderAfterDelete).toHaveBeenCalledWith(123);
         expect(mockReorderSetOrderAfterDelete).not.toHaveBeenCalled();
       });
@@ -229,7 +221,6 @@ describe("SessionItem", () => {
         expect(
           mockRoutineDetailService.deleteRoutineDetail
         ).toHaveBeenCalledWith(mockRD.id);
-        expect(mockRemoveDetailFromGroup).toHaveBeenCalledWith(mockRD.id);
         expect(mockReorderSetOrderAfterDelete).toHaveBeenCalledWith(
           mockRD.exerciseId,
           mockRD.setOrder

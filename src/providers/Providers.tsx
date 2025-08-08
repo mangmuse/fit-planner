@@ -6,13 +6,13 @@ import ErrorBoundaryProvider from "@/providers/ErrorBoundaryProvider";
 
 function Providers({ children }: { children: ReactNode }) {
   return (
-    <ErrorBoundaryProvider>
-      <SessionProviderWrapper>
-        <ModalProvider>
-          <BottomSheetProvider>{children}</BottomSheetProvider>
-        </ModalProvider>
-      </SessionProviderWrapper>
-    </ErrorBoundaryProvider>
+    // <ErrorBoundaryProvider>
+    <SessionProviderWrapper>
+      <ModalProvider>
+        <BottomSheetProvider>{children}</BottomSheetProvider>
+      </ModalProvider>
+    </SessionProviderWrapper>
+    // </ErrorBoundaryProvider>
   );
 }
 

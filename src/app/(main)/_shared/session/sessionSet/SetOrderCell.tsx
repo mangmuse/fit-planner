@@ -6,13 +6,9 @@ import clsx from "clsx";
 
 export type SetOrderCellProps = {
   workoutDetail: LocalWorkoutDetail | LocalRoutineDetail;
-  loadLocalWorkoutDetails: () => Promise<void>;
 };
 
-const SetOrderCell = ({
-  loadLocalWorkoutDetails,
-  workoutDetail,
-}: SetOrderCellProps) => {
+const SetOrderCell = ({ workoutDetail }: SetOrderCellProps) => {
   const { openBottomSheet } = useBottomSheet();
   const { setType, rpe } = workoutDetail;
   const setTypeOption =
@@ -24,7 +20,6 @@ const SetOrderCell = ({
     <td
       onClick={() => {
         openBottomSheet({
-          onClose: loadLocalWorkoutDetails,
           minHeight: 150,
           children: <SetOptionSheet detail={workoutDetail} />,
         });
